@@ -10,8 +10,12 @@
  * @copyright   Copyright 2002 Dean Hall.  All rights reserved.
  * @file        global.c
  *
- * Log:
+ * Log
+ * ---
  *
+ * 2006/08/29   #12: Make mem_*() funcs use RAM when target is DESKTOP
+ * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
+ *              unsigned not signed or void
  * 2002/04/22   First.
  */
 
@@ -103,8 +107,8 @@ global_loadBuiltins(pPyFunc_t pmod)
 {
     PyReturn_t retval = PY_RET_OK;
     pPyObj_t pkey = C_NULL;
-    P_S8 bistr = (P_S8)"__bi";
-    P_S8 nonestr = (P_S8)"None";
+    P_U8 bistr = (P_U8)"__bi";
+    P_U8 nonestr = (P_U8)"None";
     pPyObj_t pstr = C_NULL;
     pPyFunc_t pbimod = C_NULL;
 
@@ -127,17 +131,13 @@ global_loadBuiltins(pPyFunc_t pmod)
     /* set None manually */
     retval = string_new(&nonestr, &pkey);
     PY_RETURN_IF_ERROR(retval);
-    retval = dict_setItem((pPyObj_t)PY_PBUILTINS,
-                          pkey,
-                          PY_NONE);
+    retval = dict_setItem(PY_PBUILTINS, pkey, PY_NONE);
     PY_RETURN_IF_ERROR(retval);
 
     /* put builtins module in the module's attrs dict */
     retval = string_new(&bistr, &pkey);
     PY_RETURN_IF_ERROR(retval);
-    retval = dict_setItem((pPyObj_t)pmod->f_attrs,
-                          pkey,
-                          (pPyObj_t)PY_PBUILTINS);
+    retval = dict_setItem((pPyObj_t)pmod->f_attrs, pkey, PY_PBUILTINS);
     PY_RETURN_IF_ERROR(retval);
 
     /* deallocate builtins module */

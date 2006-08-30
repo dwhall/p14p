@@ -25,6 +25,7 @@ Log
 ==========      ================================================================
 Date            Action
 ==========      ================================================================
+2006/08/25      #6 - Have pmImgCreator append a null terminator to image list
 2006/08/15      Added option for storing image to RAM or FLASH
 2006/08/14      Smooth command line use
 2006/08/10      Make command line interface work
@@ -255,7 +256,7 @@ class PmImgCreator:
         and values are the code object string.
         """
         # init image dict
-        imgs = {}
+        imgs = {"imgs": [], "fns": []}
 
         # init native table
         self.nativetable = []
@@ -265,7 +266,12 @@ class PmImgCreator:
 
             # try to compile and convert the file
             co = compile(open(fn).read(), fn, 'exec')
-            imgs[fn] = self.co_to_str(co)
+            imgs["fns"].append(fn)
+            imgs["imgs"].append(self.co_to_str(co))
+
+        # Append null terminator to list of images
+        imgs["fns"].append("null-terminator")
+        imgs["imgs"].append("\x00")
 
         self.imgDict = imgs
         return
@@ -608,7 +614,7 @@ class PmImgCreator:
         """
 
         # no reformatting necessary, join all object images
-        return string.join(self.imgDict.values(), "")
+        return string.join(self.imgDict["imgs"], "")
 
 
     def format_img_as_h(self,):
@@ -620,7 +626,8 @@ class PmImgCreator:
         """
 
         # list of filenames
-        fns = self.imgDict.keys()
+        fns = self.imgDict["fns"]
+        imgs = self.imgDict["imgs"]
 
         # create intro
         fileBuff = []
@@ -641,7 +648,7 @@ class PmImgCreator:
                         " */\n\n"
                         % (string.join(fns, "\n *\t"),
                            time.ctime(time.time()),
-                           len(string.join(self.imgDict.values(), "")),
+                           len(string.join(imgs, "")),
                            self.memspace.upper()
                           )
                        )
@@ -649,32 +656,36 @@ class PmImgCreator:
             fileBuff.append("#if not defined(__AVR__)\n"
                             "#error Defining image memspace for non-AVR-devices is not supported!\n"
                             "#endif\n"
-                            )
+                           )
             fileBuff.append("/* Place the image into FLASH */\n"
-                            "S8 __attribute__((progmem)) lib_img[] =\n"
-                            )
+                            "unsigned char __attribute__((progmem))\n"
+                            "lib_img[] =\n"
+                           )
         else:
             fileBuff.append("/* Place the image into RAM */\n"
-                            "S8 lib_img[] =\n"
-                            )
+                            "unsigned char\n"
+                            "lib_img[] =\n"
+                           )
 
         fileBuff.append("{\n");
 
         # for each src file, convert and format
+        i = 0
         for fn in fns:
 
             # get img string for this file
-            s = self.imgDict[fn]
+            img = imgs[i]
+            i += 1
 
             # print all bytes
             fileBuff.append("\n\n/* %s */" % fn)
             j = 0
-            while j < len(s):
+            while j < len(img):
                 if (j % 8) == 0:
                     fileBuff.append("\n    ")
-                fileBuff.append("0x%02X, " % ord(s[j]))
-
+                fileBuff.append("0x%02X, " % ord(img[j]))
                 j += 1
+
         # finish off array
         fileBuff.append("\n};\n")
 
@@ -719,11 +730,11 @@ class PmImgCreator:
         # module-level native sections (for #include headers)
         for (funcname, funcstr) in self.nativetable:
             if funcname[-1:] == "?":
-                fileBuff.append("/* From: %s */%s\n" 
-                                % (funcname[len(NATIVE_FUNC_PREFIX):-2], 
+                fileBuff.append("/* From: %s */%s\n"
+                                % (funcname[len(NATIVE_FUNC_PREFIX):-2],
                                    funcstr)
                                )
-            
+
         # for each entry create fxn
         for (funcname, funcstr) in self.nativetable:
             if funcname[-1:] != "?":

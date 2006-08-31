@@ -3,9 +3,9 @@ PMIMGCREATOR := ../tools/pmImgCreator.py
 CFLAGS += -I../vm
 LDFLAGS = -L../vm -lpmvm
 SOURCES = $(wildcard t???.c)
-PY_SOURCES = $(PY_SOURCES:.c=.py)
+PY_SOURCES = $(SOURCES:.c=.py)
 EXECS = $(SOURCES:.c=.out)
-IMG_SOURCES = $(subst .py,_img.c, $(PY_SOURCES))
+IMG_SOURCES = $(subst .py,_img.h, $(PY_SOURCES))
 NAT_SOURCES = $(subst .py,_nat.c, $(PY_SOURCES))
 PMSTDLIB_SOURCES = ../lib/__bi.py \
                    ../lib/sys.py

@@ -8,19 +8,19 @@ EXECS = $(SOURCES:.c=.out)
 IMG_SOURCES = $(subst .py,_img.c, $(PY_SOURCES))
 NAT_SOURCES = $(subst .py,_nat.c, $(PY_SOURCES))
 PMSTDLIB_SOURCES = ../lib/__bi.py \
-                    ../lib/sys.py
+                   ../lib/sys.py
 
 
 # Build an executable from the C sources
-%.out : %*_nat.c %*_img.c %.c
-	$(CC) $(CFLAGS) -g -o $@ $*_nat.c $*_img.c $*.c ../vm/libpmvm.a
+%.out : %*_nat.c %*_img.h %.c
+	$(CC) $(CFLAGS) -g -o $@ $*_nat.c $*.c ../vm/libpmvm.a
 ifeq ($(TARGET), DESKTOP)
 	$(addprefix ./,$@)
 endif
 
 # The module images and native code are generated from python source
-%*_nat.c %*_img.c : %.py
-	$(PMIMGCREATOR) -h -o $*_img.c --native-file=$*_nat.c $*.py $(PMSTDLIB_SOURCES)
+%*_nat.c %*_img.h : %.py
+	$(PMIMGCREATOR) -h -o $*_img.h --native-file=$*_nat.c $*.py $(PMSTDLIB_SOURCES)
 
 
 .PHONY: all check clean

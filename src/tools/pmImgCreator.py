@@ -22,10 +22,10 @@ to the given filename.
 Log
 ---
 
-==========      ================================================================
+==========      ==============================================================
 Date            Action
-==========      ================================================================
-2006/08/25      #6 - Have pmImgCreator append a null terminator to image list
+==========      ==============================================================
+2006/08/25      #6: Have pmImgCreator append a null terminator to image list
 2006/08/15      Added option for storing image to RAM or FLASH
 2006/08/14      Smooth command line use
 2006/08/10      Make command line interface work
@@ -44,7 +44,7 @@ Date            Action
                 Rename all functions *ToStr() or strTo*().
 2001/10/10      Recode to match py_code_obj and py_obj_desc.
 2001/10/07      First go.
-==========      ================================================================
+==========      ==============================================================
 """
 
 
@@ -654,7 +654,8 @@ class PmImgCreator:
                        )
         if self.memspace.lower() == "flash":
             fileBuff.append("#if not defined(__AVR__)\n"
-                            "#error Defining image memspace for non-AVR-devices is not supported!\n"
+                            "#error Defining image memspace for "
+                            "non-AVR-devices is not supported!\n"
                             "#endif\n"
                            )
             fileBuff.append("/* Place the image into FLASH */\n"

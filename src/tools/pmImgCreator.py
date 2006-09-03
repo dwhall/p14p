@@ -59,7 +59,7 @@ __usage__ = """USAGE:
 
     -b                      Generates a raw binary file of the image
     -c                      Generates a C file of the image (default)
-    -h                      (Present for legacy support.  Same as -c)
+    -h                      Deprecated.  Use -c instead.
 
     OPTIONS:
     --native-file=filename  If specified, pmImgCreator will write a C source

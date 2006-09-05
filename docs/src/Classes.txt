@@ -1,0 +1,175 @@
+=======
+Classes
+=======
+
+:Author:    Dean Hall
+:Id:        $Id$
+
+Purpose
+-------
+
+This document describes the implementation and use of classes
+in the PyMite virtual machine (VM).  In doing so, it serves as a design
+document for the PyMite developer and a user manual for the PyMite user.
+
+Overview
+--------
+
+PyMite shall support a simple form of `classes`_.  Neither class inheritance
+nor "new-style classes" are supported.  Class inheritance may be supported
+in the future.  Classes must be implemented to support exceptions in the VM.
+
+.. _`classes`: http://docs.python.org/ref/class.html
+
+Background
+----------
+
+An simple class definition and instance creation looks like this::
+
+    class C:
+        pass
+    c = C()
+
+The above lines of code look like this when dismantled::
+
+    >>> import dismantle
+    >>> s = """
+    ... class C:
+    ...     pass
+    ... c = C()
+    ... """
+    >>> dismantle.dismantle(s, "fn")
+    >>> dismantle.dismantle(s)
+    BEGIN DISMANTLE
+    date:                   Mon Sep  4 10:31:10 2006
+    src file:               fn
+    src file size:          24 bytes
+    pyc file size:          0 bytes
+
+    magic:                  0x00000000
+    ignore:                 0x00000000
+
+    fullname:               ?
+     co_name:               ?
+     co_filename:           fn
+     co_firstlineno:        2
+     co_flags:              0x0040
+     co_stacksize:          3
+     co_lnotab:             '\x13\x02' ...
+     co_argcount:           0
+     co_nlocals:            0
+     co_varnames:
+                    0 :     C
+                    1 :     c
+     co_names:
+                    0 :     C
+                    1 :     c
+     co_consts:
+                    0 :     'C'
+                    1 :     <code object C at 0x47b4e0, file "fn", line 2>
+                    2 :     None
+     co_code:
+      2           0 LOAD_CONST               0 ('C')
+                  3 BUILD_TUPLE              0
+                  6 LOAD_CONST               1 (<code object C at 0x47b4e0, file "fn", line 2>)
+                  9 MAKE_FUNCTION            0
+                 12 CALL_FUNCTION            0
+                 15 BUILD_CLASS
+                 16 STORE_NAME               0 (C)
+
+      4          19 LOAD_NAME                0 (C)
+                 22 CALL_FUNCTION            0
+                 25 STORE_NAME               1 (c)
+                 28 LOAD_CONST               2 (None)
+                 31 RETURN_VALUE
+
+
+    fullname:               ?.C
+     co_name:               C
+     co_filename:           fn
+     co_firstlineno:        2
+     co_flags:              0x0042
+     co_stacksize:          1
+     co_lnotab:             '\x06\x01' ...
+     co_argcount:           0
+     co_nlocals:            0
+     co_varnames:
+     co_names:
+                    0 :     __name__
+                    1 :     __module__
+     co_consts:
+                    0 :     None
+     co_code:
+      2           0 LOAD_GLOBAL              0 (__name__)
+                  3 STORE_NAME               1 (__module__)
+
+      3           6 LOAD_LOCALS
+                  7 RETURN_VALUE
+
+
+    END DISMANTLE
+
+All of the bytecodes listed above exist in PyMite release 02, but the
+implementation for BUILD_CLASS may be incomplete.  When the above code is run
+on release 02, a NameError occurs because ``LOAD_GLOBAL  0 (__name__)`` fails
+because ``__name__`` cannot be found.
+
+The root code object in the example above is named ``?`` and builds the class
+``C`` just as if it were a function.  This is OK because in Python, modules,
+classes and functions are all very similar in that they are each built from
+code objects have bytecode that they execute.  The difference is that a module's
+bytecode is responsible for building the class and function objects found in
+that module.  Similarly, a class's bytecode builds the methods of that class.
+
+The important thing to take away from the above exercise is that the bytecode
+in a class's code object expects a global called ``__name__``.
+
+Implementation
+--------------
+
+To support classes, the implementation of ``BUILD_CLASS`` must be fixed.
+It currently puts the name of the class in the attributes dictionary under
+the key ``__nm`` in an attempt to save space by using a short string.
+The key must be exactly ``__name__`` in order to work with Python's compiler.
+
+Since the string ``__name__`` will be used so often, a constant string instance
+shall be made in the VM with that value and given a definition ``PY_NAME_``
+for easy access.
+
+Doing the above still does not fix the ``LOAD_GLOBAL 0 (__name__)`` issue
+because this issue occurs before ``BUILD_CLASS`` is interpreted.  To handle
+the ``__name__`` issue, PyMite shall set ``__name__`` to ``"__main__"``
+in the ``globals`` namespace.  This is done so that when ``LOAD_GLOBAL 0
+(__name__)`` occurs, it will find a ``__name__`` attribute in the current
+frame's attributes dictionary first.  If ``__name__`` is not found there,
+then it will find it in the globals namespace.
+
+In PyMite, the ``globals`` namespace is the attributes dictionary of the root
+frame object.  Thus, the root frame object shall have its ``__name__``
+attribute set to ``"__main__"`` and the Python magic statement
+``if __name__ == "__main__":`` will be true and its code block will be executed.
+For the magic statement to be false, all other modules must have their
+``__name__`` attribute set to their own name.  That is all that is needed
+to get a class object on the VM's stack.  But what about class instances?
+
+An instance of a class is made by putting the class object on the stack and
+executing the ``CALL_FUNCTION`` bytecode.  PyMite release 02 does not handle
+this situation properly; a memory access violation occurs.  The
+``CALL_FUNCTION`` bytecode shall be upgraded to handle class objects
+as a special case.
+
+When ``CALL_FUNCTION`` operates on a class object, it must do the following:
+
+- allocate an instance and set the instance variables
+- increment the number of arguments by one to accomodate "self"
+- push the instance on the stack as the "self" argument
+- set the class's ``__init__`` function as the object to call, if available
+- continue with the regular ``CALL_FUNCTION`` procedures
+
+TBD: give func objs a parent field so instance methods can obtain self obj?
+
+END OF DEVELOPMENT: CALL_FUNCTION would also need a hack to put the "self"
+object on the stack when an instance method is called.  This is getting hackish
+and to be too many special cases.
+
+.. :mode=rest:

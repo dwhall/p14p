@@ -15,7 +15,7 @@ PMSTDLIB_SOURCES = ../lib/__bi.py \
 %.out : %*_nat.c %*_img.c %.c
 	$(CC) $(CFLAGS) -g -o $@ $*_nat.c $*_img.c $*.c ../vm/libpmvm.a
 ifeq ($(TARGET), DESKTOP)
-	$(addprefix ./,$@)
+#	$(addprefix ./,$@)
 endif
 
 # The module images and native code are generated from python source

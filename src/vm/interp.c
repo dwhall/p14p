@@ -1071,19 +1071,19 @@ interpret(pPyFunc_t pfunc)
                 break;
 
             case BUILD_CLASS:
+            {
+                pPyObj_t pobj4;
+                
                 pobj1 = PY_POP();
                 pobj2 = PY_POP();
                 pobj3 = TOS;
 
                 /* create and push new class */
-                retval = class_new(pobj1,
-                                   pobj2,
-                                   pobj3,
-                                   &pobj1);
+                retval = class_new(pobj1, pobj2, pobj3, &pobj4);
                 PY_BREAK_IF_ERROR(retval);
-                TOS = pobj1;
+                TOS = pobj4;
                 continue;
-
+            }
 
             /***************************************************
              * All bytecodes after 90 (0x5A) have a 2-byte arg
@@ -1628,6 +1628,20 @@ interpret(pPyFunc_t pfunc)
                 /* get the func */
                 pobj1 = STACK(t16);
 
+                /* if it's a class object (create an instance) */
+                if (pobj1->od.od_type == OBJ_TYPE_CLO)
+                {
+                    /* alloc an instance */
+                    /* incr t16 to accomodate "self" */
+                    /* set instance vars */
+                    /* push instance as self arg */
+                    /* read stack objects into fast 
+                    /* set pobj1 = __init__ func obj */
+                    /* fallthrough */
+                }
+                
+                /* If pobj1 is not func obj, throw TypeError (not callable) */
+                
                 /* if it's regular func (not native) */
                 if (((pPyFunc_t)pobj1)->f_co->od.od_type ==
                     OBJ_TYPE_COB)

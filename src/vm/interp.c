@@ -1066,24 +1066,10 @@ interpret(pPyFunc_t pfunc)
                 }
 
             case END_FINALLY:
+            case BUILD_CLASS:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
                 break;
-
-            case BUILD_CLASS:
-                pobj1 = PY_POP();
-                pobj2 = PY_POP();
-                pobj3 = TOS;
-
-                /* create and push new class */
-                retval = class_new(pobj1,
-                                   pobj2,
-                                   pobj3,
-                                   &pobj1);
-                PY_BREAK_IF_ERROR(retval);
-                TOS = pobj1;
-                continue;
-
 
             /***************************************************
              * All bytecodes after 90 (0x5A) have a 2-byte arg

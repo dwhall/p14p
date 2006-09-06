@@ -76,9 +76,6 @@ import exceptions, string, sys, types, dis, os, time, getopt, struct
 # CONSTANTS
 ################################################################
 
-# remove documentation string from const pool
-REMOVE_DOC_STR = 1
-
 # XXX remap bcode values to make parsing easier
 REMAP_BCODE_VALS = 0
 
@@ -563,13 +560,6 @@ class PmImgCreator:
                 self.nativetable.append((NATIVE_FUNC_PREFIX +
                                          mn + "_" + co.co_name,
                                         nativecode))
-
-            ## Consts filter
-            # if want to remove __doc__ string
-            # XXX this assumes a string in the 0th const
-            # is always __doc__.
-            elif REMOVE_DOC_STR:
-                consts[0] = None
 
         ## Names filter
         names = list(co.co_names)

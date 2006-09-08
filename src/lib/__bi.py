@@ -14,6 +14,7 @@
 # LOG
 # ---
 #
+# 2006/09/08    #22: Implement classes
 # 2006/08/21    #28: Adapt native libs to use the changed func calls
 # 2002/12/20    Added globals, locals, range.
 # 2002/12/19    Created.
@@ -24,7 +25,7 @@
 #ord, chr, hex, dir, reload, str, repr, tuple
 
 
-import Object
+import object
 
 
 #### CONSTS
@@ -36,12 +37,13 @@ C = "Copyright 2001 Dean W. Hall.  All rights reserved."
 
 def Instantiate(module):
     """__NATIVE__
-    pPyObj_t pmod = C_NULL;
+    PyReturn_t retval;
+    pPyObj_t plameclass = C_NULL;
     pPyInst_t pinst = C_NULL;
     pPyObj_t pdict = C_NULL;
-    P_U8 classKeyCstr = (P_U8)"__c";
     pPyObj_t pkey = C_NULL;
-    PyReturn_t retval;
+    pPyObj_t pclassAttrs = C_NULL;
+    P_U8 classKeyCstr = (P_U8)"__c";
 
     /* If wrong number of args, raise TypeError */
     if (NATIVE_GET_NUM_ARGS() != 1)
@@ -50,10 +52,21 @@ def Instantiate(module):
     }
 
     /* Get the first arg */
-    pmod = NATIVE_GET_LOCAL(0);
+    plameclass = NATIVE_GET_LOCAL(0);
+
+    /* Get the attributes dict from the class */
+    if ((plameclass->od.od_type == OBJ_TYPE_MOD)
+        || (plameclass->od.od_type == OBJ_TYPE_FXN))
+    {
+        pclassAttrs = (pPyObj_t)((pPyFunc_t)plameclass)->f_attrs;
+    }
+    else if (plameclass->od.od_type == OBJ_TYPE_CLI)
+    {
+        pclassAttrs = (pPyObj_t)((pPyInst_t)plameclass)->i_attrs;
+    }
 
     /* If arg is wrong type, raise TypeError */
-    if (pmod->od.od_type != OBJ_TYPE_MOD)
+    else
     {
         return PY_RET_EX_TYPE;
     }
@@ -72,11 +85,16 @@ def Instantiate(module):
     retval = string_new(&classKeyCstr, &pkey);
     PY_RETURN_IF_ERROR(retval);
 
-    /* Set the instance's class */
-    retval = dict_setItem(pdict, pkey, pmod);
+    /* Set the instance's class attribute */
+    retval = dict_setItem(pdict, pkey, plameclass);
     PY_RETURN_IF_ERROR(retval);
 
-    NATIVE_SET_TOS(pinst);
+    /* Copy the obj's attrs into the instance's attrs */
+    retval = dict_extend((pPyObj_t)pinst->i_attrs, pclassAttrs);
+    PY_RETURN_IF_ERROR(retval);
+
+    /* Put this instance on the stack */
+    NATIVE_SET_TOS((pPyObj_t)pinst);
 
     return retval;
     """

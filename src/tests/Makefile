@@ -9,7 +9,7 @@ IMG_SOURCES = $(subst .py,_img.c, $(PY_SOURCES))
 NAT_SOURCES = $(subst .py,_nat.c, $(PY_SOURCES))
 PMSTDLIB_SOURCES = ../lib/__bi.py \
                    ../lib/sys.py \
-				   ../lib/Object.py
+				   ../lib/object.py
 
 # Build an executable from the C sources
 %.out : %*_nat.c %*_img.c %.c

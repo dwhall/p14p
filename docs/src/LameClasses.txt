@@ -52,29 +52,43 @@ devices.
 Implementation
 --------------
 
-Lame Classes shall use modules as if they were classes and shall have a special
-builtin-in function to create an instance of the "class."  The instance shall
-receive a copy of the module's attributes so that the instance may access the
-class's methods.  
+Lame Classes shall use modules and functions as if they were classes and shall
+have a special builtin-in function to create an instance of the "class."
+The instance shall receive a copy of the class's attributes so that the
+instance may access the class's methods.
 
-A module that wishes to act as a Lame Class must define the specially-named
-attribute, ``__p``, which stores the module's parent object.  Keeping this
-reference to the parent object is what allows inheritence in Lame Classes.
-If a class does not have a specific parent object to inherit, the builtin
-class, ``Object``, should be used.
+An object that wishes to act as a Lame Class must define the specially-named
+attribute, ``__p``, to keep a reference to the  parent object, which is what
+allows inheritence in Lame Classes.  If a class does not have a specific
+parent object to inherit, the builtin class, ``object``, should be used.
+
+An instance of a class is made by using the built-in function,
+``Instantiate()`` like this::
+
+    import Shape
+
+    hexagon = Instantiate(Shape)
 
 Lame Classes do not support constructors like Python's ``__init__()`` function,
 but instead the author recommends the following convention as a work-around.
-Define the method, ``ini()`` in the class and call it immediately after
-creating an instance of the class.
+Define your class as a function with whatever arguments you want for your
+constructor.  In the function code block, create an instance of the desired
+base class and call the function ``_ini()`` as a constructor.  Then you can
+define ``_ini()`` as a pure-Python function or a native function.  The
+following example demonstrates this workaround::
 
-An instance of a class is made by using the built-in function, 
-``Instantiate()`` like this::
-    
-    hexagon = Instantiate(Shape)
-    hexagon.ini(6)
+    def MyClass(arg1, argN):
+        inst = Instantiate(MyClass)
+        _ini(inst, arg1, argN)
+        return inst
 
-In this case, a hexagon is an instance of the ``Shape`` class and sets
-a value using the initializer method, ``ini()``.
+    def _ini(inst, arg1, arg2):
+        # pure-python or native function
+        pass
+
+    mc = MyClass(42, "don't panic")
+
+In the example above it is important to notice that ``MyClass`` is created by
+the ``def`` keyword and not the unsupported ``class`` keyword.
 
 .. :mode=rest:

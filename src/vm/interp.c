@@ -12,6 +12,7 @@
  * Log
  * ---
  *
+ * 2006/09/08   #22: Implement classes
  * 2006/08/31   #9: Fix BINARY_SUBSCR for case stringobj[intobj]
  * 2006/08/30   #6: Have pmImgCreator append a null terminator to image list
  * 2006/08/29   #12: Make mem_*() funcs use RAM when target is DESKTOP
@@ -1143,6 +1144,12 @@ interpret(pPyFunc_t pfunc)
                     pobj1 = (pPyObj_t)((pPyFunc_t)pobj1)->
                                     f_attrs;
                 }
+
+                else if (pobj1->od.od_type == OBJ_TYPE_CLI)
+                {
+                    pobj1 = (pPyObj_t)((pPyInst_t)pobj1)->i_attrs;
+                }
+
                 /* unhandled type is a SystemError */
                 else
                 {
@@ -1302,6 +1309,12 @@ interpret(pPyFunc_t pfunc)
                     pobj1 = (pPyObj_t)((pPyFunc_t)pobj1)->
                                     f_attrs;
                 }
+
+                else if (pobj1->od.od_type == OBJ_TYPE_CLI)
+                {
+                    pobj1 = (pPyObj_t)((pPyInst_t)pobj1)->i_attrs;
+                }
+
                 else
                 {
                     /* Other types result in a TypeError */

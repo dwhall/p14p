@@ -12,6 +12,7 @@
  * Log
  * ---
  *
+ * 2006/09/08   #22: Implement classes
  * 2006/08/31   #9: Fix BINARY_SUBSCR for case stringobj[intobj]
  * 2006/08/30   #6: Have pmImgCreator append a null terminator to image list
  * 2006/08/29   #12: Make mem_*() funcs use RAM when target is DESKTOP
@@ -1073,24 +1074,10 @@ interpret(pPyFunc_t pfunc)
                 }
 
             case END_FINALLY:
+            case BUILD_CLASS:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
                 break;
-
-            case BUILD_CLASS:
-            {
-                pPyObj_t pobj4 = C_NULL;
-
-                pobj1 = PY_POP();
-                pobj2 = PY_POP();
-                pobj3 = TOS;
-
-                /* create and push new class */
-                retval = class_new(pobj1, pobj2, pobj3, &pobj4);
-                PY_BREAK_IF_ERROR(retval);
-                TOS = pobj4;
-                continue;
-            }
 
             /***************************************************
              * All bytecodes after 90 (0x5A) have a 2-byte arg
@@ -1164,6 +1151,12 @@ interpret(pPyFunc_t pfunc)
                     pobj1 = (pPyObj_t)((pPyFunc_t)pobj1)->
                                     f_attrs;
                 }
+
+                else if (pobj1->od.od_type == OBJ_TYPE_CLI)
+                {
+                    pobj1 = (pPyObj_t)((pPyInst_t)pobj1)->i_attrs;
+                }
+
                 /* unhandled type is a SystemError */
                 else
                 {
@@ -1323,6 +1316,12 @@ interpret(pPyFunc_t pfunc)
                     pobj1 = (pPyObj_t)((pPyFunc_t)pobj1)->
                                     f_attrs;
                 }
+
+                else if (pobj1->od.od_type == OBJ_TYPE_CLI)
+                {
+                    pobj1 = (pPyObj_t)((pPyInst_t)pobj1)->i_attrs;
+                }
+
                 else
                 {
                     /* Other types result in a TypeError */

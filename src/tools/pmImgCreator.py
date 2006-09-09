@@ -25,6 +25,7 @@ Log
 ==========      ==============================================================
 Date            Action
 ==========      ==============================================================
+2006/09/06      #24: Remove consts[0] == docstring assumption
 2006/09/01      #11: Make src/tests/ build module images as C files, not
                 header files
 2006/08/25      #6: Have pmImgCreator append a null terminator to image list
@@ -77,7 +78,7 @@ import exceptions, string, sys, types, dis, os, time, getopt, struct
 ################################################################
 
 # remove documentation string from const pool
-REMOVE_DOC_STR = 1
+REMOVE_DOC_STR = 0
 
 # XXX remap bcode values to make parsing easier
 REMAP_BCODE_VALS = 0
@@ -159,7 +160,8 @@ UNIMPLEMENTED_BCODES = (
     "IMPORT_STAR", "EXEC_STMT",
 #    "POP_BLOCK",
     "END_FINALLY",
-#    "BUILD_CLASS", "STORE_NAME",
+    "BUILD_CLASS",
+#    "STORE_NAME",
     "DELETE_NAME",
 #    "UNPACK_SEQUENCE", "STORE_ATTR",
     "DELETE_ATTR",
@@ -538,7 +540,6 @@ class PmImgCreator:
                 i += 3
 
         # if the first const is a String,
-        # XXX it's most likely a docstring.
         if (type(consts[0]) == types.StringType):
 
             ## Native code filter
@@ -566,9 +567,8 @@ class PmImgCreator:
 
             ## Consts filter
             # if want to remove __doc__ string
-            # XXX this assumes a string in the 0th const
-            # is always __doc__.
-            elif REMOVE_DOC_STR:
+            # WARNING: this heuristic is not always accurate
+            elif REMOVE_DOC_STR and co.co_names[0] == "__doc__":
                 consts[0] = None
 
         ## Names filter

@@ -15,6 +15,10 @@
 #### CONSTS ####
 STRINGTOOLONG = 32
 
+__usage__ = """Usage:
+    
+    dismantle.py filename
+"""
 
 #### MODULES ####
 import dis, sys, types, py_compile, time
@@ -147,7 +151,7 @@ def main():
     if len(sys.argv) == 2:
         return dismantle(sys.argv[1])
     else:
-        return dismantle("c:\\dwh\\tech\\cis\\py\\dismantle.py")
+        print __usage__
 
 
 if __name__ == "__main__":

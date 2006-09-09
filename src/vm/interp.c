@@ -56,6 +56,12 @@
 
 extern PyReturn_t (* nat_fxn_table[])(pPyFrame_t, signed char);
 
+/* Implementation of COMPARE_OP from bcode.c */
+PyReturn_t bcode_compare_op(pPyObj_t pobj1,
+                            pPyObj_t pobj2,
+                            U16 comptype,
+                            pPyObj_t *r_pobj);
+
 /***************************************************************
  * Functions
  **************************************************************/
@@ -82,6 +88,7 @@ interpret(pPyFunc_t pfunc)
     pPyObj_t pobj3 = C_NULL;
     S16 t16 = 0;
     S8 t8 = 0;
+    U8 bcode;
     pPyFrame_t pframe = C_NULL; /* tmp: until thread contains fp */
 
     /* create a frame for the func */
@@ -99,7 +106,7 @@ interpret(pPyFunc_t pfunc)
     while(gVmGlobal.interpctrl > INTERP_CTRL_EXIT)
     {
         /* get byte; the func post-incrs IP */
-        switch((U8)mem_getByte(MS, &IP))
+        switch(bcode = (U8)mem_getByte(MS, &IP))
         {
             case STOP_CODE:
                 /* SystemError, unknown opcode */
@@ -1071,19 +1078,19 @@ interpret(pPyFunc_t pfunc)
                 break;
 
             case BUILD_CLASS:
+            {
+                pPyObj_t pobj4 = C_NULL;
+
                 pobj1 = PY_POP();
                 pobj2 = PY_POP();
                 pobj3 = TOS;
 
                 /* create and push new class */
-                retval = class_new(pobj1,
-                                   pobj2,
-                                   pobj3,
-                                   &pobj1);
+                retval = class_new(pobj1, pobj2, pobj3, &pobj4);
                 PY_BREAK_IF_ERROR(retval);
-                TOS = pobj1;
+                TOS = pobj4;
                 continue;
-
+            }
 
             /***************************************************
              * All bytecodes after 90 (0x5A) have a 2-byte arg
@@ -1340,58 +1347,8 @@ interpret(pPyFunc_t pfunc)
                 pobj1 = PY_POP();
                 pobj2 = PY_POP();
                 t16 = GET_ARG();
-                if ((pobj1->od.od_type == OBJ_TYPE_INT) &&
-                    (pobj2->od.od_type == OBJ_TYPE_INT))
-                {
-                    S32 a = ((pPyInt_t)pobj2)->val;
-                    S32 b = ((pPyInt_t)pobj1)->val;
-
-                    switch (t16)
-                    {
-                        case COMP_LT: t8 = (a <  b); break;
-                        case COMP_LE: t8 = (a <= b); break;
-                        case COMP_EQ: t8 = (a == b); break;
-                        case COMP_NE: t8 = (a != b); break;
-                        case COMP_GT: t8 = (a >  b); break;
-                        case COMP_GE: t8 = (a >= b); break;
-                        /* XXX the next don't really work */
-                        case COMP_IS:
-                            t8 = (pobj1 == pobj2); break;
-                        case COMP_IS_NOT:
-                            t8 = (pobj1 != pobj2); break;
-                        default:
-                            /* XXX goto slow_compare */
-                            PY_ERR(ERR_ARG);
-                    }
-                    pobj3 = (t8) ? PY_TRUE : PY_FALSE;
-                }
-                else if (t16 == COMP_EQ)
-                {
-                    if (obj_compare(pobj1, pobj2) == C_SAME)
-                    {
-                        pobj3 = PY_TRUE;
-                    }
-                    else
-                    {
-                        pobj3 = PY_FALSE;
-                    }
-                }
-                else if (t16 == COMP_NE)
-                {
-                    if (obj_compare(pobj1, pobj2) == C_DIFFER)
-                    {
-                        pobj3 = PY_TRUE;
-                    }
-                    else
-                    {
-                        pobj3 = PY_FALSE;
-                    }
-                }
-                /* XXX TODO: goto slow_compare */
-                else
-                {
-                    PY_ERR(__LINE__);
-                }
+                retval = bcode_compare_op(pobj1, pobj2, t16, &pobj3);
+                PY_BREAK_IF_ERROR(retval);
                 PY_PUSH(pobj3);
                 continue;
 
@@ -1568,6 +1525,8 @@ interpret(pPyFunc_t pfunc)
                 break;
 
             case SETUP_LOOP:
+            case SETUP_EXCEPT:
+            case SETUP_FINALLY:
                 /* get block span (bytes) */
                 t16 = GET_ARG();
                 /* create block */
@@ -1578,14 +1537,13 @@ interpret(pPyFunc_t pfunc)
                 ((pPyBlock_t)pobj1)->b_sp = SP;
                 /* default handler is to exit block/loop */
                 ((pPyBlock_t)pobj1)->b_handler = IP + t16;
-                ((pPyBlock_t)pobj1)->b_type = B_LOOP;
+                /* The bytecode is also the type of block */
+                ((pPyBlock_t)pobj1)->b_type = bcode;
                 /* insert block into blockstack */
                 ((pPyBlock_t)pobj1)->next = FP->fo_blockstack;
                 FP->fo_blockstack = (pPyBlock_t)pobj1;
                 continue;
 
-            case SETUP_EXCEPT:
-            case SETUP_FINALLY:
             case UNUSED_7B:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
@@ -1825,7 +1783,7 @@ interpret(pPyFunc_t pfunc)
                 break;
 
             case PY_RET_ASSERT_FAIL:
-                /* assertion failed */
+                /* C assertion failed */
                 PY_ERR(__LINE__);
                 break;
 

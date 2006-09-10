@@ -48,6 +48,8 @@
 /** The global integer -1 object */
 #define PY_NEGONE       (pPyObj_t)&(gVmGlobal.negone)
 
+/** The global dict of exception objects/instances */
+#define PY_EXNS_DICT    (pPyObj_t)(gVmGlobal.pexns)
 
 /***************************************************************
  * Macros
@@ -80,6 +82,12 @@ typedef struct PyVmGlobal_s
     /** String __name__ */
     pPyString_t     pname;
 
+    /** 
+     * Ptr to dict of exceptions (key=code, val=ExnInstance).
+     * Used by compare_op to get an exception object from a return code
+     */
+    pPyDict_t       pexns;
+
     /** Ptr to stack of code image info. */
     pPyImgInfo_t    pimglist;
 
@@ -96,7 +104,7 @@ typedef struct PyVmGlobal_s
     U8              errFileId;
 
     /** Line number for when an error occurs */
-    U8              errLineNum;
+    U16             errLineNum;
 
     /**
      * Interpreter loop control value
@@ -107,12 +115,8 @@ typedef struct PyVmGlobal_s
      */
     PyInterpCtrl_t  interpctrl;
 
-    /** the amount of heap space available */
-    U16             heapavail;
-
-    /* leave this at the bottom of the global struct */
-    /** Global declaration of heap. */
-    U8              heapbase[HEAP_SIZE];
+    /** The PyMite heap */
+    PyHeap_t        heap;
     /* DO NOT PUT ANYTHING BELOW THIS */
 } PyVmGlobal_t, *pPyVmGlobal_t;
 

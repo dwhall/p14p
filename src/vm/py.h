@@ -77,20 +77,29 @@
  * Macros
  **************************************************************/
 
-/** puts debug info in registers, halts interpreter */
+/**
+ * Reports errors in the VM
+ *
+ * Puts debug info in registers and halts the interpreter.
+ * Does not return exception value because users should not
+ * be allowed to catch these errors.
+ */
 #if __DEBUG__
-#define PY_ERR(line)                        \
-        gVmGlobal.errFileId = __FILE_ID__;  \
-        gVmGlobal.errLineNum = (U8)(line);  \
-        retval = PY_RET_ERR;                \
-        for(;;)
+#define PY_ERR(line) \
+    do \
+    { \
+        gVmGlobal.errFileId = __FILE_ID__; \
+        gVmGlobal.errLineNum = (U16)(line); \
+        return PY_RET_ERR; \
+    } while(0)
+
 #else
-#define PY_ERR(line)                        \
-        gVmGlobal.errFileId = __FILE_ID__;  \
-        gVmGlobal.errLineNum = (U8)(line);  \
-        retval = PY_RET_ERR;                \
-        return PY_RET_ERR
-#endif
+#define PY_ERR(line) \
+    do \
+    { \
+        return PY_RET_ERR; \
+    } while (0)
+#endif /* __DEBUG__ */
 
 /** error macro for unit tests */
 #define TEST_ERR(arg)   for(;;)
@@ -100,7 +109,7 @@
                                         return (retval)
 
 /** If the boolean expression fails, return the ASSERT error code */
-#define PY_ASSERT(boolexpr) if (!(boolexpr)) return PY_RET_ASSERT_FAIL
+#define C_ASSERT(boolexpr) if (!(boolexpr)) return PY_RET_ASSERT_FAIL
 
 /***************************************************************
  * Enums
@@ -124,14 +133,15 @@ typedef enum PyReturn_e
     PY_RET_NO         = 0xFF,   /**< general "no result" */
     PY_RET_ERR        = 0xFE,   /**< general failure */
     PY_RET_STUB       = 0xFD,   /**< return val for stub fxn */
-    PY_RET_ASSERT_FAIL= 0xFC,   /**< assertion failure */
+    PY_RET_ASSERT_FAIL= 0xFC,   /**< assertion failure in C code */
 
     /* return vals that indicate an exception occured */
+    PY_RET_EX_MIN     = 0xE0,
     PY_RET_EX         = 0xE0,   /**< general exception */
     PY_RET_EX_EXIT    = 0xE1,   /**< system exit */
     PY_RET_EX_FLOAT   = 0xE2,   /**< floating point error */
     PY_RET_EX_ZDIV    = 0xE3,   /**< zero division error */
-    PY_RET_EX_ASSRT   = 0xE4,   /**< assertion error */
+    PY_RET_EX_ASSRT   = 0xE4,   /**< assertion error in Python code */
     PY_RET_EX_ATTR    = 0xE5,   /**< attribute error */
     PY_RET_EX_IMPRT   = 0xE6,   /**< import error */
     PY_RET_EX_INDX    = 0xE7,   /**< index error */
@@ -143,7 +153,8 @@ typedef enum PyReturn_e
     PY_RET_EX_SYS     = 0xED,   /**< system error */
     PY_RET_EX_TYPE    = 0xEE,   /**< type error */
     PY_RET_EX_VAL     = 0xEF,   /**< value error */
-    PY_RET_EX_WARN    = 0xD0,   /**< warning */
+    PY_RET_EX_WARN    = 0xF0,   /**< warning */
+    PY_RET_EX_MAX     = 0xF0,
 } PyReturn_t;
 
 

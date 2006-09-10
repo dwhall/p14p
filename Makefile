@@ -22,7 +22,7 @@ TARGET := DESKTOP
 SIZE := size
 DEFS = -DTARGET_$(TARGET) -DHEAP_SIZE=$(HEAP_SIZE)
 CFLAGS = -g -Os -Wall -gstabs -Wstrict-prototypes $(DEFS)
-HEAP_SIZE = 0x10000
+HEAP_SIZE = 0xF0000
 ARFLAGS := rcs
 
 # Product configuration

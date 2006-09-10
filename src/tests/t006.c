@@ -30,7 +30,7 @@ int main(void)
 
     /* The module image list terminator must be a null */
     pimg -= 1;
-    PY_ASSERT(*pimg == C_NULL);
+    C_ASSERT(*pimg == C_NULL);
 
     return retval;
 }

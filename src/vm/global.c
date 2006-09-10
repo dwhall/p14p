@@ -62,7 +62,7 @@ global_init(void)
     PyReturn_t retval;
 
     /* clear the global struct less the heap */
-    sli_memset(&gVmGlobal, '\0', sizeof(PyVmGlobal_t) - HEAP_SIZE * sizeof(U8));
+    sli_memset(&gVmGlobal, '\0', sizeof(PyVmGlobal_t) - sizeof(PyHeap_t));
 
     /* set the PyMite release num (for debug and post mortem) */
     gVmGlobal.errVmRelease = PY_RELEASE;
@@ -92,6 +92,10 @@ global_init(void)
 
     /* Create __name__ string */
     retval = string_new(&namestr, (pPyObj_t *)&gVmGlobal.pname);
+    PY_RETURN_IF_ERROR(retval);
+
+    /* Create exceptions dict */
+    retval = dict_new((pPyObj_t *)&gVmGlobal.pexns);
     PY_RETURN_IF_ERROR(retval);
 
     /* init empty builtins */

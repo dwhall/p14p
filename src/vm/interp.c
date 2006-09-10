@@ -91,6 +91,7 @@ interpret(pPyFunc_t pfunc)
     S8 t8 = 0;
     U8 bcode;
     pPyFrame_t pframe = C_NULL; /* tmp: until thread contains fp */
+    pPyBlock_t pblock = C_NULL;
 
     /* create a frame for the func */
     retval = frame_new((pPyObj_t)pfunc, (pPyObj_t *)&FP);
@@ -144,14 +145,6 @@ interpret(pPyFunc_t pfunc)
                 TOS3 = pobj1;
                 continue;
 
-            case UNUSED_06:
-            case UNUSED_07:
-            case UNUSED_08:
-            case UNUSED_09:
-                /* SystemError, unknown opcode */
-                retval = PY_RET_EX_SYS;
-                break;
-
             case UNARY_POSITIVE:
                 /* TypeError if TOS is not an int */
                 if (TOS->od.od_type != OBJ_TYPE_INT)
@@ -187,7 +180,6 @@ interpret(pPyFunc_t pfunc)
                 continue;
 
             case UNARY_CONVERT:
-            case UNUSED_0E:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
                 break;
@@ -211,9 +203,6 @@ interpret(pPyFunc_t pfunc)
                 }
                 continue;
 
-            case UNUSED_10:
-            case UNUSED_11:
-            case UNUSED_12:
             case BINARY_POWER:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
@@ -438,14 +427,6 @@ interpret(pPyFunc_t pfunc)
                 PY_PUSH(pobj3);
                 continue;
 
-            case UNUSED_1A:
-            case UNUSED_1B:
-            case UNUSED_1C:
-            case UNUSED_1D:
-                /* SystemError, unknown opcode */
-                retval = PY_RET_EX_SYS;
-                break;
-
             case SLICE_0:
                 /*
                  * Implements TOS = TOS[:],
@@ -489,27 +470,14 @@ interpret(pPyFunc_t pfunc)
             case SLICE_1:
             case SLICE_2:
             case SLICE_3:
-            case UNUSED_22:
-            case UNUSED_23:
-            case UNUSED_24:
-            case UNUSED_25:
-            case UNUSED_26:
-            case UNUSED_27:
             case STORE_SLICE_0:
             case STORE_SLICE_1:
             case STORE_SLICE_2:
             case STORE_SLICE_3:
-            case UNUSED_2C:
-            case UNUSED_2D:
-            case UNUSED_2E:
-            case UNUSED_2F:
-            case UNUSED_30:
-            case UNUSED_31:
             case DELETE_SLICE_0:
             case DELETE_SLICE_1:
             case DELETE_SLICE_2:
             case DELETE_SLICE_3:
-            case UNUSED_36:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
                 break;
@@ -818,8 +786,6 @@ interpret(pPyFunc_t pfunc)
                 break;
 
             case INPLACE_POWER:
-            case UNUSED_44:
-            case UNUSED_45:
             case PRINT_EXPR:
             case PRINT_ITEM:
             case PRINT_NEWLINE:
@@ -995,7 +961,7 @@ interpret(pPyFunc_t pfunc)
                     }
 
                     /* delete blocks until first loop block */
-                    while ((pb1->b_type != B_LOOP)
+                    while ((pb1->b_type != SETUP_LOOP)
                            && (pb1->next != C_NULL))
                     {
                         pobj2 = (pPyObj_t)pb1;
@@ -1012,12 +978,6 @@ interpret(pPyFunc_t pfunc)
                 }
                 continue;
 
-            case UNUSED_51:
-                /* SystemError, unknown opcode */
-                retval = PY_RET_EX_SYS;
-                break;
-
-/*XXXEDITSCOMPLETEUPTOHERE*/
             case LOAD_LOCALS:
                 /* pushes local attrs dict of current frame */
                 /* XXX does not copy fo_locals to attrs */
@@ -1047,7 +1007,6 @@ interpret(pPyFunc_t pfunc)
 
             case IMPORT_STAR:
             case EXEC_STMT:
-            case UNUSED_56:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
                 break;
@@ -1074,6 +1033,9 @@ interpret(pPyFunc_t pfunc)
                 }
 
             case END_FINALLY:
+                /* DWH empty impl for now */
+                continue;
+
             case BUILD_CLASS:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
@@ -1130,12 +1092,6 @@ interpret(pPyFunc_t pfunc)
                     }
                 }
                 continue;
-
-            case UNUSED_5D:
-            case UNUSED_5E:
-                /* SystemError, unknown opcode */
-                retval = PY_RET_EX_SYS;
-                break;
 
             case STORE_ATTR:
                 /* TOS.name = TOS1 */
@@ -1383,7 +1339,6 @@ interpret(pPyFunc_t pfunc)
                 continue;
 
             case IMPORT_FROM:
-            case UNUSED_6D:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
                 break;
@@ -1488,11 +1443,6 @@ interpret(pPyFunc_t pfunc)
                 PY_PUSH(pobj3);
                 continue;
 
-            case UNUSED_73:
-                /* SystemError, unknown opcode */
-                retval = PY_RET_EX_SYS;
-                break;
-
             case LOAD_GLOBAL:
                 /* get name */
                 t16 = GET_ARG();
@@ -1516,8 +1466,6 @@ interpret(pPyFunc_t pfunc)
                 PY_PUSH(pobj2);
                 continue;
 
-            case UNUSED_75:
-            case UNUSED_76:
             case CONTINUE_LOOP:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
@@ -1532,6 +1480,8 @@ interpret(pPyFunc_t pfunc)
                 retval = heap_getChunk(sizeof(PyBlock_t), (P_U8 *)&pobj1);
                 PY_BREAK_IF_ERROR(retval);
                 ((pPyBlock_t)pobj1)->od.od_type = OBJ_TYPE_BLK;
+                /* store current frame pointer */
+                ((pPyBlock_t)pobj1)->b_fp = (pPyObj_t)FP;
                 /* store current stack pointer */
                 ((pPyBlock_t)pobj1)->b_sp = SP;
                 /* default handler is to exit block/loop */
@@ -1542,11 +1492,6 @@ interpret(pPyFunc_t pfunc)
                 ((pPyBlock_t)pobj1)->next = FP->fo_blockstack;
                 FP->fo_blockstack = (pPyBlock_t)pobj1;
                 continue;
-
-            case UNUSED_7B:
-                /* SystemError, unknown opcode */
-                retval = PY_RET_EX_SYS;
-                break;
 
             case LOAD_FAST:
                 t16 = GET_ARG();
@@ -1567,8 +1512,6 @@ interpret(pPyFunc_t pfunc)
                 FP->fo_line = GET_ARG();
                 continue;
 
-            case UNUSED_80:
-            case UNUSED_81:
             case RAISE_VARARGS:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
@@ -1681,70 +1624,10 @@ interpret(pPyFunc_t pfunc)
             case LOAD_CLOSURE:
             case LOAD_DEREF:
             case STORE_DEREF:
-            case UNUSED_8A:
-            case UNUSED_8B:
             case CALL_FUNCTION_VAR:
             case CALL_FUNCTION_KW:
             case CALL_FUNCTION_VAR_KW:
             case EXTENDED_ARG:
-/*
-            case UNUSED_90: case UNUSED_91:
-            case UNUSED_92: case UNUSED_93:
-            case UNUSED_94: case UNUSED_95:
-            case UNUSED_96: case UNUSED_97:
-            case UNUSED_98: case UNUSED_99:
-            case UNUSED_9A: case UNUSED_9B:
-            case UNUSED_9C: case UNUSED_9D:
-            case UNUSED_9E: case UNUSED_9F:
-            case UNUSED_A0: case UNUSED_A1:
-            case UNUSED_A2: case UNUSED_A3:
-            case UNUSED_A4: case UNUSED_A5:
-            case UNUSED_A6: case UNUSED_A7:
-            case UNUSED_A8: case UNUSED_A9:
-            case UNUSED_AA: case UNUSED_AB:
-            case UNUSED_AC: case UNUSED_AD:
-            case UNUSED_AE: case UNUSED_AF:
-            case UNUSED_B0: case UNUSED_B1:
-            case UNUSED_B2: case UNUSED_B3:
-            case UNUSED_B4: case UNUSED_B5:
-            case UNUSED_B6: case UNUSED_B7:
-            case UNUSED_B8: case UNUSED_B9:
-            case UNUSED_BA: case UNUSED_BB:
-            case UNUSED_BC: case UNUSED_BD:
-            case UNUSED_BE: case UNUSED_BF:
-            case UNUSED_C0: case UNUSED_C1:
-            case UNUSED_C2: case UNUSED_C3:
-            case UNUSED_C4: case UNUSED_C5:
-            case UNUSED_C6: case UNUSED_C7:
-            case UNUSED_C8: case UNUSED_C9:
-            case UNUSED_CA: case UNUSED_CB:
-            case UNUSED_CC: case UNUSED_CD:
-            case UNUSED_CE: case UNUSED_CF:
-            case UNUSED_D0: case UNUSED_D1:
-            case UNUSED_D2: case UNUSED_D3:
-            case UNUSED_D4: case UNUSED_D5:
-            case UNUSED_D6: case UNUSED_D7:
-            case UNUSED_D8: case UNUSED_D9:
-            case UNUSED_DA: case UNUSED_DB:
-            case UNUSED_DC: case UNUSED_DD:
-            case UNUSED_DE: case UNUSED_DF:
-            case UNUSED_E0: case UNUSED_E1:
-            case UNUSED_E2: case UNUSED_E3:
-            case UNUSED_E4: case UNUSED_E5:
-            case UNUSED_E6: case UNUSED_E7:
-            case UNUSED_E8: case UNUSED_E9:
-            case UNUSED_EA: case UNUSED_EB:
-            case UNUSED_EC: case UNUSED_ED:
-            case UNUSED_EE: case UNUSED_EF:
-            case UNUSED_F0: case UNUSED_F1:
-            case UNUSED_F2: case UNUSED_F3:
-            case UNUSED_F4: case UNUSED_F5:
-            case UNUSED_F6: case UNUSED_F7:
-            case UNUSED_F8: case UNUSED_F9:
-            case UNUSED_FA: case UNUSED_FB:
-            case UNUSED_FC: case UNUSED_FD:
-            case UNUSED_FE: case UNUSED_FF:
-*/
             default:
                 /* SystemError, unknown opcode */
                 retval = PY_RET_EX_SYS;
@@ -1759,120 +1642,32 @@ interpret(pPyFunc_t pfunc)
          * and the interpreter is exiting.
          */
 
-        /*
-         * The following switch statement is a stub
-         * exception handler.
-         * It attempts to do something useful
-         * for debugging purposes.
-         */
-        switch (retval)
+        /* If the return code indicates an exception */
+        if ((retval >= PY_RET_EX_MIN) && (retval <= PY_RET_EX_MAX))
         {
-            case PY_RET_OK:
-                /* normal interpreter exit */
+            /* Check for a block that will handle the exception */
+            pblock = FP->fo_blockstack;
+            while ((pblock != C_NULL) && (pblock->b_type != SETUP_EXCEPT))
+            {
+                pblock = pblock->next;
+            }
+
+            /* If no block, exit the interpreter with an unhandled exception */
+            if (pblock == C_NULL)
+            {
+                /* XXX Print traceback info on desktop target?  needs stdio */
                 return retval;
+            }
 
-            case PY_RET_ERR:
-                /* general error */
-                PY_ERR(__LINE__);
-                break;
+            /* Unwind the block stack and jump to the exception handler */
+            FP->fo_blockstack = pblock->next;
+            FP = (pPyFrame_t)pblock->b_fp;
+            SP = pblock->b_sp;
+            IP = pblock->b_handler;
+            continue;
+        }
 
-            case PY_RET_STUB:
-                /* unimplemented fxn error */
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_ASSERT_FAIL:
-                /* C assertion failed */
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_EXIT:
-                /* TODO: Check for catch before exiting */
-                /* SystemExit exception was raised */
-                /* If TOS is an int, return its value to main */
-                if (obj_isType(TOS, OBJ_TYPE_INT))
-                {
-                    return (PyReturn_t)((pPyInt_t)TOS)->val;
-                }
-                break;
-
-            case PY_RET_EX_FLOAT:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_ZDIV:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_ASSRT:
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_ATTR:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_IMPRT:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_INDX:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_KEY:
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_MEM:
-                /* OutOfMemoryError */
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_NAME:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_RUNTIME:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_SYNTAX:
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_SYS:
-                /* SystemError */
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_TYPE:
-                /* TypeError */
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_EX_VAL:
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX_WARN:
-                PY_ERR(__LINE__);
-                break;
-
-            case PY_RET_NO:
-                /*
-                 * ERROR: execution should never reach here;
-                 * these are pymite return values,
-                 * not Python exception values.
-                 */
-                PY_ERR(__LINE__);
-                break;
-            case PY_RET_EX:
-                /*
-                 * ERROR: execution should never reach here;
-                 * these are pymite return values,
-                 * not Python exception values.
-                 */
-                PY_ERR(__LINE__);
-                break;
-
-        } /* switch (error/exception) */
-
-		/* unhandled exception, exit */
-        /* XXX print stacktrace */
-        gVmGlobal.interpctrl = INTERP_CTRL_EXIT;
+        /* Non-exception errors return their error code */
         return retval;
 
     } /* while */

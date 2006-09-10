@@ -336,13 +336,13 @@ heap_init(void)
     S16 size = 0;
 
     /* clear the heap (optional?) */
-    sli_memset(&gVmGlobal.heapbase, '\0', HEAP_SIZE * sizeof(U8));
+    sli_memset(&gVmGlobal.heap, '\0', sizeof(gVmGlobal.heap));
 
     /* init global amount of heap space remaining */
-    gVmGlobal.heapavail = HEAP_SIZE;
+    gVmGlobal.heap.avail = HEAP_SIZE;
 
     /* pcleanheap pts to list of large chunks */
-    pcleanheap = (pPyHeapDesc_t)&gVmGlobal.heapbase;
+    pcleanheap = (pPyHeapDesc_t)&gVmGlobal.heap.base;
     pchunk = pcleanheap;
 
     /* init list of large chunks */
@@ -417,7 +417,7 @@ heap_getChunk0(U8 size, P_U8 * r_pchunk)
             /* relink list and return first chunk */
             pfreelist = pfreelist->next;
             /* reduce heap available amount */
-            gVmGlobal.heapavail -= pchunk1->od.od_size;
+            gVmGlobal.heap.avail -= pchunk1->od.od_size;
             *r_pchunk = (P_U8)pchunk1;
             return PY_RET_OK;
         }
@@ -442,7 +442,7 @@ heap_getChunk0(U8 size, P_U8 * r_pchunk)
             pchunk2 = pchunk1->next;
             pchunk1->next = pchunk1->next->next;
             /* reduce heap available amount */
-            gVmGlobal.heapavail -= pchunk2->od.od_size;
+            gVmGlobal.heap.avail -= pchunk2->od.od_size;
             *r_pchunk = (P_U8)pchunk2;
             return PY_RET_OK;
         }
@@ -492,7 +492,7 @@ heap_getChunk0(U8 size, P_U8 * r_pchunk)
             }
 
             /* reduce heap available amount */
-            gVmGlobal.heapavail -= size;
+            gVmGlobal.heap.avail -= size;
             *r_pchunk = (P_U8)pchunk2;
             return PY_RET_OK;
         }
@@ -509,7 +509,7 @@ heap_getChunk0(U8 size, P_U8 * r_pchunk)
         pchunk2 = pchunk1->next;
         pchunk1->next = pchunk1->next->next;
         /* reduce heap available amount */
-        gVmGlobal.heapavail -= pchunk2->od.od_size;
+        gVmGlobal.heap.avail -= pchunk2->od.od_size;
         *r_pchunk = (P_U8)pchunk2;
         return PY_RET_OK;
     }
@@ -579,7 +579,7 @@ heap_freeChunk(pPyObj_t ptr)
     pPyHeapDesc_t pchunk2;
 
     /* increase heap available amount */
-    gVmGlobal.heapavail += ptr->od.od_size;
+    gVmGlobal.heap.avail += ptr->od.od_size;
 
     /* if freelist is empty or oldchunk is smallest */
     if ((pfreelist == C_NULL) ||

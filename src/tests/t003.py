@@ -8,16 +8,10 @@
 
 
 def a(a1, a2):
-    """
-    Return the sum of a1 and a2.
-    """
     return a1 + a2
 
 
 def b(b1, b2):
-    """
-    Return the difference between b1 and b2.
-    """
     return b1 - b2
 
 

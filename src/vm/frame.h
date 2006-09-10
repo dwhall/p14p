@@ -43,23 +43,6 @@
  **************************************************************/
 
 /**
- * Block Type
- *
- * Numerical values to put in the 'b_type' field
- * of the tPyBlockType struct.
- */
-typedef enum PyBlockType_e
-{
-    /** invalide block type */
-    B_INVALID = 0,
-    /** loop type */
-    B_LOOP,
-    /** try type */
-    B_TRY
-} PyBlockType_t, *pPyBlockType_t;
-
-
-/**
  * Block
  *
  * Extra info for loops and trys (others?)
@@ -70,12 +53,14 @@ typedef struct PyBlock_s
 {
     /** obligatory obj descriptor */
     PyObjDesc_t     od;
+    /** ptr to frame where block originates */
+    pPyObj_t        b_fp;
     /** ptr to backup stack ptr */
     pPyObj_t       *b_sp;
     /** handler fxn obj */
     P_U8            b_handler;
-    /** block type */
-    PyBlockType_t   b_type:8;
+    /** block type (bytecode, SETUP_*, becomes block type) */
+    U8              b_type;
     /** next block in stack */
     struct PyBlock_s *next;
 } PyBlock_t, *pPyBlock_t;

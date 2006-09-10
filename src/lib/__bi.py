@@ -27,6 +27,10 @@
 
 import object
 
+# from exceptions import *
+import exceptions
+#Exception = exceptions.Exception
+
 
 #### CONSTS
 

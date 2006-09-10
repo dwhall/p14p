@@ -68,6 +68,16 @@ typedef struct PyHeapDesc_s
 } PyHeapDesc_t, *pPyHeapDesc_t;
 
 
+typedef struct PyHeap_s
+{
+    /** the amount of heap space available */
+    U16 avail;
+
+    /** Global declaration of heap. */
+    U8 base[HEAP_SIZE];
+} PyHeap_t, *pPyHeap_t;
+
+
 /***************************************************************
  * Globals
  **************************************************************/

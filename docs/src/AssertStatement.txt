@@ -22,13 +22,14 @@ inherently depends on having exceptions available.  When an assertion fails,
 an ``AssertionError`` exception is raised.  To read about exceptions in
 PyMite, see `ErrorsAndExceptions`_.
 
+.. _`asssert statements`: http://docs.python.org/ref/assert.html
 .. _`ErrorsAndExceptions`: TBD
 
 
 Background
 ----------
 
-An simple example assert statement looks like this::
+A simple example assert statement looks like this::
 
     assert arg != None
 
@@ -62,15 +63,33 @@ in these words::
 Implementation
 --------------
 
-To support the ``assert`` statement, Exceptions must first be supported by the
-VM.  Once Exceptions exist, then the following describes the steps needed to
-support the ``assert`` statment:
+To support the ``assert`` statement a builtin named ``AssertionError`` must
+exist and the ``RAISE_VARARGS`` (1) bytecode must be implemented.  To create
+``AssertionError``, a native function, ``_exn()``, will be created in
+``__bi.py`` that allocates an exception object (OBJ_TYPE_EXN).  The
+``AssertionError`` object will also have an integer attribute, ``code``, that
+corresponds to the value of the PyReturn_t code that represents that exception.
+In this case, ``PY_RET_EX_ASSRT``.  So, the code added to ``__bi.py`` will
+look like this::
 
-- Make ``pmImgCreator.py`` aware that ``RAISE_VARARGS`` is allowable.
-- Add ``AssertionError`` exception to the builtins module (``__bi``) so it will
-  be found by the ``LOAD_GLOBAL`` bytecode.
-- Implement the ``RAISE_VARARGS`` bytecode.
-- Write tests with valid and invalid ``assert`` statements (catch the invalid
-  statements).
+    AssertionError = _exn()
+    AssertionError.code = 0xE4
+
+The first step to support ``RAISE_VARARGS`` is to make ``pmImgCreator.py``
+aware that this bytecode is supported.  Then, the bytecode implementation shall
+do the following:
+
+    - pop the top of the stack and expect an exception object (OBJ_TYPE_EXN).
+    - push the None object as the traceback
+    - push the None object as the parameter (???)
+    - push the exception object
+
+The above steps will get the stack ready for any exception handling if it is
+present.  The "try/except" structure that would setup exception handling
+is not yet supported in PyMite, but it may be in the future.
+
+Finally, tests shall be written to exercise the ``assert`` statement.
+Full testing would require "try/except" support to catch expected exceptions,
+so that shall have to wait.
 
 .. :mode=rest:

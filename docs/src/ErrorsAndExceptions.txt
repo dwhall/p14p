@@ -54,7 +54,7 @@ Exceptions
 ----------
 
 The other values of the ``PyReturn_t`` enumeration are used to indicate an
-exceptional situation that will case the VM to quit unless it is properly
+exceptional situation that will cause the VM to quit unless it is properly
 handled.  The list of exceptions implemented is determined partly by necessity
 and partly by an estimation of future necessity.  The following table lists
 the return types that will lead to exceptions:
@@ -83,25 +83,23 @@ the return types that will lead to exceptions:
 
 In PyMite, there is only one kind of exception object and the PyMite user
 should not try to subclass it.  Instead, the user should create an instance
-of Exception and set the ``code`` and ``name`` fields to unique values.
-For built-in exception types, the ``code`` field has a value that is identical
-to the ``PyReturn_t`` value with the same meaning.
+of Exception and set the ``code`` attribute to a value that is unique among
+all other exceptions.  For built-in exception types, the ``code`` field has
+a value that is identical to the ``PyReturn_t`` value with the same meaning.
 
-For example the built-in ``AssertionError`` is built like this in C code::
+For example the built-in ``AssertionError`` is created like this in the
+builtins module::
 
-    PyReturn_t retval;
-    const char *assertErrString = "AssertionError";
-    retval = ex_new(PY_RET_EX_ASSRT, &assertErrString);
-
-So, in PyMite, the instance of ``KeyError`` will have a ``code`` equal to
-``0xE8`` and a ``name`` of ``"KeyError"``.
+    AssertionError = _exn()
+    AssertionError.code = 0xE4
 
 User exceptions are usually written in Python application code, but can be
 created in a PyMite native function.  The following is an example of how to
 create a user exception::
 
-    SerialError = Exception(0xC0, "SerialError")
-
+    SerialError = _exn()
+    SerialError.code = 0xC0
+    
 That's all there is to it.  Just be sure that the ``code`` is completely unique
 from all other kinds of exceptions, both system and user exceptions.
 

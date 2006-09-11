@@ -15,14 +15,14 @@ document for the PyMite developer and a user manual for the PyMite user.
 Overview
 --------
 
-PyMite shall support the simple form of `assert statments`_ and may support
+PyMite shall support the simple form of `assert statements`_ and may support
 the extended form.  The assert statement is useful in unit tests for the
 PyMite VM itself and is thus worth implementing.  The assert statement
 inherently depends on having exceptions available.  When an assertion fails,
 an ``AssertionError`` exception is raised.  To read about exceptions in
 PyMite, see `ErrorsAndExceptions`_.
 
-.. _`asssert statements`: http://docs.python.org/ref/assert.html
+.. _`assert statements`: http://docs.python.org/ref/assert.html
 .. _`ErrorsAndExceptions`: TBD
 
 
@@ -63,7 +63,7 @@ in these words::
 Implementation
 --------------
 
-To support the ``assert`` statement a builtin named ``AssertionError`` must
+To support the ``assert`` statement a built-in named ``AssertionError`` must
 exist and the ``RAISE_VARARGS`` (1) bytecode must be implemented.  To create
 ``AssertionError``, a native function, ``_exn()``, will be created in
 ``__bi.py`` that allocates an exception object (OBJ_TYPE_EXN).  The

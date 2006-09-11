@@ -99,7 +99,7 @@ create a user exception::
 
     SerialError = _exn()
     SerialError.code = 0xC0
-    
+
 That's all there is to it.  Just be sure that the ``code`` is completely unique
 from all other kinds of exceptions, both system and user exceptions.
 

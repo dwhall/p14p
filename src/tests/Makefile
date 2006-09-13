@@ -1,15 +1,13 @@
 SHELL = /bin/sh
 PMIMGCREATOR := ../tools/pmImgCreator.py
-CFLAGS += -I../vm
+CFLAGS += -I../vm -DHEAP_SIZE=$(HEAP_SIZE)
 LDFLAGS = -L../vm -lpmvm
 SOURCES = $(wildcard t???.c)
 PY_SOURCES = $(SOURCES:.c=.py)
 EXECS = $(SOURCES:.c=.out)
 IMG_SOURCES = $(subst .py,_img.c, $(PY_SOURCES))
 NAT_SOURCES = $(subst .py,_nat.c, $(PY_SOURCES))
-PMSTDLIB_SOURCES = ../lib/__bi.py \
-                   ../lib/sys.py
-
+HEAP_SIZE ?= 0x1000
 
 # Build an executable from the C sources
 %.out : %*_nat.c %*_img.c %.c
@@ -20,7 +18,7 @@ endif
 
 # The module images and native code are generated from python source
 %*_nat.c %*_img.c : %.py
-	$(PMIMGCREATOR) -c -o $*_img.c --native-file=$*_nat.c $*.py $(PMSTDLIB_SOURCES)
+	$(PMIMGCREATOR) -c -u -o $*_img.c --native-file=$*_nat.c $*.py $(PMSTDLIB_SOURCES)
 
 
 .PHONY: all check clean
@@ -28,7 +26,10 @@ endif
 # Default action is to build tests; run tests if target is desktop
 all : check
 
-check : $(EXECS)
+check : vm $(EXECS)
+
+vm :
+	make -C ../vm
 
 # Removes files made by default make
 clean :

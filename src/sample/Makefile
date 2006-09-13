@@ -33,9 +33,7 @@
 
 
 # PyMite Configuration
-LIBNATIVE_SOURCES = ../lib/__bi.py \
-                    ../lib/sys.py \
-					../lib/mmb.py
+LIBNATIVE_SOURCES = ../lib/mmb.py
 PMIMGCREATOR := ../tools/pmImgCreator.py
 PM_HEAP_SIZE = 0x0D00
 
@@ -400,7 +398,7 @@ extcoff: $(TARGET).elf
 $(TARGET).c: $(TARGET)_nat.c $(TARGET)_img.c
 
 $(TARGET)_nat.c $(TARGET)_img.c: $(TARGET).py
-	$(PMIMGCREATOR) -c -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(TARGET).py $(LIBNATIVE_SOURCES)
+	$(PMIMGCREATOR) -c -u -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(TARGET).py $(LIBNATIVE_SOURCES)
 	$(CC) -I../vm -DHEAP_SIZE=$(PM_HEAP_SIZE) -c $(TARGET)_nat.c 
 	$(CC) -I../vm -DHEAP_SIZE=$(PM_HEAP_SIZE) -c $(TARGET)_img.c
 

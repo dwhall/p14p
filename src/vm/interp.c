@@ -55,7 +55,8 @@
  * Prototypes
  **************************************************************/
 
-extern PyReturn_t (* nat_fxn_table[])(pPyFrame_t, signed char);
+extern PyReturn_t (* std_nat_fxn_table[])(pPyFrame_t, signed char);
+extern PyReturn_t (* usr_nat_fxn_table[])(pPyFrame_t, signed char);
 
 /***************************************************************
  * Functions
@@ -1656,7 +1657,16 @@ interpret(pPyFunc_t pfunc)
                      * CALL NATIVE FXN
                      * pass caller's frame and numargs
                      */
-                    retval = nat_fxn_table[t16](FP, t8);
+                    /* Positive index is a stdlib func */
+                    if (t16 >= 0)
+                    {
+                        retval = std_nat_fxn_table[t16](FP, t8);
+                    }
+                    /* Negative index is a usrlib func */
+                    else
+                    {
+                        retval = usr_nat_fxn_table[-t16](FP, t8);
+                    }
                     /*
                      * RETURN FROM NATIVE FXN
                      */

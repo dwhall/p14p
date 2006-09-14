@@ -5,9 +5,8 @@
 # Default values:
 #     TARGET = DESKTOP
 #
-
-# Build configuration
-TARGET := DESKTOP
+# For target AVR, check options in section "Changes for an embedded target".
+#
 
 # Tools configuration
 SHELL = /bin/sh
@@ -18,9 +17,19 @@ CSCOPE := cscope
 
 VPATH := . src/vm src/lib docs/src
 
+# Build configuration
+TARGET := DESKTOP
+HEAP_SIZE = 0x1000
+
+# Changes for an embedded target
+ifeq ($(TARGET), AVR)
+	# TARGET_MCU should equal avr-gcc option "-mmcu" possible values.
+	TARGET_MCU := atmega103
+	HEAP_SIZE = 0x0D00
+endif
 
 # Export config to child makefiles
-export TARGET
+export TARGET HEAP_SIZE TARGET_MCU
 
 .PHONY: all vm pmstdlib docs TAGS dist check clean
 

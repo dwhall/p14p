@@ -282,7 +282,9 @@ class PmImgCreator:
                                     "\n/*\n"
                                     " * Use placeholder because an index \n"
                                     " * value of zero denotes the stdlib.\n"
+                                    " * This function should not be called.\n"
                                     " */\n"
+                                    "return PY_RET_EX_SYS;\n"
                                    ))
 
         # for each src file, convert and format

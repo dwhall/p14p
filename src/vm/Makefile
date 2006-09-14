@@ -1,40 +1,33 @@
 #
 # Builds the PyMite VM as an archive
 #
-# For target AVR, check options in section "Changes for an embedded target".
-#
 
 # Configure the contents of pmstdlib by editing this list
 PMSTDLIB_SOURCES = ../lib/__bi.py \
                    ../lib/sys.py
 
+TARGET ?= DESKTOP
+HEAP_SIZE ?= 0x1000
+TARGET_MCU ?= atmega103
+
+PMIMGCREATOR := ../tools/pmImgCreator.py
+DEFS = -DTARGET_$(TARGET) -DHEAP_SIZE=$(HEAP_SIZE)
+CFLAGS = -g -Os -Wall -gstabs -Wstrict-prototypes $(DEFS)
+ARFLAGS := rcs
 SOURCE_IMG := pmstdlib_img.c
 SOURCE_NAT := pmstdlib_nat.c
 SOURCES = $(wildcard *.c) $(SOURCE_IMG) $(SOURCE_NAT)
 OBJECTS = $(SOURCES:.c=.o)
 PRODUCT_VM := libpmvm.a
-PMIMGCREATOR := ../tools/pmImgCreator.py
 
-DEFS = -DTARGET_$(TARGET) -DHEAP_SIZE=$(HEAP_SIZE)
-CFLAGS = -g -Os -Wall -gstabs -Wstrict-prototypes $(DEFS)
-HEAP_SIZE = 0x1000
-ARFLAGS := rcs
-SIZE := size
-# Define target if not already defined
-TARGET ?= DESKTOP
-
-# Changes for an embedded target
+ifeq ($(TARGET), DESKTOP)
+	CFLAGS += -ansi
+endif
 ifeq ($(TARGET), AVR)
-	# TARGET_MCU should equal avr-gcc option "-mmcu" possible values.
-	TARGET_MCU := atmega103
-	HEAP_SIZE = 0x0D00
-
 	AR = avr-ar
 	CC = avr-gcc
 	SIZE = avr-size
 	CFLAGS += -mmcu=$(TARGET_MCU) -DTARGET_MCU=$(TARGET_MCU)
-else
-	CFLAGS += -ansi
 endif
 
 .PHONY: all size clean

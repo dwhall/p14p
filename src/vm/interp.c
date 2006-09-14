@@ -1558,14 +1558,14 @@ interpret(pPyFunc_t pfunc)
 
             case RAISE_VARARGS:
                 t16 = GET_ARG();
-                
+
                 /* Only supports taking 1 arg for now */
                 if (t16 != 1)
                 {
                     retval = PY_RET_EX_SYS;
                     break;
                 }
-                
+
                 /* Raise type error if TOS is not an exception object */
                 pobj1 = PY_POP();
                 if (pobj1->od.od_type != OBJ_TYPE_EXN)
@@ -1578,16 +1578,16 @@ interpret(pPyFunc_t pfunc)
                 PY_PUSH(PY_NONE);
                 PY_PUSH(PY_NONE);
                 PY_PUSH(pobj1);
-                
+
                 /* Get the exception's code attr */
-                retval = dict_getItem((pPyObj_t)((pPyClass_t)pobj1)->cl_attrs, 
+                retval = dict_getItem((pPyObj_t)((pPyClass_t)pobj1)->cl_attrs,
                                       PY_CODE_STR,
                                       &pobj2);
                 PY_BREAK_IF_ERROR(retval);
-                
+
                 /* Get the value from the code int */
                 retval = (U8)(((pPyInt_t)pobj2)->val & 0xFF);
-                
+
                 /* Raise exception by breaking with retval set to code */
                 break;
 
@@ -1651,21 +1651,31 @@ interpret(pPyFunc_t pfunc)
                                 PY_POP();
                     }
                     /* get native function index */
-                    t16 = (S16)((pPyNo_t)((pPyFunc_t)pobj1)->
-                                f_co)->no_funcindx;
+                    pobj2 = (pPyObj_t)((pPyFunc_t)pobj1)->f_co;
+                    t16 = ((pPyNo_t)pobj2)->no_funcindx;
+
                     /*
                      * CALL NATIVE FXN
                      * pass caller's frame and numargs
                      */
                     /* Positive index is a stdlib func */
+/* Workarounds until S16-is-32bits-on-desktop is fixed */
+#if 1
                     if (t16 >= 0)
+#else
+                    if ((t16 & 0x8000) == 0)
+#endif
                     {
                         retval = std_nat_fxn_table[t16](FP, t8);
                     }
                     /* Negative index is a usrlib func */
                     else
                     {
+#if 1
                         retval = usr_nat_fxn_table[-t16](FP, t8);
+#else
+                        retval = usr_nat_fxn_table[0x10000-t16](FP, t8);
+#endif
                     }
                     /*
                      * RETURN FROM NATIVE FXN

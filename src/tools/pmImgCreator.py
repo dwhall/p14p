@@ -414,8 +414,6 @@ class PmImgCreator:
 
         # set image type byte
         objtype = OBJ_TYPE_CIM
-        if nativecode:
-            objtype = OBJ_TYPE_NIM
 
         # skip co_type and size
         # co_argcount
@@ -580,11 +578,13 @@ class PmImgCreator:
 
                 # replace code with native table index
                 # stdlib code gets a positive index
-                if self.imgtarget == "std":
-                    code = self._U16_to_str(len(self.nativetable))
-                # usr code gets a negative index
-                else:
-                    code = self._U16_to_str(-len(self.nativetable))
+                # Issue #28: Module root, "?", must keep its bytecode
+                if co.co_name != "?":
+                    if self.imgtarget == "std":
+                        code = self._U16_to_str(len(self.nativetable))
+                    # usr code gets a negative index
+                    else:
+                        code = self._U16_to_str(-len(self.nativetable))
 
                 # native function name is
                 # "nat_<modname>_<pyfuncname>".

@@ -399,8 +399,8 @@ $(TARGET).c: $(TARGET)_nat.c $(TARGET)_img.c
 
 $(TARGET)_nat.c $(TARGET)_img.c: $(TARGET).py
 	$(PMIMGCREATOR) -c -u -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(TARGET).py $(LIBNATIVE_SOURCES)
-	$(CC) -I../vm -DHEAP_SIZE=$(PM_HEAP_SIZE) -c $(TARGET)_nat.c 
-	$(CC) -I../vm -DHEAP_SIZE=$(PM_HEAP_SIZE) -c $(TARGET)_img.c
+	$(CC) -I../vm -DHEAP_SIZE=$(PM_HEAP_SIZE) -DTARGET_AVR -c $(TARGET)_nat.c 
+	$(CC) -I../vm -DHEAP_SIZE=$(PM_HEAP_SIZE) -DTARGET_AVR -c $(TARGET)_img.c
 
 
 # Target: clean project.

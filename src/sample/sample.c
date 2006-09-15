@@ -35,12 +35,12 @@ int main(void)
 
     /* load std image info */
     pimg = (P_U8)&stdlib_img;
-    retval = img_findInMem(MEMSPACE_FLASH, &pimg);
+    retval = img_findInMem(MEMSPACE_RAM, &pimg);
     PY_RETURN_IF_ERROR(retval);
 
     /* load usr image info */
     pimg = (P_U8)&usrlib_img;
-    retval = img_findInMem(MEMSPACE_FLASH, &pimg);
+    retval = img_findInMem(MEMSPACE_RAM, &pimg);
     PY_RETURN_IF_ERROR(retval);
 
     /* import module from global struct */

@@ -182,15 +182,17 @@ UNIMPLEMENTED_BCODES = (
     "IMPORT_FROM",
 #    "JUMP_FORWARD", "JUMP_IF_FALSE", "JUMP_IF_TRUE",
 #    "JUMP_ABSOLUTE", "FOR_LOOP", "LOAD_GLOBAL",
-    "CONTINUE_LOOP",
+## The following bytecode is not present in Python 2.0
+##    "CONTINUE_LOOP",
 #    "SETUP_LOOP",
     "SETUP_EXCEPT",
     "SETUP_FINALLY",
 #    "LOAD_FAST", "STORE_FAST",
     "DELETE_FAST",
 #    "SET_LINENO", "RAISE_VARARGS", "CALL_FUNCTION", "MAKE_FUNCTION",
-    "BUILD_SLICE", "MAKE_CLOSURE", "LOAD_CLOSURE",
-    "LOAD_DEREF", "STORE_DEREF",
+    "BUILD_SLICE",
+## The following bytecodes are not present in Python 2.0
+##    "MAKE_CLOSURE", "LOAD_CLOSURE", "LOAD_DEREF", "STORE_DEREF",
     "CALL_FUNCTION_VAR", "CALL_FUNCTION_KW",
     "CALL_FUNCTION_VAR_KW", "EXTENDED_ARG"
     )
@@ -207,7 +209,7 @@ UNIMPLEMENTED_BCODES = (
 
 class PmImgCreator:
 
-    def __init__(self, ui=False,):
+    def __init__(self,):
 
         self.formatFromExt = {".c": self.format_img_as_c,
                               ".bin": self.format_img_as_bin,

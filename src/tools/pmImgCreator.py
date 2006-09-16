@@ -27,6 +27,7 @@ Log
 ==========      ==============================================================
 Date            Action
 ==========      ==============================================================
+2006/09/15      #28: Module with __NATIVE__ at root doesn't load
 2006/09/12      #2: Separate stdlib from user app
 2006/09/06      #24: Remove consts[0] == docstring assumption
 2006/09/01      #11: Make src/tests/ build module images as C files, not
@@ -275,7 +276,8 @@ class PmImgCreator:
         # init image dict
         imgs = {"imgs": [], "fns": []}
 
-        # init native table
+        # init module table and native table
+        self.nativemods = []
         self.nativetable = []
 
         # if creating usr lib, create placeholder in 0th index
@@ -576,22 +578,27 @@ class PmImgCreator:
                 nativecode = consts[0][NATIVE_INDICATOR_LENGTH:]
                 consts[0] = None
 
-                # replace code with native table index
-                # stdlib code gets a positive index
+                # If this co is a module
                 # Issue #28: Module root, "?", must keep its bytecode
-                if co.co_name != "?":
+                if co.co_name == "?":
+                    self.nativemods.append((co.co_name, nativecode))
+
+                # Else this co is a function;
+                # replace code with native table index
+                else:
+                    # stdlib code gets a positive index
                     if self.imgtarget == "std":
                         code = self._U16_to_str(len(self.nativetable))
                     # usr code gets a negative index
                     else:
                         code = self._U16_to_str(-len(self.nativetable))
 
-                # native function name is
-                # "nat_<modname>_<pyfuncname>".
-                # append (nat func name, nat code) to table
-                self.nativetable.append((NATIVE_FUNC_PREFIX +
-                                         mn + "_" + co.co_name,
-                                        nativecode))
+                    # native function name is
+                    # "nat_<modname>_<pyfuncname>".
+                    # append (nat func name, nat code) to table
+                    self.nativetable.append((NATIVE_FUNC_PREFIX +
+                                             mn + "_" + co.co_name,
+                                            nativecode))
 
             ## Consts filter
             # if want to remove __doc__ string
@@ -756,21 +763,16 @@ class PmImgCreator:
                        )
 
         # module-level native sections (for #include headers)
-        for (funcname, funcstr) in self.nativetable:
-            if funcname[-1:] == "?":
-                fileBuff.append("/* From: %s */%s\n"
-                                % (funcname[len(NATIVE_FUNC_PREFIX):-2],
-                                   funcstr)
-                               )
+        for (modname, modstr) in self.nativemods:
+            fileBuff.append("/* From: %s */%s\n" % (modname, modstr))
 
         # for each entry create fxn
         for (funcname, funcstr) in self.nativetable:
-            if funcname[-1:] != "?":
-                fileBuff.append("static PyReturn_t\n"
-                                "%s(pPyFrame_t pframe, signed char numargs)\n"
-                                "{\n"
-                                "%s\n"
-                                "}\n\n" % (funcname, funcstr))
+            fileBuff.append("static PyReturn_t\n"
+                            "%s(pPyFrame_t pframe, signed char numargs)\n"
+                            "{\n"
+                            "%s\n"
+                            "}\n\n" % (funcname, funcstr))
 
         # create fxn table
         fileBuff.append("/* native function lookup table */\n"
@@ -779,8 +781,7 @@ class PmImgCreator:
 
         # put all native funcs in the table
         for (funcname, funcstr) in self.nativetable:
-            if funcname[-1:] != "?":
-                fileBuff.append("    %s,\n" % funcname)
+            fileBuff.append("    %s,\n" % funcname)
         fileBuff.append("};\n")
 
         return string.join(fileBuff, "")

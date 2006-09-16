@@ -581,7 +581,7 @@ class PmImgCreator:
                 # If this co is a module
                 # Issue #28: Module root, "?", must keep its bytecode
                 if co.co_name == "?":
-                    self.nativemods.append((co.co_name, nativecode))
+                    self.nativemods.append((co.co_filename, nativecode))
 
                 # Else this co is a function;
                 # replace code with native table index

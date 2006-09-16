@@ -1659,23 +1659,14 @@ interpret(pPyFunc_t pfunc)
                      * pass caller's frame and numargs
                      */
                     /* Positive index is a stdlib func */
-/* Workarounds until S16-is-32bits-on-desktop is fixed */
-#if 1
                     if (t16 >= 0)
-#else
-                    if ((t16 & 0x8000) == 0)
-#endif
                     {
                         retval = std_nat_fxn_table[t16](FP, t8);
                     }
                     /* Negative index is a usrlib func */
                     else
                     {
-#if 1
                         retval = usr_nat_fxn_table[-t16](FP, t8);
-#else
-                        retval = usr_nat_fxn_table[0x10000-t16](FP, t8);
-#endif
                     }
                     /*
                      * RETURN FROM NATIVE FXN

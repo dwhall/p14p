@@ -71,7 +71,8 @@ global_init(void)
 {
     PmReturn_t retval;
     uint8_t *codestr = (uint8_t *)"code";
-
+    pPmObj_t pobj;
+    
     /* clear the global struct less the heap */
     sli_memset((uint8_t *)&gVmGlobal, '\0', sizeof(PmVmGlobal_t) -
                                             sizeof(PmHeap_t));
@@ -103,7 +104,8 @@ global_init(void)
     gVmGlobal.none.od.od_const = 1;
 
     /* Init "code" string obj */
-    retval = string_new((uint8_t **)&codestr, (pPmObj_t *)&gVmGlobal.pcodeStr);
+    pobj = (pPmObj_t)gVmGlobal.pcodeStr;
+    retval = string_new((uint8_t **)&codestr, &pobj);
 
     /* init empty builtins */
     gVmGlobal.builtins = C_NULL;

@@ -88,7 +88,7 @@ mem_getByte(PmMemSpace_t memspace, uint8_t **paddr)
         case MEMSPACE_FLASH:
 #ifdef TARGET_AVR
             b = pgm_read_byte(*paddr);
-#elif defined(TARGET_DESKTOP)
+#elif defined(TARGET_DESKTOP) || defined(TARGET_ARM)
             b = **paddr;
 #else
 #error Undefined TARGET

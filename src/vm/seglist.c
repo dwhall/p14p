@@ -278,14 +278,14 @@ seglist_insertItem(pSeglist_t pseglist,
     pPmObj_t pobj2 = C_NULL;
     int8_t indx = 0;
     int8_t i = 0;
-
+    uint8_t **ppchunk;
+    
     /* if the seglist has no segment, insert one */
     if (pseglist->sl_rootseg == C_NULL)
     {
         /* alloc and init segment */
-        retval = heap_getChunk(sizeof(Segment_t),
-                               (uint8_t **)&pseglist->sl_rootseg
-                              );
+        ppchunk = (uint8_t **)&pseglist->sl_rootseg;
+        retval = heap_getChunk(sizeof(Segment_t), ppchunk);
         PM_RETURN_IF_ERROR(retval);
         OBJ_SET_TYPE(*pseglist->sl_rootseg, OBJ_TYPE_SEG);
 
@@ -344,8 +344,8 @@ seglist_insertItem(pSeglist_t pseglist,
             /* create next seg if needed */
             if (pseg->next == C_NULL)
             {
-                retval = heap_getChunk(sizeof(Segment_t),
-                                       (uint8_t **)&pseg->next);
+                ppchunk = (uint8_t **)&pseg->next;
+                retval = heap_getChunk(sizeof(Segment_t), ppchunk);
                 /*
                  * XXX exception with hosed list,
                  * need to roll-back!

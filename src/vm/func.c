@@ -89,9 +89,9 @@ func_new(pPmObj_t pco, pPmObj_t *r_pfunc)
     /* create attrs dict for regular func (not native) */
     if (pco->od.od_type == OBJ_TYPE_COB)
     {
-        pobj = (pPmObj_t)pfunc->f_attrs;
         retval = dict_new(&pobj);
         PM_RETURN_IF_ERROR(retval);
+        pfunc->f_attrs = (pPmDict_t)pobj;
     }
     else
     {

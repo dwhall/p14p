@@ -85,8 +85,8 @@ mod_new(pPmObj_t pco, pPmObj_t * pmod)
     ((pPmFunc_t)*pmod)->f_co = (pPmCo_t)pco;
 
     /* alloc and init attrs dict */
-    pobj = (pPmObj_t)((pPmFunc_t)*pmod)->f_attrs;
     retval = dict_new(&pobj);
+    ((pPmFunc_t)*pmod)->f_attrs = (pPmDict_t)pobj;
     return retval;
 }
 

@@ -92,13 +92,13 @@ co_loadFromImg(PmMemSpace_t memspace, uint8_t **paddr, pPmObj_t * r_pco)
     /* load names (tuple obj) */
     *paddr = pci + CI_NAMES_FIELD;
     retval = obj_loadFromImg(memspace, paddr, &pobj);
-    pco->co_names = (pPmTuple_t)pobj;
     PM_RETURN_IF_ERROR(retval);
+    pco->co_names = (pPmTuple_t)pobj;
 
     /* load consts (tuple obj) assume it follows names */
     retval = obj_loadFromImg(memspace, paddr, &pobj);
-    pco->co_consts = (pPmTuple_t)pobj;
     PM_RETURN_IF_ERROR(retval);
+    pco->co_consts = (pPmTuple_t)pobj;
 
     /* set the od_const flag for all consts */
     for (i = 0; i < pco->co_consts->length; i++)

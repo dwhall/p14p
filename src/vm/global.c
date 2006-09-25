@@ -104,8 +104,8 @@ global_init(void)
     gVmGlobal.none.od.od_const = 1;
 
     /* Init "code" string obj */
-    pobj = (pPmObj_t)gVmGlobal.pcodeStr;
     retval = string_new((uint8_t **)&codestr, &pobj);
+    gVmGlobal.pcodeStr = (pPmString_t)pobj;
 
     /* init empty builtins */
     gVmGlobal.builtins = C_NULL;

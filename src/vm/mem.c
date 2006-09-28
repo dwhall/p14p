@@ -131,7 +131,7 @@ mem_getInt(PmMemSpace_t memspace, uint8_t **paddr)
 {
     /* PyMite is little endian; get low word first */
     uint16_t wlo = mem_getWord(memspace, paddr);
-    uint16_t whi = mem_getWord(memspace, paddr);
+    uint32_t whi = mem_getWord(memspace, paddr);
     return (uint32_t)(wlo | (whi << 16));
 }
 

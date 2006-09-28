@@ -118,7 +118,7 @@ INLINE
 uint16_t
 mem_getWord(PmMemSpace_t memspace, uint8_t **paddr)
 {
-    /* PyMite is little endien; get lo byte first */
+    /* PyMite is little endian; get lo byte first */
     uint8_t blo = mem_getByte(memspace, paddr);
     uint8_t bhi = mem_getByte(memspace, paddr);
     return (uint16_t)(blo | (bhi << 8));
@@ -129,10 +129,10 @@ INLINE
 uint32_t
 mem_getInt(PmMemSpace_t memspace, uint8_t **paddr)
 {
-    /* PyMite is little endien; get low word first */
+    /* PyMite is little endian; get low word first */
     uint16_t wlo = mem_getWord(memspace, paddr);
     uint16_t whi = mem_getWord(memspace, paddr);
-    return (uint32_t)(wlo | (whi << 8));
+    return (uint32_t)(wlo | (whi << 16));
 }
 
 

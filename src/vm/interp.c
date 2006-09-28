@@ -1610,7 +1610,7 @@ interpret(pPmFunc_t pfunc)
                 PM_BREAK_IF_ERROR(retval);
 
                 /* Get the value from the code int */
-                retval = (uint8_t)(((pPmInt_t)pobj2)->val & 0xFF);
+                retval = (PmReturn_t)(((pPmInt_t)pobj2)->val & 0xFF);
 
                 /* Raise exception by breaking with retval set to code */
                 break;

@@ -26,14 +26,6 @@
  *
  *  List of tests and whether they are implemented (Y/N).
  *
- *      dict_new()
- *          Y return dict not C_NULL
- *          Y return od.type
- *          Y return od.const
- *          N return od.etc
- *          Y return length is 0
- *          N retval is OK
- *
  *      dict_setItem(pdict, pkey, pval)
  *          Y 000 Pass C_NULL to dict, expect a SystemError
  *          Y 001 Pass C_NULL to key, expect a SystemError
@@ -69,61 +61,41 @@
  */
 
 
+#include "CuTest.h"
 #include "pm.h"
 
 
 /**************************************************************/
-/** Test dict_new() return not C_NULL */
-void
-ut_dict_new_000(void)
-{
-    pPmObj_t pobj = C_NULL;
 
-    dict_new(&pobj);
-    if (pobj == C_NULL)
-    {
-        TEST_ERR(__LINE__);
-    }
+/**
+ * Test dict_new():
+ *      retval is OK
+ *      obj pointer is not C_NULL
+ *      obj type must be DICT
+ *      obj const bit must be clear
+ *      dict length must be 0
+ */
+void
+ut_dict_new_000(CuTest* tc)
+{
+#if 1
+    CuAssertTrue(tc, 1==1);
+
+    pPmObj_t pobj = C_NULL;
+    PmReturn_t retval;
+
+    retval = dict_new(&pobj);
+#else
+
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertPtrNotNull(tc, pobj);
+    CuAssertTrue(tc, OBJ_GET_TYPE(*pobj) == OBJ_TYPE_DIC);
+    CuAssertTrue(tc, !OBJ_IS_CONST(*pobj));
+    CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 0);
+#endif
 }
 
-/** Test dict_new() return type must be DICT */
-void
-ut_dict_new_001(void)
-{
-    pPmObj_t pobj = C_NULL;
-
-    dict_new(&pobj);
-    if (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_DIC)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_new() return const bit must be clear */
-void
-ut_dict_new_002(void)
-{
-    pPmObj_t pobj = C_NULL;
-
-    dict_new(&pobj);
-    if (OBJ_IS_CONST(*pobj))
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_new() return length must be 0 */
-void
-ut_dict_new_003(void)
-{
-    pPmObj_t pobj = C_NULL;
-
-    dict_new(&pobj);
-    if (((pPmDict_t)pobj)->length != 0)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
+#if 0
 
 /**************************************************************/
 /** Pass C_NULL to dict, expect a SystemError */
@@ -148,8 +120,8 @@ ut_dict_setItem_001(void)
     pPmObj_t pdict = C_NULL;
 
     dict_new(&pdict);
-    retval = dict_setItem(pdict, 
-                          (pPmObj_t)C_NULL, 
+    retval = dict_setItem(pdict,
+                          (pPmObj_t)C_NULL,
                           (pPmObj_t)C_NULL);
     if (retval != PM_RET_EX_SYS)
     {
@@ -282,7 +254,7 @@ ut_dict_clear_001(void)
 {
     pPmObj_t pint;
     PmReturn_t retval = PM_RET_OK;
-    
+
      retval = int_new(256, &pint);
     dict_clear(pint);
 }
@@ -330,17 +302,32 @@ ut_dict_clear_004(void)
     }
 }
 
+#endif
 
 /**************************************************************/
 /** Set of all dict test functions */
+
+CuSuite *getTestDictSuite(void)
+{
+	CuSuite* suite = CuSuiteNew();
+
+	SUITE_ADD_TEST(suite, ut_dict_new_000);
+
+    return suite;
+}
+
+#if 0
+
 void
 ut_dict(void)
 {
     /* dict_new() tests */
+/*
     ut_dict_new_000();
     ut_dict_new_001();
     ut_dict_new_002();
     ut_dict_new_003();
+*/
 
     /* dict_clear() tests */
     ut_dict_clear_000();
@@ -360,3 +347,4 @@ ut_dict(void)
     ut_dict_setItem_007();
     ut_dict_setItem_008();
 }
+#endif

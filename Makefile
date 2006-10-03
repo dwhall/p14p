@@ -66,7 +66,7 @@ else
 endif
 
 check :
-	$(MAKE) -C src/tests
+	$(MAKE) -C src/tests/system
 
 # Removes all files created during default make
 clean :

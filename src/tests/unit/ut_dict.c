@@ -78,21 +78,17 @@
 void
 ut_dict_new_000(CuTest* tc)
 {
-#if 1
-    CuAssertTrue(tc, 1==1);
-
     pPmObj_t pobj = C_NULL;
     PmReturn_t retval;
 
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
     retval = dict_new(&pobj);
-#else
 
     CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertPtrNotNull(tc, pobj);
     CuAssertTrue(tc, OBJ_GET_TYPE(*pobj) == OBJ_TYPE_DIC);
     CuAssertTrue(tc, !OBJ_IS_CONST(*pobj));
     CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 0);
-#endif
 }
 
 #if 0

@@ -16,7 +16,8 @@ PRODUCT = AllTests.out
 # Default action is to build and run tests
 all : check
 
-check : AllTests.out
+check : $(PRODUCT)
+	$(PRODUCT)
 
 $(PRODUCT) : vm $(OBJS)
 	$(CC) -o AllTests.out $(OBJS) -L../../vm/ -lpmvm

@@ -2,6 +2,9 @@
 
 #include "CuTest.h"
 
+/* Need to declare this array since no PyMite application is linked */
+const unsigned char usr_nat_fxn_table[] = {};
+
 CuSuite* getTestDictSuite();
 
 void RunAllTests(void)
@@ -20,4 +23,6 @@ void RunAllTests(void)
 int main(void)
 {
     RunAllTests();
+
+    return 0;
 }

@@ -1,0 +1,57 @@
+.. Copyright 2006 Dean Hall
+   Permission is granted to copy, distribute and/or modify this document
+   under the terms of the GNU Free Documentation License, Version 1.2
+   or any later version published by the Free Software Foundation;
+   with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+   Texts.  A copy of the license is in the file docs/LICENSE.
+
+===================
+PyMite Self Testing
+===================
+
+:Author:    Dean Hall
+:Id:        $Id$
+
+Purpose
+-------
+
+This document describes PyMite's self tests.  In doing so, it serves as an
+informational  document for the PyMite developer and is of little use to
+the PyMite user.
+
+Overview
+--------
+
+PyMite has two types of self tests: unit tests and system tests found in
+``src/tests/unit/`` and ``src/tests/system/``, respectively.  `Unit tests`_
+are meant to validate that a particular module of source code is working
+properly.  `System tests`_, on the other hand, are conducted on a complete,
+integrated system to evaluate the system's compliance to its design and
+to expose any regressions to previous defects.
+
+.. _`Unit tests`: http://en.wikipedia.org/wiki/Unit_testing
+.. _`System tests`: http://en.wikipedia.org/wiki/System_testing
+
+Unit Tests
+----------
+
+Three unit test frameworks were evaluated for use in the PyMite project:
+`MinUnit`_, `CuTest`_ and `Check`_.  MinUnit is exactly what it says, a minimal 
+unit testing framework for C.  However, it does not provide a mechanism for
+grouping tests into suites or reporting failures in a useful fashion.
+
+The Check framework is at the other end of the spectrum.  It provides a
+complete set of assert statements and a robust reporting system.  The down
+sides of Check are that it is a somewhat large package to try to include in
+PyMite.
+
+The CuTest framework is just right.  It is one .c file and one .h file.
+It has a handful of useful assert statements and reporting on stdout.
+The CuTest license allows direct inclusion of CuTest source in any project.
+CuTest is a quick learn if you are familiar with unit testing.
+
+.. _`MinUnit`: http://www.jera.com/techinfo/jtns/jtn002.html
+.. _`CuTest`: http://cutest.sourceforge.net/
+.. _`Check`: http://sourceforge.net/projects/check/
+
+.. :mode=rest:

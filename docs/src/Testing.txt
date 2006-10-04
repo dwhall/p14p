@@ -93,11 +93,11 @@ developer follows that practice.
 Conclusion
 ----------
 
-PyMite has two types of tests, Unit Tests and System Tests, that must be run
-and pass as part of the development process.  It is also strongly suggested
-to create one test of either type as a part of fixing an issue.  Unit tests
-are for very precise, small-scale issues.  System tests are for broad, general
-issues.  Since both test types have automated harnesses, testing is quick and
-easy and should be performed often.
+PyMite has two types of tests, Unit Tests and System Tests, that must run
+without error or failures as part of the development process.  It is also
+strongly suggested to create one test of either type as a part of fixing
+an issue.  Unit tests are for very precise, small-scale issues.  System tests
+are for broad, general issues.  Since both test types have automated harnesses,
+testing is quick and easy and should be performed often.
 
 .. :mode=rest:

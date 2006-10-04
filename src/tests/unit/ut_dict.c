@@ -17,46 +17,16 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#undef __FILE_ID__
-#define __FILE_ID__ 0x92
+
 /**
- * Unit Test 001
+ * Dict Unit Tests
  *
- * Test the Dict implementation.
+ * Tests the Dict implementation.
  *
- *  List of tests and whether they are implemented (Y/N).
+ * Log
+ * ---
  *
- *      dict_setItem(pdict, pkey, pval)
- *          Y 000 Pass C_NULL to dict, expect a SystemError
- *          Y 001 Pass C_NULL to key, expect a SystemError
- *          Y 002 Pass C_NULL to val, expect a SystemError
- *          Y 003 Test dict_setItem() passing valid vals, return dict must not be NULL
- *          Y 004 Test dict_setItem() passing valid vals, return dict must be same addr
- *          Y 005 Test dict_setItem(), set(k,v), dict length must be 1
- *          Y 006 Test dict_setItem(), set(k,v) item at k must be same v
- *          Y 007 Test dict_setItem(), set(k,v1) set(k,v2), item at k must be v2
- *          Y 008 Test dict_setItem(), expect retval is OK
- *
- *      dict_clear(pdict)
- *          Y dict = C_NULL
- *          Y dict = non-dict
- *          Y dict = empty dict, return dict not C_NULL
- *          Y dict = empty dict, return length is 0
- *          Y dict = non-empty dict, return length is 0
- *          N retval is OK
- *
- *      dict_getItem(pdict, pkey)
- *          N dict == C_NULL
- *          N key == C_NULL
- *          N dict = non-dict
- *          N key = non-hashable
- *          N key with empty key,val lists
- *          N key (key not known)
- *          N key (kew known)
- *          N retval is OK
- *
- * Log:
- *
+ * 2006/10/03   #48: Organize and deploy unit tests
  * 2003/01/11   First.
  */
 
@@ -64,8 +34,6 @@
 #include "CuTest.h"
 #include "pm.h"
 
-
-/**************************************************************/
 
 /**
  * Test dict_new():
@@ -91,256 +59,136 @@ ut_dict_new_000(CuTest* tc)
     CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 0);
 }
 
-#if 0
 
-/**************************************************************/
-/** Pass C_NULL to dict, expect a SystemError */
+/**
+ * Test dict_setItem():
+ *      Pass valid vals; expect retval is OK
+ *      Pass valid vals, return dict must not be NULL
+ *      Pass valid vals, return dict must be same addr
+ */
 void
-ut_dict_setItem_000(void)
+ut_dict_setItem_000(CuTest* tc)
 {
-    PmReturn_t retval = PM_RET_OK;
-    retval = dict_setItem((pPmObj_t)C_NULL,
-                          (pPmObj_t)C_NULL,
-                          (pPmObj_t)C_NULL);
-    if (retval != PM_RET_EX_SYS)
-    {
-        TEST_ERR(__LINE__);
-    }
+    pPmObj_t pobj = C_NULL;
+    pPmObj_t pobj_orig;
+    PmReturn_t retval;
+
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
+    retval = dict_new(&pobj);
+    pobj_orig = pobj;
+
+    retval = dict_setItem(pobj, PM_ZERO, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertPtrNotNull(tc, pobj);
+    CuAssertPtrEquals(tc, pobj_orig, pobj);
 }
 
-/** Pass C_NULL to key, expect a SystemError */
+/**
+ * Test dict_setItem():
+ *      Pass valid vals, set(k,v); dict length must be 1
+ *      Pass valid vals, set(k,v); item at k must be same v
+ *      Pass valid vals, set(k,v1); set(k,v2), item at k must be v2
+ */
 void
-ut_dict_setItem_001(void)
+ut_dict_setItem_001(CuTest* tc)
 {
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t pdict = C_NULL;
+    pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
 
-    dict_new(&pdict);
-    retval = dict_setItem(pdict,
-                          (pPmObj_t)C_NULL,
-                          (pPmObj_t)C_NULL);
-    if (retval != PM_RET_EX_SYS)
-    {
-        TEST_ERR(__LINE__);
-    }
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
+    retval = dict_new(&pobj);
+
+    retval = dict_setItem(pobj, PM_ZERO, PM_ONE);
+    CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 1);
+    retval = dict_getItem(pobj, PM_ZERO, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertPtrEquals(tc, PM_ONE, pval);
+    retval = dict_setItem(pobj, PM_ZERO, PM_NEGONE);
+    retval = dict_getItem(pobj, PM_ZERO, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertPtrEquals(tc, PM_NEGONE, pval);
 }
 
-/** Pass C_NULL to val, expect a SystemError */
-void
-ut_dict_setItem_002(void)
-{
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t pdict = C_NULL;
 
-    dict_new(&pdict);
-    retval = dict_setItem(pdict,
-                          PM_ZERO,
-                          (pPmObj_t)C_NULL);
-    if (retval != PM_RET_EX_SYS)
-    {
-        TEST_ERR(__LINE__);
-    }
+/**
+ * Test dict_clear():
+ *      Pass non-dict object; expect TypeError
+ *      Pass empty dict; expect retval is OK
+ *      Pass empty dict; expect dict is not C_NULL
+ *      Pass empty dict; expect length is 0
+ *      Pass non-empty dict; expect length is 0
+ */
+void
+ut_dict_clear_000(CuTest *tc)
+{
+    pPmObj_t pobj = C_NULL;
+    PmReturn_t retval;
+
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
+    retval = dict_new(&pobj);
+
+    retval = dict_clear(PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = dict_clear(pobj);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertPtrNotNull(tc, pobj);
+    CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 0);
+    retval = dict_setItem(pobj, PM_ZERO, PM_ONE);
+    retval = dict_clear(pobj);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 0);
 }
 
-/** Test dict_setItem() passing valid vals, return dict must not be NULL */
-void
-ut_dict_setItem_003(void)
-{
-    pPmObj_t pdict = C_NULL;
 
-    dict_new(&pdict);
-    dict_setItem(pdict, PM_ZERO, PM_ONE);
-    if (pdict == C_NULL)
-    {
-        TEST_ERR(__LINE__);
-    }
+/**
+ * Test dict_getItem():
+ *      Pass non-dict object; expect TypeError
+ *      Pass non-hashable key; expect KeyError
+ *      Pass empty dict, any key; expect KeyError
+ *      Pass non-empty list, non-present key; expect KeyError
+ *      Pass non-empty dict, present key; expect OK and value
+ */
+void
+ut_dict_getItem_000(CuTest *tc)
+{
+    pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
+
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
+    retval = dict_new(&pobj);
+
+    retval = dict_getItem(PM_ONE, PM_ONE, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = dict_new(&pobj);
+    retval = dict_getItem(pobj, pobj, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_KEY);
+    retval = dict_new(&pobj);
+    retval = dict_getItem(pobj, PM_ONE, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_KEY);
+    retval = dict_new(&pobj);
+    retval = dict_setItem(pobj, PM_ONE, PM_ZERO);
+    retval = dict_getItem(pobj, PM_NEGONE, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_KEY);
+    retval = dict_new(&pobj);
+    retval = dict_setItem(pobj, PM_ONE, PM_ZERO);
+    retval = dict_getItem(pobj, PM_ONE, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pval == PM_ZERO);
 }
 
-/** Test dict_setItem() passing valid vals, return dict must be same addr */
-void
-ut_dict_setItem_004(void)
-{
-    pPmObj_t pdict = C_NULL;
-    pPmObj_t pdictbefore = C_NULL;
 
-    dict_new(&pdict);
-    pdictbefore = pdict;
-    dict_setItem(pdict, PM_ZERO, PM_ONE);
-    if (pdict != pdictbefore)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_setItem(), set(k,v), dict length must be 1 */
-void
-ut_dict_setItem_005(void)
-{
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    dict_setItem(pdict, PM_ZERO, PM_ONE);
-    if (((pPmDict_t)pdict)->length != 1)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_setItem(), set(k,v) item at k must be same v */
-void
-ut_dict_setItem_006(void)
-{
-    pPmObj_t pval = C_NULL;
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    dict_setItem(pdict, PM_ZERO, PM_ONE);
-    dict_getItem(pdict, PM_ZERO, &pval);
-    if (pval != PM_ONE)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_setItem(), set(k,v1) set(k,v2), item at k must be v2 */
-void
-ut_dict_setItem_007(void)
-{
-    pPmObj_t pval = C_NULL;
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    dict_setItem(pdict, PM_ZERO, PM_ZERO);
-    dict_setItem(pdict, PM_ZERO, PM_ONE);
-    dict_getItem(pdict, PM_ZERO, &pval);
-    if (pval != PM_ONE)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_setItem(), expect retval is OK */
-void
-ut_dict_setItem_008(void)
-{
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    retval = dict_setItem(pdict,
-                          PM_ZERO,
-                          PM_ZERO);
-    if (retval != PM_RET_OK)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/**************************************************************/
-/** Test dict_clear() passing C_NULL, return is void, must inspect */
-void
-ut_dict_clear_000(void)
-{
-    dict_clear((pPmObj_t)C_NULL);
-}
-
-/** Test dict_clear() passing non-dict, return is void, must inspect */
-void
-ut_dict_clear_001(void)
-{
-    pPmObj_t pint;
-    PmReturn_t retval = PM_RET_OK;
-
-     retval = int_new(256, &pint);
-    dict_clear(pint);
-}
-
-/** Test dict_clear() passing empty dict, return dict must not be null */
-void
-ut_dict_clear_002(void)
-{
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    dict_clear(pdict);
-    if (pdict == C_NULL)
-    {
-        TEST_ERR(__LINE__);
-    }
- }
-
-/** Test dict_clear() passing empty dict, return dict must have 0 length */
-void
-ut_dict_clear_003(void)
-{
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    dict_clear(pdict);
-    if (((pPmDict_t)pdict)->length != 0)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** Test dict_clear() passing non-empty dict, return dict must have 0 length */
-void
-ut_dict_clear_004(void)
-{
-    pPmObj_t pdict = C_NULL;
-
-    dict_new(&pdict);
-    dict_setItem(pdict, PM_ZERO, PM_ZERO);
-    dict_clear(pdict);
-    if (((pPmDict_t)pdict)->length != 0)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-#endif
-
-/**************************************************************/
-/** Set of all dict test functions */
-
-CuSuite *getTestDictSuite(void)
+/** Make a suite from all tests in this file */
+CuSuite *getSuite_testDict(void)
 {
 	CuSuite* suite = CuSuiteNew();
 
 	SUITE_ADD_TEST(suite, ut_dict_new_000);
+	SUITE_ADD_TEST(suite, ut_dict_setItem_000);
+	SUITE_ADD_TEST(suite, ut_dict_setItem_001);
+	SUITE_ADD_TEST(suite, ut_dict_clear_000);
+	SUITE_ADD_TEST(suite, ut_dict_getItem_000);
 
     return suite;
 }
-
-#if 0
-
-void
-ut_dict(void)
-{
-    /* dict_new() tests */
-/*
-    ut_dict_new_000();
-    ut_dict_new_001();
-    ut_dict_new_002();
-    ut_dict_new_003();
-*/
-
-    /* dict_clear() tests */
-    ut_dict_clear_000();
-    ut_dict_clear_001();
-    ut_dict_clear_002();
-    ut_dict_clear_003();
-    ut_dict_clear_004();
-
-    /* dict_setItem() tests */
-    ut_dict_setItem_000();
-    ut_dict_setItem_001();
-    ut_dict_setItem_002();
-    ut_dict_setItem_003();
-    ut_dict_setItem_004();
-    ut_dict_setItem_005();
-    ut_dict_setItem_006();
-    ut_dict_setItem_007();
-    ut_dict_setItem_008();
-}
-#endif

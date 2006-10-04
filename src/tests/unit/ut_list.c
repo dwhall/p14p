@@ -17,220 +17,294 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#undef __FILE_ID__
-#define __FILE_ID__ 0x9B
+
 /**
  * List Unit Tests
  *
- * Unit tests for the List implementation.
+ * Tests the List implementation.
  *
- *  Tests and whether they are implemented (Y/N).
+ * Log
+ * ---
  *
- *      list_new()
- *          Y 000 new list, expect retval is OK and plist != C_NULL
- *          Y 001 new list, expect list type
- *          Y 002 new list, expect clear const bit
- *          Y 003 new list, expect length == 0
- *          Y 004 new list, expect list->val != C_NULL (IMPL)
- *          N od.etc?
- *
- *      list_append(plist, pitem)
- *          Y 000 append with list == C_NULL, expect a ValueError
- *          Y 001 append with item == C_NULL, expect a ValueError
- *          Y 002 append with non-list argument, expect a ValueError
- *          Y 003 new list, append 1 item, expect list length == 1
- *          N new list, append item, expect list[-1] == item
- *
- *      list_setItem(plist, indx, pval)
- *          N list = C_NULL
- *          N indx < 0
- *          N val = C_NULL
- *          N indx >= len
- *          N return list is same
- *          N return val is same
- *          N return length is same
- *          N return list[indx] == val
- *
- *      list_getItem(plist, indx)
- *          N list = C_NULL
- *          N list = non-list
- *          N indx < 0
- *          N indx > len
- *          N indx == len
- *          N indx = 0 on empty list
- *          N indx = 0 on nonempty list
- *          N indx = N on list of length > N
- *          N return obj != C_NULL
- *
- *      list_copy(plist)
- *          N list = C_NULL
- *          N list = non-list
- *          N return list != C_NULL
- *          N return list ptr != list ptr
- *          N return list length == list.length
- *          N return list objs == list objs
- *
- *      list_replicate(psrclist, n)
- *
- * Log:
- *
+ * 2006/10/04   #48: Organize and deploy unit tests
  * 2003/01/12   First.
  */
 
 
+#include "CuTest.h"
 #include "pm.h"
 
 
-/**************************************************************/
-
-/** new list, expect retval is OK and plist != C_NULL */
+/**
+ * Test list_new():
+ *      Pass valid vals,
+ *          expect retval is OK,
+ *          expect return list is not NULL,
+ *          expect return type be of LIST type,
+ *          expect return object is not const,
+ *          expect list length be 0.
+ */
 void
-ut_list_new_000(void)
+ut_list_new_000(CuTest *tc)
 {
-    PmReturn_t retval = PM_RET_OK;
     pPmObj_t pobj = C_NULL;
+    PmReturn_t retval;
 
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
     retval = list_new(&pobj);
-    if (retval != PM_RET_OK)
-    {
-        TEST_ERR(__LINE__);
-    }
-    if (pobj == C_NULL)
-    {
-        TEST_ERR(__LINE__);
-    }
+
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertPtrNotNull(tc, pobj);
+    CuAssertTrue(tc, OBJ_GET_TYPE(*pobj) == OBJ_TYPE_LST);
+    CuAssertTrue(tc, !OBJ_IS_CONST(*pobj));
+    CuAssertTrue(tc, ((pPmDict_t)pobj)->length == 0);
 }
 
-/** new list, expect list type */
+
+/**
+ * Test list_append():
+ *      Append to non-list object, expect a TypeError
+ *      New list, append 1 item,
+ *          expect list length == 1,
+ *          expect list[0] == item,
+ *          expect list[-1] == item
+ */
 void
-ut_list_new_001(void)
+ut_list_append_000(CuTest *tc)
 {
-    PmReturn_t retval = PM_RET_OK;
     pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
 
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
     retval = list_new(&pobj);
-    if (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_LST)
-    {
-        TEST_ERR(__LINE__);
-    }
+
+    retval = list_append(PM_ONE, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = list_append(pobj, PM_ONE);
+    CuAssertPtrNotNull(tc, pobj);
+    CuAssertTrue(tc, ((pPmList_t)pobj)->length == 1);
+    retval = list_getItem(pobj, 0, &pval);
+    CuAssertTrue(tc, pval == PM_ONE);
+    retval = list_getItem(pobj, -1, &pval);
+    CuAssertTrue(tc, pval == PM_ONE);
 }
 
-/** new list, expect clear const bit */
+
+/**
+ * Test list_getItem():
+ *      Call on non-list object, expect a TypeError
+ *      Call on empty list with index < 0, expect IndexError
+ *      Call on empty list with index > 0, expect IndexError
+ *      Call on empty list with index = 0, expect IndexError
+ *      Call on non-empty list with index < -length, expect IndexError
+ *      Call on non-empty list with index == length, expect IndexError
+ *      Call on non-empty list with index > length, expect IndexError
+ *      Call on non-empty list with index == 0,
+ *          expect retval is OK,
+ *          expect length = 1
+ *          expect proper val
+ */
 void
-ut_list_new_002(void)
+ut_list_getItem_000(CuTest *tc)
 {
-    PmReturn_t retval = PM_RET_OK;
     pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
 
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
     retval = list_new(&pobj);
-    if (OBJ_IS_CONST(*pobj))
-    {
-        TEST_ERR(__LINE__);
-    }
+
+    retval = list_getItem(PM_ONE, 0, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = list_getItem(pobj, -1, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_getItem(pobj, 1, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_getItem(pobj, 0, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+
+    retval = list_append(pobj, PM_ONE);
+    retval = list_getItem(pobj, -2, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_getItem(pobj, 1, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_getItem(pobj, 10, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_getItem(pobj, 0, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, ((pPmList_t)pobj)->length == 1);
+    CuAssertTrue(tc, pval == PM_ONE);
 }
 
-/** new list, expect length == 0 */
+
+/**
+ * Test list_setItem():
+ *      Call on non-list object, expect a TypeError
+ *      Call on empty list with index < 0, expect IndexError
+ *      Call on empty list with index > 0, expect IndexError
+ *      Call on empty list with index = 0, expect IndexError
+ *      Call on non-empty list with index < -length, expect IndexError
+ *      Call on non-empty list with index == length, expect IndexError
+ *      Call on non-empty list with index > length, expect IndexError
+ *      Call on non-empty list with index == 0,
+ *          expect retval is OK,
+ *          expect length = 1
+ *          expect proper val
+ */
 void
-ut_list_new_003(void)
+ut_list_setItem_000(CuTest *tc)
 {
-    PmReturn_t retval = PM_RET_OK;
     pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
 
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
     retval = list_new(&pobj);
-    if (((pPmList_t)pobj)->length != 0)
-    {
-        TEST_ERR(__LINE__);
-    }
+
+    retval = list_setItem(PM_ONE, 0, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = list_setItem(pobj, -1, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_setItem(pobj, 1, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_setItem(pobj, 0, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+
+    retval = list_append(pobj, PM_ONE);
+    retval = list_setItem(pobj, -1, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_setItem(pobj, 1, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_setItem(pobj, 10, PM_ONE);
+    CuAssertTrue(tc, retval == PM_RET_EX_INDX);
+    retval = list_setItem(pobj, 0, PM_ZERO);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, ((pPmList_t)pobj)->length == 1);
+    retval = list_getItem(pobj, 0, &pval);
+    CuAssertTrue(tc, pval == PM_ZERO);
 }
 
-/** new list, expect list->val != C_NULL */
-void
-ut_list_new_004(void)
-{
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t plist = C_NULL;
 
-    retval = list_new(&plist);
-    if (((pPmList_t)plist)->val == C_NULL)
-    {
-        TEST_ERR(__LINE__);
-    }
+/**
+ * Test list_copy()
+ *      Call on non-list, expect TypeError
+ *      Call on empty list,
+ *          expect retval is OK,
+ *          expect obj is different (ptrs differ)
+ *          expect return obj is a list
+ *          expect return list length is 0
+ *      Call on non-empty list,
+ *          expect retval is OK,
+ *          expect obj is different
+ *          expect return obj is a list
+ *          expect return length is same as original
+ *          expect lists have identical contents
+ */
+void
+ut_list_copy_000(CuTest *tc)
+{
+    pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
+
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
+    retval = list_new(&pobj);
+
+    retval = list_copy(PM_ONE, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = list_copy(pobj, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj != pval);
+    CuAssertTrue(tc, OBJ_GET_TYPE(*pval) == OBJ_TYPE_LST);
+    CuAssertTrue(tc, ((pPmList_t)pval)->length == 0);
+
+    retval = list_append(pobj, PM_ONE);
+    retval = list_copy(pobj, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj != pval);
+    CuAssertTrue(tc, OBJ_GET_TYPE(*pval) == OBJ_TYPE_LST);
+    CuAssertTrue(tc, ((pPmList_t)pval)->length == ((pPmList_t)pobj)->length);
 }
 
 
-/**************************************************************/
-
-/** call with list == C_NULL, expect a ValueError */
+/**
+ * Test list_replicate()
+ *      Call on non-list, expect TypeError
+ *      Call on empty list,
+ *          expect retval is OK,
+ *          expect obj is different (ptrs differ)
+ *          expect return length is 0
+ *      Call on non-empty list,
+ *          expect retval is OK,
+ *          expect obj is different
+ *          expect return length is N x the original
+ *          expect list has identical contents repeated
+ */
 void
-ut_list_append_000(void)
+ut_list_replicate_000(CuTest *tc)
 {
-    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t pobj = C_NULL;
+    pPmObj_t pval;
+    PmReturn_t retval;
 
-    retval = list_append((pPmObj_t)C_NULL, (pPmObj_t)C_NULL);
-    if (retval != PM_RET_EX_VAL)
-    {
-        TEST_ERR(__LINE__);
-    }
+    retval = pm_init(MEMSPACE_RAM, C_NULL);
+    retval = list_new(&pobj);
+
+    retval = list_replicate(PM_ONE, 1, &pval);
+    CuAssertTrue(tc, retval == PM_RET_EX_TYPE);
+    retval = list_replicate(pobj, 1, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj != pval);
+    CuAssertTrue(tc, OBJ_GET_TYPE(*pval) == OBJ_TYPE_LST);
+    CuAssertTrue(tc, ((pPmList_t)pval)->length == 0);
+
+    retval = list_append(pobj, PM_ONE);
+    retval = list_replicate(pobj, 1, &pval);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj != pval);
+    CuAssertTrue(tc, OBJ_GET_TYPE(*pval) == OBJ_TYPE_LST);
+    CuAssertTrue(tc, ((pPmList_t)pval)->length == ((pPmList_t)pobj)->length);
 }
 
-/** call with item == C_NULL, expect a ValueError */
-void
-ut_list_append_001(void)
+
+/*
+ * Todo when list_insert is implemented:
+ *
+ * Test list_insert()
+ *      Call on non-list, expect TypeError
+ *      Call on empty list,
+ *          expect retval is OK,
+ *          expect return length is 1
+ *          expect obj[0] is same as given
+ *      Call on list of length 1 with index 0,
+ *          expect retval is OK,
+ *          expect return length is 2
+ *          expect obj[0] is same as given
+ *      Call on list of length 1 with index 1
+ *          expect retval is OK,
+ *          expect return length is 2
+ *          expect obj[1] is same as given
+ *      Call on list of length 1 with index >1
+ *          expect retval is OK,
+ *          expect return length is 2
+ *          expect obj[1] is same as given
+ */
+
+
+/** Make a suite from all tests in this file */
+CuSuite *getSuite_testList(void)
 {
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t plist = C_NULL;
+    CuSuite* suite = CuSuiteNew();
 
-    retval = list_new(&plist);
-    retval = list_append(plist, (pPmObj_t)C_NULL);
-    if (retval != PM_RET_EX_VAL)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
+    SUITE_ADD_TEST(suite, ut_list_new_000);
+    SUITE_ADD_TEST(suite, ut_list_append_000);
+    SUITE_ADD_TEST(suite, ut_list_getItem_000);
+    SUITE_ADD_TEST(suite, ut_list_copy_000);
+    SUITE_ADD_TEST(suite, ut_list_replicate_000);
 
-/** call with non-list argument, expect a ValueError */
-void
-ut_list_append_002(void)
-{
-    PmReturn_t retval = PM_RET_OK;
+/* Uncomment below when list_setItem() is implemented */
+/*  SUITE_ADD_TEST(suite, ut_list_setItem_000);*/
 
-    retval = list_append(PM_ZERO, PM_ONE);
-    if (retval != PM_RET_EX_VAL)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/** new list, append 1 item, expect list length == 1 */
-void
-ut_list_append_003(void)
-{
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t plist = C_NULL;
-
-    retval = list_new(&plist);
-    retval = list_append(plist, PM_ZERO);
-    if (((pPmList_t)plist)->length != 1)
-    {
-        TEST_ERR(__LINE__);
-    }
-}
-
-/**************************************************************/
-/** Set of all list test functions */
-void
-ut_list(void)
-{
-    /* list_new() tests */
-    ut_list_new_000();
-    ut_list_new_001();
-    ut_list_new_002();
-    ut_list_new_003();
-    ut_list_new_004();
-
-    /* list_append() tests */
-    ut_list_append_000();
-    ut_list_append_001();
-    ut_list_append_002();
-    ut_list_append_003();
+    return suite;
 }

@@ -1,15 +1,12 @@
 SHELL = /bin/sh
 
-#CDEFS = -DHEAP_SIZE=0x0D00 
-CDEFS = -g -Os -Wall -gstabs -Wstrict-prototypes -Werror -DHEAP_SIZE=0x1000 -DTARGET_DESKTOP -I../../vm -ansi
+TARGET ?= DESKTOP
+CDEFS = -DHEAP_SIZE=0x0D00
 CFLAGS = -I../../vm $(CDEFS)
-CU_SOURCES = CuTest.c AllTests.c
-#CU_SOURCES = $(wildcard Cu*.c) AllTests.c
-UT_SOURCES = ut_dict.c 
-#UT_SOURCES = $(wildcard ut*.c)
-ALL_SOURCES = $(CU_SOURCES) $(UT_SOURCES)
+UT_SOURCES = $(wildcard ut*.c)
+ALL_SOURCES = runTests.c CuTest.c $(UT_SOURCES)
 OBJS = $(ALL_SOURCES:.c=.o)
-PRODUCT = AllTests.out
+PRODUCT = runTests.out
 
 .PHONY: all check
 
@@ -17,17 +14,17 @@ PRODUCT = AllTests.out
 all : check
 
 check : $(PRODUCT)
-	$(PRODUCT)
 
 $(PRODUCT) : vm $(OBJS)
-	$(CC) -o AllTests.out $(OBJS) -L../../vm/ -lpmvm
+	$(CC) -o $@ $(OBJS) -L../../vm/ -lpmvm
+ifeq ($(TARGET), DESKTOP)
+	$(addprefix ./,$@)
+endif
 
+# The following object can't use CFLAGS because it needs
+# the standard string.h, not src/vm/string.h
 CuTest.o : CuTest.c
 	$(CC) -c -o $@ $<
-
-AllTests.o : AllTests.c
-	$(CC) -c -o $@ $<
-
 
 vm :
 	make -C ../../vm
@@ -35,3 +32,4 @@ vm :
 # Removes files made by default make
 clean :
 	$(RM) $(OBJS)
+	$(RM) $(PRODUCT)

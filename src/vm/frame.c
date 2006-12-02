@@ -75,6 +75,8 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
     uint8_t *paddr = C_NULL;
     uint8_t *pchunk;
 
+    C_ASSERT(OBJ_GET_TYPE(pfunc) == OBJ_TYPE_FXN);
+
     /* get fxn's code obj */
     pco = ((pPmFunc_t)pfunc)->f_co;
 

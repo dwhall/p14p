@@ -201,9 +201,7 @@ UNIMPLEMENTED_BCODES = (
     "IMPORT_FROM",
 #    "JUMP_FORWARD", "JUMP_IF_FALSE", "JUMP_IF_TRUE",
 #    "JUMP_ABSOLUTE", "FOR_LOOP", "LOAD_GLOBAL",
-## The following bytecode is not present in Python 2.0
-##    "CONTINUE_LOOP",
-#    "SETUP_LOOP",
+#    "CONTINUE_LOOP", "SETUP_LOOP",
     "SETUP_EXCEPT",
     "SETUP_FINALLY",
 #    "LOAD_FAST", "STORE_FAST",

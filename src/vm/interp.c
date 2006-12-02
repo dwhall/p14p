@@ -1081,6 +1081,8 @@ interpret(pPmFunc_t pfunc)
                 continue;
 
             case JUMP_ABSOLUTE:
+            case CONTINUE_LOOP:
+                /* Get target offset (bytes) */
                 t16 = GET_ARG();
                 /* jump to base_ip + arg */
                 IP = FP->fo_func->f_co->co_codeaddr + t16;
@@ -1180,11 +1182,6 @@ interpret(pPmFunc_t pfunc)
                 PM_BREAK_IF_ERROR(retval);
                 PM_PUSH(pobj2);
                 continue;
-
-            case CONTINUE_LOOP:
-                /* SystemError, unknown opcode */
-                PM_RAISE(retval, PM_RET_EX_SYS);
-                break;
 
             case SETUP_LOOP:
             {

@@ -46,6 +46,7 @@ Log
 ==========      ==============================================================
 Date            Action
 ==========      ==============================================================
+2006/12/01      #51: Update to Python 2.5 bytecodes
 2006/09/15      #28: Module with __NATIVE__ at root doesn't load
 2006/09/12      #2: Separate stdlib from user app
 2006/09/06      #24: Remove consts[0] == docstring assumption
@@ -173,6 +174,8 @@ UNIMPLEMENTED_BCODES = (
     "DELETE_SLICE+3",
 #    "INPLACE_ADD", "INPLACE_SUBTRACT",
 #    "INPLACE_MULTIPLY", "INPLACE_DIVIDE", "INPLACE_MODULO",
+#    INPLACE_FLOOR_DIVIDE, INPLACE_FLOOR_DIVIDE,
+    "BINARY_TRUE_DIVIDE", "INPLACE_TRUE_DIVIDE",
 #    "STORE_SUBSCR",
     "DELETE_SUBSCR",
 #    "BINARY_LSHIFT",

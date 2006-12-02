@@ -170,10 +170,10 @@ typedef enum PmBcode_e
     BINARY_ADD,
     BINARY_SUBTRACT,
     BINARY_SUBSCR,
-    UNUSED_1A,
-    UNUSED_1B,
-    UNUSED_1C,
-    UNUSED_1D,
+    BINARY_FLOOR_DIVIDE,
+    BINARY_TRUE_DIVIDE,
+    INPLACE_FLOOR_DIVIDE,
+    INPLACE_TRUE_DIVIDE,
     SLICE_0,                    /* d030 */
     SLICE_1,
     SLICE_2,                    /* 0x20 */

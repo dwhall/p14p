@@ -249,6 +249,8 @@ interpret(pPmFunc_t pfunc)
 
             case BINARY_DIVIDE:
             case INPLACE_DIVIDE:
+            case BINARY_FLOOR_DIVIDE:
+            case INPLACE_FLOOR_DIVIDE:
                 /* Raise TypeError if args aren't ints */
                 if ((OBJ_GET_TYPE(*TOS) != OBJ_TYPE_INT)
                     || (OBJ_GET_TYPE(*TOS1) != OBJ_TYPE_INT))

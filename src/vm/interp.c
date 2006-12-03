@@ -206,6 +206,18 @@ interpret(pPmFunc_t pfunc)
                 PM_BREAK_IF_ERROR(retval);
                 continue;
 
+            case GET_ITER:
+                /* Get the sequence from the top of stack */
+                pobj1 = TOS;
+
+                /* Convert sequence to sequence-iterator */
+                retval = seqiter_new(pobj1, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
+
+                /* Put sequence-iterator on top of stack */
+                TOS = pobj2;
+                break;
+
             case BINARY_MULTIPLY:
             case INPLACE_MULTIPLY:
                 /* If both objs are ints, perform the op */
@@ -721,6 +733,26 @@ interpret(pPmFunc_t pfunc)
 
                 /* Test again outside the for loop */
                 PM_BREAK_IF_ERROR(retval);
+                continue;
+
+            case FOR_ITER:
+                t16 = GET_ARG();
+                pobj1 = TOS;
+
+                /* Get the next item in the sequence iterator */
+                retval = seqiter_getNext(pobj1, &pobj2);
+
+                /* If StopIteration, pop iterator and exit loop */
+                if (retval == PM_RET_EX_STOP)
+                {
+                    pobj1 = PM_POP();
+                    retval = PM_RET_OK;
+                    IP += t16;
+                    continue;
+                }
+
+                /* Push the next item onto the stack */
+                PM_PUSH(pobj2);
                 continue;
 
             case STORE_ATTR:

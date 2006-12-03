@@ -105,9 +105,6 @@ EX_USAGE = 64
 # remove documentation string from const pool
 REMOVE_DOC_STR = 0
 
-# XXX remap bcode values to make parsing easier
-REMAP_BCODE_VALS = 0
-
 # Pm obj descriptor type constants
 # Must match PmType_e in pm.h
 OBJ_TYPE_NON = 0x00     # None
@@ -155,14 +152,16 @@ NATIVE_FUNC_PREFIX = "nat_"
 # maximum number of locals a native func can have
 NATIVE_NUM_LOCALS = 8
 
-# PyMite's unimplemented bytecodes (from Python 2.0)
+# PyMite's unimplemented bytecodes (from Python 2.0 through 2.5)
 # the commented-out bytecodes are implemented
 UNIMPLEMENTED_BCODES = (
 #    "STOP_CODE", "POP_TOP", "ROT_TWO", "ROT_THREE",
-#    "DUP_TOP", "ROT_FOUR", "UNARY_POSITIVE",
-#    "UNARY_NEGATIVE", "UNARY_NOT",
+#    "DUP_TOP", "ROT_FOUR", 
+    "NOP",
+#    "UNARY_POSITIVE", "UNARY_NEGATIVE", "UNARY_NOT",
     "UNARY_CONVERT",
 #    "UNARY_INVERT",
+    "LIST_APPEND",
 #    "BINARY_POWER",
 #    "BINARY_MULTIPLY", "BINARY_DIVIDE", "BINARY_MODULO",
 #    "BINARY_ADD", "BINARY_SUBTRACT",
@@ -180,18 +179,20 @@ UNIMPLEMENTED_BCODES = (
     "DELETE_SUBSCR",
 #    "BINARY_LSHIFT",
 #    "BINARY_RSHIFT", "BINARY_AND", "BINARY_XOR", "BINARY_OR",
-#    "INPLACE_POWER",
+#    "INPLACE_POWER", "GET_ITER", 
 #    "PRINT_EXPR", "PRINT_ITEM", "PRINT_NEWLINE",
 #    "PRINT_ITEM_TO", "PRINT_NEWLINE_TO",
 #    "INPLACE_LSHIFT", "INPLACE_RSHIFT",
 #    "INPLACE_AND", "INPLACE_XOR", "INPLACE_OR",
-#    "BREAK_LOOP", "LOAD_LOCALS", "RETURN_VALUE",
-    "IMPORT_STAR", "EXEC_STMT",
+#    "BREAK_LOOP", 
+    "WITH_CLEANUP",
+#    "LOAD_LOCALS", "RETURN_VALUE",
+    "IMPORT_STAR", "EXEC_STMT", "YIELD_VALUE",
 #    "POP_BLOCK",
     "END_FINALLY", "BUILD_CLASS",
 #    "STORE_NAME",
     "DELETE_NAME",
-#    "UNPACK_SEQUENCE", "STORE_ATTR",
+#    "UNPACK_SEQUENCE", "GET_ITER", "STORE_ATTR",
     "DELETE_ATTR",
 #    "STORE_GLOBAL",
     "DELETE_GLOBAL",
@@ -208,8 +209,7 @@ UNIMPLEMENTED_BCODES = (
     "DELETE_FAST",
 #    "SET_LINENO", "RAISE_VARARGS", "CALL_FUNCTION", "MAKE_FUNCTION",
     "BUILD_SLICE",
-## The following bytecodes are not present in Python 2.0
-##    "MAKE_CLOSURE", "LOAD_CLOSURE", "LOAD_DEREF", "STORE_DEREF",
+    "MAKE_CLOSURE", "LOAD_CLOSURE", "LOAD_DEREF", "STORE_DEREF",
     "CALL_FUNCTION_VAR", "CALL_FUNCTION_KW",
     "CALL_FUNCTION_VAR_KW", "EXTENDED_ARG"
     )
@@ -242,20 +242,9 @@ class PmImgCreator:
 
         # remove unimplmented bcodes
         for bcname in UNIMPLEMENTED_BCODES:
-            # in case bcname was misspelled
-            try:
+            if bcname in bcodes:
                 i = bcodes.index(bcname)
-            except Exception, e:
-                print bcname
-                raise e
-            bcodes[i] = None
-
-#        # bcode remap table
-#        if REMAP_BCODE_VALS:
-#           bcode_remap = range(256)
-#            # the following bcodes are remapped
-#            # NONE YET
-#            self.bcode_remap = bcode_remap
+                bcodes[i] = None
 
         # set class variables
         self.bcodes = bcodes

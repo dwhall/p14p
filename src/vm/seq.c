@@ -175,3 +175,69 @@ seq_getSubscript(pPmObj_t pobj, int16_t index, pPmObj_t *r_pobj)
 
     return retval;
 }
+
+
+PmReturn_t
+seqiter_getNext(pPmObj_t pobj, pPmObj_t *r_pitem)
+{
+    PmReturn_t retval;
+    int16_t length;
+
+    C_ASSERT(pobj != C_NULL);
+    C_ASSERT(*r_pitem != C_NULL);
+    C_ASSERT(OBJ_GET_TYPE(*pobj) == OBJ_TYPE_SQI);
+
+    /*
+     * Raise TypeError if object is not a sequence iterator
+     * otherwise, the get sequence's length
+     */
+    retval = seq_getLength(pobj, &length);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Raise StopIteration if at the end of the sequence */
+    if (((pPmSeqIter_t)pobj)->si_index == length)
+    {
+        /* Make null the pointer to the sequence */
+        ((pPmSeqIter_t)pobj)->si_sequence = C_NULL;
+        PM_RAISE(retval, PM_RET_EX_STOP);
+        return retval;
+    }
+
+    /* Get the item at the current index */
+    retval = seq_getSubscript(pobj, ((pPmSeqIter_t)pobj)->si_index, r_pitem);
+
+    /* Increment the index */
+    ((pPmSeqIter_t)pobj)->si_index++;
+
+    return retval;
+}
+
+
+PmReturn_t
+seqiter_new(pPmObj_t pobj, pPmObj_t *r_pobj)
+{
+    PmReturn_t retval;
+    uint8_t *pchunk;
+    pPmSeqIter_t psi;
+
+    C_ASSERT(pobj != C_NULL);
+    C_ASSERT(*r_pobj != C_NULL);
+
+    /* Raise a TypeError if pobj is not a sequence */
+    if ((OBJ_GET_TYPE(*pobj) != OBJ_TYPE_STR)
+        && (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_TUP)
+        && (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_LST))
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Alloc a chunk for the sequence iterator obj */
+    retval = heap_getChunk(sizeof(PmSeqIter_t), &pchunk);
+    PM_RETURN_IF_ERROR(retval);
+    
+    psi = (pPmSeqIter_t)pchunk;
+    psi->si_sequence = pobj;
+    psi->si_index = 0;
+    return retval;
+}

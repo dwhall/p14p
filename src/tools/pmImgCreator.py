@@ -152,11 +152,17 @@ NATIVE_FUNC_PREFIX = "nat_"
 # maximum number of locals a native func can have
 NATIVE_NUM_LOCALS = 8
 
+# Issue #51: In Python 2.5, the module identifier changed from '?' to '<module>'
+if float(sys.version[:3]) < 2.5:
+    MODULE_IDENTIFIER = "?"
+else:
+    MODULE_IDENTIFIER = "<module>"
+
 # PyMite's unimplemented bytecodes (from Python 2.0 through 2.5)
 # the commented-out bytecodes are implemented
 UNIMPLEMENTED_BCODES = (
 #    "STOP_CODE", "POP_TOP", "ROT_TWO", "ROT_THREE",
-#    "DUP_TOP", "ROT_FOUR", 
+#    "DUP_TOP", "ROT_FOUR",
     "NOP",
 #    "UNARY_POSITIVE", "UNARY_NEGATIVE", "UNARY_NOT",
     "UNARY_CONVERT",
@@ -179,12 +185,12 @@ UNIMPLEMENTED_BCODES = (
     "DELETE_SUBSCR",
 #    "BINARY_LSHIFT",
 #    "BINARY_RSHIFT", "BINARY_AND", "BINARY_XOR", "BINARY_OR",
-#    "INPLACE_POWER", "GET_ITER", 
+#    "INPLACE_POWER", "GET_ITER",
 #    "PRINT_EXPR", "PRINT_ITEM", "PRINT_NEWLINE",
 #    "PRINT_ITEM_TO", "PRINT_NEWLINE_TO",
 #    "INPLACE_LSHIFT", "INPLACE_RSHIFT",
 #    "INPLACE_AND", "INPLACE_XOR", "INPLACE_OR",
-#    "BREAK_LOOP", 
+#    "BREAK_LOOP",
     "WITH_CLEANUP",
 #    "LOAD_LOCALS", "RETURN_VALUE",
     "IMPORT_STAR", "EXEC_STMT", "YIELD_VALUE",
@@ -508,11 +514,9 @@ class PmImgCreator:
 
         Names/varnames filter:
             Ensure num names is less than 256.
-            If co_name is root "?":
-                1.  append path-less co_filename to co_names.
-                2.  change "?" to trimmed module name
-                    and append to co_names.
-            otherwise just append the co_name.
+            If co_name is the module identifier replace it with
+            the trimmed module name
+            otherwise just append the name to co_name.
 
         Bcode filter:
             Raise NotImplementedError for an invalid bcode.
@@ -586,8 +590,8 @@ class PmImgCreator:
                 consts[0] = None
 
                 # If this co is a module
-                # Issue #28: Module root, "?", must keep its bytecode
-                if co.co_name == "?":
+                # Issue #28: Module root must keep its bytecode
+                if co.co_name == MODULE_IDENTIFIER:
                     self.nativemods.append((co.co_filename, nativecode))
 
                 # Else this co is a function;
@@ -615,11 +619,8 @@ class PmImgCreator:
 
         ## Names filter
         names = list(co.co_names)
-        # if co_name is "?" change it to module name
-        if co.co_name == '?':
-            # append trimmed filename and module name
-            names.append(fn) # XXX remove, not needed
-            # append module name (filename without extension)
+        # if co_name is the module identifier change it to module name
+        if co.co_name == MODULE_IDENTIFIER:
             names.append(mn)
         # else use unmodified co_name
         else:

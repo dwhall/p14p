@@ -141,6 +141,9 @@ interpret(pPmFunc_t pfunc)
                 TOS1 = TOS2;
                 TOS2 = TOS3;
                 TOS3 = pobj1;
+                /* Fallthrough */
+                
+            case NOP:
                 continue;
 
             case UNARY_POSITIVE:

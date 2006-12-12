@@ -188,10 +188,10 @@ seqiter_getNext(pPmObj_t pobj, pPmObj_t *r_pitem)
     C_ASSERT(OBJ_GET_TYPE(*pobj) == OBJ_TYPE_SQI);
 
     /*
-     * Raise TypeError if object is not a sequence iterator
+     * Raise TypeError if sequence iterator's object is not a sequence
      * otherwise, the get sequence's length
      */
-    retval = seq_getLength(pobj, &length);
+    retval = seq_getLength(((pPmSeqIter_t)pobj)->si_sequence, &length);
     PM_RETURN_IF_ERROR(retval);
 
     /* Raise StopIteration if at the end of the sequence */
@@ -204,7 +204,9 @@ seqiter_getNext(pPmObj_t pobj, pPmObj_t *r_pitem)
     }
 
     /* Get the item at the current index */
-    retval = seq_getSubscript(pobj, ((pPmSeqIter_t)pobj)->si_index, r_pitem);
+    retval = seq_getSubscript(((pPmSeqIter_t)pobj)->si_sequence,
+                              ((pPmSeqIter_t)pobj)->si_index,
+                              r_pitem);
 
     /* Increment the index */
     ((pPmSeqIter_t)pobj)->si_index++;
@@ -235,9 +237,13 @@ seqiter_new(pPmObj_t pobj, pPmObj_t *r_pobj)
     /* Alloc a chunk for the sequence iterator obj */
     retval = heap_getChunk(sizeof(PmSeqIter_t), &pchunk);
     PM_RETURN_IF_ERROR(retval);
-    
+
+    /* Set the sequence iterator's fields */
     psi = (pPmSeqIter_t)pchunk;
+    OBJ_SET_TYPE(*psi, OBJ_TYPE_SQI);
     psi->si_sequence = pobj;
     psi->si_index = 0;
+
+    *r_pobj = (pPmObj_t)psi;
     return retval;
 }

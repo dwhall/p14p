@@ -142,7 +142,7 @@ interpret(pPmFunc_t pfunc)
                 TOS2 = TOS3;
                 TOS3 = pobj1;
                 /* Fallthrough */
-                
+
             case NOP:
                 continue;
 
@@ -219,7 +219,7 @@ interpret(pPmFunc_t pfunc)
 
                 /* Put sequence-iterator on top of stack */
                 TOS = pobj2;
-                break;
+                continue;
 
             case BINARY_MULTIPLY:
             case INPLACE_MULTIPLY:
@@ -745,7 +745,7 @@ interpret(pPmFunc_t pfunc)
                 /* Get the next item in the sequence iterator */
                 retval = seqiter_getNext(pobj1, &pobj2);
 
-                /* If StopIteration, pop iterator and exit loop */
+                /* If StopIteration, pop iterator and jump outside loop */
                 if (retval == PM_RET_EX_STOP)
                 {
                     pobj1 = PM_POP();
@@ -1294,10 +1294,8 @@ interpret(pPmFunc_t pfunc)
                                       &pobj2);
                 PM_BREAK_IF_ERROR(retval);
 
-                /* Get the value from the code int */
-                retval = (PmReturn_t)(((pPmInt_t)pobj2)->val & 0xFF);
-
                 /* Raise exception by breaking with retval set to code */
+                PM_RAISE(retval, (PmReturn_t)(((pPmInt_t)pobj2)->val & 0xFF));
                 break;
 
             case CALL_FUNCTION:

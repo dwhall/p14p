@@ -116,7 +116,7 @@ This is PyMite release 04
     - #58:  Added support for keyword "in"
     - #26:  Implemented more builtin functions
     - #49:  Removed null check from object methods
-    - #56:  Implemented *_POWER bytecodes
+    - #56:  Implemented \*_POWER bytecodes
     - #17:  Completed the implementation of obj_isEqual()
     - #54:  Changed seglist API so segnum/segindx are encapsulated
     - #10:  Created sequence_getSubscript()

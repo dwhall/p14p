@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#undef __FILE_ID__
+#define __FILE_ID__ 0x15
 /**
  * PyMite User API
  *

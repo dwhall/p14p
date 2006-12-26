@@ -4,7 +4,8 @@
 
 # Configure the contents of pmstdlib by editing this list
 PMSTDLIB_SOURCES = ../lib/__bi.py \
-                   ../lib/sys.py
+                   ../lib/sys.py \
+                   ../lib/plat.py
 
 TARGET ?= DESKTOP
 HEAP_SIZE ?= 0x1000
@@ -24,6 +25,7 @@ ifeq ($(DEBUG),true)
 endif
 ifeq ($(TARGET), DESKTOP)
 	CFLAGS += -ansi
+	SOURCES += plat/desktop.c
 else
 ifeq ($(TARGET), AVR)
 	TARGET_MCU ?= atmega103

@@ -25,6 +25,7 @@ ID  FILE
 
 ---------------- IDs for Platform Files
 0x50  plat/desktop.c    created 2006/12/26
+0x51  plat/avr.c        created 2006/12/27
 
 ---------------- IDs for Unit Test Files
 0x90  utest.c

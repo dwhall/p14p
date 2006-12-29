@@ -1,6 +1,6 @@
 /*
  * PyMite - A flyweight Python interpreter for 8-bit microcontrollers and more.
- * Copyright 2006 Dean Hall
+ * Copyright 2002 Dean Hall
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,10 +17,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#undef __FILE_ID__
-#define __FILE_ID__ 0x50
 /**
- * PyMite platform-specific routines for Desktop target
+ * Interactive Test 065
+ * Tests plat module's putb and getb functions
  *
  * Log
  * ---
@@ -28,53 +27,24 @@
  * 2006/12/26   #65: Create plat module with put and get routines
  */
 
-#include <stdio.h>
-
-#include "../pm.h"
+#include "pm.h"
 
 
-/* Desktop target shall use stdio for I/O routines, no init necessary */
-PmReturn_t
-plat_init(void)
+extern unsigned char usrlib_img[];
+
+
+int main(void)
 {
-    return PM_RET_OK;
+    PmReturn_t retval;
+
+    retval = pm_init(MEMSPACE_FLASH, usrlib_img);
+    PM_RETURN_IF_ERROR(retval);
+
+    puts("DIRECTIONS: Type one char input and <return> when prompted.");
+    puts("EXPECT: To see `Echo: `, the char you typed, the next two chars in the alphabet.");
+    puts("EXAMPLE:\n\tType a letter: x\n\tEcho: xyz");
+
+    retval = pm_run((uint8_t *)"t065");
+    pm_reportResult(retval);
+    return (int)retval;
 }
-
-
-/* Desktop target shall use stdio for I/O routines */
-PmReturn_t
-plat_getByte(uint8_t *b)
-{
-    int c;
-    PmReturn_t retval = PM_RET_OK;
-
-    c = getchar();
-    *b = c & 0xFF;
-
-    if (c == EOF)
-    {
-        PM_RAISE(retval, PM_RET_EX_IO);
-    }
-
-    return retval;
-}
-
-
-/* Desktop target shall use stdio for I/O routines */
-PmReturn_t
-plat_putByte(uint8_t b)
-{
-    int i;
-    PmReturn_t retval = PM_RET_OK;
-
-    i = putchar(b);
-
-    if ((i != b) || (i == EOF))
-    {
-        PM_RAISE(retval, PM_RET_EX_IO);
-    }
-
-    return retval;
-}
-
-

@@ -78,7 +78,8 @@ def putb(b):
     /* If arg is not an int, raise TypeError */
     if (OBJ_GET_TYPE(*pb) != OBJ_TYPE_INT)
     {
-        return PM_RET_EX_TYPE;
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
     }
 
     b = ((pPmInt_t)pb)->val & 0xFF;
@@ -88,5 +89,16 @@ def putb(b):
     """
     pass
 
+
+#
+# Prints a string to the default I/O.
+# Does not append a "\n" on its own (like Python's print statement and C's puts)
+# but it does convert "\n" to "\r\n" (a convenience for Win32 terminals)
+#
+def puts(s):
+    for c in s:
+        if (c == "\n"):
+            plat.putb(13)
+        plat.putb(ord(c))
 
 #:mode=c:

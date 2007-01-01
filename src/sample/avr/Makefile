@@ -397,7 +397,7 @@ extcoff: $(TARGET).elf
 
 # PyMite: The native fxn table and bytecode image are generated from python source
 $(TARGET)_nat.c $(TARGET)_img.c: $(TARGET).py
-	$(PMIMGCREATOR) -c -u -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(TARGET).py $(LIBNATIVE_SOURCES)
+	$(PMIMGCREATOR) -c -u --memspace=flash -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(TARGET).py $(LIBNATIVE_SOURCES)
 
 
 # Target: clean project.

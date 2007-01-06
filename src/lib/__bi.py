@@ -616,6 +616,43 @@ def type(o):
 
 
 #
+# Creates a code object from the given image string
+#
+def Co(i):
+    """__NATIVE__
+    PmReturn_t retval;
+    pPmObj_t pimg;
+    pPmObj_t pco;
+    uint8_t *imgaddr;
+    
+    /* If wrong number of args, raise TypeError */
+    if (NATIVE_GET_NUM_ARGS() != 1)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Raise ValueError if arg is not a string */
+    pimg = NATIVE_GET_LOCAL(0);
+    if (OBJ_GET_TYPE(*pimg) != OBJ_TYPE_STR)
+    {
+        PM_RAISE(retval, PM_RET_EX_VAL);
+        return retval;
+    }
+
+    /* Create a code object from the image */
+    imgaddr = (uint8_t *)&((pPmString_t)pimg)->val;
+    retval = obj_loadFromImg(MEMSPACE_RAM, &imgaddr, &pco);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Return the code object */
+    NATIVE_SET_TOS(pco);
+    return retval;
+    """
+    pass
+
+
+#
 # Allocates an exception class object
 #
 def _exn():

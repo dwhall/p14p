@@ -229,6 +229,14 @@ PmReturn_t pm_init(PmMemSpace_t memspace, uint8_t *pusrimg);
 PmReturn_t pm_run(uint8_t *modstr);
 
 
+/**
+ * Runs the interactive interpreter on the target
+ *
+ * @return Return status
+ */
+#define pm_runInteractive() pm_run((uint8_t *)"ipm")
+
+
 #ifdef TARGET_DESKTOP
 /**
  * Reports the return status to stdout and prints exception info if raised

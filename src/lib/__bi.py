@@ -157,7 +157,7 @@ def eval(co, g):
     PM_RETURN_IF_ERROR(retval);
 
     /* If 2nd arg exists, use it as the global namespace for the new func */
-    if (NATIVE_GET_NUM_ARGS() > 0)
+    if (NATIVE_GET_NUM_ARGS() > 1)
     {
         ((pPmFrame_t)pnewframe)->fo_globals = (pPmDict_t)pg;
     }
@@ -173,7 +173,7 @@ def eval(co, g):
      * so we return/jump to it after exiting from eval
      */
     ((pPmFrame_t)pnewframe)->fo_back = NATIVE_GET_PFRAME()->fo_back;
-    NATIVE_GET_PFRAME()->fo_back = (pPmFrame_t)pnewframe;
+    NATIVE_GET_PFRAME() = (pPmFrame_t)pnewframe;
     
     return retval;
     """

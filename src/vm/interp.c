@@ -71,9 +71,10 @@
  * Prototypes
  **************************************************************/
 
-extern PmReturn_t (* std_nat_fxn_table[])(pPmFrame_t, signed char);
-extern PmReturn_t (* usr_nat_fxn_table[])(pPmFrame_t, signed char);
-PmReturn_t nat___bi_pow(pPmFrame_t pframe, signed char numargs);
+extern PmReturn_t (* std_nat_fxn_table[])(pPmFrame_t *, signed char);
+extern PmReturn_t (* usr_nat_fxn_table[])(pPmFrame_t *, signed char);
+PmReturn_t nat___bi_pow(pPmFrame_t *pframe, signed char numargs);
+
 
 /***************************************************************
  * Functions
@@ -201,7 +202,7 @@ interpret(pPmFunc_t pfunc)
                 gVmGlobal.nativeframe.nf_locals[0] = TOS;
 
                 /* CALL NATIVE FXN */
-                retval = nat___bi_pow(FP, 2);
+                retval = nat___bi_pow(&pframe, 2);
                 /* RETURN FROM NATIVE FXN */
 
                 /* Put result on stack */
@@ -1370,19 +1371,29 @@ interpret(pPmFunc_t pfunc)
                     /* Positive index is a stdlib func */
                     if (t16 >= 0)
                     {
-                        retval = std_nat_fxn_table[t16](FP, t8);
+                        retval = std_nat_fxn_table[t16](&pframe, t8);
                     }
                     /* Negative index is a usrlib func */
                     else
                     {
-                        retval = usr_nat_fxn_table[-t16](FP, t8);
+                        retval = usr_nat_fxn_table[-t16](&pframe, t8);
                     }
                     /*
                      * RETURN FROM NATIVE FXN
                      */
 
-                    /* pop func, push result */
-                    TOS = gVmGlobal.nativeframe.nf_stack;
+                    /* If the frame pointer was switched, proceed with it */
+                    if (retval == PM_RET_FRAME_SWITCH)
+                    {
+                        TOS = PM_NONE;
+                        retval = PM_RET_OK;
+                    }
+                    
+                    /* Otherwise, return the result from the native function */
+                    else
+                    {
+                        TOS = gVmGlobal.nativeframe.nf_stack;
+                    }
                     PM_BREAK_IF_ERROR(retval);
                 }
                 continue;

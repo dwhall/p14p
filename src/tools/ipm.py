@@ -58,7 +58,7 @@ EX_USAGE = 64
 PMVM_EXE = "../tests/interactive/t067.out"
 IPM_PROMPT = "ipm> "
 COMPILE_FN = "<ipm>"
-COMPILE_MODE = "single"
+COMPILE_MODE = "exec"
 HELP_MESSAGE = "This is the interactive PyMite command line.\n" \
                "Just type the code that you want the target device to run.\n" \
                "Type another return if you see no prompt to exit multiline mode.\n" \

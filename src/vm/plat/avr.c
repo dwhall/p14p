@@ -25,14 +25,31 @@
  * Log
  * ---
  *
+ * 2007/01/10   Added time tick service for desktop (POSIX) and AVR. (P.Adelt)
  * 2006/12/26   #65: Create plat module with put and get routines
  */
 
 
 #include <stdio.h>
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 #include "../pm.h"
+
+/***************************************************************
+ * Defines
+ **************************************************************/
+ 
+/***************************************************************
+ * Globals
+ **************************************************************/
+
+volatile uint32_t plat_ticks = 0;
+volatile uint8_t plat_switchThreads = 0;
+
+/***************************************************************
+ * Functions
+ **************************************************************/
 
 
 /*
@@ -50,8 +67,30 @@ plat_init(void)
     /* Enable the transmit and receive pins */
     UCR = _BV(TXEN) | _BV(RXEN);
     /* PORT END */
+    
+    /* PORT BEGIN: Configure a timer that fits your needs. */
+    /* Use T/C0 in synchronous mode, aim for a tick rate of
+     * several hundred Hz */
+    #if (TARGET_MCU == atmega103) || (TARGET_MCU == atmega128)
+    /* set T/C0 to use synchronous clock */
+    ASSR &= ~(1<<AS0);
+    /* set prescaler to /8 */
+    TCCR0 &= ~0x07;
+    TCCR0 |= (1<<CS01);
+    #else
+    #error No timer configuration is known for this AVR.
+    #endif 
+    /* PORT END */
 
     return PM_RET_OK;
+}
+
+ISR(TIMER0_OVF_vect) 
+{
+	plat_ticks++;
+	if (plat_ticks % THREAD_SWITCH_TICKS == 0) {
+		plat_switchThreads = 1;
+	}
 }
 
 
@@ -99,4 +138,15 @@ plat_putByte(uint8_t b)
     /* PORT END */
 
     return PM_RET_OK;
+}
+
+/* remember that 32bit-accesses are non-atomic on AVR */
+uint32_t
+plat_getTicks(void)
+{
+	uint32_t result;
+	cli();
+	result = plat_ticks;
+	sei();
+	return result;
 }

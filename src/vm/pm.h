@@ -183,6 +183,7 @@ typedef enum PmReturn_e
  * Includes (order is critical)
  **************************************************************/
 
+#include "features.h"
 #include "sli.h"
 #include "mem.h"
 #include "obj.h"
@@ -202,6 +203,7 @@ typedef enum PmReturn_e
 #include "img.h"
 #include "global.h"
 #include "misc.h"
+#include "thread.h"
 #include "plat/plat.h"
 
 
@@ -237,5 +239,12 @@ PmReturn_t pm_run(uint8_t *modstr);
  */
 void pm_reportResult(PmReturn_t result);
 #endif /* TARGET_DESKTOP */
+
+/**
+ * Prints exception information for result. Does nothing on non-desktop targets.
+ * 
+ * @param result		Return status to be displayed.
+ */
+void pm_printError(PmReturn_t result);
 
 #endif /* __PM_H__ */

@@ -25,18 +25,42 @@
  * Log
  * ---
  *
+ * 2007/01/10   Added time tick service for desktop (POSIX) and AVR. (P.Adelt)
  * 2006/12/26   #65: Create plat module with put and get routines
  */
 
 #include <stdio.h>
-
+#include <time.h>
 #include "../pm.h"
 
+/***************************************************************
+ * Globals
+ **************************************************************/
 
-/* Desktop target shall use stdio for I/O routines, no init necessary */
+struct timespec plat_starttime;
+uint32_t plat_timePerTickUsec;
+uint32_t plat_lastThreadSwitchTicks = 0;
+/** amount of ticks to pass between two thread switches */
+uint32_t plat_threadSwitchTicks;
+
+ 
+/***************************************************************
+ * Functions
+ **************************************************************/
+
+/* Desktop target shall use stdio for I/O routines.
+ * Init timer resolution. */
 PmReturn_t
 plat_init(void)
 {
+	struct timespec timeres;
+	clock_getres(CLOCK_REALTIME, &timeres);
+	plat_timePerTickUsec = (1000000UL*timeres.tv_sec)+(timeres.tv_nsec/1000);
+	 
+	clock_gettime(CLOCK_REALTIME, &plat_starttime);
+	
+	plat_threadSwitchTicks = ((1000000UL/THREAD_RESCHEDULE_FREQUENCY)
+		/PLAT_TIME_PER_TICK_USEC);
     return PM_RET_OK;
 }
 
@@ -77,4 +101,24 @@ plat_putByte(uint8_t b)
     return retval;
 }
 
+uint32_t plat_getTicks(void)
+{
+	struct timespec currtime;
+	clock_gettime(CLOCK_REALTIME, &currtime);
+	return ((unsigned long long)(currtime.tv_sec-plat_starttime.tv_sec))
+		*1000000ULL+(unsigned long long)((currtime.tv_nsec-plat_starttime.tv_nsec)/1000)
+		/ plat_timePerTickUsec;
+}
 
+uint8_t plat_switchThreads(void)
+{
+	uint32_t currentTicks = plat_getTicks();
+	
+	if (currentTicks % plat_threadSwitchTicks == 0) {
+		plat_lastThreadSwitchTicks = currentTicks;
+		return 1;
+	}
+	
+	return 0;
+
+}

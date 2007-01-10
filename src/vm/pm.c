@@ -27,6 +27,7 @@
  * Log
  * ---
  *
+ * 2007/01/09   Refactored for green thread support (P.Adelt)
  * 2006/09/16   #16: Create pm_init() that does the initial housekeeping
  */
 
@@ -79,16 +80,29 @@ PmReturn_t pm_run(uint8_t *modstr)
     retval = mod_import(pstring, &pmod);
     PM_RETURN_IF_ERROR(retval);
 
-    /* Load builtins into root module */
-    retval = global_loadBuiltins((pPmFunc_t)pmod);
+    /* Load builtins into thread */
+    retval = global_setBuiltins((pPmFunc_t)pmod);
     PM_RETURN_IF_ERROR(retval);
-
+    
     /* Interpret the module's bcode */
-    retval = interpret((pPmFunc_t)pmod);
+    retval = interp_addThread((pPmFunc_t)pmod);
+    PM_RETURN_IF_ERROR(retval);
+    retval = interpret(INTERP_RETURN_ON_NO_THREADS);
 
     return retval;
 }
 
+void pm_printError(PmReturn_t result)
+{
+#ifdef TARGET_DESKTOP
+        printf("Error:     0x%02X\n", result);
+        printf("  Release: 0x%02X\n", gVmGlobal.errVmRelease);
+#if __DEBUG__
+        printf("  FileId:  0x%02X\n", gVmGlobal.errFileId);
+        printf("  LineNum: %d\n", gVmGlobal.errLineNum);
+#endif
+#endif
+}
 
 #ifdef TARGET_DESKTOP
 
@@ -100,12 +114,7 @@ void pm_reportResult(PmReturn_t result)
     }
     else
     {
-        printf("Error:     0x%02X\n", result);
-        printf("  Release: 0x%02X\n", gVmGlobal.errVmRelease);
-#if __DEBUG__
-        printf("  FileId:  0x%02X\n", gVmGlobal.errFileId);
-        printf("  LineNum: %d\n", gVmGlobal.errLineNum);
-#endif
+    	pm_printError(result);
     }
 }
 #endif /* TARGET_DESKTOP */

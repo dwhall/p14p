@@ -26,6 +26,7 @@
  *
  * Log:
  *
+ * 2007/01/09   Printing support (P.Adelt)
  * 2002/04/30   First.
  */
 
@@ -124,6 +125,15 @@ PmReturn_t dict_setItem(pPmObj_t pdict,
                         pPmObj_t pkey,
 						pPmObj_t pval);
 
+#ifdef HAVE_PRINT
+/**
+ * Print out a dict. Uses obj_print() to print elements.
+ * 
+ * @param pobj Object to print.
+ * @return Return status
+ */
+PmReturn_t dict_print(pPmObj_t pdict);
+#endif /* HAVE_PRINT */
 
 #if 0
 /* TBD */

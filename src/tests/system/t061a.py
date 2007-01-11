@@ -24,9 +24,6 @@
 
 
 print "Thread A"
-x = 0
-while x<100:
-    x += 1
 x = -42
 y = 12
 for i in range(10):

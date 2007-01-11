@@ -41,8 +41,9 @@
  **************************************************************/
 
 #include <stdint.h>
-#ifdef TARGET_DESKTOP
 #include <stdio.h>
+#ifdef TARGET_AVR
+#include <avr/pgmspace.h>
 #endif
 
 /***************************************************************

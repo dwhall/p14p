@@ -86,9 +86,9 @@ extern uint32_t plat_timePerTickUsec;
  */
 #ifdef TARGET_AVR
 
-extern uint8_t plat_switchThreads;
-#define PLAT_SWITCH_THREADS plat_switchThreads;
-#define THREAD_SWITCH_TICKS ((1000000UL/THREAD_RESCHEDULE_FREQUENCY)
+extern volatile uint8_t plat_switchThreads;
+#define PLAT_SWITCH_THREADS plat_switchThreads
+#define THREAD_SWITCH_TICKS ((1000000UL/THREAD_RESCHEDULE_FREQUENCY) \
 		/PLAT_TIME_PER_TICK_USEC)
 
 #else /* !TARGET_AVR */

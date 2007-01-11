@@ -183,12 +183,12 @@ int_print(pPmObj_t pint)
 
 	#ifdef TARGET_AVR
 	bytesWritten = snprintf_P((uint8_t*)&tBuffer, sizeof(tBuffer),
-		PSTR("%li"), pint->val);
+		PSTR("%li"), ((pPmInt_t)pint)->val);
 	#else
 	/* This does not use snprintf because glibc's snprintf is only
 	 * included for compiles without strict-ansi.
 	 */
-	bytesWritten = sprintf((uint8_t*)&tBuffer, "%li", ((pPmInt_t)pint)->val);
+	bytesWritten = sprintf((void*)&tBuffer, "%li", (long int)((pPmInt_t)pint)->val);
 	#endif /* !TARGET_AVR */
 	
 		

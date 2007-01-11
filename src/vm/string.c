@@ -308,7 +308,7 @@ string_print(pPmObj_t pstr)
 			/* This does not use snprintf because glibc's snprintf is only
 			 * included for compiles without strict-ansi.
 			 */
-			sprintf((uint8_t*)&tBuffer, "\\x%02x", ch);
+			sprintf((void*)&tBuffer, "\\x%02x", ch);
 			#endif /* !TARGET_AVR */
 
 			for (k=0; k<4; k++)

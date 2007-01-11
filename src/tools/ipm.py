@@ -40,8 +40,8 @@ Date            Action
 """
 
 
-import cmd, getopt, popen2, sys
-import pmImgCreator
+import cmd, getopt, os, subprocess, sys
+import ipopen, pmImgCreator
 
 
 __usage__ = """USAGE:
@@ -51,9 +51,6 @@ __usage__ = """USAGE:
             to/from the target, which is the vm also running on the desktop.
             ipm will spawn the process and run the vm.
     """
-
-# Exit error codes (from /usr/include/sysexits.h)
-EX_USAGE = 64
 
 PMVM_EXE = "../tests/interactive/t067.out"
 IPM_PROMPT = "ipm> "
@@ -75,24 +72,26 @@ class PipeConnection(Connection):
 
 
     def open(self, target):
-        (self.child_stdout,
-         self.child_stdin,
-         self.child_stderr) = popen2.popen3(target)
+        if True:
+            p = subprocess.Popen(target,
+                                 shell=True,
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 close_fds=True)
+            self.write = p.stdin.write
+            self.read = p.stdout.read
 
-        # The write function shall write to the child's stdin
-        self.write = self.child_stdin.write
-
-        # The read function shall read from the child's stdout
-        self.read = self.child_stdout.read
-
-        # The error function shall write to the child's stderr
-        self.error = self.child_stderr.write
-
-
-    def close(self,):
-        self.child_stdout.close()
-        self.child_stdin.close()
-        self.child_stderr.close()
+        # I would like to use this, but it's not working yet
+        else:
+            p = ipopen.Popen(target,
+                             shell=True,
+                             stdin=ipopen.PIPE,
+                             stdout=ipopen.PIPE,
+                             stderr=ipopen.PIPE,
+                             close_fds=True)
+            self.write = p.send
+            self.read = p.recv
 
 
 class Interactive(cmd.Cmd):
@@ -143,13 +142,18 @@ class Interactive(cmd.Cmd):
 
         # Print any conversion errors
         except Exception, e:
-            print e.__class__.__name__, ":", e
+            self.stdout.write("%s:%s\n" % (e.__class__.__name__, e))
 
-        # TODO: Otherwise send the image and print the reply
+        # Otherwise send the image and print the reply
         else:
-            print "TODO: Send code image (%d bytes)." % len(codeimg)#DBG
-            print "DEBUG: img = ", repr(codeimg)
+            print "DEBUG (send %d bytes): img = %s" % (len(codeimg),
+                                                       repr(codeimg))
             self.conn.write(codeimg)
+            rv = self.conn.read()
+            if rv:
+                print "REPLY: ", rv
+            else:
+                self.stdout.write("Connection lost, type Ctrl+D to quit.\n")
 
 
     def onecmd(self, line):
@@ -162,13 +166,13 @@ class Interactive(cmd.Cmd):
 
         # Handle ctrl+D (End Of File) input, stop interactive prompt
         if line == "EOF":
-            # Send disconnect command to target
+            # Send invalid image to disconnect the target
             self.conn.write("\0")
-
-            # Close the connection
-            self.conn.close()
+            # The connection will close automatically
 
             self.stdout.write("\n")
+            
+            # Quit the run loop
             self.stop = True
             return True
 
@@ -189,7 +193,7 @@ class Interactive(cmd.Cmd):
 
                 # Print any other syntax error
                 if not se.msg.startswith("unexpected EOF while parsing"):
-                    print se.__class__.__name__, ":", se
+                    self.stdout.write("%s:%s\n" % (se.__class__.__name__, se))
                     return
 
                 # Restore the newline chopped by cmd.py:140
@@ -201,7 +205,7 @@ class Interactive(cmd.Cmd):
 
             # Print any other exception
             except Exception, e:
-                print e.__class__.__name__, ":", e
+                self.stdout.write("%s:%s\n" % (e.__class__.__name__, e))
                 return
 
         # Process the input
@@ -231,11 +235,11 @@ def parse_cmdline():
     except Exception, e:
         raise e
         print __usage__
-        sys.exit(EX_USAGE)
+        sys.exit(os.EX_USAGE)
 
     if not opts:
         print __usage__
-        sys.exit(EX_USAGE)
+        sys.exit(os.EX_USAGE)
 
     for opt in opts:
         if opt[0] == "-d":

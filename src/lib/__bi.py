@@ -114,7 +114,21 @@ def chr(n):
     pass
 
 
+#
+# eval() wraps _eval() because _eval() needs an interpreted
+# function's frame on the frame stack in order to work properly.
+#
 def eval(co, g):
+#    return _eval(co, g)
+
+
+#
+# _eval() is a native function.  Native functions do not get their own
+# frame on the frame stack, so eval() wraps this function.
+#
+# DO NOT CALL THIS FUNCTION FOR ANY REASON.
+#
+#def _eval(co, g):
     """__NATIVE__
     PmReturn_t retval;
     pPmObj_t pco;
@@ -169,12 +183,13 @@ def eval(co, g):
     }
 
     /*
-     * Insert the new frame under the current frame
-     * so we return/jump to it after exiting from eval
+     * Set the fo_back frame so flow returns to eval() when completed.
+     * Set the current pframe so the new frame is interpreted immediately
+     * after this function returns.
      */
-    ((pPmFrame_t)pnewframe)->fo_back = NATIVE_GET_PFRAME()->fo_back;
+    ((pPmFrame_t)pnewframe)->fo_back = NATIVE_GET_PFRAME();
     NATIVE_GET_PFRAME() = (pPmFrame_t)pnewframe;
-    
+
     return retval;
     """
     pass
@@ -624,7 +639,7 @@ def Co(i):
     pPmObj_t pimg;
     pPmObj_t pco;
     uint8_t *imgaddr;
-    
+
     /* If wrong number of args, raise TypeError */
     if (NATIVE_GET_NUM_ARGS() != 1)
     {

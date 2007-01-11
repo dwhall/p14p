@@ -93,8 +93,9 @@ def _getImg():
 # and evaluates the code object.
 #
 def ipm():
-    while 1:
-        eval(Co(_getImg()))
+#    while 1:
+    if 1:
+        rv = eval(Co(_getImg()))
 
 
 # Run the interactive interface apon import

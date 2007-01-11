@@ -40,8 +40,8 @@ int main(void)
     pPmObj_t pmodA;
     pPmObj_t pmodB;
     pPmObj_t pstring;
-    uint8_t *pmodstrA = "t061a";
-    uint8_t *pmodstrB = "t061b";
+    uint8_t *pmodstrA = (uint8_t*)"t061a";
+    uint8_t *pmodstrB = (uint8_t*)"t061b";
 
     retval = pm_init(MEMSPACE_FLASH, usrlib_img);
     PM_RETURN_IF_ERROR(retval);

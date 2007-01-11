@@ -184,7 +184,7 @@ typedef enum PmReturn_e
  * Includes (order is critical)
  **************************************************************/
 
-#include "features.h"
+#include "pmfeatures.h"
 #include "sli.h"
 #include "mem.h"
 #include "obj.h"

@@ -8,6 +8,7 @@ PMIMGCREATOR := ../../tools/pmImgCreator.py
 CDEFS = -DHEAP_SIZE=$(HEAP_SIZE) -DTARGET_$(TARGET) -D__DEBUG__=1
 CFLAGS = -g -ggdb -Os -Wall -gstabs -Wstrict-prototypes -Werror $(CDEFS)
 CFLAGS += -I../../vm
+LFLAGS = 
 SOURCES = $(wildcard t???.c)
 PY_SOURCES = $(SOURCES:.c=.py)
 EXECS = $(SOURCES:.c=.out)
@@ -16,6 +17,11 @@ NAT_SOURCES = $(subst .py,_nat.c, $(PY_SOURCES))
 
 ifeq ($(TARGET), DESKTOP)
 	CFLAGS += -ansi
+	UNAME = $(shell uname -s 2>/dev/null)
+	# Cygwin does not tolerate -lrt, Linux needs it
+	ifeq (,$(findstring CYGWIN,$(shell uname)))
+		LFLAGS += -lrt
+	endif
 endif
 ifeq ($(TARGET), AVR)
 	AR = avr-ar
@@ -26,7 +32,7 @@ endif
 
 # Build an executable from the C sources
 %.out : %*_nat.c %*_img.c %.c
-	$(CC) $(CFLAGS) -o $@ $*_nat.c $*_img.c $*.c ../../vm/libpmvm.a
+	$(CC) $(LFLAGS) $(CFLAGS) -o $@ $*_nat.c $*_img.c $*.c ../../vm/libpmvm.a
 ifeq ($(TARGET), DESKTOP)
 	$(addprefix ./,$@)
 endif

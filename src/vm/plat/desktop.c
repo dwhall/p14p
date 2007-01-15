@@ -68,6 +68,7 @@ plat_putByte(uint8_t b)
     PmReturn_t retval = PM_RET_OK;
 
     i = putchar(b);
+    fflush(stdout);
 
     if ((i != b) || (i == EOF))
     {

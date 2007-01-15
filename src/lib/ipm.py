@@ -92,10 +92,15 @@ def _getImg():
 # Waits for a code image, puts it into ram, makes a code object from it
 # and evaluates the code object.
 #
+import plat
 def ipm():
-#    while 1:
-    if 1:
-        rv = eval(Co(_getImg()))
+    g = globals()
+    while 1:
+        rv = eval(Co(_getImg()), g)
+        if rv == None:
+            plat.putb(10)
+        else:
+            plat.puts("rv value\n")
 
 
 # Run the interactive interface apon import

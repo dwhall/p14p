@@ -41,7 +41,7 @@ Date            Action
 
 
 import cmd, getopt, os, subprocess, sys
-import ipopen, pmImgCreator
+import pmImgCreator
 
 
 __usage__ = """USAGE:
@@ -60,6 +60,7 @@ HELP_MESSAGE = "This is the interactive PyMite command line.\n" \
                "Just type the code that you want the target device to run.\n" \
                "Type another return if you see no prompt to exit multiline mode.\n" \
                "Type ctrl+D to quit.\n"
+REPLY_TERMINATOR = '\n'
 
 
 class Connection(object):
@@ -72,26 +73,26 @@ class PipeConnection(Connection):
 
 
     def open(self, target):
-        if True:
-            p = subprocess.Popen(target,
-                                 shell=True,
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
-                                 close_fds=True)
-            self.write = p.stdin.write
-            self.read = p.stdout.read
+        self.child = subprocess.Popen(target,
+                                      shell=True,
+                                      stdin=subprocess.PIPE,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE,
+                                      close_fds=True)
 
-        # I would like to use this, but it's not working yet
-        else:
-            p = ipopen.Popen(target,
-                             shell=True,
-                             stdin=ipopen.PIPE,
-                             stdout=ipopen.PIPE,
-                             stderr=ipopen.PIPE,
-                             close_fds=True)
-            self.write = p.send
-            self.read = p.recv
+
+    def read(self,):
+        sa = []
+        c = ""
+        while c != REPLY_TERMINATOR:
+            c = self.child.stdout.read(1)
+            sa.append(c)
+        return "".join(sa)
+
+
+    def write(self, msg):
+        self.child.stdin.write(msg)
+        self.child.stdin.flush()
 
 
 class Interactive(cmd.Cmd):
@@ -146,14 +147,14 @@ class Interactive(cmd.Cmd):
 
         # Otherwise send the image and print the reply
         else:
-            print "DEBUG (send %d bytes): img = %s" % (len(codeimg),
-                                                       repr(codeimg))
+#            print "DEBUG (send %d bytes): img = %s" % (len(codeimg),
+#                                                       repr(codeimg))
             self.conn.write(codeimg)
             rv = self.conn.read()
-            if rv:
-                print "REPLY: ", rv
-            else:
+            if rv == None:
                 self.stdout.write("Connection lost, type Ctrl+D to quit.\n")
+            else:
+                print "REPLY: ", rv
 
 
     def onecmd(self, line):
@@ -171,7 +172,7 @@ class Interactive(cmd.Cmd):
             # The connection will close automatically
 
             self.stdout.write("\n")
-            
+
             # Quit the run loop
             self.stop = True
             return True

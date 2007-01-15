@@ -231,6 +231,23 @@ PmReturn_t pm_init(PmMemSpace_t memspace, uint8_t *pusrimg);
  */
 PmReturn_t pm_run(uint8_t *modstr);
 
+/**
+ * Needs to be called periodically by a platform specific means.
+ * For the desktop target, it is periodically called using a signal.
+ * For embedded targets, it needs to be called periodically. It should
+ * be called from a timer interrupt.
+ * 
+ * @param usecsSinceLastCall Microseconds (not less than those) that passed
+ *                           since last call. This must be <64535.
+ */
+void pm_vmPeriodic(uint16_t usecsSinceLastCall);
+
+/**
+ * Get the number of timer ticks that have passed since system start.
+ * On embedded targets, this operatoin is made atomic by temporarily disabling
+ * the interrupts. The old state is restored afterwards.
+ */
+uint32_t pm_getMsTicks(void);
 
 #ifdef TARGET_DESKTOP
 /**

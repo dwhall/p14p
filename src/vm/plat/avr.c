@@ -37,15 +37,21 @@
 #include "../pm.h"
 
 /***************************************************************
- * Defines
+ * Constants
  **************************************************************/
  
-/***************************************************************
- * Globals
- **************************************************************/
+#ifdef AVR_DEFAULT_TIMER_SOURCE
 
-volatile uint32_t plat_ticks = 0;
-volatile uint8_t plat_switchThreads = 0;
+/* Hint: 1,000,000 µs/s * 256 T/C0 clock cycles per tick * 8 CPU clocks per  
+ * T/C0 clock cycle / x,000,000 CPU clock cycles per second -> µs per tick  
+ */  
+#define PLAT_TIME_PER_TICK_USEC (1000000ULL*256ULL*8ULL/F_CPU)
+
+#endif /* AVR_DEFAULT_TIMER_SOURCE */
+  
+/***************************************************************
+ * Defines
+ **************************************************************/
 
 /***************************************************************
  * Functions
@@ -68,6 +74,7 @@ plat_init(void)
     UCR = _BV(TXEN) | _BV(RXEN);
     /* PORT END */
     
+    #ifdef AVR_DEFAULT_TIMER_SOURCE
     /* PORT BEGIN: Configure a timer that fits your needs. */
     /* Use T/C0 in synchronous mode, aim for a tick rate of
      * several hundred Hz */
@@ -78,20 +85,20 @@ plat_init(void)
     TCCR0 &= ~0x07;
     TCCR0 |= (1<<CS01);
     #else
-    #error No timer configuration is known for this AVR.
+    #error No timer configuration is implemented for this AVR.
     #endif 
+    #endif /* AVR_DEFAULT_TIMER_SOURCE */
     /* PORT END */
 
     return PM_RET_OK;
 }
 
+#ifdef AVR_DEFAULT_TIMER_SOURCE
 ISR(TIMER0_OVF_vect) 
 {
-	plat_ticks++;
-	if (plat_ticks % THREAD_SWITCH_TICKS == 0) {
-		plat_switchThreads = 1;
-	}
+	pm_vmPeriodic(PLAT_TIME_PER_TICK_USEC);
 }
+#endif
 
 
 /*
@@ -138,15 +145,4 @@ plat_putByte(uint8_t b)
     /* PORT END */
 
     return PM_RET_OK;
-}
-
-/* remember that 32bit-accesses are non-atomic on AVR */
-uint32_t
-plat_getTicks(void)
-{
-	uint32_t result;
-	cli();
-	result = plat_ticks;
-	sei();
-	return result;
 }

@@ -130,10 +130,10 @@ typedef struct PmFrame_s
     pPmDict_t fo_globals;
     /** points to next empty slot in fo_locals (1 past TOS) */
     pPmObj_t *fo_sp;
-    /** array of local vars and stack (space appended at alloc) */
-    pPmObj_t fo_locals[0];
     /** frame can be an import-frame that handles RETURN differently */
     uint8_t fo_isImport:1;
+    /** array of local vars and stack (space appended at alloc) */
+    pPmObj_t fo_locals[0];
 } PmFrame_t, *pPmFrame_t;
 
 /**

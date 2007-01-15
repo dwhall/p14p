@@ -45,6 +45,9 @@
 #define INTERP_LOOP_FOREVER	0
 #define INTERP_RETURN_ON_NO_THREADS 1
 
+/** Number of millisecond-ticks to pass before scheduler is run */
+#define INTERP_THREAD_TIMESLICE_MS	10
+
 /***************************************************************
  * Macros
  **************************************************************/
@@ -347,5 +350,11 @@ PmReturn_t interp_reschedule(void);
  * @return Return status
  */
 PmReturn_t interp_addThread(pPmFunc_t pfunc);
+
+/**
+ * Reschedule on next occasion.
+ */
+void interp_setRescheduleFlag(void);
+
 
 #endif /* __INTERP_H__ */

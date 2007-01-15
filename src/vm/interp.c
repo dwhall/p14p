@@ -111,7 +111,7 @@ interpret(uint8_t returnOnNoThreads)
     	}
     	
     	/* Time for switching threads? */
-    	if (PLAT_SWITCH_THREADS)
+    	if (gVmGlobal.reschedule)
     	{
     		interp_reschedule();
     	}
@@ -1516,6 +1516,12 @@ interp_addThread(pPmFunc_t pfunc)
     
     /* add thread to end of list */
     return list_append((pPmObj_t)gVmGlobal.threadList, pthread);
+}
+
+void
+interp_setRescheduleFlag(void)
+{
+	gVmGlobal.reschedule = 1;
 }
 
 

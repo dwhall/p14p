@@ -32,10 +32,16 @@
  */
 
 #include "pm.h"
-
+#ifdef TARGET_AVR
+#include "avr/interrupt.h"
+#endif /* TARGET_AVR */
 
 extern unsigned char stdlib_img[];
 
+/* Stores the timer millisecond-ticks since system start */
+volatile uint32_t pm_timerMsTicks = 0;
+/* Stores tick timestamp of last scheduler run */
+volatile uint32_t pm_lastRescheduleTimestamp = 0;
 
 PmReturn_t pm_init(PmMemSpace_t memspace, uint8_t *pusrimg)
 {
@@ -102,6 +108,49 @@ void pm_printError(PmReturn_t result)
         printf("  LineNum: %d\n", gVmGlobal.errLineNum);
 #endif
 #endif
+}
+
+/* Warning: Can be called in interrupt context! */
+void
+pm_vmPeriodic(uint16_t usecsSinceLastCall)
+{
+	/* Add the full milliseconds to pm_timerMsTicks and store additional
+	 * microseconds for the next run. Thus, usecsSinceLastCall must be
+	 * less than 2^16-1000 so it will not overflow usecResidual.
+	 */ 
+	static uint16_t usecResidual = 0;
+	usecResidual += usecsSinceLastCall;
+	pm_timerMsTicks += usecResidual/1000;
+	usecResidual %= 1000;
+
+	/* check if enough time has passed for a scheduler run */
+	if ((pm_timerMsTicks - pm_lastRescheduleTimestamp)
+		>= INTERP_THREAD_TIMESLICE_MS)
+	{
+		interp_setRescheduleFlag();
+		pm_lastRescheduleTimestamp = pm_timerMsTicks;
+	}
+}
+
+/* remember that 32bit-accesses are non-atomic on AVR */
+uint32_t
+pm_getMsTicks(void)
+{
+	/* PORT BEGIN Add your handling if ensuring atomic access to a uint32_t
+	 * is neccessary for your platform. */
+	#ifdef TARGET_AVR
+	uint32_t result;
+	/* Critical section start */
+	unsigned char _sreg = SREG;
+	cli();
+	result = pm_timerMsTicks;
+	SREG = _sreg;
+	/* Critical section end */
+	return result;
+	#else
+	return pm_timerMsTicks;
+	#endif /* !TARGET_AVR */
+	/* PORT END */
 }
 
 #ifdef TARGET_DESKTOP

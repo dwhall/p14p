@@ -120,6 +120,10 @@ typedef struct PmVmGlobal_s
 	/** Ptr to current thread */
     pPmThread_t pthread;
     
+    /** flag to trigger rescheduling */
+    /* Warning: This can be set from an interrupt context! */
+    uint8_t reschedule:1;
+    
 } PmVmGlobal_t, *pPmVmGlobal_t;
 
 

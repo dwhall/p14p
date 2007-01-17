@@ -229,7 +229,7 @@ ut_seglist_getItem_001(CuTest *tc)
  *      Remove seglist[9]
  *          expect length == 9
  *          expect seglist[8] == item8
- *      Remove seglist[9]
+ *      Remove seglist[9] (disabled)
  *          expect retval == PM_RET_ASSERT_FAIL
  *      Append item10
  *          expect length == 10
@@ -287,8 +287,16 @@ ut_seglist_removeItem_000(CuTest *tc)
     CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertTrue(tc, pobj == item[8]);
 
+    /* Testing seglist_removeItem(pseglist, 9) for a PM_RET_ASSERT_FAIL
+     * return code is only valid if the VM is compiled with DEBUG. This can
+     * not be determined here, so the test is deactivated as it will wreak
+     * havoc inside the seglist if executed without C_ASSERT stopping the
+     * operation.
+     */
+    /*
     retval = seglist_removeItem(pseglist, 9);
     CuAssertTrue(tc, retval == PM_RET_ASSERT_FAIL);
+    */
     
     /* TODO check if number of segments has actually decreased if item 8 is
      * removed; also check heap usage after GC

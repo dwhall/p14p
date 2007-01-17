@@ -112,6 +112,10 @@
 #define PM_RETURN_IF_ERROR(retval)  if((retval) != PM_RET_OK) \
                                         return (retval)
 
+/** print an error message if argument is not PM_RET_OK */
+#define PM_PRINT_IF_ERROR(retval)   if ((retval) != PM_RET_OK) \
+                                        pm_printError(retval)
+
 #if __DEBUG__
 /** If the boolean expression fails, return the ASSERT error code */
 #define C_ASSERT(boolexpr) \
@@ -180,6 +184,8 @@ typedef enum PmReturn_e
  * Global Declarations
  **************************************************************/
 
+extern volatile uint32_t pm_timerMsTicks;
+
 /***************************************************************
  * Includes (order is critical)
  **************************************************************/
@@ -239,15 +245,9 @@ PmReturn_t pm_run(uint8_t *modstr);
  * 
  * @param usecsSinceLastCall Microseconds (not less than those) that passed
  *                           since last call. This must be <64535.
+ * @return Return status
  */
-void pm_vmPeriodic(uint16_t usecsSinceLastCall);
-
-/**
- * Get the number of timer ticks that have passed since system start.
- * On embedded targets, this operatoin is made atomic by temporarily disabling
- * the interrupts. The old state is restored afterwards.
- */
-uint32_t pm_getMsTicks(void);
+PmReturn_t pm_vmPeriodic(uint16_t usecsSinceLastCall);
 
 #ifdef TARGET_DESKTOP
 /**

@@ -121,7 +121,6 @@ typedef struct PmVmGlobal_s
     pPmThread_t pthread;
     
     /** flag to trigger rescheduling */
-    /* Warning: This can be set from an interrupt context! */
     uint8_t reschedule:1;
     
 } PmVmGlobal_t, *pPmVmGlobal_t;
@@ -131,7 +130,7 @@ typedef struct PmVmGlobal_s
  * Globals
  **************************************************************/
 
-extern PmVmGlobal_t gVmGlobal;
+extern volatile PmVmGlobal_t gVmGlobal;
 
 
 /***************************************************************

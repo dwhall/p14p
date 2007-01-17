@@ -62,7 +62,7 @@ uint8_t *global_bistr = (uint8_t *)"__bi";
  **************************************************************/
 
 /** Most PyMite globals all in one convenient place */
-PmVmGlobal_t gVmGlobal;
+volatile PmVmGlobal_t gVmGlobal;
 
 
 /***************************************************************

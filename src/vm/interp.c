@@ -82,7 +82,7 @@ PmReturn_t nat___bi_pow(pPmFrame_t pframe, signed char numargs);
  **************************************************************/
 
 PmReturn_t
-interpret(uint8_t returnOnNoThreads)
+interpret(const uint8_t returnOnNoThreads)
 {
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t pobj1 = C_NULL;
@@ -92,8 +92,9 @@ interpret(uint8_t returnOnNoThreads)
     int8_t t8 = 0;
     
     /* activate a thread the first time */
-    interp_reschedule();
-
+    retval = interp_reschedule();
+    PM_RETURN_IF_ERROR(retval);
+    
     /* interpret loop */
     while(1)
     {
@@ -106,14 +107,16 @@ interpret(uint8_t returnOnNoThreads)
             }
             /* without a frame there is nothing to execute, so reschedule
              * (possibly activating a recently added thread). */
-            interp_reschedule();
+            retval = interp_reschedule();
+            PM_BREAK_IF_ERROR(retval);
             continue;
         }
         
         /* Time for switching threads? */
         if (gVmGlobal.reschedule)
         {
-            interp_reschedule();
+            retval = interp_reschedule();
+            PM_BREAK_IF_ERROR(retval);
         }
         
         /* get byte; the func post-incrs IP */
@@ -1467,10 +1470,12 @@ interpret(uint8_t returnOnNoThreads)
 
         list_remove((pPmObj_t)gVmGlobal.threadList, (pPmObj_t)gVmGlobal.pthread); 
         gVmGlobal.pthread = C_NULL;
-        interp_reschedule();
+        retval = interp_reschedule();
+        PM_BREAK_IF_ERROR(retval);
 
     } /* while */
-
+    
+    return retval;
 }
 
 PmReturn_t
@@ -1486,6 +1491,7 @@ interp_reschedule(void)
         retval = list_getItem((pPmObj_t)gVmGlobal.threadList, threadIndex, (pPmObj_t*)&gVmGlobal.pthread);
         PM_RETURN_IF_ERROR(retval);
     }
+    interp_setRescheduleFlag(0);
     return retval;
 }
 
@@ -1519,9 +1525,9 @@ interp_addThread(pPmFunc_t pfunc)
 }
 
 void
-interp_setRescheduleFlag(void)
+interp_setRescheduleFlag(uint8_t boolean)
 {
-    gVmGlobal.reschedule = 1;
+    gVmGlobal.reschedule = boolean;
 }
 
 

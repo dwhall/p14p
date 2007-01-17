@@ -96,6 +96,10 @@ plat_init(void)
 #ifdef AVR_DEFAULT_TIMER_SOURCE
 ISR(TIMER0_OVF_vect) 
 {
+    /* TODO Find a clever way to handle bad return code, maybe use 
+     * PM_PRINT_IF_ERROR(retval) when that works on AVR inside an
+     * interrupt.
+     */ 
     pm_vmPeriodic(PLAT_TIME_PER_TICK_USEC);
 }
 #endif
@@ -145,4 +149,18 @@ plat_putByte(uint8_t b)
     /* PORT END */
 
     return PM_RET_OK;
+}
+
+/* remember that 32bit-accesses are non-atomic on AVR */
+uint32_t
+plat_getMsTicks(void)
+{
+    uint32_t result;
+    /* Critical section start */
+    unsigned char _sreg = SREG;
+    cli();
+    result = pm_timerMsTicks;
+    SREG = _sreg;
+    /* Critical section end */
+    return result;
 }

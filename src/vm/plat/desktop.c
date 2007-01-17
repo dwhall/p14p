@@ -79,7 +79,9 @@ plat_init(void)
 void
 plat_sigalrm_handler(int signal)
 {
-    pm_vmPeriodic(1000);
+    PmReturn_t retval;
+    retval = pm_vmPeriodic(1000);
+    PM_PRINT_IF_ERROR(retval);
 }
 
 /* Desktop target shall use stdio for I/O routines */
@@ -118,3 +120,9 @@ plat_putByte(uint8_t b)
     return retval;
 }
 
+/* remember that 32bit-accesses are non-atomic on AVR */
+uint32_t
+plat_getMsTicks(void)
+{
+    return pm_timerMsTicks;
+}

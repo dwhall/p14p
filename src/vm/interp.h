@@ -45,9 +45,6 @@
 #define INTERP_LOOP_FOREVER          0
 #define INTERP_RETURN_ON_NO_THREADS  1
 
-/** Number of millisecond-ticks to pass before scheduler is run */
-#define INTERP_THREAD_TIMESLICE_MS  10
-
 /***************************************************************
  * Macros
  **************************************************************/
@@ -329,7 +326,7 @@ typedef enum PmBcode_e
  * @return Return status if called with returnOnNoThreads != 0,
  *         will not return otherwise.
  */
-PmReturn_t interpret(uint8_t returnOnNoThreads);
+PmReturn_t interpret(const uint8_t returnOnNoThreads);
 
 /**
  * Selects a thread to run and changes the VM internal variables to
@@ -352,9 +349,11 @@ PmReturn_t interp_reschedule(void);
 PmReturn_t interp_addThread(pPmFunc_t pfunc);
 
 /**
- * Reschedule on next occasion.
+ * Set reschedule flag.
+ * @param boolean Reschedule on next occasion if boolean is true; clear
+ *                the flag otherwise.
  */
-void interp_setRescheduleFlag(void);
+void interp_setRescheduleFlag(uint8_t boolean);
 
 
 #endif /* __INTERP_H__ */

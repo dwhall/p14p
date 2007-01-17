@@ -25,7 +25,7 @@
  * Log
  * ---
  *
- * 2007/01/09   First (P.Adelt)
+ * 2007/01/09   #75: First (P.Adelt)
  */
 
 

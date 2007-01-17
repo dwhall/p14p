@@ -27,7 +27,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Refactored for green thread support (P.Adelt)
+ * 2007/01/09   #75: Refactored for green thread support (P.Adelt)
  * 2006/09/16   #16: Create pm_init() that does the initial housekeeping
  */
 
@@ -114,43 +114,43 @@ void pm_printError(PmReturn_t result)
 void
 pm_vmPeriodic(uint16_t usecsSinceLastCall)
 {
-	/* Add the full milliseconds to pm_timerMsTicks and store additional
-	 * microseconds for the next run. Thus, usecsSinceLastCall must be
-	 * less than 2^16-1000 so it will not overflow usecResidual.
-	 */ 
-	static uint16_t usecResidual = 0;
-	usecResidual += usecsSinceLastCall;
-	pm_timerMsTicks += usecResidual/1000;
-	usecResidual %= 1000;
+    /* Add the full milliseconds to pm_timerMsTicks and store additional
+     * microseconds for the next run. Thus, usecsSinceLastCall must be
+     * less than 2^16-1000 so it will not overflow usecResidual.
+     */ 
+    static uint16_t usecResidual = 0;
+    usecResidual += usecsSinceLastCall;
+    pm_timerMsTicks += usecResidual/1000;
+    usecResidual %= 1000;
 
-	/* check if enough time has passed for a scheduler run */
-	if ((pm_timerMsTicks - pm_lastRescheduleTimestamp)
-		>= INTERP_THREAD_TIMESLICE_MS)
-	{
-		interp_setRescheduleFlag();
-		pm_lastRescheduleTimestamp = pm_timerMsTicks;
-	}
+    /* check if enough time has passed for a scheduler run */
+    if ((pm_timerMsTicks - pm_lastRescheduleTimestamp)
+        >= INTERP_THREAD_TIMESLICE_MS)
+    {
+        interp_setRescheduleFlag();
+        pm_lastRescheduleTimestamp = pm_timerMsTicks;
+    }
 }
 
 /* remember that 32bit-accesses are non-atomic on AVR */
 uint32_t
 pm_getMsTicks(void)
 {
-	/* PORT BEGIN Add your handling if ensuring atomic access to a uint32_t
-	 * is neccessary for your platform. */
-	#ifdef TARGET_AVR
-	uint32_t result;
-	/* Critical section start */
-	unsigned char _sreg = SREG;
-	cli();
-	result = pm_timerMsTicks;
-	SREG = _sreg;
-	/* Critical section end */
-	return result;
-	#else
-	return pm_timerMsTicks;
-	#endif /* !TARGET_AVR */
-	/* PORT END */
+    /* PORT BEGIN Add your handling if ensuring atomic access to a uint32_t
+     * is neccessary for your platform. */
+    #ifdef TARGET_AVR
+    uint32_t result;
+    /* Critical section start */
+    unsigned char _sreg = SREG;
+    cli();
+    result = pm_timerMsTicks;
+    SREG = _sreg;
+    /* Critical section end */
+    return result;
+    #else
+    return pm_timerMsTicks;
+    #endif /* !TARGET_AVR */
+    /* PORT END */
 }
 
 #ifdef TARGET_DESKTOP
@@ -163,7 +163,7 @@ void pm_reportResult(PmReturn_t result)
     }
     else
     {
-    	pm_printError(result);
+        pm_printError(result);
     }
 }
 #endif /* TARGET_DESKTOP */

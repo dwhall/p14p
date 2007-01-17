@@ -26,8 +26,8 @@
  *
  * Log:
  *
- * 2007/01/09   Printing support (P.Adelt)
- * 2007/01/09   implemented list_remove() and list_index() (P.Adelt)
+ * 2007/01/09   #75: Printing support (P.Adelt)
+ * 2007/01/09   #75: implemented list_remove() and list_index() (P.Adelt)
  * 2003/02/11   Refactored to pobj/return status model.
  * 2002/04/22   First.
  */

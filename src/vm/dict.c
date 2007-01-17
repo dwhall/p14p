@@ -27,7 +27,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Printing support (P.Adelt)
+ * 2007/01/09   #75: Printing support (P.Adelt)
  * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
  *              unsigned not signed or void
  * 2002/04/30   First.
@@ -225,21 +225,21 @@ dict_print(pPmObj_t pdict)
     /* if dict is empty, raise KeyError */
     for (index = 0; index < ((pPmDict_t)pdict)->length; index++)
     {
-    	if (index != 0)
-    	{
-    		plat_putByte(',');
-    		plat_putByte(' ');
-    	}
-    	retval = seglist_getItem(keys, index, &pobj1);
-    	PM_RETURN_IF_ERROR(retval);
-    	retval = obj_print(pobj1);
-    	PM_RETURN_IF_ERROR(retval);
-    	
-    	plat_putByte(':');
-    	retval = seglist_getItem(vals, index, &pobj1);
-    	PM_RETURN_IF_ERROR(retval);
-    	retval = obj_print(pobj1);
-    	PM_RETURN_IF_ERROR(retval);
+        if (index != 0)
+        {
+            plat_putByte(',');
+            plat_putByte(' ');
+        }
+        retval = seglist_getItem(keys, index, &pobj1);
+        PM_RETURN_IF_ERROR(retval);
+        retval = obj_print(pobj1);
+        PM_RETURN_IF_ERROR(retval);
+
+        plat_putByte(':');
+        retval = seglist_getItem(vals, index, &pobj1);
+        PM_RETURN_IF_ERROR(retval);
+        retval = obj_print(pobj1);
+        PM_RETURN_IF_ERROR(retval);
     }
 
     return plat_putByte('}');

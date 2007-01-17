@@ -27,8 +27,8 @@
  * Log
  * ---
  *
- * 2007/01/09   Printing support (P.Adelt)
- * 2007/01/09   implemented list_remove() and list_index() (P.Adelt)
+ * 2007/01/09   #75: Printing support (P.Adelt)
+ * 2007/01/09   #75: implemented list_remove() and list_index() (P.Adelt)
  * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
  *              unsigned not signed or void
  * 2002/04/22   First.
@@ -242,8 +242,8 @@ list_setItem(pPmObj_t pobj1, int16_t index, pPmObj_t pobj2)
 PmReturn_t
 list_remove(pPmObj_t plist, pPmObj_t item)
 {
-	PmReturn_t retval = PM_RET_OK;
-	uint16_t index;
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t index;
 
     /* If it's not a list, raise TypeError */
     if (OBJ_GET_TYPE(*plist) != OBJ_TYPE_LST)
@@ -252,23 +252,23 @@ list_remove(pPmObj_t plist, pPmObj_t item)
         return retval;
     }
 
-	retval = list_index(plist, item, &index);
-	PM_RETURN_IF_ERROR(retval);
-	
-	retval = seglist_removeItem(((pPmList_t)plist)->val, index);
-	((pPmList_t)plist)->length--;
-	return retval;
-	
+    retval = list_index(plist, item, &index);
+    PM_RETURN_IF_ERROR(retval);
+    
+    retval = seglist_removeItem(((pPmList_t)plist)->val, index);
+    ((pPmList_t)plist)->length--;
+    return retval;
+
 }
 
 PmReturn_t
 list_index(pPmObj_t plist, pPmObj_t pitem, uint16_t* r_index)
 {
-	PmReturn_t retval = PM_RET_OK;
-	pSeglist_t pseglist;
-	pPmObj_t pobj;
-	uint16_t index;
-	
+    PmReturn_t retval = PM_RET_OK;
+    pSeglist_t pseglist;
+    pPmObj_t pobj;
+    uint16_t index;
+    
     /* If it's not a list, raise TypeError */
     if (OBJ_GET_TYPE(*plist) != OBJ_TYPE_LST)
     {
@@ -280,17 +280,16 @@ list_index(pPmObj_t plist, pPmObj_t pitem, uint16_t* r_index)
     
     for (index = 0; index < pseglist->sl_length; index++)
     {
-    	retval = seglist_getItem(pseglist, index, &pobj);
-    	PM_RETURN_IF_ERROR(retval);
-    	if (obj_compare(pobj, pitem) == C_SAME)
-    	{
-    		*r_index = index;
-    		return PM_RET_OK;
-    	}
+        retval = seglist_getItem(pseglist, index, &pobj);
+        PM_RETURN_IF_ERROR(retval);
+        if (obj_compare(pobj, pitem) == C_SAME)
+        {
+            *r_index = index;
+            return PM_RET_OK;
+        }
     }
 
-	return PM_RET_EX_VAL;
-	
+    return PM_RET_EX_VAL;
 }
 
 #ifdef HAVE_PRINT
@@ -318,15 +317,15 @@ list_print(pPmObj_t plist)
     /* if dict is empty, raise KeyError */
     for (index = 0; index < ((pPmList_t)plist)->length; index++)
     {
-    	if (index != 0)
-    	{
-    		plat_putByte(',');
-    		plat_putByte(' ');
-    	}
-    	retval = seglist_getItem(vals, index, &pobj1);
-    	PM_RETURN_IF_ERROR(retval);
-    	retval = obj_print(pobj1);
-    	PM_RETURN_IF_ERROR(retval);
+        if (index != 0)
+        {
+            plat_putByte(',');
+            plat_putByte(' ');
+        }
+        retval = seglist_getItem(vals, index, &pobj1);
+        PM_RETURN_IF_ERROR(retval);
+        retval = obj_print(pobj1);
+        PM_RETURN_IF_ERROR(retval);
     }
 
     return plat_putByte(']');

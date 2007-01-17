@@ -26,7 +26,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Tests for list_removeItem() (P.Adelt)
+ * 2007/01/09   #75: Tests for list_removeItem() (P.Adelt)
  * 2006/10/04   #48: Organize and deploy unit tests
  * 2003/01/12   First.
  */

@@ -23,7 +23,7 @@
  * Log
  * ---
  *
- * 2007/01/10   Added time tick service for desktop (POSIX) and AVR.
+ * 2007/01/10   #75: Added time tick service for desktop (POSIX) and AVR.
  * 2006/12/26   #65: Create plat module with put and get routines
  */
 

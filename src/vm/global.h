@@ -27,7 +27,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Restructured for green threads (P.Adelt)
+ * 2007/01/09   #75: Restructured for green threads (P.Adelt)
  * 2006/09/10   #20: Implement assert statement
  * 2006/08/29   #12: Make mem_*() funcs use RAM when target is DESKTOP
  * 2002/04/22   First.
@@ -117,7 +117,7 @@ typedef struct PmVmGlobal_s
     /** Thread list */
     pPmList_t threadList;
 
-	/** Ptr to current thread */
+    /** Ptr to current thread */
     pPmThread_t pthread;
     
     /** flag to trigger rescheduling */

@@ -27,7 +27,7 @@
  * Log
  * ---
  *
- * 2007/01/09   fo_isImport for thread support (P.Adelt)
+ * 2007/01/09   #75: fo_isImport for thread support (P.Adelt)
  * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
  *              unsigned not signed or void
  * 2002/04/20   First.

@@ -26,7 +26,7 @@
  *
  * Log:
  *
- * 2007/01/09   Printing support (P.Adelt)
+ * 2007/01/09   #75: Printing support (P.Adelt)
  * 2002/04/30   First.
  */
 
@@ -95,7 +95,7 @@ PmReturn_t dict_clear(pPmObj_t pdict);
  */
 PmReturn_t dict_getItem(pPmObj_t pdict,
                         pPmObj_t pkey,
-						pPmObj_t * r_pobj);
+                        pPmObj_t * r_pobj);
 
 
 /**
@@ -123,7 +123,7 @@ PmReturn_t dict_new(pPmObj_t * r_pdict);
  */
 PmReturn_t dict_setItem(pPmObj_t pdict,
                         pPmObj_t pkey,
-						pPmObj_t pval);
+                        pPmObj_t pval);
 
 #ifdef HAVE_PRINT
 /**

@@ -15,7 +15,7 @@
  */
 
 /**
- * System Test 061
+ * System Test 075
  *
  * Testing two threads starting at the same time, each calculating a number
  * and printing it.
@@ -23,7 +23,7 @@
  * Log
  * ---
  *
- * 2007/01/09   First (P.Adelt)
+ * 2007/01/09   #75: First (P.Adelt)
  */
 
 #include "pm.h"
@@ -35,13 +35,13 @@ extern unsigned char usrlib_img[];
 
 int main(void)
 {
-	/* replicate pm_run()'s functionality to allow two initial threads. */
+    /* replicate pm_run()'s functionality to allow two initial threads. */
     PmReturn_t retval;
     pPmObj_t pmodA;
     pPmObj_t pmodB;
     pPmObj_t pstring;
-    uint8_t *pmodstrA = (uint8_t*)"t061a";
-    uint8_t *pmodstrB = (uint8_t*)"t061b";
+    uint8_t *pmodstrA = (uint8_t*)"t075a";
+    uint8_t *pmodstrB = (uint8_t*)"t075b";
 
     retval = pm_init(MEMSPACE_FLASH, usrlib_img);
     PM_RETURN_IF_ERROR(retval);

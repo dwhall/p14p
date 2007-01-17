@@ -27,8 +27,8 @@
  * Log
  * ---
  *
- * 2007/01/09   OBJ_TYPE_THR for thread objects (P.Adelt)
- * 2007/01/09   Printing support (P.Adelt)
+ * 2007/01/09   #75: OBJ_TYPE_THR for thread objects (P.Adelt)
+ * 2007/01/09   #75: Printing support (P.Adelt)
  * 2006/09/20   #35: Macroize all operations on object descriptors
  * 2006/08/31   #9: Fix BINARY_SUBSCR for case stringobj[intobj]
  * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use

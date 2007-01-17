@@ -42,11 +42,11 @@
  * Constants
  **************************************************************/
 
-#define INTERP_LOOP_FOREVER	0
-#define INTERP_RETURN_ON_NO_THREADS 1
+#define INTERP_LOOP_FOREVER          0
+#define INTERP_RETURN_ON_NO_THREADS  1
 
 /** Number of millisecond-ticks to pass before scheduler is run */
-#define INTERP_THREAD_TIMESLICE_MS	10
+#define INTERP_THREAD_TIMESLICE_MS  10
 
 /***************************************************************
  * Macros
@@ -64,7 +64,7 @@
 /** memspace where the frame's func's CO came from */
 #define MS              (FP->fo_memspace)
 /** pointer to the globals dict */
-#define GP				(gVmGlobal.globals)
+#define GP              (gVmGlobal.globals)
 
 /** top of stack */
 #define TOS             (*(SP - 1))

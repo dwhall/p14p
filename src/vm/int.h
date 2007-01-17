@@ -26,7 +26,7 @@
  *
  * Log:
  *
- * 2007/01/09   Printing support (P.Adelt)
+ * 2007/01/09   #75: Printing support (P.Adelt)
  * 2002/05/04   First.
  */
 

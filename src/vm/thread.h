@@ -28,7 +28,7 @@
  * Log
  * ---
  *
- * 2007/01/03   First (P.Adelt)
+ * 2007/01/03   #75: First (P.Adelt)
  */
 
 /***************************************************************
@@ -42,7 +42,7 @@
  **************************************************************/
  
  /** Frequency in Hz to switch threads */ 
- #define THREAD_RESCHEDULE_FREQUENCY	10
+ #define THREAD_RESCHEDULE_FREQUENCY    10
  
 /***************************************************************
  * Macros
@@ -91,7 +91,7 @@ typedef struct PmThread_s
      * A zero value means normal interpreter exit.
      * A negative value signals an error exit.
      */
-	PmInterpCtrl_t interpctrl;
+    PmInterpCtrl_t interpctrl;
 } PmThread_t, *pPmThread_t;
 
 

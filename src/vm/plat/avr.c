@@ -25,7 +25,7 @@
  * Log
  * ---
  *
- * 2007/01/10   Added time tick service for desktop (POSIX) and AVR. (P.Adelt)
+ * 2007/01/10   #75: Added time tick service for desktop (POSIX) and AVR. (P.Adelt)
  * 2006/12/26   #65: Create plat module with put and get routines
  */
 
@@ -96,7 +96,7 @@ plat_init(void)
 #ifdef AVR_DEFAULT_TIMER_SOURCE
 ISR(TIMER0_OVF_vect) 
 {
-	pm_vmPeriodic(PLAT_TIME_PER_TICK_USEC);
+    pm_vmPeriodic(PLAT_TIME_PER_TICK_USEC);
 }
 #endif
 

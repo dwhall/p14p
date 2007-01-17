@@ -27,8 +27,8 @@
  * Log
  * ---
  *
- * 2007/01/09   Changed IMPORT_NAME, printing (P.Adelt)
- * 2007/01/09   Restructed for green threading (P.Adelt)
+ * 2007/01/09   #75: Changed IMPORT_NAME, printing (P.Adelt)
+ * 2007/01/09   #75: Restructed for green threading (P.Adelt)
  * 2006/09/29   #45: Finish interpret loop edits
  * 2006/09/10   #20: Implement assert statement
  * 2006/08/31   #9: Fix BINARY_SUBSCR for case stringobj[intobj]
@@ -97,25 +97,25 @@ interpret(uint8_t returnOnNoThreads)
     /* interpret loop */
     while(1)
     {
-    	if (gVmGlobal.pthread == C_NULL)
-    	{
-    		if (returnOnNoThreads)
-    		{
-    			/* user chose to return on no threads left */
-    			return retval;
-    		}
-    		/* without a frame there is nothing to execute, so reschedule
-    		 * (possibly activating a recently added thread). */
-    		interp_reschedule();
-    		continue;
-    	}
-    	
-    	/* Time for switching threads? */
-    	if (gVmGlobal.reschedule)
-    	{
-    		interp_reschedule();
-    	}
-    	
+        if (gVmGlobal.pthread == C_NULL)
+        {
+            if (returnOnNoThreads)
+            {
+                /* user chose to return on no threads left */
+                return retval;
+            }
+            /* without a frame there is nothing to execute, so reschedule
+             * (possibly activating a recently added thread). */
+            interp_reschedule();
+            continue;
+        }
+        
+        /* Time for switching threads? */
+        if (gVmGlobal.reschedule)
+        {
+            interp_reschedule();
+        }
+        
         /* get byte; the func post-incrs IP */
         switch(mem_getByte(MS, &IP))
         {
@@ -595,14 +595,14 @@ interpret(uint8_t returnOnNoThreads)
 
             case PRINT_ITEM:
             #ifdef HAVE_PRINT
-            	/* Print out topmost stack element */
-            	pobj1 = PM_POP(); 
-            	obj_print(pobj1);
-            	continue;
-           	#endif /* HAVE_PRINT */
+                /* Print out topmost stack element */
+                pobj1 = PM_POP(); 
+                obj_print(pobj1);
+                continue;
+            #endif /* HAVE_PRINT */
             case PRINT_NEWLINE:
             #ifdef HAVE_PRINT
-            	plat_putByte('\n');
+                plat_putByte('\n');
                 continue;
             #endif /* HAVE_PRINT */
             case PRINT_EXPR:
@@ -666,7 +666,7 @@ interpret(uint8_t returnOnNoThreads)
                 /* push frame's return val */
                 /* except if this the frame was import-originated */
                 if (!(FP->fo_isImport)) {
-                	PM_PUSH(pobj2);
+                    PM_PUSH(pobj2);
                 }
                 /* deallocate expired frame */
                 PM_BREAK_IF_ERROR(heap_freeChunk(pobj1));
@@ -1462,9 +1462,9 @@ interpret(uint8_t returnOnNoThreads)
          */
         if (retval != PM_RET_OK)
         {
-			pm_printError(retval);
+            pm_printError(retval);
         }
-		
+
         list_remove((pPmObj_t)gVmGlobal.threadList, (pPmObj_t)gVmGlobal.pthread); 
         gVmGlobal.pthread = C_NULL;
         interp_reschedule();
@@ -1477,15 +1477,15 @@ PmReturn_t
 interp_reschedule(void)
 {
     PmReturn_t retval = PM_RET_OK;
-	static uint8_t threadIndex = 0;
-	
-	if (gVmGlobal.threadList->length == 0) {
-		gVmGlobal.pthread = C_NULL;
-	} else {
-		threadIndex = (threadIndex+1) % (gVmGlobal.threadList->length); 
-	 	retval = list_getItem((pPmObj_t)gVmGlobal.threadList, threadIndex, (pPmObj_t*)&gVmGlobal.pthread);
-	 	PM_RETURN_IF_ERROR(retval);
-	}
+    static uint8_t threadIndex = 0;
+    
+    if (gVmGlobal.threadList->length == 0) {
+    gVmGlobal.pthread = C_NULL;
+    } else {
+        threadIndex = (threadIndex+1) % (gVmGlobal.threadList->length); 
+        retval = list_getItem((pPmObj_t)gVmGlobal.threadList, threadIndex, (pPmObj_t*)&gVmGlobal.pthread);
+        PM_RETURN_IF_ERROR(retval);
+    }
     return retval;
 }
 
@@ -1509,8 +1509,8 @@ interp_addThread(pPmFunc_t pfunc)
      * globals.
      */
     ((pPmFrame_t)pframe)->fo_attrs = GP;
-	
-	/* create a thread with this new frame */
+    
+    /* create a thread with this new frame */
     retval = thread_new(pframe, &pthread);
     PM_RETURN_IF_ERROR(retval);
     
@@ -1521,7 +1521,7 @@ interp_addThread(pPmFunc_t pfunc)
 void
 interp_setRescheduleFlag(void)
 {
-	gVmGlobal.reschedule = 1;
+    gVmGlobal.reschedule = 1;
 }
 
 

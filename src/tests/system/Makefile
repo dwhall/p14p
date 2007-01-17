@@ -43,9 +43,6 @@ endif
 %*_nat.c %*_img.c : %a.py %b.py
 	$(PMIMGCREATOR) -c -u -o $*_img.c --native-file=$*_nat.c $*a.py $*b.py $(PMSTDLIB_SOURCES)
 
-# t061_nat.c t061_img.c : t061a.py t061b.py
-
-
 .PHONY: all check clean
 
 # Default action is to build tests; run tests if target is desktop

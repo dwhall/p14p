@@ -28,7 +28,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Restructured for green threads (P.Adelt)
+ * 2007/01/09   #75: Restructured for green threads (P.Adelt)
  * 2006/09/10   #20: Implement assert statement
  * 2006/08/29   #12: Make mem_*() funcs use RAM when target is DESKTOP
  * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
@@ -133,11 +133,11 @@ global_setBuiltins(pPmFunc_t pmod)
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t pkey = C_NULL;
     
-	if (PM_PBUILTINS == C_NULL)
-	{
-		/* need to load builtins first */
-		global_loadBuiltins();
-	}
+    if (PM_PBUILTINS == C_NULL)
+    {
+        /* need to load builtins first */
+        global_loadBuiltins();
+    }
     /* put builtins module in the module's attrs dict */
     retval = string_new(&global_bistr, &pkey);
     PM_RETURN_IF_ERROR(retval);

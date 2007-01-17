@@ -261,7 +261,7 @@ void pm_reportResult(PmReturn_t result);
 /**
  * Prints exception information for result. Does nothing on non-desktop targets.
  * 
- * @param result		Return status to be displayed.
+ * @param result        Return status to be displayed.
  */
 void pm_printError(PmReturn_t result);
 

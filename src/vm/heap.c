@@ -29,7 +29,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Added thread type, fail correctly w/o GC (P.Adelt)
+ * 2007/01/09   #75: Added thread type, fail correctly w/o GC (P.Adelt)
  * 2006/11/15   #53: Fix Win32/x86 build break
  * 2006/09/14   #27: Fix S16/U16 are 32-bits on DESKTOP
  * 2006/09/10   #20: Implement assert statement
@@ -317,7 +317,7 @@ heap_markObj(pPmObj_t pobj)
             HEAP_MARK_IF_UNMARKED(((pPmThread_t)pobj)->pframe,
                                   retval);
             PM_RETURN_IF_ERROR(retval);
-        	break;
+            break;
 
     }
     return retval;
@@ -636,29 +636,29 @@ heap_getChunk(uint8_t size, uint8_t **r_pchunk)
     C_ASSERT(((uint32_t)*r_pchunk & 3) == 0);
 #endif
 
-	if (retval == PM_RET_EX_MEM)
-	{
-	    /* If first attempt yielded no chunk and auto GC flag is asserted, run GC */
-	    if (pmHeap.do_auto_gc)
-	    {
-	        retval = heap_markRoots();
-	        PM_RETURN_IF_ERROR(retval);
-	
-	        retval = heap_sweep();
-	        PM_RETURN_IF_ERROR(retval);
-	
-	        /* now, if a chunk is available, return with it */
-	        retval = heap_getChunkImpl(size, r_pchunk);
-			PM_RAISE(retval, PM_RET_EX_MEM);
-			return retval;
-	    }
-	    else
-	    {
-	    	/* without garbage collection, this always is a fatal error */
-			PM_RAISE(retval, PM_RET_EX_MEM);
-			return retval;
-	    }
-	}
+    if (retval == PM_RET_EX_MEM)
+    {
+        /* If first attempt yielded no chunk and auto GC flag is asserted, run GC */
+        if (pmHeap.do_auto_gc)
+        {
+            retval = heap_markRoots();
+            PM_RETURN_IF_ERROR(retval);
+    
+            retval = heap_sweep();
+            PM_RETURN_IF_ERROR(retval);
+    
+            /* now, if a chunk is available, return with it */
+            retval = heap_getChunkImpl(size, r_pchunk);
+            PM_RAISE(retval, PM_RET_EX_MEM);
+            return retval;
+        }
+        else
+        {
+            /* without garbage collection, this always is a fatal error */
+            PM_RAISE(retval, PM_RET_EX_MEM);
+            return retval;
+        }
+    }
     
     /* Indicate chunk is no longer free */
     OBJ_SET_GCFREE(**(pPmObj_t *)r_pchunk, C_FALSE);

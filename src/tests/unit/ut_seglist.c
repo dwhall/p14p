@@ -26,7 +26,7 @@
  * Log
  * ---
  *
- * 2007/01/09   Tests for seglist_removeItem() (P.Adelt)
+ * 2007/01/09   #75: Tests for seglist_removeItem() (P.Adelt)
  * 2006/11/22   First.
  */
 
@@ -260,14 +260,14 @@ ut_seglist_removeItem_000(CuTest *tc)
     retval = seglist_new(&pseglist);
     for (i=0; i<11; i++)
     {
-	    retval = int_new(i, &item[i]);
-    	CuAssertTrue(tc, retval == PM_RET_OK);
+        retval = int_new(i, &item[i]);
+        CuAssertTrue(tc, retval == PM_RET_OK);
     }
     
     for (i=0; i<10; i++)
     {
-	    retval = seglist_appendItem(pseglist, (pPmObj_t)item[i]);
-    	CuAssertTrue(tc, retval == PM_RET_OK);
+        retval = seglist_appendItem(pseglist, (pPmObj_t)item[i]);
+        CuAssertTrue(tc, retval == PM_RET_OK);
     }
 
     CuAssertTrue(tc, pseglist->sl_length == 10);
@@ -275,77 +275,76 @@ ut_seglist_removeItem_000(CuTest *tc)
         
     for (i=0; i<10; i++)
     {
-	    retval = seglist_getItem(pseglist, i, &pobj);
-    	CuAssertTrue(tc, retval == PM_RET_OK);
-    	CuAssertTrue(tc, pobj == item[i]);
+        retval = seglist_getItem(pseglist, i, &pobj);
+        CuAssertTrue(tc, retval == PM_RET_OK);
+        CuAssertTrue(tc, pobj == item[i]);
     }
     
     retval = seglist_removeItem(pseglist, 9);
-  	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertTrue(tc, pseglist->sl_length == 9);
     retval = seglist_getItem(pseglist, 8, &pobj);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	CuAssertTrue(tc, pobj == item[8]);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj == item[8]);
 
     retval = seglist_removeItem(pseglist, 9);
-  	CuAssertTrue(tc, retval == PM_RET_ASSERT_FAIL);
-  	
-  	/* TODO check if number of segments has actually decreased if item 8 is
-  	 * removed; also check heap usage after GC
-  	 */
+    CuAssertTrue(tc, retval == PM_RET_ASSERT_FAIL);
+    
+    /* TODO check if number of segments has actually decreased if item 8 is
+     * removed; also check heap usage after GC
+     */
 
     retval = seglist_appendItem(pseglist, (pPmObj_t)item[10]);
-	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertTrue(tc, pseglist->sl_length == 10);
     retval = seglist_getItem(pseglist, 9, &pobj);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	CuAssertTrue(tc, pobj == item[10]);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj == item[10]);
 
     retval = seglist_removeItem(pseglist, 9);
-  	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     retval = seglist_removeItem(pseglist, 8);
-  	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     retval = seglist_removeItem(pseglist, 7);
-  	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertTrue(tc, pseglist->sl_length == 7);
 
     retval = seglist_appendItem(pseglist, (pPmObj_t)item[10]);
-	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertTrue(tc, pseglist->sl_length == 8);
-	retval = seglist_getItem(pseglist, 7, &pobj);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	CuAssertTrue(tc, pobj == item[10]);
-	retval = seglist_getItem(pseglist, 6, &pobj);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	CuAssertTrue(tc, pobj == item[6]);
+    retval = seglist_getItem(pseglist, 7, &pobj);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj == item[10]);
+    retval = seglist_getItem(pseglist, 6, &pobj);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj == item[6]);
 
     retval = seglist_appendItem(pseglist, (pPmObj_t)item[2]);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	retval = seglist_getItem(pseglist, 8, &pobj);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	CuAssertTrue(tc, pobj == item[2]);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    retval = seglist_getItem(pseglist, 8, &pobj);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj == item[2]);
 
-	for (i=0; i<9; i++)
-	{
-		retval = seglist_removeItem(pseglist, 0);
-		CuAssertTrue(tc, retval == PM_RET_OK);
-	}
+    for (i=0; i<9; i++)
+    {
+        retval = seglist_removeItem(pseglist, 0);
+        CuAssertTrue(tc, retval == PM_RET_OK);
+    }
     CuAssertTrue(tc, pseglist->sl_length == 0);
     retval = seglist_appendItem(pseglist, (pPmObj_t)item[2]);
-	CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, retval == PM_RET_OK);
     CuAssertTrue(tc, pseglist->sl_length == 1);
-	retval = seglist_getItem(pseglist, 0, &pobj);
-	CuAssertTrue(tc, retval == PM_RET_OK);
-	CuAssertTrue(tc, pobj == item[2]);
-	
+    retval = seglist_getItem(pseglist, 0, &pobj);
+    CuAssertTrue(tc, retval == PM_RET_OK);
+    CuAssertTrue(tc, pobj == item[2]);
 }
 
 /** Make a suite from all tests in this file */
 CuSuite *getSuite_testSeglist(void)
 {
-	CuSuite* suite = CuSuiteNew();
+    CuSuite* suite = CuSuiteNew();
 
-	SUITE_ADD_TEST(suite, ut_seglist_new_000);
+    SUITE_ADD_TEST(suite, ut_seglist_new_000);
     SUITE_ADD_TEST(suite, ut_seglist_appendItem_000);
     SUITE_ADD_TEST(suite, ut_seglist_appendItem_001);
     SUITE_ADD_TEST(suite, ut_seglist_insertItem_000);

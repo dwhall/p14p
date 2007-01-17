@@ -23,7 +23,7 @@
  * Log
  * ---
  *
- * 2007/01/01   First (P.Adelt)
+ * 2007/01/01   #75: First (P.Adelt)
  */
 
 #include "pm.h"
@@ -35,7 +35,7 @@ extern unsigned char usrlib_img[];
 
 int main(void)
 {
-	#ifdef HAVE_PRINT
+    #ifdef HAVE_PRINT
     PmReturn_t retval;
     
     retval = pm_init(MEMSPACE_FLASH, usrlib_img);

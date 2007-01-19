@@ -118,8 +118,8 @@ def chr(n):
 # eval() wraps _eval() because _eval() needs an interpreted
 # function's frame on the frame stack in order to work properly.
 #
-def eval(co, g):
-#    return _eval(co, g)
+def eval(co, g, l):
+#    return _eval(co, g, l)
 
 
 #
@@ -128,16 +128,17 @@ def eval(co, g):
 #
 # DO NOT CALL THIS FUNCTION FOR ANY REASON.
 #
-#def _eval(co, g):
+#def _eval(co, g, l):
     """__NATIVE__
     PmReturn_t retval;
     pPmObj_t pco;
     pPmObj_t pfunc;
     pPmObj_t pnewframe;
     pPmObj_t pg = C_NULL;
+    pPmObj_t pl = C_NULL;
 
     /* If wrong number of args, raise TypeError */
-    if ((NATIVE_GET_NUM_ARGS() == 0) || (NATIVE_GET_NUM_ARGS() > 2))
+    if ((NATIVE_GET_NUM_ARGS() == 0) || (NATIVE_GET_NUM_ARGS() > 3))
     {
         PM_RAISE(retval, PM_RET_EX_TYPE);
         return retval;
@@ -152,10 +153,21 @@ def eval(co, g):
     }
 
     /* If 2nd arg exists, raise ValueError if it is not a Dict */
-    if (NATIVE_GET_NUM_ARGS() > 1)
+    if (NATIVE_GET_NUM_ARGS() >= 2)
     {
         pg = NATIVE_GET_LOCAL(1);
         if (OBJ_GET_TYPE(*pg) != OBJ_TYPE_DIC)
+        {
+            PM_RAISE(retval, PM_RET_EX_VAL);
+            return retval;
+        }
+    }
+
+    /* If 3rd arg exists, raise ValueError if it is not a Dict */
+    if (NATIVE_GET_NUM_ARGS() >= 3)
+    {
+        pl = NATIVE_GET_LOCAL(2);
+        if (OBJ_GET_TYPE(*pl) != OBJ_TYPE_DIC)
         {
             PM_RAISE(retval, PM_RET_EX_VAL);
             return retval;
@@ -170,16 +182,33 @@ def eval(co, g):
     retval = frame_new(pfunc, &pnewframe);
     PM_RETURN_IF_ERROR(retval);
 
+    /* TODO: pnewframe's attrs created in mod_new are aboute to become garbage */
+    /* 
+     * By default use calling frame's attrs as local namespace.
+     * This works for ipm because the interactive mode 
+     * needs a locals namespace that persists across calls to eval()
+     */
+    ((pPmFrame_t)pnewframe)->fo_attrs = NATIVE_GET_PFRAME()->fo_attrs;
+
     /* If 2nd arg exists, use it as the global namespace for the new func */
-    if (NATIVE_GET_NUM_ARGS() > 1)
+    if (NATIVE_GET_NUM_ARGS() >= 2)
     {
         ((pPmFrame_t)pnewframe)->fo_globals = (pPmDict_t)pg;
+        
+        /* If only globals is given, locals defaults to it */
+        ((pPmFrame_t)pnewframe)->fo_attrs = (pPmDict_t)pg;        
     }
 
     /* Else use the current global namespace */
     else
     {
         ((pPmFrame_t)pnewframe)->fo_globals = NATIVE_GET_PFRAME()->fo_globals;
+    }
+
+    /* If 3rd arg exists, use it as the local namespace for the new func */
+    if (NATIVE_GET_NUM_ARGS() >= 3)
+    {
+        ((pPmFrame_t)pnewframe)->fo_attrs = (pPmDict_t)pl;
     }
 
     /*

@@ -94,13 +94,9 @@ def _getImg():
 #
 import plat
 def ipm():
-    g = globals()
     while 1:
-        rv = eval(Co(_getImg()), g)
-        if rv == None:
-            plat.putb(10)
-        else:
-            plat.puts("rv value\n")
+        rv = eval(Co(_getImg()))
+        plat.puts('\n')
 
 
 # Run the interactive interface apon import

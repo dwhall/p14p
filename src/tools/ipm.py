@@ -55,7 +55,7 @@ __usage__ = """USAGE:
 PMVM_EXE = "../tests/interactive/t067.out"
 IPM_PROMPT = "ipm> "
 COMPILE_FN = "<ipm>"
-COMPILE_MODE = "exec"
+COMPILE_MODE = "exec" # "single"
 HELP_MESSAGE = "This is the interactive PyMite command line.\n" \
                "Just type the code that you want the target device to run.\n" \
                "Type another return if you see no prompt to exit multiline mode.\n" \
@@ -82,12 +82,20 @@ class PipeConnection(Connection):
 
 
     def read(self,):
-        sa = []
-        c = ""
+        # If the child process is not alive, read in everything from the buffer.
+        # It will usually be an exception message from the target
+        # TODO
+
+        # Otherwise collect all characters up to and including the ipm reply
+        # terminator token.
+        chars = []
+        c = ''
         while c != REPLY_TERMINATOR:
             c = self.child.stdout.read(1)
-            sa.append(c)
-        return "".join(sa)
+            if c == '':
+                break
+            chars.append(c)
+        return "".join(chars)
 
 
     def write(self, msg):
@@ -122,11 +130,12 @@ class Interactive(cmd.Cmd):
         # Ensure the filename arg names a python source file
         fn = args[0]
         if not fn.endswith(".py"):
-            self.stdout.write('Module must be a ".py" source file.\n')
+            self.stdout.write('Error using "load <module>": '
+                              'module must be a ".py" source file.\n')
             return
 
-        print "Loading module %s" % (args[0]) #DBG
-        # TODO: load module, send to target
+        print "TODO: Loading module %s" % (args[0])
+        # TODO: load module, compile to image, send to target
 
 
     def do_input(self, line):
@@ -147,14 +156,16 @@ class Interactive(cmd.Cmd):
 
         # Otherwise send the image and print the reply
         else:
-#            print "DEBUG (send %d bytes): img = %s" % (len(codeimg),
-#                                                       repr(codeimg))
-            self.conn.write(codeimg)
+            try:
+                self.conn.write(codeimg)
+            except Exception, e:
+                self.stdout.write("Connection error, type Ctrl+D to quit.\n")
+
             rv = self.conn.read()
             if rv == None:
                 self.stdout.write("Connection lost, type Ctrl+D to quit.\n")
             else:
-                print "REPLY: ", rv
+                self.stdout.write(rv)
 
 
     def onecmd(self, line):

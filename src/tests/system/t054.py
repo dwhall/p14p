@@ -27,6 +27,14 @@ assert l[0] == 0
 assert l[8] == 8
 assert l[-1] == 8
 
+assert len(l) == 9
+
+# TODO Activate once a solution for #47 is found
+#l.remove(0)
+#assert not 0 in l
+#assert 1 in l
+#assert len(l) == 8
+
 
 d = {}
 i = 9

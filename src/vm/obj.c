@@ -27,6 +27,8 @@
  * Log
  * ---
  *
+ * 2007/01/17   #76: Print will differentiate on strings and print tuples
+ * 2007/01/09   #75: Printing support (P.Adelt)
  * 2006/09/20   #35: Macroize all operations on object descriptors
  * 2006/08/31   #9: Fix BINARY_SUBSCR for case stringobj[intobj]
  * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
@@ -301,6 +303,39 @@ obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
 
     /* all other types would need same pointer to be true */
     return C_DIFFER;
+}
+
+PmReturn_t
+obj_print(pPmObj_t pobj, uint8_t marshallString)
+{
+    PmReturn_t retval = PM_RET_OK;
+#ifdef HAVE_PRINT
+    C_ASSERT(pobj != C_NULL);
+    
+    switch (OBJ_GET_TYPE(*pobj))
+    {
+        case OBJ_TYPE_INT:
+            retval = int_print(pobj);
+            break;
+        case OBJ_TYPE_STR:
+            retval = string_print(pobj, marshallString);
+            break;
+        case OBJ_TYPE_DIC:
+            retval = dict_print(pobj);
+            break;
+        case OBJ_TYPE_LST:
+            retval = list_print(pobj);
+            break;
+        case OBJ_TYPE_TUP:
+            retval = tuple_print(pobj);
+            break;
+        default:
+            /* Otherwise raise a TypeError */
+            PM_RAISE(retval, PM_RET_EX_TYPE);
+            break;
+    }
+#endif /* HAVE_PRINT */
+    return retval;
 }
 
 

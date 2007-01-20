@@ -156,6 +156,7 @@ class Interactive(cmd.Cmd):
 
         # Otherwise send the image and print the reply
         else:
+            print "DBG: img = %s" % repr(codeimg) #DWH DBG DEBUG
             try:
                 self.conn.write(codeimg)
             except Exception, e:

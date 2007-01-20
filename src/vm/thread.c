@@ -18,19 +18,16 @@
  */
 
 #undef __FILE_ID__
-#define __FILE_ID__ 0x03
+#define __FILE_ID__ 0x16
 /**
- * VM Frame
+ * VM Thread
  *
- * VM frame operations.
+ * Encapsulating a frame pointer, a root code object and thread state.
  *
  * Log
  * ---
  *
- * 2007/01/09   #75: fo_isImport for thread support (P.Adelt)
- * 2006/08/29   #15 - All mem_*() funcs and pointers in the vm should use
- *              unsigned not signed or void
- * 2002/04/20   First.
+ * 2007/01/03   #75: First (P.Adelt)
  */
 
 /***************************************************************
@@ -65,62 +62,31 @@
  **************************************************************/
 
 PmReturn_t
-frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
+thread_new(pPmObj_t pframe, pPmObj_t *r_pobj)
 {
     PmReturn_t retval = PM_RET_OK;
-    int16_t fsize = 0;
-    int8_t stacksz = 0;
-    int8_t nlocals = 0;
-    pPmCo_t pco = C_NULL;
-    pPmFrame_t pframe = C_NULL;
-    uint8_t *paddr = C_NULL;
-    uint8_t *pchunk;
-
-    /* get fxn's code obj */
-    pco = ((pPmFunc_t)pfunc)->f_co;
-
-    /* TypeError if passed func's CO is not a true COB */
-    if (OBJ_GET_TYPE(*pco) != OBJ_TYPE_COB)
+    pPmThread_t pthread = C_NULL;
+    
+    C_ASSERT(pframe != C_NULL);
+    /* If it's not a frame, raise TypeError */
+    if (OBJ_GET_TYPE(*pframe) != OBJ_TYPE_FRM)
     {
         PM_RAISE(retval, PM_RET_EX_TYPE);
         return retval;
     }
 
-    /* get sizes needed to calc frame size */
-    paddr = pco->co_codeimgaddr + CI_STACKSIZE_FIELD;
-    stacksz = mem_getByte(pco->co_memspace, &paddr);
-    /* now paddr points to CI_NLOCALS_FIELD */
-    nlocals = mem_getByte(pco->co_memspace, &paddr);
-    fsize = sizeof(PmFrame_t) + (stacksz + nlocals) *
-            sizeof(pPmObj_t);
-    /* allocate a frame */
-    retval = heap_getChunk(fsize, &pchunk);
+    /* allocate a thread */
+    retval = heap_getChunk(sizeof(PmThread_t), (uint8_t **)r_pobj);
     PM_RETURN_IF_ERROR(retval);
-    pframe = (pPmFrame_t)pchunk;
-
-    /* set frame fields */
-    OBJ_SET_TYPE(*pframe, OBJ_TYPE_FRM);
-    pframe->fo_back = C_NULL;
-    pframe->fo_func = (pPmFunc_t)pfunc;
-    pframe->fo_memspace = pco->co_memspace;
-    /* init instruction pointer, line number and block stack */
-    pframe->fo_ip = pco->co_codeaddr;
-    pframe->fo_line = 0;
-    pframe->fo_blockstack = C_NULL;
-    /* init globals dict to NULL, interpreter will set it */
-    pframe->fo_globals = C_NULL;
-    /* frame's attrs points to func/mod/class's attrs dict */
-    pframe->fo_attrs = ((pPmFunc_t)pfunc)->f_attrs;
-    /* empty stack points to one past locals */
-    pframe->fo_sp = &(pframe->fo_locals[nlocals]);
-    /* by default, this is a normal frame, not an import call one */
-    pframe->fo_isImport = 0;
-
-    /* return ptr to frame */
-    *r_pobj = (pPmObj_t)pframe;
+    
+    /* set type, frame and initialize status */
+    pthread = (pPmThread_t)*r_pobj;
+    OBJ_SET_TYPE(*pthread, OBJ_TYPE_THR);
+    pthread->pframe = (pPmFrame_t)pframe;
+    pthread->interpctrl = INTERP_CTRL_CONT;
+    
     return retval;
 }
-
 
 /***************************************************************
  * Test

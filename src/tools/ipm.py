@@ -55,7 +55,7 @@ __usage__ = """USAGE:
 PMVM_EXE = "../tests/interactive/t067.out"
 IPM_PROMPT = "ipm> "
 COMPILE_FN = "<ipm>"
-COMPILE_MODE = "exec" # "single"
+COMPILE_MODE = "single"
 HELP_MESSAGE = "This is the interactive PyMite command line.\n" \
                "Just type the code that you want the target device to run.\n" \
                "Type another return if you see no prompt to exit multiline mode.\n" \
@@ -156,7 +156,6 @@ class Interactive(cmd.Cmd):
 
         # Otherwise send the image and print the reply
         else:
-            print "DBG: img = %s" % repr(codeimg) #DWH DBG DEBUG
             try:
                 self.conn.write(codeimg)
             except Exception, e:

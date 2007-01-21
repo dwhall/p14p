@@ -96,8 +96,8 @@ import plat
 def ipm():
     while 1:
         rv = eval(Co(_getImg()))
-        plat.puts('\n')
-
+        if rv == None:
+            plat.puts('\n')
 
 # Run the interactive interface apon import
 ipm()

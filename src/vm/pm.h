@@ -250,14 +250,6 @@ PmReturn_t pm_run(uint8_t *modstr);
  */
 PmReturn_t pm_vmPeriodic(uint16_t usecsSinceLastCall);
 
-/**
- * Runs the interactive interpreter on the target
- *
- * @return Return status
- */
-#define pm_runInteractive() pm_run((uint8_t *)"ipm")
-
-
 #ifdef TARGET_DESKTOP
 /**
  * Reports the return status to stdout and prints exception info if raised

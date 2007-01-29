@@ -92,6 +92,7 @@ interpret(const uint8_t returnOnNoThreads)
     pPmObj_t pobj3 = C_NULL;
     int16_t t16 = 0;
     int8_t t8 = 0;
+    uint8_t bc;
     
     /* activate a thread the first time */
     retval = interp_reschedule();
@@ -122,7 +123,8 @@ interpret(const uint8_t returnOnNoThreads)
         }
         
         /* get byte; the func post-incrs IP */
-        switch(mem_getByte(MS, &IP))
+        bc = mem_getByte(MS, &IP);
+        switch(bc)
         {
             case STOP_CODE:
                 /* SystemError, unknown opcode */
@@ -598,24 +600,33 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_RAISE(retval, PM_RET_EX_TYPE);
                 break;
 
+#ifdef HAVE_PRINT
             case PRINT_EXPR:
+                /* Print interactive expression */
+                /* Fallthrough */
+
             case PRINT_ITEM:
-            #ifdef HAVE_PRINT
                 /* Print out topmost stack element */
                 pobj1 = PM_POP(); 
-                obj_print(pobj1, 0);
-                continue;
-            #endif /* HAVE_PRINT */
+                retval = obj_print(pobj1, 0);
+                PM_BREAK_IF_ERROR(retval);
+                if (bc != PRINT_EXPR)
+                {
+                    continue;
+                }
+                /* If bytecode is PRINT_EXPR, fallthrough to print a newline */
+
             case PRINT_NEWLINE:
-            #ifdef HAVE_PRINT
-                plat_putByte('\n');
+                retval = plat_putByte('\n');
+                PM_BREAK_IF_ERROR(retval);
                 continue;
-            #endif /* HAVE_PRINT */
+
             case PRINT_ITEM_TO:
             case PRINT_NEWLINE_TO:
                 /* SystemError, unknown opcode */
                 PM_RAISE(retval, PM_RET_EX_SYS);
                 break;
+#endif /* HAVE_PRINT */
 
             case BREAK_LOOP:
                 {

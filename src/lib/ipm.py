@@ -88,18 +88,20 @@ def _getImg():
 
 
 #
-# Runs the target device-side interactive interpreter.
-# Waits for a code image, puts it into ram, makes a code object from it
-# and evaluates the code object.
+# Runs the target device-side interactive session.
 #
 import plat
 def ipm():
     while 1:
+        # Wait for a code image, make a code object from it
+        # and evaluate the code object.
         rv = eval(Co(_getImg()))
-        if rv == None:
-            plat.puts('\n')
 
-# Run the interactive interface apon import
+        # Send a byte to indicate completion of evaluation
+        plat.puts('\x04')
+
+# Start the interactive session when this module is imported
 ipm()
 
-# :mode=c:
+
+#:mode=c:

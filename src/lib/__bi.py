@@ -115,20 +115,11 @@ def chr(n):
 
 
 #
-# eval() wraps _eval() because _eval() needs an interpreted
-# function's frame on the frame stack in order to work properly.
+# Evaluates a given code object (created by Co()).
+# Optionally accepts a globals dict as the second parameter
+# Optionally accepts a locals dict as the third parameter
 #
 def eval(co, g, l):
-#    return _eval(co, g, l)
-
-
-#
-# _eval() is a native function.  Native functions do not get their own
-# frame on the frame stack, so eval() wraps this function.
-#
-# DO NOT CALL THIS FUNCTION FOR ANY REASON.
-#
-#def _eval(co, g, l):
     """__NATIVE__
     PmReturn_t retval;
     pPmObj_t pco;
@@ -212,13 +203,14 @@ def eval(co, g, l):
     }
 
     /*
-     * Set the fo_back frame so flow returns to eval() when completed.
-     * Set the current pframe so the new frame is interpreted immediately
+     * Set the fo_back frame so flow returns to eval()'s caller when completed.
+     * Set the frame pointer so the new frame is interpreted immediately
      * after this function returns.
      */
     ((pPmFrame_t)pnewframe)->fo_back = NATIVE_GET_PFRAME();
     NATIVE_GET_PFRAME() = (pPmFrame_t)pnewframe;
-
+    retval = PM_RET_FRAME_SWITCH;
+    
     return retval;
     """
     pass

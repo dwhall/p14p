@@ -40,45 +40,52 @@ Date            Action
 """
 
 
-import cmd, getopt, os, subprocess, sys
+import cmd, dis, getopt, os, subprocess, sys
 import pmImgCreator
 
 
 __usage__ = """USAGE:
     ipm.py -d
 
-    -d      Specifies the desktop connection; uses a pipe to send/receive bytes
+    -d      Specifies the desktop connection; uses pipes to send/receive bytes
             to/from the target, which is the vm also running on the desktop.
             ipm will spawn the process and run the vm.
     """
 
-PMVM_EXE = "../tests/interactive/t067.out"
+PMVM_EXE = "../sample/ipm-desktop/main.out"
 IPM_PROMPT = "ipm> "
 COMPILE_FN = "<ipm>"
 COMPILE_MODE = "single"
 HELP_MESSAGE = "This is the interactive PyMite command line.\n" \
                "Just type the code that you want the target device to run.\n" \
                "Type another return if you see no prompt to exit multiline mode.\n" \
-               "Type ctrl+D to quit.\n"
-REPLY_TERMINATOR = '\n'
+               "Type Ctrl+C to interrupt and Ctrl+D to quit.\n"
+REPLY_TERMINATOR = '\x04'
 
 
 class Connection(object):
-    pass
+    def open(self,): raise NotImplementedError
+    def read(self,): raise NotImplementedError
+    def write(self, msg): raise NotImplementedError
 
 
 class PipeConnection(Connection):
+    """Provides ipm-host to target connection over stdio pipes on the desktop.
+    This connection should work on any POSIX-compliant OS.
+    The ipm-device must be spawned as a subprocess
+    (the executable created when PyMite was built with TARGET=DESKTOP).
+    """
     def __init__(self, target=PMVM_EXE):
         self.open(target)
 
-
+        
     def open(self, target):
         self.child = subprocess.Popen(target,
-                                      shell=True,
+                                      bufsize=-1,
                                       stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE,
-                                      close_fds=True)
+                                      )
 
 
     def read(self,):
@@ -86,16 +93,17 @@ class PipeConnection(Connection):
         # It will usually be an exception message from the target
         # TODO
 
-        # Otherwise collect all characters up to and including the ipm reply
-        # terminator token.
+        # Collect all characters up to and including the ipm reply terminator
         chars = []
-        c = ''
+        c = 'z'
         while c != REPLY_TERMINATOR:
             c = self.child.stdout.read(1)
             if c == '':
+                print "DEBUG: child returncode = %s\n" % hex(self.child.poll())
                 break
             chars.append(c)
-        return "".join(chars)
+        msg = "".join(chars)
+        return msg
 
 
     def write(self, msg):
@@ -139,11 +147,15 @@ class Interactive(cmd.Cmd):
 
 
     def do_input(self, line):
-        """Handles input from the interactive interface.
-        Compiles and converts the interactive statement.
+        """Compiles the input and creates a code image from "line",
+        sends the code image to the target over the connection,
+        prints the return stream.
         """
 
         codeobj = compile(line, COMPILE_FN, COMPILE_MODE)
+
+        # DEBUG: Uncomment the next line to print the statement's bytecodes
+        #dis.disco(codeobj) 
 
         # Convert to a code image
         pic = pmImgCreator.PmImgCreator()
@@ -159,17 +171,17 @@ class Interactive(cmd.Cmd):
             try:
                 self.conn.write(codeimg)
             except Exception, e:
-                self.stdout.write("Connection error, type Ctrl+D to quit.\n")
+                self.stdout.write("Connection write error, type Ctrl+D to quit.\n")
 
             rv = self.conn.read()
-            if rv == None:
-                self.stdout.write("Connection lost, type Ctrl+D to quit.\n")
+            if rv == '':
+                self.stdout.write("Connection read error, type Ctrl+D to quit.\n")
             else:
                 self.stdout.write(rv)
 
 
     def onecmd(self, line):
-        """Parses one line of input (grabs more lines if needed).
+        """Gathers one interactive line of input (gets more lines as needed).
         """
 
         # Ignore empty line, continue interactive prompt
@@ -182,6 +194,7 @@ class Interactive(cmd.Cmd):
             self.conn.write("\0")
             # The connection will close automatically
 
+            # Do this so OS prompt is on a new line
             self.stdout.write("\n")
 
             # Quit the run loop
@@ -193,6 +206,7 @@ class Interactive(cmd.Cmd):
             cmd.Cmd.onecmd(self, line)
             return
 
+        # Gather input from the interactive line
         codeobj = None
         while not codeobj:
 
@@ -225,14 +239,16 @@ class Interactive(cmd.Cmd):
 
 
     def run(self,):
-        """Runs the command loop and handles keyboard interrupts (ctrl+C)."""
+        """Runs the command loop and handles keyboard interrupts (ctrl+C).
+        The command loop is what calls self.onecmd().
+        """
 
         print HELP_MESSAGE,
 
         self.stop = False
         while not self.stop:
             try:
-                stop = self.cmdloop()
+                self.stop = self.cmdloop()
             except KeyboardInterrupt, ki:
                 print "\n", ki.__class__.__name__
                 # TODO: check connection?

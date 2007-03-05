@@ -40,4 +40,17 @@ The ``sample.py`` module contains the ``main()`` function that is the primary
 program to run.  PyMite knows to run ``sample.py`` because it is told to do so
 in the C code in ``sample.c``.
 
+Building the Project
+--------------------
+
+Start with a clean PyMite tree.  Build the PyMite archive with ``TARGET=AVR``
+and then build this sample project.::
+
+    $ make TARGET=AVR
+    $ cd src/sample/mmb103
+    $ make
+
+This will result in the file ``src/sample/mmb103/sample.hex``.  Use your AVR
+programmer of choice to program that file into the ATmega103 target device.
+
 .. :mode=rest:

@@ -35,7 +35,7 @@
 # PyMite Configuration
 LIBNATIVE_SOURCES = mmb.py
 PMIMGCREATOR := ../../tools/pmImgCreator.py
-PM_HEAP_SIZE = 0x0E00
+PM_HEAP_SIZE = 0x0D00
 
 
 # MCU name

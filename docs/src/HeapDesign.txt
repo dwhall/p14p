@@ -129,11 +129,14 @@ Heap Chunk Duality
 
 A memory chunk can take two forms throughout the execution of the PyMite VM.
 When a chunk is allocated and in use, it uses the object descriptor struct,
-``pmObjDesc_t``, to store important operational details.  However, when that
-same chunk is deallocated and in the free list, it uses the heap descriptor
-struct, ``pmHeapDesc_t``, so that a larger value can be stored in the size
-field.  When a chunk is not in use, the type field and GC mark bit are no
-longer needed and are not present in the heap descriptor.
+``PmObjDesc_t``, to store important operational details.  This is accomplished
+by declaring ``PmObjDesc_t`` at the head of every PyMite object structure.
+However, when that same chunk is deallocated and in the free list, it uses 
+the heap descriptor struct, ``PmHeapDesc_t``, so that a larger value can be 
+stored in the size field.  When a chunk is not in use, the type field and GC 
+mark bit are no longer needed and are not present in the heap descriptor.
+The ``PmHeapDesc_t`` structure also has one or more pointers used to create
+the free list.
 
 
 The Object Descriptor
@@ -225,7 +228,7 @@ The following is a diagram of the heap descriptor at the head of a chunk::
           +---------------+
 
 
-This paragraph explains what happens whena chunk is deallocated.  A chunk is
+This paragraph explains what happens when a chunk is deallocated.  A chunk is
 deallocated in one of two ways.  A chunk can be explicitly deallocated by a
 call to ``heap_freeChunk()``.  In this case, the chunk's free bit is set
 and the chunk is inserted into the free list without being coalesced.  The chunk

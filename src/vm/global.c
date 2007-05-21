@@ -77,23 +77,23 @@ global_init(void)
     gVmGlobal.errVmRelease = PM_RELEASE;
 
     /* Init zero */
-    OBJ_SET_TYPE(gVmGlobal.zero, OBJ_TYPE_INT);
-    OBJ_SET_SIZE(gVmGlobal.zero, sizeof(PmInt_t));
+    OBJ_SET_TYPE(&gVmGlobal.zero, OBJ_TYPE_INT);
+    OBJ_SET_SIZE(&gVmGlobal.zero, sizeof(PmInt_t));
     gVmGlobal.zero.val = (int32_t)0;
 
     /* Init one */
-    OBJ_SET_TYPE(gVmGlobal.one, OBJ_TYPE_INT);
-    OBJ_SET_SIZE(gVmGlobal.one, sizeof(PmInt_t));
+    OBJ_SET_TYPE(&gVmGlobal.one, OBJ_TYPE_INT);
+    OBJ_SET_SIZE(&gVmGlobal.one, sizeof(PmInt_t));
     gVmGlobal.one.val = (int32_t)1;
 
     /* Init negone */
-    OBJ_SET_TYPE(gVmGlobal.negone, OBJ_TYPE_INT);
-    OBJ_SET_SIZE(gVmGlobal.negone, sizeof(PmInt_t));
+    OBJ_SET_TYPE(&gVmGlobal.negone, OBJ_TYPE_INT);
+    OBJ_SET_SIZE(&gVmGlobal.negone, sizeof(PmInt_t));
     gVmGlobal.negone.val = (int32_t)-1;
 
     /* Init None */
-    OBJ_SET_TYPE(gVmGlobal.none, OBJ_TYPE_NON);
-    OBJ_SET_SIZE(gVmGlobal.none, sizeof(PmObj_t));
+    OBJ_SET_TYPE(&gVmGlobal.none, OBJ_TYPE_NON);
+    OBJ_SET_SIZE(&gVmGlobal.none, sizeof(PmObj_t));
 
     /* Init "code" string obj */
     retval = string_new((uint8_t const **)&codestr, &pobj);

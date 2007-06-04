@@ -98,13 +98,8 @@ This paragraph explains the memory allocation policy used by the heap.
 The allocator shall use a Best-Fit algorithm to allocate chunks from the heap.
 The Best-Fit algorithm is chosen because research shows that when it is
 combined with coalescing reclamation, fragmentation is reduced to
-insignificance [Johnstone:1998]_.  Furthermore, Best-Fit is chosen because
+insignificance [Johnstone1998]_.  Furthermore, Best-Fit is chosen because
 the cost of scanning the free list of PyMite's small heap is bounded.
-
-.. [Johnstone:1998] "The Memory Fragmentation Problem: Solved?",
-    M. S. Johnstone and P. R. Wilson,
-	__International Symposium on Memory Management__,
-	Oct. 1998.
 
 After the heap is initialized, all available memory is in one big chunk
 in the free list.  However, after the VM operates for some time, the free list
@@ -123,6 +118,12 @@ which allows an opportunity for the chunk to be re-used without the cost
 of coalescing and splitting.  Garbage collection occurs when no chunks of
 suitable size are available, which is an appropriate time to perform coalescing.
 
+.. [Johnstone1998]
+   "The Memory Fragmentation Problem: Solved?",
+   M. S. Johnstone and P. R. Wilson,
+   *International Symposium on Memory Management*,
+   Oct. 1998.
+
 
 Heap Chunk Duality
 ~~~~~~~~~~~~~~~~~~
@@ -131,9 +132,9 @@ A memory chunk can take two forms throughout the execution of the PyMite VM.
 When a chunk is allocated and in use, it uses the object descriptor struct,
 ``PmObjDesc_t``, to store important operational details.  This is accomplished
 by declaring ``PmObjDesc_t`` at the head of every PyMite object structure.
-However, when that same chunk is deallocated and in the free list, it uses 
-the heap descriptor struct, ``PmHeapDesc_t``, so that a larger value can be 
-stored in the size field.  When a chunk is not in use, the type field and GC 
+However, when that same chunk is deallocated and in the free list, it uses
+the heap descriptor struct, ``PmHeapDesc_t``, so that a larger value can be
+stored in the size field.  When a chunk is not in use, the type field and GC
 mark bit are no longer needed and are not present in the heap descriptor.
 The ``PmHeapDesc_t`` structure also has one or more pointers used to create
 the free list.
@@ -270,6 +271,19 @@ a single larger chunk.  Reclaimed chunks are inserted into the free list.
 Coalesced chunks, because their size has changed, must be removed and
 reinserted in the free list in order to maintain sorted order.
 A doubly linked list is used to make list removal and insertion easier.
+
+A special case arises when the GC activates when the interpreter is executing 
+native code.  In this case, newly-allocated objects could be collected because 
+they have not yet linked to their final object which would make it reachable 
+from the roots list.  To prevent this from happening, objects that are 
+allocated in a native code session are given a GC mark value that will
+allow that object to survive the next run of the GC.  Furthermore, the GC uses
+a counter variable in the native frame to prevent the GC from running twice
+while in one native code session.  These two implementation-specific features
+combine to prevent objects allocated in native code from being collected should
+the GC run later during that same native session.  If the case arises that the
+GC activates twice during one native code session, an out of memory exception
+is raised.
 
 
 Conclusion

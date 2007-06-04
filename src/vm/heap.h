@@ -88,4 +88,19 @@ PmReturn_t heap_freeChunk(pPmObj_t ptr);
  */
 PmReturn_t heap_getAvail(uint16_t *r_avail);
 
+/**
+ * Runs the mark-sweep garbage collector
+ *
+ * @return  Return code
+ */
+PmReturn_t heap_gcRun(void);
+
+/**
+ * Enables (if true) or disables automatic garbage collection
+ *
+ * @param   bool Value to enable or disable auto GC
+ * @return  Return code
+ */
+PmReturn_t heap_gcSetAuto(uint8_t bool);
+
 #endif /* __HEAP_H__ */

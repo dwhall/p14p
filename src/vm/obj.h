@@ -46,52 +46,100 @@
  * Constants
  **************************************************************/
 
-#define OD_MARK_BIT (uint16_t)(1 << 14)
-#define OD_FREE_BIT (uint16_t)(1 << 15)
+/** Object descriptor field constants */
+#define OD_MARK_SHIFT 14
+#define OD_FREE_SHIFT 15
+#define OD_MARK_BIT (uint16_t)(1 << OD_MARK_SHIFT)
+#define OD_FREE_BIT (uint16_t)(1 << OD_FREE_SHIFT)
 #define OD_SIZE_MASK (uint16_t)(0x01FF)
 #define OD_TYPE_MASK (uint16_t)(0x3E00)
 #define OD_TYPE_SHIFT 9
+
+/** Heap descriptor size mask */
+#define HD_SIZE_MASK (uint16_t)(0x3FFF)
+
 
 /***************************************************************
  * Macros
  **************************************************************/
 
-#define OBJ_GET_GCVAL(pobj) ((pobj)->od & OD_MARK_BIT)
+/**
+ * Gets the free bit of the given object to the given value.
+ * If the object is marked free, it is not being used by the VM.
+ */
+#define OBJ_GET_FREE(pobj) \
+    ((((pPmObj_t)pobj)->od >> OD_FREE_SHIFT) & (uint8_t)1)
 
-#define OBJ_SET_GCVAL(pobj, gcval) \
-            (pobj)->od = (gcval) ? (pobj)->od | OD_MARK_BIT \
-                                 : (pobj)->od & ~OD_MARK_BIT
-
-#define OBJ_GET_FREE(pobj) ((pobj)->od & OD_FREE_BIT)
-
+/**
+ * Sets the free bit of the given object to the given value.
+ * Setting the free bit means that the object will use the heap descriptor
+ * structure instead of the object descriptor structure.
+ */
 #define OBJ_SET_FREE(pobj, free) \
-            (pobj)->od = (free) ? (pobj)->od | OD_FREE_BIT \
-                                : (pobj)->od & ~OD_FREE_BIT
+    do \
+    { \
+        ((pPmObj_t)pobj)->od = ((uint8_t)free) \
+                               ? ((pPmObj_t)pobj)->od | OD_FREE_BIT \
+                               : ((pPmObj_t)pobj)->od & ~OD_FREE_BIT;\
+    } \
+    while (0)
 
 /*
  * #99: od_size bits are shifted because size is a scaled value
  * True size is always a multiple of 4, so the lower two bits are ignored
  * and two more significant bits are gained.
  */
-#define OBJ_GET_SIZE(pobj) (((pobj)->od & OD_SIZE_MASK) << 2)
+/**
+ * Gets the size of the chunk in bytes.
+ * Tests whether the object is free as that determines whether the chunk is
+ * using an object descriptor or a heap descriptor.  Heap descriptors have
+ * a larger size field and use a different bit mask than object descriptors.
+ */
+#define OBJ_GET_SIZE(pobj) \
+    ((((pPmObj_t)pobj)->od & OD_FREE_BIT) \
+     ? ((((pPmObj_t)pobj)->od & HD_SIZE_MASK) << 2) \
+     : ((((pPmObj_t)pobj)->od & OD_SIZE_MASK) << 2))
 
+/**
+ * Sets the size of the chunk in bytes.
+ * Tests whether the object is free as that determines whether the chunk is
+ * using an object descriptor or a heap descriptor.  Heap descriptors have
+ * a larger size field and use a different bit mask than object descriptors.
+ */
 #define OBJ_SET_SIZE(pobj, size) \
-            do \
-            { \
-                (pobj)->od &= ~OD_SIZE_MASK; \
-                (pobj)->od |= (((size) >> 2) & OD_SIZE_MASK); \
-            } \
-            while (0)
+    do \
+    { \
+        if (((pPmObj_t)pobj)->od & OD_FREE_BIT) \
+        { \
+            ((pPmObj_t)pobj)->od &= ~HD_SIZE_MASK; \
+            ((pPmObj_t)pobj)->od |= (((size) >> 2) & HD_SIZE_MASK); \
+        } \
+        else \
+        { \
+            ((pPmObj_t)pobj)->od &= ~OD_SIZE_MASK; \
+            ((pPmObj_t)pobj)->od |= (((size) >> 2) & OD_SIZE_MASK); \
+        } \
+    } \
+    while (0)
 
-#define OBJ_GET_TYPE(pobj) ((((pobj)->od) & OD_TYPE_MASK) >> OD_TYPE_SHIFT)
+/**
+ * Gets the type of the object
+ * This MUST NOT be called on objects that are free.
+ */
+#define OBJ_GET_TYPE(pobj) \
+    (((((pPmObj_t)pobj)->od) & OD_TYPE_MASK) >> OD_TYPE_SHIFT)
 
+/**
+ * Sets the type of the object
+ * This MUST NOT be called on objects that are free.
+ */
 #define OBJ_SET_TYPE(pobj, type) \
-            do \
-            { \
-                (pobj)->od &= ~OD_TYPE_MASK; \
-                (pobj)->od |= (((type) << OD_TYPE_SHIFT) & OD_TYPE_MASK); \
-            } \
-            while (0)
+    do \
+    { \
+        ((pPmObj_t)pobj)->od &= ~OD_TYPE_MASK; \
+        ((pPmObj_t)pobj)->od |= (((type) << OD_TYPE_SHIFT) & OD_TYPE_MASK); \
+    } \
+    while (0)
 
 
 /***************************************************************
@@ -183,6 +231,12 @@ typedef enum PmType_e
 
     /** Sequence iterator */
     OBJ_TYPE_SQI = 0x16,
+
+    /** Image info struct */
+    OBJ_TYPE_IIS = 0x17,
+
+    /** Native frame (there is only one) */
+    OBJ_TYPE_NFM = 0x18,
 } PmType_t, *pPmType_t;
 
 

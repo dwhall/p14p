@@ -1386,12 +1386,15 @@ interpret(const uint8_t returnOnNoThreads)
                         gVmGlobal.nativeframe.nf_locals[t16] = PM_POP();
                     }
 
-                    /* Pop the function object */
-                    PM_POP();
+                    /* Pop the function object (pobj2 is unused) */
+                    pobj2 = PM_POP();
 
                     /* Get native function index */
                     pobj2 = (pPmObj_t)((pPmFunc_t)pobj1)->f_co;
                     t16 = ((pPmNo_t)pobj2)->no_funcindx;
+
+                    /* Set flag, so frame will be marked by the GC */
+                    gVmGlobal.nativeframe.nf_active = C_TRUE;
 
                     /*
                      * CALL NATIVE FXN: pass caller's frame and numargs
@@ -1407,9 +1410,16 @@ interpret(const uint8_t returnOnNoThreads)
                     {
                         retval = usr_nat_fxn_table[-t16] (&FP, t8);
                     }
+
                     /*
                      * RETURN FROM NATIVE FXN
                      */
+
+                    /* Clear flag, so frame will not be marked by the GC */
+                    gVmGlobal.nativeframe.nf_active = C_FALSE;
+                    
+                    /* Reset GC count since the native session is done */
+                    gVmGlobal.nativeframe.nf_gcCount = 0;
 
                     /* If the frame pointer was switched, do nothing to TOS */
                     if (retval == PM_RET_FRAME_SWITCH)
@@ -1496,7 +1506,8 @@ interp_reschedule(void)
 {
     PmReturn_t retval = PM_RET_OK;
     static uint8_t threadIndex = (uint8_t)0;
-
+    pPmObj_t pobj;
+    
     /* If there are no threads in the runnable list, null the active thread */
     if (gVmGlobal.threadList->length == 0)
     {
@@ -1510,8 +1521,9 @@ interp_reschedule(void)
         {
             threadIndex = (uint8_t)0;
         }
-        retval = list_getItem((pPmObj_t)gVmGlobal.threadList,
-                              threadIndex, (pPmObj_t *)&gVmGlobal.pthread);
+        retval = list_getItem((pPmObj_t)gVmGlobal.threadList, threadIndex, 
+                              &pobj);
+        gVmGlobal.pthread = (pPmThread_t)pobj;
         PM_RETURN_IF_ERROR(retval);
     }
 

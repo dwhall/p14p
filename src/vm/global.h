@@ -114,6 +114,16 @@ typedef struct PmVmGlobal_s
 
     /** Flag to trigger rescheduling */
     uint8_t reschedule;
+    
+    #ifdef HAVE_RPM
+    /**
+     * For importing builtins, the recursive call to interpret()
+     * should disregard the communication hooks. This is needed so a builtin
+     * import triggered from an RPM message does not get hooked in an endless
+     * loop.
+     */
+    uint8_t disregardComm:1;
+    #endif /* HAVE_RPM */
 } PmVmGlobal_t,
  *pPmVmGlobal_t;
 

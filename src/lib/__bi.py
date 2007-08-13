@@ -615,32 +615,31 @@ def Co(i):
 #
 # Allocates an exception class object
 #
-def _exn():
-    """__NATIVE__
-    PmReturn_t retval;
-    pPmClass_t pexn;
-    uint8_t *pchunk;
-    pPmObj_t pobj;
-
-    /* Alloc a class object with attributes dict */
-    retval = heap_getChunk(sizeof(PmClass_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pexn = (pPmClass_t)pchunk;
-    OBJ_SET_TYPE(pexn, OBJ_TYPE_EXN);
-    retval = dict_new(&pobj);
-    pexn->cl_attrs = (pPmDict_t)pobj;
-
-    NATIVE_SET_TOS((pPmObj_t)pexn);
-
-    return retval;
-    """
-    pass
-
+#def _exn():
+#    """__NATIVE__
+#    PmReturn_t retval;
+#    pPmClass_t pexn;
+#    uint8_t *pchunk;
+#    pPmObj_t pobj;
+#
+#    /* Alloc a class object with attributes dict */
+#    retval = heap_getChunk(sizeof(PmClass_t), &pchunk);
+#    PM_RETURN_IF_ERROR(retval);
+#    pexn = (pPmClass_t)pchunk;
+#    OBJ_SET_TYPE(pexn, OBJ_TYPE_EXN);
+#    retval = dict_new(&pobj);
+#    pexn->cl_attrs = (pPmDict_t)pobj;
+#
+#    NATIVE_SET_TOS((pPmObj_t)pexn);
+#
+#    return retval;
+#    """
+#    pass
 
 #
 # Exception classes
 #
-AssertionError = _exn()
-AssertionError.code = 0xE4
+#AssertionError = _exn()
+#AssertionError.code = 0xE4
 
 #:mode=c:

@@ -106,8 +106,9 @@
 #endif
 
 /** return an error code if it is not PM_RET_OK */
-#define PM_RETURN_IF_ERROR(retval)  if((retval) != PM_RET_OK) \
-                                        return (retval)
+#define PM_RETURN_IF_ERROR(retval)   if((retval) != PM_RET_OK) {\
+    C_DEBUG_PRINT(VERBOSITY_LOW, "retval=%i file=%X line=%i\n", retval, __FILE_ID__, __LINE__); \
+                                      return (retval); }
 
 /** print an error message if argument is not PM_RET_OK */
 #define PM_REPORT_IF_ERROR(retval)   if ((retval) != PM_RET_OK) \
@@ -120,6 +121,8 @@
     { \
         if (!((boolexpr))) \
         { \
+            C_DEBUG_PRINT(VERBOSITY_LOW, "Assertion failed. errFileId=%X " \
+                "errLineNum=%i\n", __FILE_ID__, __LINE__); \
             gVmGlobal.errFileId = __FILE_ID__; \
             gVmGlobal.errLineNum = (uint16_t)__LINE__; \
             return PM_RET_ASSERT_FAIL; \
@@ -127,9 +130,18 @@
     } \
     while (0)
 
+/** Return ASSERT error code of object is not the native frame and not
+ * in the heap area. */
+#define C_ASSERT_IN_HEAP(pobj) \
+    C_ASSERT((((uint8_t *)pobj >= &pmHeap.base[0]) \
+             && ((uint8_t *)pobj <= &pmHeap.base[HEAP_SIZE])) \
+             || ((uint8_t *)pobj == (uint8_t *)&gVmGlobal.nativeframe))
+ 
+
 #else
 /** Assert statements are removed from production code */
 #define C_ASSERT(boolexpr)
+#define C_ASSERT_IN_HEAP(boolexpr)
 #endif
 
 /** Use as the first argument to C_DEBUG_PRINT for low volume messages */
@@ -155,13 +167,24 @@
     { \
         if (DEBUG_PRINT_VERBOSITY >= (v)) \
         { \
-            printf("PM_DEBUG: " f, ## __VA_ARGS__); \
+            fprintf(stderr, "PM_DEBUG: " f, ## __VA_ARGS__); \
+        } \
+    } \
+    while (0)
+
+#define C_DEBUG_PRINT_RAW(v, f, ...) \
+    do \
+    { \
+        if (DEBUG_PRINT_VERBOSITY >= (v)) \
+        { \
+            fprintf(stderr, f, ## __VA_ARGS__); \
         } \
     } \
     while (0)
 
 #else
 #define C_DEBUG_PRINT(...)
+#define C_DEBUG_RAW(...)
 #endif
 
 
@@ -224,7 +247,7 @@ extern volatile uint32_t pm_timerMsTicks;
 #include "seq.h"
 #include "heap.h"
 #include "int.h"
-#include "string.h"
+#include "stringobj.h"
 #include "tuple.h"
 #include "seglist.h"
 #include "list.h"
@@ -239,6 +262,9 @@ extern volatile uint32_t pm_timerMsTicks;
 #include "misc.h"
 #include "thread.h"
 #include "plat/plat.h"
+#include "rpp.h"
+#include "rpm.h"
+#include "persist.h"
 
 
 /***************************************************************
@@ -263,6 +289,20 @@ PmReturn_t pm_init(PmMemSpace_t memspace, uint8_t *pusrimg);
  * @return Return status
  */
 PmReturn_t pm_run(uint8_t const *modstr);
+
+/**
+ * Add a new thread from the named module.
+ *
+ * @param modstr Name of module make a thread of
+ * @return Return status
+ */
+PmReturn_t pm_addThread(uint8_t const *modstr);
+
+/**
+ * Read the autorun list and add any module whose name is found to the
+ * system.
+ */
+PmReturn_t pm_addAutorunThreads(void);
 
 /**
  * Needs to be called periodically by the host program.

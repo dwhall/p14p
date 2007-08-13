@@ -197,7 +197,7 @@ dict_getItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t *r_pobj)
     return retval;
 }
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 PmReturn_t
 dict_print(pPmObj_t pdict)
 {
@@ -216,7 +216,7 @@ dict_print(pPmObj_t pdict)
         return retval;
     }
 
-    plat_putByte('{');
+    SEND_BYTE('{');
 
     keys = ((pPmDict_t)pdict)->d_keys;
     vals = ((pPmDict_t)pdict)->d_vals;
@@ -226,22 +226,22 @@ dict_print(pPmObj_t pdict)
     {
         if (index != 0)
         {
-            plat_putByte(',');
-            plat_putByte(' ');
+            SEND_BYTE(',');
+            SEND_BYTE(' ');
         }
         retval = seglist_getItem(keys, index, &pobj1);
         PM_RETURN_IF_ERROR(retval);
         retval = obj_print(pobj1, 1);
         PM_RETURN_IF_ERROR(retval);
 
-        plat_putByte(':');
+        SEND_BYTE(':');
         retval = seglist_getItem(vals, index, &pobj1);
         PM_RETURN_IF_ERROR(retval);
         retval = obj_print(pobj1, 1);
         PM_RETURN_IF_ERROR(retval);
     }
 
-    return plat_putByte('}');
+    return SEND_BYTE('}');
 }
 #endif /* HAVE_PRINT */
 

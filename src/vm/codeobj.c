@@ -77,9 +77,12 @@ co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco)
     pco->co_names = (pPmTuple_t)pobj;
 
     /* Load consts (tuple obj) assume it follows names */
+    pco->co_consts = 0;
     retval = obj_loadFromImg(memspace, paddr, &pobj);
     PM_RETURN_IF_ERROR(retval);
     pco->co_consts = (pPmTuple_t)pobj;
+    C_ASSERT(OBJ_GET_TYPE(pco) == OBJ_TYPE_COB);
+    C_ASSERT(pco->co_consts != 0);
 
     /* Start of bcode always follows consts */
     pco->co_codeaddr = *paddr;

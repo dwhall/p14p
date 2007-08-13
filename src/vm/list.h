@@ -161,7 +161,7 @@ PmReturn_t list_remove(pPmObj_t plist, pPmObj_t item);
  */
 PmReturn_t list_index(pPmObj_t plist, pPmObj_t pitem, uint16_t *r_index);
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 /**
  * Prints out a list. Uses obj_print() to print elements.
  *

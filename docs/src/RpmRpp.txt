@@ -1,0 +1,264 @@
+.. Copyright 2007 Philipp Adelt
+   Permission is granted to copy, distribute and/or modify this document
+   under the terms of the GNU Free Documentation License, Version 1.2
+   or any later version published by the Free Software Foundation;
+   with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+   Texts.  A copy of the license is in the file docs/LICENSE.
+
+=================================
+Remote PyMite Management/Protocol
+=================================
+
+:Author:    Philipp Adelt
+:Id:        $Id$
+
+Purpose
+-------
+
+This document describes the Remote PyMite Management (RPM) infrastructure and
+the protocol it uses: Remote PyMite Protocol (RPP)
+
+Overview
+--------
+
+----------------------
+Remote PyMite Protocol
+----------------------
+
+The protocol is used to multiplex several functions over a single bidrectional
+order-preserving byte-oriented channel. Obvious uses are transfer over UART on
+microcontrollers, TCP over a network or simple pipes between two operating
+system processes.
+
+The protocol is message based, where each message is acknowledged. Timeouts
+handle cases of massive data corruption. A checksum helps to find slightly
+corrupted messages. The connection is point-to-point, no addressing takes place.
+The protocol semantics are designed to detect when one partner of a
+communication is restarted. This is necessary to not require the other partner
+to be reset too.
+
+
+Message format
+==============
+
+Normal messages have this format::
+
+  +--------+----------+------+--------+--....--+----+-----+
+  | Start  | Sequence | Type |  Data  | n Byte |  16 Bit  |
+  | symbol |  number  |      | Length |  Data  | checksum |
+  +--------+----------+------+--------+--....--+----+-----+
+   0        1          2      3        4        4+Datalength
+
+The fields are each one byte long:
+
+1. Start symbol:
+
+    Used to speed up detection of a message start in a byte stream.
+    This actually is 0xFF at the moment.
+
+2. Sequence number:
+
+    The sequence number is increased on each message sent and is unique per
+    direction. It allows the receiver to detect missing messages. As long as
+    both partners always resend messages if not acknowledged and a timeout
+    occurs, this is not neccessary. But to make target implementation easier,
+    its sender does not always buffer the message sent and therefore cannot
+    repeat the message. This way, at least the receiver can detect a missing
+    message.
+
+3. Type:
+
+    This distinguishes different types of messages.
+
+4. Data length:
+
+    This allows for messages of zero to 255 bytes per message.
+
+5. Data field:
+
+    Needs to contain exactly as many bytes as advertised in the data length
+    field.
+    
+6. Checksum:
+
+    A CRC16 checksum with polynomial 0xA001 and initialized to 0xFFFF of all
+    the data prior to the checksum, including the start symbol.
+
+ACK and NACK messages have a data field of length zero.
+
+
+Message Exchange
+================
+
+For each incoming message, an ACK, a NACK or a response message is sent. NACK
+is sent if the message was complete but the checksum wrong.
+
+If a non-complete message is received, a long time passes and a new byte is
+received, the old non-complete message is removed. This speeds up detection of
+defective messages.
+    
+Message types
+=============
+
+The following table shows message types in use. For a detailed description see
+the sections below.
+
+==== ================= ========================================================
+Type      Name                           Description
+==== ================= ========================================================
+ 1   ACK               Response to an correctly received message.
+ 2   NACK              Response to an incoming message with bad checksum.
+ 3   SYNC              Carries status information and signals reset.
+ 4   THREAD_PRINT_ITEM Output of a PRINT_ITEM bytecode of a thread.
+ 5   THREAD_PRINT_EXPR Output of a PRINT_EXPR bytecode of a thread.
+ 6   THREAD_LIST       Request a list of or report a list of available threads.
+ 7   MEM_LIST          Request a list of memory spaces with parameters.
+ 8   MEM_ADD_BLOCK     Append a block of data to a memory space.
+ 9   AUTORUN_LIST      Get or set a list of image names that are autostarted.
+ 10  THREAD_START      Given a name of a module, start a thread from it.
+==== ================= ========================================================
+
+When altering this table, remember to update src/vm/rpp.h and
+src/rpm/comm/messages.py.
+
+Synchronization message
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Whenever one of the two communication partners resets or is restarted, is starts
+by sending a synchronization message. No further communication is enabled
+(received messages are ignored) until an ACK is received. The message should
+ensure that the partner recognizes a reset partner. After a syncronization
+message is received that signals a reset partner, the own synchronization
+message should be sent. So the normal sequence after
+startup will be to send the synchronization message until it is acknowledged and
+then wait for the partner's data.
+
+The message's data field has the following contents:
+
+1. Reset:
+
+    One byte that equals 0x01 after reset and until the message is first
+    acknowledged by the partner. 0x00 afterwards.
+
+2. Size of receive buffer:
+
+	The number of bytes a complete message can at most be long. Longer messages
+	are rejected. Setting this to zero means unlimited buffer length.
+	Practically, a CPython receiving data on a PC has unlimited buffer length.
+	In fact, at the moment the target implementation completely ignores the
+	maximum buffer size of its partner. This works fine as long as a the partner
+	is a Python implementation with large heap.
+
+3. Word size:
+
+	The number of bytes that form a native memory pointer. This is used to size
+	the field used for target memory references. Example: The thread management
+	uses the memory position of the PmThread object as an ID. As the pointer
+	size varies with the target architecture, the absolute size is not specified
+	in the protocol but exchanged using this field.
+
+4. Idenitification string:
+
+	A 16 Byte long identification field that can hold user-specified data.
+	Allows targets to be identified. Suggested uses are serial numbers,
+	function group descriptions.
+
+Thread list messages
+~~~~~~~~~~~~~~~~~~~~
+A thread list consists of a number of memory locations that are each as long as
+the target reported word size. The sent list is always complete.
+
+If the desktop sends this message, the data field is empty and another list
+message from the target is expected instead of an ACK message.
+
+If the message is sent by the target, it contains a thread list in its data
+field. The message can be sent from the target on its own. It does so when a
+new thread is created or one is removed.
+
+Thread output messages
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Implementation
+==============
+
+Processing of incoming data is done two-fold. One routine is quick and handles
+single received bytes. This is typically called inside an interrupt routine on
+microcontrollers and is called with data received by polling stdin on a desktop
+target. It checks for the correct format of the received message, incrementally
+builds the checksum, tests for it when the message is complete and then flags
+the complete message, ignoring further data until the flag is reset externally.
+Also, if the checksum is wrong, it flags for a NACK packet to be sent and
+ignores data until that flag is reset, too.
+
+The other routine is run between each two bytecodes and checks for the flags.
+It calls the appropriate handler. A received message is handled and either an
+ACK or a response message is sent before the flag is reset.
+
+The incoming data is written to a statically allocated buffer. The size is
+compile-time configurable and currently is 50 byte.
+
+
+Segmentation of overlong data
+=============================
+
+As a lot of data is to be transferred that is much larger than the buffer size
+(think Code Image), a scheme for splitting up those data blocks is introduced.
+Such a segmented message is made up of several messages. All the messages but
+the last have their data length field (DLF) set to maximum. This signals in the
+first message that more data is coming. Additionally, the first message has a
+size field (transferred LSB first) as the first data. That total data length
+(TDL) field holds the size of all the data that is sent over multiple messages.
+The length of this is the target word size (WS). Although the word size does
+not need to determine the maximum size of any storage space on the target
+(think external EEPROM/Flash connected to a microcontroller) this will work for
+now.
+
+TODO Contrary to the above, the TDL field is currently fixed to 16bit.
+
+The TDL field allows for allocation of memory chunks as large as the complete
+data from the start, thereby making incremental transfers of large objects
+possible.
+
+The target does not send the TDL because it generally does not know it in
+advance.
+
+Target implementation details
+=============================
+
+The target implementation aims to be RAM efficient. This means that buffers
+are avoided where possible.
+
+Buffered sending
+~~~~~~~~~~~~~~~~
+
+Things like recursively sending the repr() of an object without using large
+buffers can be hard. One idea is to send each element (each single object value
+and each parantheses, commas) in a single message to isolate the function calls
+from each other. But this leads to large overhead. Buffering all the data before
+sending is prohibitively expensive in term of memory.
+
+So another scheme is used. Each object sends its data on its own without knowing
+the context. Sending is in fact calling a buffering send function
+rpp_sendBuffered() that writes into a small, static buffer and sends the
+contents whenever the buffer is full and sending is complete.
+Completion is excplicitly marked by calling rpp_sendBufferedFinish().
+Before a send operation is started, a call to rpp_sendBufferedStart() is
+needed.
+
+Coarse grain TODO
+=================
+* The memory block storage API is nonsense. It currently is intermangled with
+  rpm.c and keeps a hardcoded area of one memory space free for the autorun
+  list. After a memory block is written, it is automatically threated with
+  img_findInMem() to make a transferred image available.
+  This should be replaced by a method to add a module, thereby adding it the
+  image list. Removing a block should be implemented and should remove an image
+  from the list. While remodelling this API remember to keep an area in a
+  non-volatile space for the autorun list.
+* Software quality: There is room for improvement. pm_addAutorun() won't detect
+  bad or missing data. Correction is postponed until storage API is reworked.
+* Messages are not resent if they aren't acknowledged.
+* Check for style guide violations. An indent run will reveal most of them.
+
+.. :mode=rest:

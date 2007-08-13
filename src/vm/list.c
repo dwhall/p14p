@@ -304,7 +304,7 @@ list_index(pPmObj_t plist, pPmObj_t pitem, uint16_t *r_index)
 }
 
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 PmReturn_t
 list_print(pPmObj_t plist)
 {
@@ -322,7 +322,7 @@ list_print(pPmObj_t plist)
         return retval;
     }
 
-    plat_putByte('[');
+    retval = SEND_BYTE('[');
 
     vals = ((pPmList_t)plist)->val;
 
@@ -331,8 +331,10 @@ list_print(pPmObj_t plist)
     {
         if (index != 0)
         {
-            plat_putByte(',');
-            plat_putByte(' ');
+            retval = SEND_BYTE(',');
+            PM_RETURN_IF_ERROR(retval);
+            retval = SEND_BYTE(' ');
+            PM_RETURN_IF_ERROR(retval);
         }
 
         /* Print each item */
@@ -342,6 +344,6 @@ list_print(pPmObj_t plist)
         PM_RETURN_IF_ERROR(retval);
     }
 
-    return plat_putByte(']');
+    return SEND_BYTE(']');
 }
 #endif /* HAVE_PRINT */

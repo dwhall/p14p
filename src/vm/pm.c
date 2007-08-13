@@ -62,11 +62,35 @@ pm_init(PmMemSpace_t memspace, uint8_t *pusrimg)
 
     retval = global_init();
     PM_RETURN_IF_ERROR(retval);
+    
+    #ifdef HAVE_RPP
+    retval = persist_init();
+    PM_RETURN_IF_ERROR(retval);
+    #endif /* HAVE_RPP */
+
+    #ifdef HAVE_RPM
+    retval = rpm_init();
+    PM_RETURN_IF_ERROR(retval);
+    #endif /* HAVE_RPM */
 
     /* Load std image info */
     pimg = (uint8_t *)&stdlib_img;
     retval = img_findInMem(MEMSPACE_PROG, &pimg);
     PM_RETURN_IF_ERROR(retval);
+    /* Also look in target dependant non-volatile memory. */
+    /* PORT BEGIN */
+    pimg = (uint8_t const*)(PERSIST_OFFSET_DATA+RPM_AUTORUN_LIST_OFFSET+RPM_AUTORUN_LIST_LENGTH);
+    #if defined(TARGET_DESKTOP)
+    retval = img_findInMem(MEMSPACE_FILE, &pimg);
+    PM_RETURN_IF_ERROR(retval);
+    #elif defined(TARGET_AVR)
+    retval = img_findInMem(MEMSPACE_EEPROM, &pimg);
+    /* For now, there does not need to be a valid image at the beginning of the
+     * EEPROM space.
+     */
+    /* PM_RETURN_IF_ERROR(retval); */
+    #endif
+    /* PORT END */
 
     /* Load usr image info if given */
     if (pusrimg != C_NULL)
@@ -78,9 +102,8 @@ pm_init(PmMemSpace_t memspace, uint8_t *pusrimg)
     return retval;
 }
 
-
 PmReturn_t
-pm_run(uint8_t const *modstr)
+pm_addThread(uint8_t const *modstr)
 {
     PmReturn_t retval;
     pPmObj_t pmod;
@@ -96,17 +119,29 @@ pm_run(uint8_t const *modstr)
     /* Load builtins into thread */
     retval = global_setBuiltins((pPmFunc_t)pmod);
     PM_RETURN_IF_ERROR(retval);
+    
+    /* Add thread to the list. */
+    retval = interp_addThread((pPmFunc_t)pmod);
+
+    return retval;
+}
+
+PmReturn_t
+pm_run(uint8_t const *modstr)
+{
+    PmReturn_t retval;
+    
+    retval = pm_addThread(modstr);
+    PM_RETURN_IF_ERROR(retval);
 
     /* Interpret the module's bcode */
-    retval = interp_addThread((pPmFunc_t)pmod);
-    PM_RETURN_IF_ERROR(retval);
-    retval = interpret(INTERP_RETURN_ON_NO_THREADS);
+    retval = interpret(INTERP_RETURN_ON_NO_THREADS); 
 
     return retval;
 }
 
 
-/* Warning: Can be called in interrupt context! */
+/* Warning: Can be called in interrupt/signal context! */
 PmReturn_t
 pm_vmPeriodic(uint16_t usecsSinceLastCall)
 {
@@ -134,4 +169,44 @@ pm_vmPeriodic(uint16_t usecsSinceLastCall)
         pm_lastRescheduleTimestamp = pm_timerMsTicks;
     }
     return PM_RET_OK;
+}
+
+PmReturn_t
+pm_addAutorunThreads(void)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint8_t buffer[30];
+    uint8_t c, i = 0;
+    uint16_t bytesRead = 0;
+    uint8_t const *paddr;
+    
+    /* Copy the next module name into buffer */
+    paddr = (uint8_t const *)(unsigned int)(RPM_AUTORUN_LIST_OFFSET);
+    c = persist_memGetByte(RPM_AUTORUN_LIST_MEMSPACE, &paddr);
+    bytesRead++;
+    while (bytesRead < RPM_AUTORUN_LIST_LENGTH)
+    {
+        if (c == 0) {
+            buffer[i] = 0;
+            if (i > 0)
+            {
+                retval = pm_addThread((uint8_t*)&buffer);
+            }
+            break;
+        }
+        else if (c == ',')
+        {
+            buffer[i] = 0;
+            retval = pm_addThread((uint8_t*)&buffer);
+            PM_RETURN_IF_ERROR(retval);
+        }
+        else
+        {
+            buffer[i] = c;
+            i++;
+        }
+        c = persist_memGetByte(RPM_AUTORUN_LIST_MEMSPACE, &paddr);
+        bytesRead++;
+    }
+    return retval;
 }

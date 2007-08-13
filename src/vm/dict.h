@@ -105,7 +105,7 @@ PmReturn_t dict_new(pPmObj_t *r_pdict);
  */
 PmReturn_t dict_setItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t pval);
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 /**
  * Prints out a dict. Uses obj_print() to print elements.
  *

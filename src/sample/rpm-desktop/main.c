@@ -1,6 +1,8 @@
 /*
+ * RPM/RPP: A PyMite component
  * PyMite - A flyweight Python interpreter for 8-bit microcontrollers and more.
- * Copyright 2002 Dean Hall
+ * Copyright 2007 Philipp Adelt
+ * Based on ipm-desktop/main.c: Copyright 2002 Dean Hall
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,38 +20,41 @@
  */
 
 /**
- * VM feature configuration
- *
- * Compile time switches to include features or save space.
+ * RPM desktop target capsule
  *
  * Log
  * ---
  *
- * 2007/07/04   Introduce RPP and RPM
- * 2007/01/09   #75: First (P.Adelt)
+ * 2007/07/13   Creation
  */
 
 
-#ifndef FEATURES_H_
-#define FEATURES_H_
+#include "pm.h"
 
-/**
- * When defined, bytecodes PRINT_ITEM and PRINT_NEWLINE are supported. Along
- * with these, helper routines in the object type are compiled in that allow
- * printing of the object.
- */
-#define HAVE_PRINT
+#define __FILE_ID__ 0
 
-/**
- * Remote PyMite Management (HAVE_RPM) implicitly needs Remote PyMite Protocol
- * (HAVE_RPP). It alters the behaviour of PRINT_ITEM/PRINT_EXPR in interp.c to
- * emit RPP per-thread messages instead of the raw data. This way, the receiver
- * can distinguish output of different threads.
- */
-#define HAVE_RPM
+extern unsigned char usrlib_img[];
 
-#ifdef HAVE_RPM
-  #define HAVE_RPP
-#endif
 
-#endif /*FEATURES_H_ */
+int main(void)
+{
+    PmReturn_t retval;
+
+    retval = pm_init(MEMSPACE_PROG, usrlib_img);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Just run the interpreter loop forever without a thread. This
+     * will eat CPU...
+     * TODO Stop this from hogging CPU cycles
+     */
+    
+    retval = pm_addThread((uint8_t*)"main"); 
+    PM_RETURN_IF_ERROR(retval);
+
+/*    retval = pm_addAutorunThreads();
+    PM_RETURN_IF_ERROR(retval);
+*/    
+    retval = interpret(INTERP_LOOP_FOREVER);
+
+    return (int)retval;
+}

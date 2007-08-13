@@ -28,6 +28,7 @@
  * Log
  * ---
  *
+ * 2007/07/04   Introduce RPM and RPP
  * 2007/04/14   #102: Implement the remaining IMPORT_ bytecodes
  * 2007/01/29   #80: Fix DUP_TOPX bytecode
  * 2007/01/17   #76: Print will differentiate on strings and print tuples
@@ -51,7 +52,9 @@
  **************************************************************/
 
 #include "pm.h"
-
+#ifdef TARGET_DESKTOP
+#include "time.h"
+#endif
 
 /***************************************************************
  * Macros
@@ -83,6 +86,11 @@ interpret(const uint8_t returnOnNoThreads)
     int16_t t16 = 0;
     int8_t t8 = 0;
     uint8_t bc;
+    #ifdef TARGET_DESKTOP
+    /* FIXME Workaround for Cygwin alarm problem in plat/desktop.c */
+    static struct timespec last_ts;
+    clock_gettime(CLOCK_REALTIME, &last_ts);
+    #endif
 
     /* Activate a thread the first time */
     retval = interp_reschedule();
@@ -91,6 +99,78 @@ interpret(const uint8_t returnOnNoThreads)
     /* Interpret loop */
     while (1)
     {
+        /* FIXME Time hook to work around cygwin-problem in plat/desktop.c */
+        #ifdef TARGET_DESKTOP
+        {
+            struct timespec ts;
+            uint32_t usecs;
+            clock_gettime(CLOCK_REALTIME, &ts);
+            usecs = (ts.tv_sec*1000000+(ts.tv_nsec/1000))
+                -(last_ts.tv_sec*1000000+(last_ts.tv_nsec/1000));
+            while (usecs > 0)
+            {
+                if (usecs > 64535)
+                {
+                    pm_vmPeriodic(64535);
+                    usecs -= 64535;
+                }
+                else
+                {
+                    pm_vmPeriodic(usecs);
+                    usecs = 0;
+                }
+            }
+            last_ts = ts;
+        }
+        #endif
+        /* RPP hooks */
+        #ifdef HAVE_RPP
+        if (!gVmGlobal.disregardComm) {
+          #ifndef PLAT_RECEIVE_BY_INTERRUPT
+            #ifdef PLAT_HAVE_POLL_BYTE
+        {
+            static uint8_t receiveByte;
+            /* Get and handle all the bytes that can be polled. */
+            while (1) {
+                retval = plat_pollByte(&receiveByte);
+                if ((retval != PM_RET_OK) && (retval != PM_RET_NO))
+                {
+                    return (retval);
+                }
+                if (retval == PM_RET_OK)
+                {
+                    retval = rpp_handleIncomingByte(receiveByte);
+                    PM_RETURN_IF_ERROR(retval);
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+            #else
+                #error RPM/RPP is activated but neither PLAT_RECEIVE_BY_INTERRUPT nor PLAT_HAVE_POLL_BYTE is available. See rpp.h for details.
+            #endif
+          #endif
+
+          /* Check for received message or a send request */
+          if (rpp_flags.messageReceiveComplete) {
+              retval = rpm_handleMessage();
+              PM_RETURN_IF_ERROR(retval);
+          }
+          if (rpp_flags.sendNACK) {
+              retval = rpp_sendNACK();
+              PM_RETURN_IF_ERROR(retval);
+          }
+
+          /* Do we need to send the synchronization message? */
+          if (!rpp_state.synchronizationOk) {
+            retval = rpp_sendSychronizationHook();
+            PM_RETURN_IF_ERROR(retval);
+          }
+        }
+        #endif /* HAVE_RPP */
+
         if (gVmGlobal.pthread == C_NULL)
         {
             if (returnOnNoThreads)
@@ -555,7 +635,38 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_RAISE(retval, PM_RET_EX_TYPE);
                 break;
 
-#ifdef HAVE_PRINT
+#ifdef HAVE_RPP
+            case PRINT_EXPR:
+                /* Print interactive expression */
+                retval = rpp_sendBufferedStart(RPP_T_THREAD_PRINT_EXPR);
+                pobj1 = PM_POP();
+                retval = obj_print(pobj1, (uint8_t)0);
+                PM_BREAK_IF_ERROR(retval);
+                retval = rpp_sendBuffered('\n');
+                PM_BREAK_IF_ERROR(retval);
+                retval = rpp_sendBufferedFinish();
+                PM_BREAK_IF_ERROR(retval);
+                continue;
+
+            case PRINT_ITEM:
+                /* Print out topmost stack element */
+                retval = rpp_sendBufferedStart(RPP_T_THREAD_PRINT_ITEM);
+                pobj1 = PM_POP();
+                retval = obj_print(pobj1, (uint8_t)0);
+                PM_BREAK_IF_ERROR(retval);
+                retval = rpp_sendBufferedFinish();
+                PM_BREAK_IF_ERROR(retval);
+                continue;
+
+            case PRINT_NEWLINE:
+                retval = rpp_sendBufferedStart(RPP_T_THREAD_PRINT_ITEM);
+                PM_BREAK_IF_ERROR(retval);
+                retval = rpp_sendBuffered('\n');
+                PM_BREAK_IF_ERROR(retval);
+                retval = rpp_sendBufferedFinish();
+                PM_BREAK_IF_ERROR(retval);
+                continue;
+#elif defined(HAVE_PRINT)
             case PRINT_EXPR:
                 /* Print interactive expression */
                 /* Fallthrough */
@@ -1417,7 +1528,7 @@ interpret(const uint8_t returnOnNoThreads)
 
                     /* Clear flag, so frame will not be marked by the GC */
                     gVmGlobal.nativeframe.nf_active = C_FALSE;
-                    
+
                     /* Reset GC count since the native session is done */
                     gVmGlobal.nativeframe.nf_gcCount = 0;
 
@@ -1507,7 +1618,7 @@ interp_reschedule(void)
     PmReturn_t retval = PM_RET_OK;
     static uint8_t threadIndex = (uint8_t)0;
     pPmObj_t pobj;
-    
+
     /* If there are no threads in the runnable list, null the active thread */
     if (gVmGlobal.threadList->length == 0)
     {
@@ -1521,7 +1632,7 @@ interp_reschedule(void)
         {
             threadIndex = (uint8_t)0;
         }
-        retval = list_getItem((pPmObj_t)gVmGlobal.threadList, threadIndex, 
+        retval = list_getItem((pPmObj_t)gVmGlobal.threadList, threadIndex,
                               &pobj);
         gVmGlobal.pthread = (pPmThread_t)pobj;
         PM_RETURN_IF_ERROR(retval);

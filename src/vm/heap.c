@@ -580,6 +580,9 @@ heap_gcMarkObj(pPmObj_t pobj)
             /* Mark the code obj head */
             OBJ_SET_GCVAL(pobj, pmHeap.gcval);
 
+            C_ASSERT_IN_HEAP(((pPmCo_t)pobj)->co_names);
+            C_ASSERT_IN_HEAP(((pPmCo_t)pobj)->co_consts);
+
             /* Mark the names tuple */
             retval = heap_gcMarkObj((pPmObj_t)((pPmCo_t)pobj)->co_names);
             PM_RETURN_IF_ERROR(retval);
@@ -591,6 +594,9 @@ heap_gcMarkObj(pPmObj_t pobj)
             /* #122: Mark the code image if it is in RAM */
             if (((pPmCo_t)pobj)->co_memspace == MEMSPACE_RAM)
             {
+                C_ASSERT_IN_HEAP((pPmObj_t)
+                                        (((pPmCo_t)pobj)->co_codeimgaddr
+                                         - sizeof(PmObjDesc_t)));
                 /* Special case: The image is contained in a string object */
                 retval = heap_gcMarkObj((pPmObj_t)
                                         (((pPmCo_t)pobj)->co_codeimgaddr

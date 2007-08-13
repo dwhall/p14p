@@ -32,7 +32,7 @@ HEAP_SIZE = 0x1000
 # Changes for an embedded target
 ifeq ($(TARGET), AVR)
 	# TARGET_MCU should equal avr-gcc option "-mmcu" possible values.
-	TARGET_MCU := atmega103
+	TARGET_MCU := at90can128
 	HEAP_SIZE = 0x0D00
 	F_CPU = 4000000UL
 else

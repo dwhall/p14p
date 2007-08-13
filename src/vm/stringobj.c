@@ -180,7 +180,7 @@ string_compare(pPmString_t pstr1, pPmString_t pstr2)
 }
 
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 PmReturn_t
 string_print(pPmObj_t pstr, uint8_t marshall)
 {
@@ -200,7 +200,7 @@ string_print(pPmObj_t pstr, uint8_t marshall)
 
     if (marshall)
     {
-        retval = plat_putByte('\'');
+        retval = SEND_BYTE('\'');
         PM_RETURN_IF_ERROR(retval);
     }
 
@@ -210,36 +210,40 @@ string_print(pPmObj_t pstr, uint8_t marshall)
         if (ch == '\\')
         {
             /* Output an additional backslash to escape it. */
-            retval = plat_putByte('\\');
+            retval = SEND_BYTE('\\');
             PM_RETURN_IF_ERROR(retval);
         }
 
         /* If the marshalled char is not printable, print its hex escape code */
         if (marshall && (ch < (uint8_t)32 || ch >= (uint8_t)128))
         {
-            plat_putByte('\\');
-            plat_putByte('x');
+            retval = SEND_BYTE('\\');
+            PM_RETURN_IF_ERROR(retval);
+            retval = SEND_BYTE('x');
+            PM_RETURN_IF_ERROR(retval);
 
             nibble = (ch >> (uint8_t)4) + '0';
             if (nibble > '9')
                 nibble += ('a' - '0' - (uint8_t)10);
-            plat_putByte(nibble);
+            retval = SEND_BYTE(nibble);
+            PM_RETURN_IF_ERROR(retval);
 
             nibble = (ch & (uint8_t)0x0F) + '0';
             if (nibble > '9')
                 nibble += ('a' - '0' - (uint8_t)10);
-            plat_putByte(nibble);
+            retval = SEND_BYTE(nibble);
+            PM_RETURN_IF_ERROR(retval);
         }
         else
         {
             /* Simply output character */
-            retval = plat_putByte(ch);
+            retval = SEND_BYTE(ch);
             PM_RETURN_IF_ERROR(retval);
         }
     }
     if (marshall)
     {
-        retval = plat_putByte('\'');
+        retval = SEND_BYTE('\'');
     }
 
     return retval;

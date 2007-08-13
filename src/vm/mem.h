@@ -53,9 +53,18 @@ typedef enum PmMemSpace_e
     MEMSPACE_OTHER0,
     MEMSPACE_OTHER1,
     MEMSPACE_OTHER2,
-    MEMSPACE_OTHER3
+    MEMSPACE_FILE,
+    MEMSPACE_LAST /* used to detect maximum enum value */
 } PmMemSpace_t, *pPmMemSpace_t;
 
+#define MEM_NAME_RAM      "RAM"
+#define MEM_NAME_PROG     "Program memory"
+#define MEM_NAME_EEPROM   "EEPROM"
+#define MEM_NAME_SEEPROM  "Serial EEPROM"
+#define MEM_NAME_OTHER0   "Other A"
+#define MEM_NAME_OTHER1   "Other B"
+#define MEM_NAME_OTHER2   "Other C"
+#define MEM_NAME_FILE     "File"
 
 /***************************************************************
  * Prototypes

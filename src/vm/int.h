@@ -106,7 +106,7 @@ PmReturn_t int_negative(pPmObj_t pobj, pPmObj_t *r_pint);
  */
 PmReturn_t int_bitInvert(pPmObj_t pobj, pPmObj_t *r_pint);
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 /**
  * Sends out an integer object in decimal notation with MSB first.
  * The number is preceded with a "-" when necessary.

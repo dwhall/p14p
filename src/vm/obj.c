@@ -42,6 +42,9 @@
  **************************************************************/
 
 #include "pm.h"
+#ifdef TARGET_AVR
+#include "avr/pgmspace.h"
+#endif
 
 
 /***************************************************************
@@ -279,7 +282,7 @@ obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
 }
 
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 PmReturn_t
 obj_print(pPmObj_t pobj, uint8_t marshallString)
 {
@@ -292,10 +295,18 @@ obj_print(pPmObj_t pobj, uint8_t marshallString)
         case OBJ_TYPE_NON:
             if (marshallString)
             {
-                plat_putByte('N');
-                plat_putByte('o');
-                plat_putByte('n');
-                retval = plat_putByte('e');
+                #ifdef HAVE_RPP
+                    #if defined(TARGET_AVR)
+                        retval = rpp_sendBufferedString_P(PSTR("None"));
+                    #else
+                        retval = rpp_sendBufferedString("None");
+                    #endif
+                #else /* !HAVE_RPP */
+                    plat_putByte('N');
+                    plat_putByte('o');
+                    plat_putByte('n');
+                    retval = plat_putByte('e');
+                #endif
             }
             break;
         case OBJ_TYPE_INT:
@@ -327,52 +338,76 @@ obj_print(pPmObj_t pobj, uint8_t marshallString)
         case OBJ_TYPE_THR:
             if (marshallString)
             {
-                retval = plat_putByte('\'');
+                retval = SEND_BYTE('\'');
                 PM_RETURN_IF_ERROR(retval);
             }
-            plat_putByte('<');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('o');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('b');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('j');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte(' ');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('t');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('y');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('p');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('e');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte(' ');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('0');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('x');
-            PM_RETURN_IF_ERROR(retval);
+            #ifdef HAVE_RPP
+                #if defined(TARGET_AVR)
+                    retval = rpp_sendBufferedString_P(PSTR("<obj type 0x"));
+                    retval = rpp_sendBufferedString_P(PSTR("<obj type 0x"));
+                #else
+                    retval = rpp_sendBufferedString("<obj type 0x");
+                    retval = rpp_sendBufferedString("<obj type 0x");
+                #endif
+            #else /* !HAVE_RPP */
+                retval = plat_putByte('<');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('o');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('b');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('j');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte(' ');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('t');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('y');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('p');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('e');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte(' ');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('0');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('x');
+                PM_RETURN_IF_ERROR(retval);
+            #endif
+
             int_printHexByte(OBJ_GET_TYPE(pobj));
             PM_RETURN_IF_ERROR(retval);
-            plat_putByte(' ');
+
+            #ifdef HAVE_RPP
+                #if defined(TARGET_AVR)
+                    retval = rpp_sendBufferedString_P(PSTR(" @ 0x"));
+                    retval = rpp_sendBufferedString_P(PSTR(" @ 0x"));
+                #else
+                    retval = rpp_sendBufferedString(" @ 0x");
+                    retval = rpp_sendBufferedString(" @ 0x");
+                #endif
+            #else /* !HAVE_RPP */
+                retval = plat_putByte(' ');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('@');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte(' ');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('0');
+                PM_RETURN_IF_ERROR(retval);
+                retval = plat_putByte('x');
+                PM_RETURN_IF_ERROR(retval);
+            #endif
+            retval = _int_printHex((int)pobj);
             PM_RETURN_IF_ERROR(retval);
-            plat_putByte('@');
+
+            retval = SEND_BYTE('>');
             PM_RETURN_IF_ERROR(retval);
-            plat_putByte(' ');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('0');
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('x');
-            PM_RETURN_IF_ERROR(retval);
-            _int_printHex((int)pobj);
-            PM_RETURN_IF_ERROR(retval);
-            plat_putByte('>');
-            PM_RETURN_IF_ERROR(retval);
+
             if (marshallString)
             {
-                plat_putByte('\'');
+                retval = SEND_BYTE('\'');
                 PM_RETURN_IF_ERROR(retval);
             }
             break;

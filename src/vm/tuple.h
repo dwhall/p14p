@@ -119,7 +119,7 @@ PmReturn_t tuple_copy(pPmObj_t ptup, pPmObj_t *r_ptuple);
  */
 PmReturn_t tuple_getItem(pPmObj_t ptup, int16_t index, pPmObj_t *r_pobj);
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 /**
  * Prints out a tuple. Uses obj_print() to print elements.
  *

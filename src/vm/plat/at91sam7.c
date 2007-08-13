@@ -101,7 +101,7 @@ plat_memGetByte(PmMemSpace_t memspace, uint8_t const **paddr)
         case MEMSPACE_OTHER0:
         case MEMSPACE_OTHER1:
         case MEMSPACE_OTHER2:
-        case MEMSPACE_OTHER3:
+        case MEMSPACE_FILE:
         default:
             return 0;
     }

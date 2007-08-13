@@ -7,7 +7,6 @@ PMSTDLIB_SOURCES = ../lib/__bi.py \
                    ../lib/sys.py
 
 TARGET ?= DESKTOP
-HEAP_SIZE ?= 0x1000
 
 PMIMGCREATOR := ../tools/pmImgCreator.py
 DEFS = -DTARGET_$(TARGET) -DHEAP_SIZE=$(HEAP_SIZE)
@@ -21,30 +20,34 @@ PRODUCT_VM := libpmvm.a
 INDENT := $(call pathsearch,indent)
 
 #
-# If GDB debugging is wanted
-#
-ifeq ($(DEBUG),true)
-	DEFS += -g -ggdb -D__DEBUG__=1
-endif
-
-#
 # Target-specific definitions
 #
 ifeq ($(TARGET), DESKTOP)
 	CFLAGS += -ansi
 	SOURCES += plat/desktop.c
+	#
+	# If GDB debugging is wanted
+	#
+	HEAP_SIZE ?= 0x1000
+	ifeq ($(DEBUG),true)
+		DEFS += -g -ggdb -D__DEBUG__=1
+	endif
 else
 ifeq ($(TARGET), AVR)
-	TARGET_MCU ?= atmega103
-	F_CPU ?= 4000000UL
+	TARGET_MCU ?= at90can128
+	F_CPU ?= 16000000UL
 	UART_BAUD ?= 19200UL
+	HEAP_SIZE ?= 0x0800
 	AR = avr-ar
 	CC = avr-gcc
 	SIZE = avr-size
-	CFLAGS += -mmcu=$(TARGET_MCU) 
+	CFLAGS += -mmcu=$(TARGET_MCU) -O2
 	DEFS += -DTARGET_MCU=$(TARGET_MCU) -DF_CPU=$(F_CPU) -DUART_BAUD=$(UART_BAUD)
 	SOURCES += plat/avr.c
 	PMSTDLIB_SOURCES += ../lib/avr.py
+	ifeq ($(DEBUG),true)
+		CFLAGS += -g -gdwarf-2
+	endif
 else
 ifeq ($(TARGET), AT91SAM7)
 	TARGET_MCU ?= arm7tdmi

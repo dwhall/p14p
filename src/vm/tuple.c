@@ -163,7 +163,7 @@ tuple_getItem(pPmObj_t ptup, int16_t index, pPmObj_t *r_pobj)
 }
 
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 PmReturn_t
 tuple_print(pPmObj_t ptup)
 {
@@ -179,19 +179,22 @@ tuple_print(pPmObj_t ptup)
         return retval;
     }
 
-    plat_putByte('(');
+    retval = SEND_BYTE('(');
+    PM_RETURN_IF_ERROR(retval);
 
     for (index = 0; index < ((pPmTuple_t)ptup)->length; index++)
     {
         if (index != 0)
         {
-            plat_putByte(',');
-            plat_putByte(' ');
+            retval = SEND_BYTE(',');
+            PM_RETURN_IF_ERROR(retval);
+            retval = SEND_BYTE(' ');
+            PM_RETURN_IF_ERROR(retval);
         }
         retval = obj_print(((pPmTuple_t)ptup)->val[index], 1);
         PM_RETURN_IF_ERROR(retval);
     }
 
-    return plat_putByte(')');
+    return SEND_BYTE(')');
 }
 #endif /* HAVE_PRINT */

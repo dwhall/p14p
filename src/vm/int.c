@@ -146,7 +146,7 @@ int_bitInvert(pPmObj_t pobj, pPmObj_t *r_pint)
     return int_new(~((pPmInt_t)pobj)->val, r_pint);
 }
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 PmReturn_t
 int_print(pPmObj_t pint)
 {
@@ -183,7 +183,7 @@ int_print(pPmObj_t pint)
 
     for (k = (uint8_t)0; k < bytesWritten; k++)
     {
-        retval = plat_putByte(tBuffer[k]);
+        retval = SEND_BYTE(tBuffer[k]);
         PM_RETURN_IF_ERROR(retval);
     }
     return PM_RET_OK;
@@ -199,13 +199,13 @@ int_printHexByte(uint8_t b)
     nibble = (b >> 4) + '0';
     if (nibble > '9')
         nibble += ('a' - '0' - 10);
-    retval = plat_putByte(nibble);
+    retval = SEND_BYTE(nibble);
     PM_RETURN_IF_ERROR(retval);
 
     nibble = (b & (uint8_t)0x0F) + '0';
     if (nibble > '9')
         nibble += ('a' - '0' - (uint8_t)10);
-    retval = plat_putByte(nibble);
+    retval = SEND_BYTE(nibble);
     return retval;
 }
 

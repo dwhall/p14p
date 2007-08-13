@@ -139,7 +139,8 @@ global_setBuiltins(pPmFunc_t pmod)
     if (PM_PBUILTINS == C_NULL)
     {
         /* Need to load builtins first */
-        global_loadBuiltins();
+        retval = global_loadBuiltins();
+        PM_RETURN_IF_ERROR(retval);
     }
 
     /* Put builtins module in the module's attrs dict */
@@ -167,9 +168,15 @@ global_loadBuiltins(void)
 
     /* Must interpret builtins' root code to set the attrs */
     C_ASSERT(gVmGlobal.threadList->length == 0);
-    interp_addThread((pPmFunc_t)pbimod);
+    retval = interp_addThread((pPmFunc_t)pbimod);
+    PM_RETURN_IF_ERROR(retval);
+    /* Ensure that if called from a received message handler, that
+     * handler won't be started again.
+     */
+    gVmGlobal.disregardComm = 1;
     retval = interpret(INTERP_RETURN_ON_NO_THREADS);
     PM_RETURN_IF_ERROR(retval);
+    gVmGlobal.disregardComm = 0;
 
     /* Builtins points to the builtins module's attrs dict */
     gVmGlobal.builtins = ((pPmFunc_t)pbimod)->f_attrs;

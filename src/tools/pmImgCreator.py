@@ -318,6 +318,45 @@ class PmImgCreator:
         self.imgDict = imgs
         return
 
+    def convert_single_function(self, modname, sourceCode):
+        """Attempts to convert the supplied source code to a single module.
+        Creates a dict with one entry whose key is the modname
+        and values are the code object string.
+        """
+        # init image dict
+        imgs = {"imgs": [], "fns": []}
+
+        # init module table and native table
+        self.nativemods = []
+        self.nativetable = []
+
+        # if creating usr lib, create placeholder in 0th index
+        if self.imgtarget == "usr":
+            self.nativetable.append((NATIVE_FUNC_PREFIX + "placeholder_func",
+                                    "\n    /*\n"
+                                    "     * Use placeholder because an index \n"
+                                    "     * value of zero denotes the stdlib.\n"
+                                    "     * This function should not be called.\n"
+                                    "     */\n"
+                                    "    PmReturn_t retval;\n"
+                                    "    PM_RAISE(retval, PM_RET_EX_SYS);\n"
+                                    "    return retval;\n"
+                                   ))
+
+        # convert and format
+
+        # try to compile and convert the file
+        co = compile(sourceCode, modname, 'exec')
+        imgs["fns"].append(modname)
+        imgs["imgs"].append(self.co_to_str(co))
+
+        # Append null terminator to list of images
+        imgs["fns"].append("null-terminator")
+        imgs["imgs"].append("\x00")
+
+        self.imgDict = imgs
+        return
+
 
     def _str_to_U16(self, s):
         """Convert two bytes from a sequence to a 16-bit word.

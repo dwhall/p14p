@@ -150,7 +150,7 @@ PmReturn_t string_newFromChar(uint8_t const c, pPmObj_t *r_pstring);
  */
 int8_t string_compare(pPmString_t, pPmString_t);
 
-#ifdef HAVE_PRINT
+#if defined(HAVE_PRINT) || defined(HAVE_RPP)
 /**
  * Sends out a string object bytewise. Escaping and framing is configurable
  * via marshall.

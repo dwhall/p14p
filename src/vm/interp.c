@@ -68,7 +68,6 @@
 extern PmReturn_t (*std_nat_fxn_table[]) (pPmFrame_t *, signed char);
 extern PmReturn_t (*usr_nat_fxn_table[]) (pPmFrame_t *, signed char);
 
-int globalOp;
 int opCount     = 0;
 int stopOpCount = 0;
 
@@ -120,8 +119,6 @@ interpret(const uint8_t returnOnNoThreads)
 
         /* Get byte; the func post-incrs IP */
         bc = mem_getByte(MS, &IP);
-globalOp = bc;
-
 		/* used for debugging */
 		opCount++;
 		if(opCount == stopOpCount) {

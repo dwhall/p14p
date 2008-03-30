@@ -174,5 +174,5 @@ img_getName(PmMemSpace_t memspace,
     (*paddr)--;
     
     /* Return name string obj */
-    return obj_loadFromImg(memspace, paddr, r_pname);
+    return obj_loadFromImg(memspace, paddr, 0, r_pname);
 }

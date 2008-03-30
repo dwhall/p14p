@@ -114,7 +114,7 @@ mod_import(pPmObj_t pstr, pPmObj_t *pmod)
     imgaddr = pii->ii_addr;
 
     /* Load img into code obj */
-    retval = obj_loadFromImg(pii->ii_memspace, &imgaddr, &pobj);
+    retval = obj_loadFromImg(pii->ii_memspace, &imgaddr, NULL, &pobj);
     PM_RETURN_IF_ERROR(retval);
     pco = (pPmCo_t)pobj;
 

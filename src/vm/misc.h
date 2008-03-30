@@ -32,6 +32,7 @@
  * 2002/04/23   First.
  */
 
+#include "pm.h"
 
 /***************************************************************
  * Types
@@ -48,6 +49,7 @@ typedef struct PmClass_s
     /** Object descriptor */
     PmObjDesc_t od;
 
+	PmReturn_t m_exceptionType;
     /** Attributes dict */
     pPmDict_t cl_attrs;
 } PmClass_t,

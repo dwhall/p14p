@@ -93,15 +93,49 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
 
     /* Get globals and attrs from the function object */
     pframe->fo_globals = ((pPmFunc_t)pfunc)->f_globals;
+	if(pframe->fo_globals)
+	{
+		OBJ_INC_REF(pframe->fo_globals);
+	}
     pframe->fo_attrs = ((pPmFunc_t)pfunc)->f_attrs;
+	if(pframe->fo_attrs)
+	{
+		OBJ_INC_REF(pframe->fo_attrs);
+	}
 
     /* Empty stack points to one past locals */
     pframe->fo_sp = &(pframe->fo_locals[nlocals]);
 
     /* By default, this is a normal frame, not an import call one */
     pframe->fo_isImport = 0;
+	pframe->fo_numberOfLocals = 0;
 
     /* Return ptr to frame */
     *r_pobj = (pPmObj_t)pframe;
     return retval;
+}
+
+
+PmReturn_t
+frame_delete(pPmObj_t pobj)
+{
+    PmReturn_t retval = PM_RET_OK;
+	pPmFrame_t pframe = C_NULL;
+
+	if (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_FRM)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+	pframe = (pPmFrame_t)pobj;
+	if(pframe->fo_func) {
+		if(OBJ_GET_TYPE(*pframe->fo_func) == OBJ_TYPE_FXN) {
+			OBJ_DEC_REF((pPmObj_t)pframe->fo_func);
+		}
+	}
+	if(pframe->fo_attrs) {
+		OBJ_DEC_REF((pPmObj_t)pframe->fo_attrs);
+	}
+	retval = heap_freeChunk(pobj);
+	return retval;
 }

@@ -74,6 +74,8 @@ typedef struct PmList_s
  */
 PmReturn_t list_new(pPmObj_t *r_pobj);
 
+PmReturn_t list_delete(pPmObj_t pobj);
+
 /**
  * Gets the object in the list at the index.
  *

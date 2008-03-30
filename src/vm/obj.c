@@ -48,9 +48,43 @@
  * Functions
  **************************************************************/
 
+PmReturn_t obj_dealloc(pPmObj_t pobj)
+{
+	PmReturn_t retval = PM_RET_OK;
+
+	switch(OBJ_GET_TYPE(*pobj)) 
+	{
+		case OBJ_TYPE_FXN:
+			func_delete(pobj);
+			break;
+		case OBJ_TYPE_COB:
+			co_delete(pobj);
+			break;
+		case OBJ_TYPE_TUP:
+			tuple_delete(pobj);
+			break;
+		case OBJ_TYPE_DIC:
+			dict_delete(pobj);
+			break;
+		case OBJ_TYPE_SEG:
+			seglist_delete(pobj);
+			break;
+		case OBJ_TYPE_LST:
+			list_delete(pobj);
+			break;
+		default:
+			retval = heap_freeChunk(pobj);
+	}
+	if(retval != PM_RET_OK) 
+	{
+		printf("heap error\n%c", 4);
+	}
+	return retval;
+}
+
 PmReturn_t
 obj_loadFromImg(PmMemSpace_t memspace,
-                uint8_t const **paddr, pPmObj_t *r_pobj)
+				uint8_t const **paddr, pPmObj_t parentobj, pPmObj_t *r_pobj)
 {
     PmReturn_t retval = PM_RET_OK;
     PmObjDesc_t od;
@@ -63,6 +97,7 @@ obj_loadFromImg(PmMemSpace_t memspace,
         case OBJ_TYPE_NON:
             /* If it's the None object, return global None */
             *r_pobj = PM_NONE;
+			OBJ_INC_REF(*r_pobj);
             break;
 
         case OBJ_TYPE_INT:
@@ -75,7 +110,7 @@ obj_loadFromImg(PmMemSpace_t memspace,
             break;
 
         case OBJ_TYPE_TUP:
-            retval = tuple_loadFromImg(memspace, paddr, r_pobj);
+            retval = tuple_loadFromImg(memspace, paddr, parentobj, r_pobj);
             break;
 
         case OBJ_TYPE_NIM:
@@ -85,7 +120,7 @@ obj_loadFromImg(PmMemSpace_t memspace,
 
         case OBJ_TYPE_CIM:
             /* If it's a code img, load into a code obj */
-            retval = co_loadFromImg(memspace, paddr, r_pobj);
+            retval = co_loadFromImg(memspace, paddr, parentobj, r_pobj);
             break;
 
         default:

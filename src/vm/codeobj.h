@@ -76,6 +76,8 @@ typedef struct PmCo_s
     pPmTuple_t co_consts;
     /** address in memspace of bytecode (or native function) */
     uint8_t const *co_codeaddr;
+	/* object that contains actual data for us */
+	pPmObj_t co_parentobject;
 } PmCo_t,
  *pPmCo_t;
 
@@ -143,8 +145,9 @@ typedef struct PmNo_s
  * @return  Return status
  */
 PmReturn_t
-co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco);
+co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t parentobj, pPmObj_t *r_pco);
 
+PmReturn_t co_delete(pPmObj_t obj);
 /**
  * Creates a Native code object by loading a native image.
  *

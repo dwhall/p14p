@@ -68,6 +68,7 @@ def abs(n):
     n = ((pPmInt_t)pn)->val;
     if (n >= 0)
     {
+        OBJ_INC_REF(pn);
         NATIVE_SET_TOS(pn);
     }
     else
@@ -190,15 +191,22 @@ def eval(co, g, l):
      * This works for ipm because the interactive mode
      * needs a locals namespace that persists across calls to eval()
      */
-    ((pPmFrame_t)pnewframe)->fo_attrs = NATIVE_GET_PFRAME()->fo_attrs;
-
+    {
+        pPmObj_t tmp = (pPmObj_t)(((pPmFrame_t)pnewframe)->fo_attrs);
+        ((pPmFrame_t)pnewframe)->fo_attrs = NATIVE_GET_PFRAME()->fo_attrs;
+        OBJ_INC_REF(((pPmFrame_t)pnewframe)->fo_attrs);
+        OBJ_DEC_REF(tmp);
+    }
     /* If 2nd arg exists, use it as the global namespace for the new func */
     if (NATIVE_GET_NUM_ARGS() >= 2)
     {
+        pPmObj_t tmp = (pPmObj_t)(((pPmFrame_t)pnewframe)->fo_attrs);
         ((pPmFrame_t)pnewframe)->fo_globals = (pPmDict_t)pg;
 
         /* If only globals is given, locals defaults to it */
         ((pPmFrame_t)pnewframe)->fo_attrs = (pPmDict_t)pg;
+        OBJ_INC_REF(pg);
+        OBJ_DEC_REF(tmp);
     }
 
     /* If 3rd arg exists, use it as the local namespace for the new func */
@@ -235,6 +243,7 @@ def globals():
 
     /* Return calling frame's globals dict  on stack*/
     pr = (pPmObj_t)NATIVE_GET_PFRAME()->fo_globals;
+    OBJ_INC_REF(pr);
     NATIVE_SET_TOS(pr);
 
     return PM_RET_OK;
@@ -255,7 +264,7 @@ def id(o):
     }
 
     /* Return object's address as an int on the stack */
-    retval = int_new((int)NATIVE_GET_LOCAL(0), &pr);
+    retval = int_new((int32_t)NATIVE_GET_LOCAL(0), &pr);
     NATIVE_SET_TOS(pr);
 
     return retval;
@@ -323,6 +332,7 @@ def locals():
 
     /* Return calling frame's local attrs dict on the stack */
     pr = (pPmObj_t)NATIVE_GET_PFRAME()->fo_attrs;
+    OBJ_INC_REF(pr);
     NATIVE_SET_TOS(pr);
 
     return PM_RET_OK;
@@ -333,13 +343,13 @@ def locals():
 def map(f, s):
     # Do this as a workaround since list.append() doesn't work
     r = [None,] * len(s)
-    
+
     # Call function f once with each argument in sequence s
     i = 0
     for a in s:
         r[i] = f(a)
         i += 1
-        
+
     # Return list of results
     return r
 
@@ -469,6 +479,7 @@ def range(a, b, c):
 
             retval = list_append(pr, pi);
             PM_RETURN_IF_ERROR(retval);
+            OBJ_DEC_REF(pi);
         }
     }
     else
@@ -482,6 +493,7 @@ def range(a, b, c):
 
             retval = list_append(pr, pi);
             PM_RETURN_IF_ERROR(retval);
+            OBJ_DEC_REF(pi);
         }
     }
 
@@ -602,7 +614,7 @@ def Co(i):
 
     /* Create a code object from the image */
     imgaddr = (uint8_t *)&((pPmString_t)pimg)->val;
-    retval = obj_loadFromImg(MEMSPACE_RAM, &imgaddr, &pco);
+    retval  = obj_loadFromImg(MEMSPACE_RAM, &imgaddr, pimg, &pco);
     PM_RETURN_IF_ERROR(retval);
 
     /* Return the code object */

@@ -90,6 +90,9 @@ PmReturn_t dict_getItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t *r_pobj);
  */
 PmReturn_t dict_new(pPmObj_t *r_pdict);
 
+PmReturn_t dict_delete(pPmObj_t pdict);
+
+
 /**
  * Sets a value in the dict using the given key.
  *

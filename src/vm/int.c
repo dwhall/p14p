@@ -74,16 +74,19 @@ int_new(int32_t n, pPmObj_t *r_pint)
     if (n == 0)
     {
         *r_pint = PM_ZERO;
+		OBJ_INC_REF(*r_pint);
         return PM_RET_OK;
     }
     if (n == 1)
     {
         *r_pint = PM_ONE;
+		OBJ_INC_REF(*r_pint);
         return PM_RET_OK;
     }
     if (n == -1)
     {
         *r_pint = PM_NEGONE;
+		OBJ_INC_REF(*r_pint);
         return PM_RET_OK;
     }
 

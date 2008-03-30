@@ -44,7 +44,7 @@
 #endif
 #include <unistd.h>
 #include <signal.h>
-#include <string.h>
+//#include <string.h>
 #include "../pm.h"
 
 /***************************************************************
@@ -66,11 +66,11 @@ PmReturn_t
 plat_init(void)
 {
     /* Let POSIX' SIGALRM fire every full millisecond. */
-    /* 
+    /*
      * #67 Using sigaction complicates the use of getchar (below),
      * so signal() is used instead.
      */
-    signal(SIGALRM, plat_sigalrm_handler);
+//    signal(SIGALRM, plat_sigalrm_handler);
     ualarm(1000, 1000);
 
     return PM_RET_OK;
@@ -157,17 +157,58 @@ PmReturn_t
 plat_getMsTicks(uint32_t *r_ticks)
 {
     *r_ticks = pm_timerMsTicks;
-    
+
     return PM_RET_OK;
 }
 
+const char *plat_errorTostr(PmReturn_t result)
+{
+	 switch(result)
+	 {
+		  case PM_RET_OK:           return("Everything is ok");
+		  case PM_RET_NO:           return("General no result");
+		  case PM_RET_ERR:          return("General failure");
+		  case PM_RET_STUB:         return("Return val for stub fxn");
+		  case PM_RET_ASSERT_FAIL:  return("Assertion failure");
+		  case PM_RET_FRAME_SWITCH: return("Frame pointer was modified");
 
-void 
+				/* return vals that indicate an exception occured */
+		  case PM_RET_EX_NUM_ARGS:  return("Invalid number of arguments");
+		  case PM_RET_EX:           return("General exception");
+		  case PM_RET_EX_EXIT:      return("System exit");
+		  case PM_RET_EX_IO:        return("Input/output error");
+		  case PM_RET_EX_ZDIV:      return("Zero division error");
+		  case PM_RET_EX_ASSRT:     return("Assertion error");
+		  case PM_RET_EX_ATTR:      return("Attribute error");
+		  case PM_RET_EX_IMPRT:     return("Import error");
+		  case PM_RET_EX_INDX:      return("Index error");
+		  case PM_RET_EX_KEY:       return("Key error");
+		  case PM_RET_EX_MEM:       return("Memory error");
+		  case PM_RET_EX_NAME:      return("Name error");
+		  case PM_RET_EX_SYNTAX:    return("Syntax error");
+		  case PM_RET_EX_SYS:       return("System error");
+		  case PM_RET_EX_TYPE:      return("Type error");
+		  case PM_RET_EX_VAL:       return("Value error");
+		  case PM_RET_EX_STOP:      return("Stop iteration");
+		  case PM_RET_EX_WARN:      return("Warning");
+
+		  default:
+				break;
+	 }
+
+	return ("Unknown error");
+}
+
+void
 plat_reportError(PmReturn_t result)
 {
+#if 1
+	printf("Error: %s\n", plat_errorTostr(result));
+#else
     printf("Error:     0x%02X\n", result);
     printf("  Release: 0x%02X\n", gVmGlobal.errVmRelease);
     printf("  FileId:  0x%02X\n", gVmGlobal.errFileId);
     printf("  LineNum: %d\n", gVmGlobal.errLineNum);
+#endif
 }
 

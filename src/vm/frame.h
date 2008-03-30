@@ -63,7 +63,10 @@ typedef enum PmBlockType_e
     B_LOOP,
 
     /** Try type */
-    B_TRY
+    B_TRY,
+
+	/* Finally type */
+	B_FINALLY
 } PmBlockType_t, *pPmBlockType_t;
 
 
@@ -139,6 +142,8 @@ typedef struct PmFrame_s
     /** Frame can be an import-frame that handles RETURN differently */
     uint8_t fo_isImport:1;
 
+	uint16_t fo_numberOfLocals;
+
     /** Array of local vars and stack (space appended at alloc) */
     pPmObj_t fo_locals[1];
     /* WARNING: Do not put new fields below fo_locals */
@@ -187,5 +192,7 @@ typedef struct PmNativeFrame_s
  * @return  Return status.
  */
 PmReturn_t frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj);
+
+PmReturn_t frame_delete(pPmObj_t pobj);
 
 #endif /* __FRAME_H__ */

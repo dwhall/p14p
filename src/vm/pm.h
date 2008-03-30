@@ -79,7 +79,7 @@
 #define C_DIFFER (int8_t)-1
 
 /** PORT inline for C code */
-#define INLINE __inline__
+#define INLINE //__inline__
 
 
 /***************************************************************
@@ -106,6 +106,10 @@
 #endif
 
 /** return an error code if it is not PM_RET_OK */
+#define PM_RETURN_IF_ERROR1(retval)  if((retval) != PM_RET_OK) { \
+										plat_reportError(retval); \
+										while(1) {  } }
+
 #define PM_RETURN_IF_ERROR(retval)  if((retval) != PM_RET_OK) \
                                         return (retval)
 
@@ -144,7 +148,7 @@
  * should propagate the same return value
  * up the call tree to the interpreter.
  */
-typedef enum PmReturn_e
+typedef enum //PmReturn_e
 {
     /* general status return values */
     PM_RET_OK = 0,              /**< Everything is ok */
@@ -152,9 +156,10 @@ typedef enum PmReturn_e
     PM_RET_ERR = 0xFE,          /**< General failure */
     PM_RET_STUB = 0xFD,         /**< Return val for stub fxn */
     PM_RET_ASSERT_FAIL = 0xFC,  /**< Assertion failure */
-    PM_RET_FRAME_SWITCH = 0xFD, /**< Frame pointer was modified */
+    PM_RET_FRAME_SWITCH = 0xFB, /**< Frame pointer was modified */
 
     /* return vals that indicate an exception occured */
+	PM_RET_EX_NUM_ARGS = 0xDF,  /**< Invalid number of arguments on local frame */
     PM_RET_EX = 0xE0,           /**< General exception */
     PM_RET_EX_EXIT = 0xE1,      /**< System exit */
     PM_RET_EX_IO = 0xE2,        /**< Input/output error */
@@ -171,7 +176,7 @@ typedef enum PmReturn_e
     PM_RET_EX_TYPE = 0xED,      /**< Type error */
     PM_RET_EX_VAL = 0xEE,       /**< Value error */
     PM_RET_EX_STOP = 0xEF,      /**< Stop iteration */
-    PM_RET_EX_WARN = 0xF0,      /**< Warning */
+    PM_RET_EX_WARN = 0xF0      /**< Warning */
 } PmReturn_t;
 
 

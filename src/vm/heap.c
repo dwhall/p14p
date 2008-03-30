@@ -131,6 +131,40 @@ heap_init(void)
 }
 
 
+/* used for debugging */
+void scan_heap()
+{
+    pPmHeapDesc_t pchunk1;
+
+    /* Otherwise, try to get a chunk from the freelist */
+    if (pmHeap.pfreelist != C_NULL)
+    {
+        pchunk1 = pmHeap.pfreelist;
+        while ((pchunk1 != C_NULL))
+		{
+			if((uint8_t *)pchunk1 > pmHeap.pcleanheap) {
+				while(1) {
+					int x = 0;
+				}
+			}
+			if((pchunk1->od.od_size & 3) != 0)
+			{
+				while(1) {
+					int x = 0;
+				}
+			}
+			if(pchunk1->next) {
+				if(((char *)pchunk1 + pchunk1->od.od_size) > (char *)pchunk1->next) {
+					while(1) {
+						int x = 0;
+					}
+				}
+			}
+			pchunk1 = pchunk1->next;
+		}
+	}
+}
+
 /**
  * Obtains a chunk of memory from the heap
  *
@@ -149,44 +183,11 @@ heap_getChunkImpl(uint16_t size, uint8_t **r_pchunk)
     PmReturn_t retval;
     pPmHeapDesc_t pchunk1;
     pPmHeapDesc_t pchunk2;
-
-    /* If there is enough memory in the cleanheap */
-    if (pmHeap.cleanheapavail >= size)
-    {
-        /* Obtain a chunk, adjust the cleanheap and reduce the sizes */
-        *r_pchunk = pmHeap.pcleanheap;
-        pmHeap.pcleanheap += size;
-        pmHeap.cleanheapavail -= size;
-        pmHeap.avail -= size;
-
-        /* Set the chunk's descriptor bits */
-        pchunk1 = (pPmHeapDesc_t)*r_pchunk;
-        OBJ_SET_SIZE(*pchunk1, size);
-
-        /* Move the cleanheap remnant to the freelist if it is small enough */
-        if (pmHeap.cleanheapavail <= HEAP_MAX_CHUNK_SIZE)
-        {
-            /*
-             * TODO: this is optional since cleanheap will be whittled away
-             * to a size the prevents the containing "if" to never be true
-             */
-        }
-
-        return PM_RET_OK;
-    }
+	pPmHeapDesc_t pchunk3;
 
     /* Otherwise, try to get a chunk from the freelist */
     if (pmHeap.pfreelist != C_NULL)
     {
-        /* If the first chunk fits, use it */
-        if (OBJ_GET_SIZE(*pmHeap.pfreelist) >= size)
-        {
-            *r_pchunk = (uint8_t *)pmHeap.pfreelist;
-            pmHeap.avail -= OBJ_GET_SIZE(*pmHeap.pfreelist);
-            pmHeap.pfreelist = pmHeap.pfreelist->next;
-            return PM_RET_OK;
-        }
-
         /* Linear search for a chunk size equal or greater than requested */
         pchunk1 = pmHeap.pfreelist;
         pchunk2 = pmHeap.pfreelist->next;
@@ -198,24 +199,83 @@ heap_getChunkImpl(uint16_t size, uint8_t **r_pchunk)
                 pchunk1 = pchunk2;
                 pchunk2 = pchunk2->next;
             }
-        }
+			/* If a chunk fits, use it */
+			if (OBJ_GET_SIZE(*pchunk2) >= size)
+			{
+				if(OBJ_GET_SIZE(*pchunk2) >= size + 2 * sizeof(PmHeapDesc_t)) {  
+					/* split chunk */
+					int leftoversize = OBJ_GET_SIZE(*pchunk2) - size;
+					*r_pchunk        = (uint8_t *)pchunk2;
+					OBJ_SET_SIZE(*pchunk2, size);
+					pmHeap.avail -= OBJ_GET_SIZE(*pchunk2);
+					pchunk3       = (pPmHeapDesc_t)(((uint8_t *)pchunk2) + size);
+					/* initialize new descriptor */
+					pchunk3->next       = pchunk2->next;
+					pchunk3->od.od_size = leftoversize;
+					pchunk1->next       = pchunk3;
+				} else {
+					*r_pchunk     = (uint8_t *)pchunk2;
+					pmHeap.avail -= OBJ_GET_SIZE(*pchunk2);
+					pchunk1->next = pchunk2->next;
+				}
+				return PM_RET_OK;
+			} 
+		} 
+		else 
+		{
+			if (OBJ_GET_SIZE(*pchunk1) >= size)
+			{
+				if(OBJ_GET_SIZE(*pchunk1) >= size + 2 * sizeof(PmHeapDesc_t)) {
+					/* split chunk */
+					int leftoversize    = OBJ_GET_SIZE(*pchunk1) - size;
+					*r_pchunk           = (uint8_t *)pchunk1;
+					OBJ_SET_SIZE(*pchunk1, size);
+					pmHeap.avail       -= OBJ_GET_SIZE(*pchunk1);
+					pchunk1             = (pPmHeapDesc_t)(((uint8_t *)pchunk1) + size);
+					pchunk1->od.od_size = leftoversize;
+					pchunk1->next       = NULL;
+					pmHeap.pfreelist    = pchunk1;
+				} else {
+					*r_pchunk = (uint8_t *)pchunk1;
+					pmHeap.avail    -= OBJ_GET_SIZE(*pchunk1);
+					pmHeap.pfreelist = C_NULL;
+				}
+				return PM_RET_OK;
+			}
+		}
+    } 
 
-        /* If a chunk fits, use it */
-        if (OBJ_GET_SIZE(*pchunk2) >= size)
-        {
-            *r_pchunk = (uint8_t *)pchunk2;
-            pmHeap.avail -= OBJ_GET_SIZE(*pchunk2);
-            pchunk1->next = pchunk2->next;
-            return PM_RET_OK;
-        }
-    }
+    /* If there is enough memory in the cleanheap */
+	if (pmHeap.cleanheapavail >= size)
+	{
+		/* Obtain a chunk, adjust the cleanheap and reduce the sizes */
+		*r_pchunk = pmHeap.pcleanheap;
+		pmHeap.pcleanheap += size;
+		pmHeap.cleanheapavail -= size;
+		pmHeap.avail -= size;
 
+		/* Set the chunk's descriptor bits */
+		pchunk1 = (pPmHeapDesc_t)*r_pchunk;
+		OBJ_SET_SIZE(*pchunk1, size);
+
+		/* Move the cleanheap remnant to the freelist if it is small enough */
+		if (pmHeap.cleanheapavail <= HEAP_MAX_CHUNK_SIZE)
+		{
+			/*
+			 * TODO: this is optional since cleanheap will be whittled away
+			 * to a size the prevents the containing "if" to never be true
+			 */
+		}
+
+		return PM_RET_OK;
+	}
     /* No chunk of appropriate size was found, raise OutOfMemory exception */
     *r_pchunk = C_NULL;
     PM_RAISE(retval, PM_RET_EX_MEM);
     return retval;
 }
 
+int alloc_count = 0;
 
 /*
  * Allocates chunk of memory.
@@ -228,6 +288,8 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
 {
     PmReturn_t retval;
     uint16_t adjustedsize;
+
+	alloc_count++;
 
     /* Ensure size request is valid */
     if (requestedsize > HEAP_MAX_CHUNK_SIZE)
@@ -264,42 +326,61 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
 static PmReturn_t
 heap_insert(pPmObj_t ptr)
 {
-    uint8_t size = OBJ_GET_SIZE(*ptr);
+    uint16_t size = OBJ_GET_SIZE(*ptr);
     pPmHeapDesc_t oldchunk = (pPmHeapDesc_t)ptr;
     pPmHeapDesc_t pchunk1;
     pPmHeapDesc_t pchunk2;
 
-    /* If free list is empty or old chunk is smallest, add to head of list */
-    if ((pmHeap.pfreelist == C_NULL)
-        || (OBJ_GET_SIZE(*pmHeap.pfreelist) >= size))
+    /* If free list is empty add to head of list */
+    if ((pmHeap.pfreelist == C_NULL))
     {
-        oldchunk->next = pmHeap.pfreelist;
+        oldchunk->next   = C_NULL;
         pmHeap.pfreelist = oldchunk;
         return PM_RET_OK;
     }
 
-    /* If free list has only one item, append oldchunk */
-    if (pmHeap.pfreelist->next == C_NULL)
-    {
-        oldchunk->next = C_NULL;
-        pmHeap.pfreelist->next = oldchunk;
-        return PM_RET_OK;
-    }
-
-    /* Scan free list for insertion point */
-    pchunk1 = pmHeap.pfreelist;
-    pchunk2 = pmHeap.pfreelist->next;
-    while ((pchunk2->next != C_NULL) && (OBJ_GET_SIZE(*pchunk2) < size))
-    {
-        pchunk1 = pchunk2;
-        pchunk2 = pchunk2->next;
-    }
-
-    /* Insert chunk into free list */
-    oldchunk->next = pchunk2;
-    pchunk1->next = oldchunk;
-
-    return PM_RET_OK;
+	/* see if new chunk is above or below free list */
+	if(oldchunk > pmHeap.pfreelist) {
+		/* scan for insertion point */
+		pchunk1 = pmHeap.pfreelist;
+		pchunk2 = pmHeap.pfreelist->next;
+		while (pchunk2 != C_NULL && pchunk2 < oldchunk) {
+			pchunk1 = pchunk2;
+			pchunk2 = pchunk2->next;
+		}
+		/* try to join blocks */
+		if((((uint8_t *)pchunk1) + pchunk1->od.od_size) == (uint8_t *)oldchunk) {
+			pchunk1->od.od_size += oldchunk->od.od_size;
+			if((((uint8_t *)pchunk1) + pchunk1->od.od_size) == (uint8_t *)pchunk2) {
+				pchunk1->od.od_size += pchunk2->od.od_size;
+				/* remove pchuk2 it is now joined with pchunk1 */
+				pchunk1->next = pchunk2->next;
+			}
+		} else {
+			/* try joining with pchunk2 */
+			if(pchunk2 && (((uint8_t *)oldchunk) + oldchunk->od.od_size) == (uint8_t *)pchunk2) {
+				oldchunk->od.od_size += pchunk2->od.od_size;
+				pchunk1->next         = oldchunk;
+				oldchunk->next        = pchunk2->next;
+			} else {
+				/* Insert chunk into free list */
+				oldchunk->next = pchunk2;
+				pchunk1->next = oldchunk;
+			}
+		}
+	} else {
+		/* see if it is possible to join free list behind new junk */
+		if((((uint8_t *)oldchunk) + oldchunk->od.od_size) == (uint8_t *)pmHeap.pfreelist) {
+			oldchunk->next        = pmHeap.pfreelist->next;
+			oldchunk->od.od_size += pmHeap.pfreelist->od.od_size;
+			pmHeap.pfreelist      = oldchunk;
+		} else {
+			/* Insert chunk into free list */
+			oldchunk->next   = pmHeap.pfreelist;
+			pmHeap.pfreelist = oldchunk;
+		}
+	}
+	return PM_RET_OK;
 }
 
 
@@ -313,12 +394,19 @@ heap_freeChunk(pPmObj_t ptr)
     C_ASSERT(((uint8_t *)ptr >= pmHeap.base)
              && ((uint8_t *)ptr < pmHeap.base + HEAP_SIZE));
 
-    /* Insert the chunk into the freelist */
+    /* Increase heap available amount */
+    pmHeap.avail += OBJ_GET_SIZE(*ptr);
+
+	/* Insert the chunk into the freelist */
     retval = heap_insert(ptr);
     PM_RETURN_IF_ERROR(retval);
 
-    /* Increase heap available amount */
-    pmHeap.avail += OBJ_GET_SIZE(*ptr);
+	if(pmHeap.avail & 3) {
+		while(1) {
+			int x = 0;
+		}
+	}
+
     return retval;
 }
 
@@ -328,5 +416,6 @@ PmReturn_t
 heap_getAvail(uint16_t *r_avail)
 {
     *r_avail = pmHeap.avail;
+
     return PM_RET_OK;
 }

@@ -77,6 +77,8 @@ typedef struct PmFunc_s
  */
 PmReturn_t func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc);
 
+PmReturn_t func_delete(pPmObj_t pobj);
+
 /**
  * Creates a new Class object from the methods dict, bases tuple,
  * and name string.

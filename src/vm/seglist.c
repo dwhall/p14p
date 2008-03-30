@@ -98,6 +98,15 @@ seglist_clear(pSeglist_t pseglist)
     pseg1 = ((pSeglist_t)pseglist)->sl_rootseg;
     while (pseg1 != C_NULL)
     {
+		int i;
+
+		for(i = 0; i < SEGLIST_OBJS_PER_SEG; i++) 
+		{
+			if(pseg1->s_val[i]) {
+				OBJ_DEC_REF(pseg1->s_val[i]);
+			}
+		}
+
         pseg2 = pseg1->next;
         PM_RETURN_IF_ERROR(heap_freeChunk((pPmObj_t)pseg1));
         pseg1 = pseg2;
@@ -249,6 +258,7 @@ seglist_insertItem(pSeglist_t pseglist, pPmObj_t pobj, int16_t index)
     /* Insert obj and ripple copy all those afterward */
     indx = index % SEGLIST_OBJS_PER_SEG;;
     pobj1 = pobj;
+	OBJ_INC_REF(pobj);
     while (pobj1 != C_NULL)
     {
         pobj2 = pseg->s_val[indx];
@@ -284,12 +294,26 @@ seglist_new(pSeglist_t *r_pseglist)
     return retval;
 }
 
+PmReturn_t
+seglist_delete(pPmObj_t pobj)
+{
+	pSeglist_t pseglist;
+    PmReturn_t retval = PM_RET_OK;
+
+	pseglist = (pSeglist_t)pobj;
+	seglist_clear(pseglist);
+    retval = heap_freeChunk(pobj);
+    return retval;
+}
+
 
 PmReturn_t
 seglist_setItem(pSeglist_t pseglist, pPmObj_t pobj, int16_t index)
 {
     pSegment_t pseg;
     int16_t i;
+	pPmObj_t prev_object;
+	int      idx;
 
     C_ASSERT(index <= pseglist->sl_length);
 
@@ -303,7 +327,15 @@ seglist_setItem(pSeglist_t pseglist, pPmObj_t pobj, int16_t index)
     }
 
     /* Set item in this seg at the index */
-    pseg->s_val[index % SEGLIST_OBJS_PER_SEG] = pobj;
+	idx = index % SEGLIST_OBJS_PER_SEG;
+	/* get old object */
+	prev_object      = pseg->s_val[idx];
+    pseg->s_val[idx] = pobj;
+	OBJ_INC_REF(pobj);
+	/* release old object */
+	if(prev_object) {
+		OBJ_DEC_REF(prev_object);
+	}
     return PM_RET_OK;
 }
 
@@ -332,6 +364,8 @@ seglist_removeItem(pSeglist_t pseglist, uint16_t index)
      * in the last segment
      */
 
+	/* decrement reference to deleted object */
+	OBJ_DEC_REF(pseg->s_val[index]);
     for (i = index; i < ((pseglist->sl_length) - 1); i++)
     {
         k = i % SEGLIST_OBJS_PER_SEG;

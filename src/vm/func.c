@@ -64,6 +64,7 @@ func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc)
     /* Init func */
     OBJ_SET_TYPE(*pfunc, OBJ_TYPE_FXN);
     pfunc->f_co = (pPmCo_t)pco;
+	OBJ_INC_REF(pco);
 
     /* Create attrs dict for regular func (not native) */
     if (OBJ_GET_TYPE(*pco) == OBJ_TYPE_COB)
@@ -74,6 +75,7 @@ func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc)
 
         /* Store the given globals dict */
         pfunc->f_globals = (pPmDict_t)pglobals;
+		OBJ_INC_REF(pglobals);
     }
     else
     {
@@ -85,6 +87,28 @@ func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc)
 
     *r_pfunc = (pPmObj_t)pfunc;
     return PM_RET_OK;
+}
+
+PmReturn_t 
+func_delete(pPmObj_t pobj) 
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmFunc_t pfunc   = C_NULL;
+
+	if (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_FXN)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+	}
+	pfunc = (pPmFunc_t)pobj;
+	if(pfunc->f_attrs) {
+		OBJ_DEC_REF((pPmObj_t)pfunc->f_attrs);
+	}
+	if(pfunc->f_co) {
+		OBJ_DEC_REF((pPmObj_t)pfunc->f_co);
+	}
+	retval = heap_freeChunk(pobj);	
+	return retval;
 }
 
 

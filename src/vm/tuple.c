@@ -55,7 +55,7 @@
 
 PmReturn_t
 tuple_loadFromImg(PmMemSpace_t memspace,
-                  uint8_t const **paddr, pPmObj_t *r_ptuple)
+                  uint8_t const **paddr, pPmObj_t parentobj, pPmObj_t *r_ptuple)
 {
     PmReturn_t retval = PM_RET_OK;
     uint8_t i = (uint8_t)0;
@@ -73,6 +73,7 @@ tuple_loadFromImg(PmMemSpace_t memspace,
     {
         retval = obj_loadFromImg(memspace,
                                  paddr,
+								 parentobj,
                                  (pPmObj_t *)&(((pPmTuple_t)*r_ptuple)->
                                                val[i]));
         PM_RETURN_IF_ERROR(retval);
@@ -109,6 +110,28 @@ tuple_new(uint16_t n, pPmObj_t *r_ptuple)
     return retval;
 }
 
+PmReturn_t
+tuple_delete(pPmObj_t pobj)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmTuple_t ptup = C_NULL;
+	int        i;
+
+    /* Raise TypeError if object is not a Tuple */
+    if (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_TUP)
+    {
+        PM_RAISE(retval, PM_RET_EX_SYS);
+        return retval;
+    }
+	ptup = (pPmTuple_t)pobj;
+	/* decrement references for contained objecs */
+	for (i = 0; i < ptup->length; i++)
+    {
+		OBJ_DEC_REF(ptup->val[i]);
+	}
+	retval = heap_freeChunk(pobj);
+	return retval;
+}
 
 PmReturn_t
 tuple_copy(pPmObj_t ptup, pPmObj_t *r_ptuple)
@@ -118,6 +141,7 @@ tuple_copy(pPmObj_t ptup, pPmObj_t *r_ptuple)
     uint8_t *pchunk;
     uint8_t *pdest;
     uint8_t const *psrc;
+	int     i;
 
     /* Raise TypeError if object is not a Tuple */
     if (OBJ_GET_TYPE(*ptup) != OBJ_TYPE_TUP)
@@ -135,6 +159,12 @@ tuple_copy(pPmObj_t ptup, pPmObj_t *r_ptuple)
     psrc = (uint8_t const *)ptup;
     mem_copy(MEMSPACE_RAM, &pdest, &psrc, OBJ_GET_SIZE(*ptup));
     *r_ptuple = (pPmObj_t)pnew;
+	OBJ_SET_REF(*pnew, 1);
+	/* increment references for contained objects */
+	for (i = 0; i < pnew->length; i++)
+    {
+		OBJ_INC_REF(pnew->val[i]);
+	}
     return PM_RET_OK;
 }
 

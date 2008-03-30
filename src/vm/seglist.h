@@ -144,6 +144,7 @@ PmReturn_t seglist_getItem(pSeglist_t pseglist,
  */
 PmReturn_t seglist_new(pSeglist_t *r_pseglist);
 
+PmReturn_t seglist_delete(pPmObj_t obj);
 
 /**
  * Puts the item in the next available slot in the first available segment.

@@ -165,6 +165,24 @@ list_new(pPmObj_t *r_pobj)
     return retval;
 }
 
+PmReturn_t
+list_delete(pPmObj_t pobj)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmList_t plist   = C_NULL;
+
+	/* If it's not a list, raise TypeError */
+    if (OBJ_GET_TYPE(*pobj) != OBJ_TYPE_LST)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+    plist   = (pPmList_t)pobj;
+	retval = seglist_delete((pPmObj_t)plist->val);
+    PM_RETURN_IF_ERROR(retval);
+	retval = heap_freeChunk(pobj);
+	return retval;
+}
 
 PmReturn_t
 list_copy(pPmObj_t pobj, pPmObj_t *r_pobj)

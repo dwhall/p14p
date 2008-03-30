@@ -57,12 +57,14 @@ def exit(val):
     if (NATIVE_GET_NUM_ARGS() == 0)
     {
         NATIVE_SET_TOS(PM_ZERO);
+        OBJ_INC_REF(PM_ZERO);
     }
 
     /* If 1 arg given, put it on stack */
     else if (NATIVE_GET_NUM_ARGS() == 1)
     {
         pval = NATIVE_GET_LOCAL(0);
+        OBJ_INC_REF(pval);
         NATIVE_SET_TOS(pval);
     }
 
@@ -178,6 +180,7 @@ def putb(b):
     b = ((pPmInt_t)pb)->val & 0xFF;
     retval = plat_putByte(b);
     NATIVE_SET_TOS(PM_NONE);
+    OBJ_INC_REF(PM_NONE);
     return retval;
     """
     pass

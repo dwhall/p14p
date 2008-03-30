@@ -93,6 +93,31 @@ dict_clear(pPmObj_t pdict)
     return retval;
 }
 
+PmReturn_t
+dict_delete(pPmObj_t pdict)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    C_ASSERT(pdict != C_NULL);
+
+    /* Raise TypeError if arg is not a dict */
+    if (OBJ_GET_TYPE(*pdict) != OBJ_TYPE_DIC)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* clear the keys and values seglists if needed */
+    if (((pPmDict_t)pdict)->d_keys != C_NULL)
+    {
+		OBJ_DEC_REF((pPmObj_t)((pPmDict_t)pdict)->d_keys);
+		OBJ_DEC_REF((pPmObj_t)((pPmDict_t)pdict)->d_vals);
+    }
+
+	retval = heap_freeChunk(pdict);
+    return retval;
+}
+
 
 /*
  * Sets a value in the dict using the given key.

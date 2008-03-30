@@ -139,7 +139,9 @@ global_loadBuiltins(void)
 {
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t pkey = C_NULL;
-    uint8_t const *nonestr = (uint8_t const *)"None";
+    uint8_t const *nonestr     = (uint8_t const *)"None";
+    uint8_t const *IoErrorStr  = (uint8_t const *)"IoError";
+	uint8_t const *ZeroDivStr  = (uint8_t const *)"ZeroDivisionError";
     pPmObj_t pstr = C_NULL;
     pPmObj_t pbimod;
 
@@ -157,6 +159,43 @@ global_loadBuiltins(void)
 
     /* Builtins points to the builtins module's attrs dict */
     gVmGlobal.builtins = ((pPmFunc_t)pbimod)->f_attrs;
+
+	/* Set exception manually */
+	{
+        uint8_t *pchunk;
+		pPmObj_t pobj1;
+
+	    /* Alloc and init func obj */
+		retval = heap_getChunk(sizeof(PmClass_t), &pchunk);
+		PM_RETURN_IF_ERROR(retval);
+		pobj1 = (pPmObj_t)pchunk;
+		OBJ_SET_TYPE(*pobj1, OBJ_TYPE_EXN);
+		retval = dict_new((pPmObj_t*)&((PmClass_t *)pobj1)->cl_attrs);
+		PM_RETURN_IF_ERROR(retval);
+		((PmClass_t *)pobj1)->cl_attrs->od.od_type = OBJ_TYPE_EXN;
+		((PmClass_t *)pobj1)->m_exceptionType      = PM_RET_EX_IO;
+	
+		retval = string_new(&IoErrorStr, &pkey);
+	    PM_RETURN_IF_ERROR(retval);
+	    retval = dict_setItem(PM_PBUILTINS, pkey, pobj1);
+		PM_RETURN_IF_ERROR(retval);
+
+
+		retval = heap_getChunk(sizeof(PmClass_t), &pchunk);
+		PM_RETURN_IF_ERROR(retval);
+		pobj1 = (pPmObj_t)pchunk;
+		OBJ_SET_TYPE(*pobj1, OBJ_TYPE_EXN);
+		retval = dict_new((pPmObj_t*)&((PmClass_t *)pobj1)->cl_attrs);
+		PM_RETURN_IF_ERROR(retval);
+		((PmClass_t *)pobj1)->cl_attrs->od.od_type = OBJ_TYPE_EXN;
+		((PmClass_t *)pobj1)->m_exceptionType      = PM_RET_EX_ZDIV;
+	
+		retval = string_new(&ZeroDivStr, &pkey);
+	    PM_RETURN_IF_ERROR(retval);
+	    retval = dict_setItem(PM_PBUILTINS, pkey, pobj1);
+		PM_RETURN_IF_ERROR(retval);
+	}
+
 
     /* Set None manually */
     retval = string_new(&nonestr, &pkey);

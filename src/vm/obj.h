@@ -50,17 +50,35 @@
 #define OBJ_SET_GCVAL(obj, gcval) (obj).od.od_gcval = (gcval)
 #define OBJ_GET_GCFREE(obj) ((obj).od.od_gcfree)
 #define OBJ_SET_GCFREE(obj, free) ((obj).od.od_gcfree = (uint8_t)free)
+/*
+#define OBJ_SET_REF(obj,v) ((obj).od.od_gcRefCount = v); \
+						   ((obj).od.od_alloc_file = __FILE_ID__); \
+						   ((obj).od.od_alloc_line = (uint16_t)__LINE__); \
+*/
+
+#define OBJ_SET_REF(obj,v) ((obj).od.od_gcRefCount = v);
+
+#define OBJ_INC_REF(obj) ((obj)->od.od_gcRefCount++);
+
+#define OBJ_DEC_REF(obj) ((obj)->od.od_gcRefCount--); \
+						 if((obj)->od.od_gcRefCount == 0) { \
+							obj_dealloc(obj); \
+						 }
 
 /*
  * #99: od_size bits are shifted because size is a scaled value
  * True size is always a multiple of 4, so the lower two bits are ignored
  * and two more significant bits are gained.
  */
-#define OBJ_GET_SIZE(obj) ((obj).od.od_size << 2)
-#define OBJ_SET_SIZE(obj, size) (obj).od.od_size = (uint8_t)((size) >> 2)
-#define OBJ_GET_TYPE(obj) ((obj).od.od_type)
-#define OBJ_SET_TYPE(obj, type) (obj).od.od_type = (type)
+//#define OBJ_GET_SIZE(obj) ((obj).od.od_size << 2)
+//#define OBJ_SET_SIZE(obj, size) (obj).od.od_size = (uint8_t)((size) >> 2)
+#define OBJ_GET_SIZE(obj) ((obj).od.od_size)
+#define OBJ_SET_SIZE(obj, size) (obj).od.od_size = (size)
 
+//#define OBJ_GET_TYPE(obj) ((unsigned)(((obj).od.od_type) & 0x1F))
+//#define OBJ_SET_TYPE(obj, type) (obj).od.od_type = (type); OBJ_SET_REF(obj,1);
+#define OBJ_GET_TYPE(obj) ((unsigned)((obj).od.od_type))
+#define OBJ_SET_TYPE(obj, type) (obj).od.od_type = (type); OBJ_SET_REF(obj,1);
 
 /***************************************************************
  * Types
@@ -150,7 +168,7 @@ typedef enum PmType_e
     OBJ_TYPE_SGL = 0x15,
 
     /** Sequence iterator */
-    OBJ_TYPE_SQI = 0x16,
+    OBJ_TYPE_SQI = 0x16
 } PmType_t, *pPmType_t;
 
 
@@ -174,19 +192,16 @@ typedef struct PmObjDesc_s
      * so it must be accurate for the object
      * containing this descriptor.
      */
-    uint8_t od_size;
+	uint16_t od_size;
 
     /** Object type */
-    PmType_t od_type:5;
+	PmType_t od_type;
 
-    /** Garbage collection mark value */
-    uint8_t od_gcval:1;
-
-    /** Garbage collection free flag */
-    uint8_t od_gcfree:1;
-
-    /** #100: Remove od_const bit from object descriptor */
-    uint8_t od_unused:1;
+	uint16_t od_gcRefCount;
+/*
+	uint8_t  od_alloc_file;
+	uint16_t od_alloc_line;
+*/
 } PmObjDesc_t,
  *pPmObjDesc_t;
 
@@ -238,7 +253,7 @@ typedef struct PmObj_s
  * @return  Return status
  */
 PmReturn_t obj_loadFromImg(PmMemSpace_t memspace,
-                           uint8_t const **paddr, pPmObj_t *r_pobj);
+						   uint8_t const **paddr, pPmObj_t parentobj, pPmObj_t *r_pobj);
 
 /**
  * Finds the boolean value of the given object.
@@ -276,5 +291,7 @@ int8_t obj_compare(pPmObj_t pobj1, pPmObj_t pobj2);
  * @return  Return status
  */
 PmReturn_t obj_print(pPmObj_t pobj, uint8_t marshallString);
+
+PmReturn_t obj_dealloc(pPmObj_t pobj);
 
 #endif /* __OBJ_H__ */

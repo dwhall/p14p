@@ -47,7 +47,7 @@
  **************************************************************/
 
 PmReturn_t
-co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco)
+co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t parentobj, pPmObj_t *r_pco)
 {
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t pobj;
@@ -67,17 +67,22 @@ co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco)
 
     /* Fill in the CO struct */
     OBJ_SET_TYPE(*pco, OBJ_TYPE_COB);
-    pco->co_memspace = memspace;
-    pco->co_codeimgaddr = pci;
+    pco->co_memspace     = memspace;
+	pco->co_codeimgaddr  = pci;
+	pco->co_parentobject = parentobj;
+	if(parentobj) 
+	{
+		OBJ_INC_REF(parentobj);
+	}
 
     /* Load names (tuple obj) */
     *paddr = pci + CI_NAMES_FIELD;
-    retval = obj_loadFromImg(memspace, paddr, &pobj);
+    retval = obj_loadFromImg(memspace, paddr, parentobj, &pobj);
     PM_RETURN_IF_ERROR(retval);
     pco->co_names = (pPmTuple_t)pobj;
 
     /* Load consts (tuple obj) assume it follows names */
-    retval = obj_loadFromImg(memspace, paddr, &pobj);
+    retval = obj_loadFromImg(memspace, paddr, parentobj, &pobj);
     PM_RETURN_IF_ERROR(retval);
     pco->co_consts = (pPmTuple_t)pobj;
 
@@ -89,6 +94,40 @@ co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco)
 
     *r_pco = (pPmObj_t)pco;
     return PM_RET_OK;
+}
+
+void co_trace(pPmObj_t pobj)
+{
+	pPmCo_t pco = C_NULL;
+
+	pco = (pPmCo_t)pobj;
+}
+
+PmReturn_t co_delete(pPmObj_t pobj)
+{
+	PmReturn_t retval = PM_RET_OK;
+	pPmCo_t pco       = C_NULL;
+
+	if(OBJ_GET_TYPE(*pobj) != OBJ_TYPE_COB) 
+	{
+		PM_RAISE(retval, PM_RET_EX_TYPE);
+		return retval;
+	}
+	pco = (pPmCo_t)pobj;
+	if(pco->co_parentobject) 
+	{
+		OBJ_DEC_REF(pco->co_parentobject);
+	}
+	if(pco->co_names)
+	{
+		OBJ_DEC_REF((pPmObj_t)pco->co_names);
+	}
+	if(pco->co_consts)
+	{
+		OBJ_DEC_REF((pPmObj_t)pco->co_consts);
+	}
+	heap_freeChunk(pobj);
+	return retval;
 }
 
 

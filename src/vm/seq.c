@@ -165,11 +165,13 @@ seq_getSubscript(pPmObj_t pobj, int16_t index, pPmObj_t *r_pobj)
         case OBJ_TYPE_TUP:
             /* Get the tuple item */
             retval = tuple_getItem(pobj, index, r_pobj);
+			OBJ_INC_REF(*r_pobj);
             break;
 
         case OBJ_TYPE_LST:
             /* Get the list item */
             retval = list_getItem(pobj, index, r_pobj);
+			OBJ_INC_REF(*r_pobj);
             break;
 
         default:
@@ -246,6 +248,7 @@ seqiter_new(pPmObj_t pobj, pPmObj_t *r_pobj)
     psi = (pPmSeqIter_t)pchunk;
     OBJ_SET_TYPE(*psi, OBJ_TYPE_SQI);
     psi->si_sequence = pobj;
+	OBJ_INC_REF(pobj);
     psi->si_index = 0;
 
     *r_pobj = (pPmObj_t)psi;

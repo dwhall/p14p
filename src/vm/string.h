@@ -41,7 +41,7 @@
  **************************************************************/
 
 /** Set to nonzero to enable string cache */
-#define USE_STRING_CACHE 1
+#define USE_STRING_CACHE 0
 
 
 /***************************************************************

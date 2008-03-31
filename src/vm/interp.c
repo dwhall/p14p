@@ -242,7 +242,7 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
             case BINARY_MULTIPLY:
-            case INPLACE_MULTIPLY:
+            case INPLACE_MULTIPLY:	
                 /* If both objs are ints, perform the op */
                 if ((OBJ_GET_TYPE(*TOS) == OBJ_TYPE_INT)
                     && (OBJ_GET_TYPE(*TOS1) == OBJ_TYPE_INT))

@@ -204,6 +204,8 @@ seqiter_getNext(pPmObj_t pobj, pPmObj_t *r_pitem)
     /* Raise StopIteration if at the end of the sequence */
     if (((pPmSeqIter_t)pobj)->si_index == length)
     {
+		/* Deallocate secquence */
+		OBJ_DEC_REF(((pPmSeqIter_t)pobj)->si_sequence);
         /* Make null the pointer to the sequence */
         ((pPmSeqIter_t)pobj)->si_sequence = C_NULL;
         PM_RAISE(retval, PM_RET_EX_STOP);
@@ -254,3 +256,26 @@ seqiter_new(pPmObj_t pobj, pPmObj_t *r_pobj)
     *r_pobj = (pPmObj_t)psi;
     return retval;
 }
+
+PmReturn_t
+seqiter_delete(pPmObj_t pobj)
+{
+    PmReturn_t   retval;
+    pPmSeqIter_t psi;
+
+	if(OBJ_GET_TYPE(*pobj) != OBJ_TYPE_SQI) 
+	{
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+	}
+    psi = (pPmSeqIter_t)pobj;
+	if(psi->si_sequence) 
+	{
+		OBJ_DEC_REF(psi->si_sequence);
+	}
+	retval = heap_freeChunk(pobj);
+	return retval;
+}
+	
+
+

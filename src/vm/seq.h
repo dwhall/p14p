@@ -105,4 +105,7 @@ PmReturn_t seqiter_getNext(pPmObj_t pobj, pPmObj_t *r_pitem);
  */
 PmReturn_t seqiter_new(pPmObj_t pobj, pPmObj_t *r_pobj);
 
+PmReturn_t seqiter_delete(pPmObj_t pobj);
+
+
 #endif /* __SEQ_H__ */

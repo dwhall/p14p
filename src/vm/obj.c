@@ -72,6 +72,9 @@ PmReturn_t obj_dealloc(pPmObj_t pobj)
 		case OBJ_TYPE_LST:
 			list_delete(pobj);
 			break;
+		case OBJ_TYPE_SQI:
+			seqiter_delete(pobj);
+			break;
 		default:
 			retval = heap_freeChunk(pobj);
 	}

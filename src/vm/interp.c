@@ -154,7 +154,11 @@ interpret(const uint8_t returnOnNoThreads)
 
             case UNARY_POSITIVE:
                 /* Raise TypeError if TOS is not an int */
-                if (OBJ_GET_TYPE(TOS) != OBJ_TYPE_INT)
+                if ((OBJ_GET_TYPE(TOS) != OBJ_TYPE_INT)
+#ifdef HAVE_FLOAT
+                    && (OBJ_GET_TYPE(TOS) != OBJ_TYPE_FLT)
+#endif /* HAVE_FLOAT */
+                    )
                 {
                     PM_RAISE(retval, PM_RET_EX_TYPE);
                     break;
@@ -165,7 +169,16 @@ interpret(const uint8_t returnOnNoThreads)
 
             case UNARY_NEGATIVE:
                 pobj1 = PM_POP();
-                retval = int_negative(pobj1, &pobj2);
+#ifdef HAVE_FLOAT
+                if (OBJ_GET_TYPE(pobj1) == OBJ_TYPE_FLT)
+                {
+                    retval = float_negative(pobj1, &pobj2);
+                }
+                else
+#endif /* HAVE_FLOAT */
+                {
+                    retval = int_negative(pobj1, &pobj2);
+                }
                 PM_BREAK_IF_ERROR(retval);
                 PM_PUSH(pobj2);
                 continue;
@@ -202,7 +215,9 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Pop args right to left */
                 pobj2 = PM_POP();
                 pobj1 = TOS;
-
+#ifdef HAVE_FLOAT
+#error TBD
+#endif /* HAVE_FLOAT */
                 /* Calculate integer power */
                 retval = int_pow(pobj1, pobj2, &pobj3);
                 PM_BREAK_IF_ERROR(retval);

@@ -45,7 +45,6 @@
 
 maxint = 0x7FFFFFFF     # 2147483647
 
-
 #### FUNCS
 
 def exit(val):

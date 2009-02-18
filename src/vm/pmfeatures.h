@@ -57,6 +57,6 @@
  * When defined, the code to support floating point objects is included
  * in the build.
  */
-#define HAVE_FLOAT
+/*#define HAVE_FLOAT*/
 
 #endif /*FEATURES_H_ */

@@ -70,6 +70,28 @@ PmReturn_t float_new(float f, pPmObj_t *r_pf);
  */
 PmReturn_t float_negative(pPmObj_t pf, pPmObj_t *r_pf);
 
+/**
+ * Returns by reference a float that is x op y.
+ *
+ * @param px The float left-hand argument
+ * @param py The float right-hand argument
+ * @param r_pn The return value of x op y
+ * @param op The operator (+,-,*,/ and power)
+ * @return Return status
+ */
+PmReturn_t float_op(pPmObj_t px, pPmObj_t py, pPmObj_t *r_pn, int8_t op);
+
+/**
+ * Returns by reference a boolean that is x op y.
+ *
+ * @param px The float left-hand argument
+ * @param py The float right-hand argument
+ * @param r_pn The return value of x cmp y
+ * @param cmp The comparison operator
+ * @return Return status
+ */
+PmReturn_t float_compare(pPmObj_t px, pPmObj_t py, pPmObj_t *r_pobj, PmCompare_t cmp);
+
 #ifdef HAVE_PRINT
 /**
  * Sends out a float object.
@@ -80,6 +102,7 @@ PmReturn_t float_negative(pPmObj_t pf, pPmObj_t *r_pf);
  */
 PmReturn_t float_print(pPmObj_t pf);
 #endif /* HAVE_PRINT */
+
 #endif /* HAVE_FLOAT */
 
 #endif /* __FLOAT_H__ */

@@ -215,9 +215,19 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Pop args right to left */
                 pobj2 = PM_POP();
                 pobj1 = TOS;
+
 #ifdef HAVE_FLOAT
-#error TBD
+                if ((OBJ_GET_TYPE(pobj1) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(pobj2) == OBJ_TYPE_FLT))
+                {
+                    /* Calculate float power */
+                    retval = float_op(pobj1, pobj2, &pobj3, 'P');
+                    PM_BREAK_IF_ERROR(retval);
+                    TOS = pobj3;
+                    continue;
+                }
 #endif /* HAVE_FLOAT */
+
                 /* Calculate integer power */
                 retval = int_pow(pobj1, pobj2, &pobj3);
                 PM_BREAK_IF_ERROR(retval);
@@ -253,6 +263,19 @@ interpret(const uint8_t returnOnNoThreads)
                     continue;
                 }
 
+#ifdef HAVE_FLOAT
+                else if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_FLT))
+                {
+                    pobj1 = PM_POP();
+                    pobj2 = PM_POP();
+                    retval = float_op(pobj2, pobj1, &pobj3, '*');
+                    PM_BREAK_IF_ERROR(retval);
+                    PM_PUSH(pobj3);
+                    continue;
+                }
+#endif /* HAVE_FLOAT */
+
                 /* If it's a list replication operation */
                 else if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_INT)
                          && (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_LST))
@@ -282,6 +305,20 @@ interpret(const uint8_t returnOnNoThreads)
             case INPLACE_DIVIDE:
             case BINARY_FLOOR_DIVIDE:
             case INPLACE_FLOOR_DIVIDE:
+
+#ifdef HAVE_FLOAT
+                if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_FLT))
+                {
+                    pobj1 = PM_POP();
+                    pobj2 = PM_POP();
+                    retval = float_op(pobj2, pobj1, &pobj3, '/');
+                    PM_BREAK_IF_ERROR(retval);
+                    PM_PUSH(pobj3);
+                    continue;
+                }
+#endif /* HAVE_FLOAT */
+
                 /* Raise TypeError if args aren't ints */
                 if ((OBJ_GET_TYPE(TOS) != OBJ_TYPE_INT)
                     || (OBJ_GET_TYPE(TOS1) != OBJ_TYPE_INT))
@@ -308,6 +345,20 @@ interpret(const uint8_t returnOnNoThreads)
 
             case BINARY_MODULO:
             case INPLACE_MODULO:
+
+#ifdef HAVE_FLOAT
+                if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_FLT))
+                {
+                    pobj1 = PM_POP();
+                    pobj2 = PM_POP();
+                    retval = float_op(pobj2, pobj1, &pobj3, '%');
+                    PM_BREAK_IF_ERROR(retval);
+                    PM_PUSH(pobj3);
+                    continue;
+                }
+#endif /* HAVE_FLOAT */
+
                 /* Raise TypeError if args aren't ints */
                 if ((OBJ_GET_TYPE(TOS) != OBJ_TYPE_INT)
                     || (OBJ_GET_TYPE(TOS1) != OBJ_TYPE_INT))
@@ -334,6 +385,20 @@ interpret(const uint8_t returnOnNoThreads)
 
             case BINARY_ADD:
             case INPLACE_ADD:
+
+#ifdef HAVE_FLOAT
+                if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_FLT))
+                {
+                    pobj1 = PM_POP();
+                    pobj2 = PM_POP();
+                    retval = float_op(pobj2, pobj1, &pobj3, '+');
+                    PM_BREAK_IF_ERROR(retval);
+                    PM_PUSH(pobj3);
+                    continue;
+                }
+#endif /* HAVE_FLOAT */
+
                 /* If both objs are ints, perform the op */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_INT)
                     && (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_INT))
@@ -353,6 +418,20 @@ interpret(const uint8_t returnOnNoThreads)
 
             case BINARY_SUBTRACT:
             case INPLACE_SUBTRACT:
+
+#ifdef HAVE_FLOAT
+                if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_FLT))
+                {
+                    pobj1 = PM_POP();
+                    pobj2 = PM_POP();
+                    retval = float_op(pobj2, pobj1, &pobj3, '-');
+                    PM_BREAK_IF_ERROR(retval);
+                    PM_PUSH(pobj3);
+                    continue;
+                }
+#endif /* HAVE_FLOAT */
+
                 /* If both objs are ints, perform the op */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_INT)
                     && (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_INT))
@@ -998,6 +1077,16 @@ interpret(const uint8_t returnOnNoThreads)
                 pobj1 = PM_POP();
                 pobj2 = PM_POP();
                 t16 = GET_ARG();
+
+#ifdef HAVE_FLOAT
+                if ((OBJ_GET_TYPE(pobj1) == OBJ_TYPE_FLT)
+                    || (OBJ_GET_TYPE(pobj2) == OBJ_TYPE_FLT))
+                {
+                    retval = float_compare(pobj2, pobj1, &pobj3, t16);
+                    PM_PUSH(pobj3);
+                    continue;
+                }
+#endif /* HAVE_FLOAT */
 
                 /* Handle all integer-to-integer (or bool) comparisons */
                 if (((OBJ_GET_TYPE(pobj1) == OBJ_TYPE_INT)

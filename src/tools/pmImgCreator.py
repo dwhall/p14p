@@ -103,7 +103,7 @@ import exceptions, string, sys, types, dis, os, time, getopt, struct
 PM_FEATURES = {
     "HAVE_PRINT": True,
     "HAVE_GC": True,
-    "HAVE_FLOAT": True,
+    "HAVE_FLOAT": False,
 }
 
 

@@ -56,7 +56,7 @@ float_new(float f, pPmObj_t *r_pf)
 PmReturn_t
 float_print(pPmObj_t pf)
 {
-    uint8_t tBuffer[10/*guessing*/];
+    uint8_t tBuffer[32];
     uint8_t bytesWritten;
     uint8_t i;
     PmReturn_t retval = PM_RET_OK;

@@ -312,15 +312,16 @@ interpret(const uint8_t returnOnNoThreads)
                 else if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_INT)
                          && (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_STR))
                 {
+                    uint8_t const *psrc;
+                    
                     t16 = (int16_t)((pPmInt_t)TOS)->val;
                     if (t16 < 0)
                     {
                         t16 = 0;
                     }
 
-                    pobj2 = TOS1;
-                    retval = string_replicate((uint8_t const **)&pobj2, t16,
-                                              &pobj3);
+                    psrc = (uint8_t const *)TOS1;
+                    retval = string_replicate(&psrc, t16, &pobj3);
                     PM_BREAK_IF_ERROR(retval);
                     SP--;
                     TOS = pobj3;

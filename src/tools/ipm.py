@@ -41,6 +41,7 @@ Date            Action
 
 
 import cmd, dis, getopt, os, subprocess, sys
+import serial
 import pmImgCreator
 
 
@@ -67,6 +68,7 @@ class Connection(object):
     def open(self,): raise NotImplementedError
     def read(self,): raise NotImplementedError
     def write(self, msg): raise NotImplementedError
+    def close(self,): raise NotImplementedError
 
 
 class PipeConnection(Connection):
@@ -95,7 +97,7 @@ class PipeConnection(Connection):
 
         # Collect all characters up to and including the ipm reply terminator
         chars = []
-        c = 'z'
+        c = ''
         while c != REPLY_TERMINATOR:
             c = self.child.stdout.read(1)
             if c == '':
@@ -110,6 +112,41 @@ class PipeConnection(Connection):
     def write(self, msg):
         self.child.stdin.write(msg)
         self.child.stdin.flush()
+
+
+    def close(self,):
+        self.write("\0")
+
+
+class SerialConnection(Connection):
+    """Provides ipm-host to target connection over a serial device.
+    This connection should work on any platform that PySerial supports.
+    The ipm-device must be running at the same baud rate (19200 default).
+    """
+    def __init__(self, serdev="/dev/cu.SLAB_USBtoUART", baud=19200):
+        self.s = serial.Serial(serdev, baud)
+
+
+    def read(self,):
+        # Collect all characters up to and including the ipm reply terminator
+        chars = []
+        c = ''
+        while c != REPLY_TERMINATOR:
+            c = self.s.read()
+            if c == '':
+                break
+            chars.append(c)
+        msg = "".join(chars)
+        return msg
+
+
+    def write(self, msg):
+        self.s.write(msg)
+        self.s.flush()
+
+
+    def close(self,):
+        self.s.close()
 
 
 class Interactive(cmd.Cmd):
@@ -190,16 +227,13 @@ class Interactive(cmd.Cmd):
     def onecmd(self, line):
         """Gathers one interactive line of input (gets more lines as needed).
         """
-
         # Ignore empty line, continue interactive prompt
         if not line:
             return
 
         # Handle ctrl+D (End Of File) input, stop interactive prompt
         if line == "EOF":
-            # Send invalid image to disconnect the target
-            self.conn.write("\0")
-            # The connection will close automatically
+            self.conn.close()
 
             # Do this so OS prompt is on a new line
             self.stdout.write("\n")
@@ -255,7 +289,7 @@ class Interactive(cmd.Cmd):
         self.stop = False
         while not self.stop:
             try:
-                self.stop = self.cmdloop()
+                self.cmdloop()
             except KeyboardInterrupt, ki:
                 print "\n", ki.__class__.__name__
                 # TODO: check connection?
@@ -266,7 +300,7 @@ def parse_cmdline():
     """
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d", [])
+        opts, args = getopt.getopt(sys.argv[1:], "ds", [])
     except Exception, e:
         raise e
         print __usage__
@@ -279,6 +313,8 @@ def parse_cmdline():
     for opt in opts:
         if opt[0] == "-d":
             conn = PipeConnection()
+        elif opt[0] == "-s":
+            conn = SerialConnection()
 
     return (conn,)
 

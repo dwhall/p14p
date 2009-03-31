@@ -17,6 +17,10 @@
  */
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -228,3 +232,8 @@ PmReturn_t pm_run(uint8_t const *modstr);
 PmReturn_t pm_vmPeriodic(uint16_t usecsSinceLastCall);
 
 #endif /* __PM_H__ */
+
+
+#ifdef __cplusplus
+}
+#endif

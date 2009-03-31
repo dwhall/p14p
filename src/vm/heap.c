@@ -964,9 +964,9 @@ heap_gcRun(void)
 
 /* Enables or disables automatic garbage collection */
 PmReturn_t
-heap_gcSetAuto(uint8_t bool)
+heap_gcSetAuto(uint8_t auto_gc)
 {
-    pmHeap.auto_gc = bool;
+    pmHeap.auto_gc = auto_gc;
     return PM_RET_OK;
 }
 #endif /* HAVE_GC */

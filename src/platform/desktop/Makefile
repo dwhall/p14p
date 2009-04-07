@@ -16,7 +16,7 @@ CDEFS = -DHEAP_SIZE=$(PM_HEAP_SIZE)
 ifeq ($(DEBUG),true)
 	CDEFS += -g -ggdb -D__DEBUG__=1
 endif
-CFLAGS = -Os -Wall -gstabs -Wstrict-prototypes -Werror -I../../vm $(CDEFS)
+CFLAGS = -Os -Wall -gstabs -Wstrict-prototypes -I../../vm $(CDEFS)
 
 export CFLAGS IPM HEAP_SIZE PM_LIB_FN
 

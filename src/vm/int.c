@@ -16,6 +16,7 @@
  * Integer object type operations.
  */
 
+#include <stdint.h>
 
 #include "pm.h"
 
@@ -178,15 +179,31 @@ int_printHexByte(uint8_t b)
 
 
 PmReturn_t
-_int_printHex(int32_t n)
+_int_printHex(intptr_t n)
 {
     PmReturn_t retval;
 
     /* Print the hex value, most significant byte first */
-    retval = int_printHexByte((n >> (uint8_t)24) & (uint8_t)0xFF);
-    PM_RETURN_IF_ERROR(retval);
-    retval = int_printHexByte((n >> (uint8_t)16) & (uint8_t)0xFF);
-    PM_RETURN_IF_ERROR(retval);
+    if (sizeof(intptr_t) == sizeof(int64_t))
+    {
+        retval = int_printHexByte((n >> 56) & 0xFF);
+        PM_RETURN_IF_ERROR(retval);
+        retval = int_printHexByte((n >> 48) & 0xFF);
+        PM_RETURN_IF_ERROR(retval);
+        retval = int_printHexByte((n >> 40) & 0xFF);
+        PM_RETURN_IF_ERROR(retval);
+        retval = int_printHexByte((n >> 32) & 0xFF);
+        PM_RETURN_IF_ERROR(retval);
+    }
+
+    if (sizeof(intptr_t) >= sizeof(int32_t))
+    {
+        retval = int_printHexByte((n >> 24) & 0xFF);
+        PM_RETURN_IF_ERROR(retval);
+        retval = int_printHexByte((n >> 16) & 0xFF);
+        PM_RETURN_IF_ERROR(retval);
+    }
+
     retval = int_printHexByte((n >> (uint8_t)8) & (uint8_t)0xFF);
     PM_RETURN_IF_ERROR(retval);
     retval = int_printHexByte(n & (uint8_t)0xFF);

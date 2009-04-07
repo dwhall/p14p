@@ -520,6 +520,15 @@ $(AOBJARM) : %.o : %.S
 $(TARGET)_nat.c $(TARGET)_img.c : $(PM_USR_SOURCES)
 	$(PMIMGCREATOR) -c -u -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(PM_USR_SOURCES)
 
+../../vm/pmstdlib_img.c ../../vm/pmstdlib_nat.c : 
+	$(MAKE) -C ../../vm pmstdlib_img.c pmstdlib_nat.c
+
+zip: pymite_mbed.zip
+
+pymite_mbed.zip: pmvm $(TARGET)_nat.c $(TARGET)_img.c ../../vm/pmstdlib_img.c ../../vm/pmstdlib_nat.c
+	$(RM) $@
+	cd ../../.. && zip src/platform/mbed/$@ src/vm/*.c src/vm/*.h src/platform/mbed/* -x src/platform/mbed/Makefile -x src/platform/mbed/README -x src/platform/mbed/*.py
+
 
 # Target: clean project.
 clean: begin clean_list finished end
@@ -565,7 +574,7 @@ clean_list :
 
 # Listing of phony targets.
 .PHONY : all begin finish end sizebefore sizeafter gccversion \
-build elf hex bin lss sym clean clean_list program pmvm
+build elf hex bin lss sym clean clean_list program pmvm zip
 
 
 export CC OBJCOPY NM CFLAGS ALL_CFLAGS AR IPM PM_HEAP_SIZE PM_LIB_FN

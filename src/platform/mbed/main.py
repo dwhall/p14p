@@ -6,5 +6,4 @@
 #
 
 import ipm
-
-ipm.ipm()
+ipm.ipm(globals())

@@ -11,4 +11,4 @@
 
 
 import ipm
-ipm.ipm(globals())
+ipm.ipm()

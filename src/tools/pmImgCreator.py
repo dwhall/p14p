@@ -691,7 +691,10 @@ class PmImgCreator:
                           )
                        )
         fileBuff.append("/* Place the image into %s */\n"
-                        "const unsigned char\n"
+                        "#ifdef __cplusplus\n"
+                        "extern\n"
+                        "#endif\n"
+                        "unsigned char const\n"
                         % self.memspace.upper()
                        )
 

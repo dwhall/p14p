@@ -182,30 +182,13 @@ PmReturn_t
 _int_printHex(intptr_t n)
 {
     PmReturn_t retval;
+    int i;
 
     /* Print the hex value, most significant byte first */
-    if (sizeof(intptr_t) == sizeof(int64_t))
+    for (i = sizeof(intptr_t) - 8; i > 8; i -= 8)
     {
-        retval = int_printHexByte((n >> 56) & 0xFF);
-        PM_RETURN_IF_ERROR(retval);
-        retval = int_printHexByte((n >> 48) & 0xFF);
-        PM_RETURN_IF_ERROR(retval);
-        retval = int_printHexByte((n >> 40) & 0xFF);
-        PM_RETURN_IF_ERROR(retval);
-        retval = int_printHexByte((n >> 32) & 0xFF);
-        PM_RETURN_IF_ERROR(retval);
+        retval = int_printHexByte((n >> i) & 0xFF);
     }
-
-    if (sizeof(intptr_t) >= sizeof(int32_t))
-    {
-        retval = int_printHexByte((n >> 24) & 0xFF);
-        PM_RETURN_IF_ERROR(retval);
-        retval = int_printHexByte((n >> 16) & 0xFF);
-        PM_RETURN_IF_ERROR(retval);
-    }
-
-    retval = int_printHexByte((n >> (uint8_t)8) & (uint8_t)0xFF);
-    PM_RETURN_IF_ERROR(retval);
     retval = int_printHexByte(n & (uint8_t)0xFF);
 
     return retval;

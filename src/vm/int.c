@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include <limits.h>
 
 #include "pm.h"
 
@@ -185,7 +186,7 @@ _int_printHex(intptr_t n)
     int i;
 
     /* Print the hex value, most significant byte first */
-    for (i = sizeof(intptr_t) - 8; i > 8; i -= 8)
+    for (i = CHAR_BIT * sizeof(intptr_t) - 8; i > 8; i -= 8)
     {
         retval = int_printHexByte((n >> i) & 0xFF);
     }

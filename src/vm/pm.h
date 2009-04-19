@@ -82,6 +82,9 @@ extern "C" {
         retexn = (exn)
 #endif
 
+/** if retval is not OK, break from the loop */
+#define PM_BREAK_IF_ERROR(retval) if((retval) != PM_RET_OK)break
+
 /** return an error code if it is not PM_RET_OK */
 #define PM_RETURN_IF_ERROR(retval)  if((retval) != PM_RET_OK) \
                                         return (retval)

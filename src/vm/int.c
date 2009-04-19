@@ -186,11 +186,11 @@ _int_printHex(intptr_t n)
     int i;
 
     /* Print the hex value, most significant byte first */
-    for (i = CHAR_BIT * sizeof(intptr_t) - 8; i > 8; i -= 8)
+    for (i = CHAR_BIT * sizeof(intptr_t) - 8; i >= 0; i -= 8)
     {
         retval = int_printHexByte((n >> i) & 0xFF);
+        PM_BREAK_IF_ERROR(retval);
     }
-    retval = int_printHexByte(n & (uint8_t)0xFF);
 
     return retval;
 }

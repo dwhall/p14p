@@ -21,7 +21,7 @@ assert filename == "A:/log4.log"
 
 y = 3.14
 saying = `y` + " is not PI."
-# Uncomment the following when issue #45 is fixed
-#assert saying == "3.140000 is not PI."
+print saying
+assert saying == "3.140000 is not PI."
 
 print "Backtick passes"

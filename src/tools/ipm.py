@@ -145,8 +145,8 @@ class SerialConnection(Connection):
     def __init__(self, serdev="/dev/cu.SLAB_USBtoUART", baud=19200):
         try:
             import serial
-        except Exception, e:
-            print NEED_PYSERIAL
+        except Exception as e:
+            print(NEED_PYSERIAL)
             raise e
 
         self.s = serial.Serial(serdev, baud)
@@ -198,7 +198,7 @@ class Interactive(cmd.Cmd):
                               'module must be a ".py" source file.\n')
             return
 
-        print "TODO: Loading module %s" % (args[0])
+        print("TODO: Loading module %s" % (args[0]))
         # TODO: load module, compile to image, send to target
 
 
@@ -234,7 +234,7 @@ class Interactive(cmd.Cmd):
                 codeobj = compile(line, COMPILE_FN, COMPILE_MODE)
 
             # Get more input if syntax error reports unexpected end of file
-            except SyntaxError, se:
+            except SyntaxError as se:
 
                 # Print any other syntax error
                 if not se.msg.startswith("unexpected EOF while parsing"):
@@ -249,7 +249,7 @@ class Interactive(cmd.Cmd):
                     line += self.stdin.readline()
 
             # Print any other exception
-            except Exception, e:
+            except Exception as e:
                 self.stdout.write("%s:%s\n" % (e.__class__.__name__, e))
                 return
 
@@ -261,20 +261,20 @@ class Interactive(cmd.Cmd):
             codeimg = self.pic.co_to_str(codeobj)
 
         # Print any conversion errors
-        except Exception, e:
+        except Exception as e:
             self.stdout.write("%s:%s\n" % (e.__class__.__name__, e))
 
         # Otherwise send the image and print the reply
         else:
 
             # DEBUG: Uncomment the next line to print the size of the code image
-            # print "DEBUG: len(codeimg) = ", len(codeimg)
+            # print("DEBUG: len(codeimg) = ", len(codeimg))
             # DEBUG: Uncomment the next line to print the code image
-            # print "DEBUG: codeimg = ", repr(codeimg)
+            # print("DEBUG: codeimg = ", repr(codeimg))
 
             try:
                 self.conn.write(codeimg)
-            except Exception, e:
+            except Exception as e:
                 self.stdout.write(
                     "Connection write error, type Ctrl+%s to quit.\n" % EOF_KEY)
 
@@ -291,15 +291,15 @@ class Interactive(cmd.Cmd):
         The command loop is what calls self.onecmd().
         """
 
-        print INIT_MESSAGE,
-        print HELP_MESSAGE,
+        print(INIT_MESSAGE)
+        print(HELP_MESSAGE)
 
         self.stop = False
         while not self.stop:
             try:
                 self.cmdloop()
-            except KeyboardInterrupt, ki:
-                print "\n", ki.__class__.__name__
+            except KeyboardInterrupt as ki:
+                print("\n", ki.__class__.__name__)
                 # TODO: check connection?
 
 
@@ -313,12 +313,12 @@ def parse_cmdline():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "dhs",
             ["desktop", "help", "serial=", "baud="])
-    except Exception, e:
-        print __usage__
+    except Exception as e:
+        print(__usage__)
         sys.exit()
 
     if not opts:
-        print __usage__
+        print(__usage__)
         sys.exit()
 
     for opt in opts:
@@ -336,7 +336,7 @@ def parse_cmdline():
             assert serdev, "--serial must be specified before --baud."
             baud = int(opt[1])
         else:
-            print __usage__
+            print(__usage__)
             sys.exit(0)
 
     if Conn == SerialConnection:
@@ -358,8 +358,8 @@ def ser_test():
     """
     try:
         import serial
-    except Exception, e:
-        print NEED_PYSERIAL
+    except Exception as e:
+        print(NEED_PYSERIAL)
         raise e
 
     pic = pmImgCreator.PmImgCreator()
@@ -367,21 +367,21 @@ def ser_test():
     serconn.setTimeout(2)
 
     testcode = (
-        'print "Hello"\n',
+        'print("Hello")\n',
         'import sys\n',
-        'print sys.heap()\n',
+        'print(sys.heap())\n',
         )
 
     for line in testcode:
-        print "compiling ``%s``" % line
+        print("compiling ``%s``" % line)
         codeobj = compile(line, COMPILE_FN, COMPILE_MODE)
         codeimg = pic.co_to_str(codeobj)
-        print "codeimg is %d bytes" % len(codeimg)
-        print "sending codeimg..."
+        print("codeimg is %d bytes" % len(codeimg))
+        print("sending codeimg...")
         serconn.write(codeimg)
         reply = serconn.readline(eol=REPLY_TERMINATOR)
-        print "reply is %d bytes" % len(reply)
-        print "reply is:\n%s" % reply
+        print("reply is %d bytes" % len(reply))
+        print("reply is:\n%s" % reply)
 
 
 if __name__ == "__main__":

@@ -89,6 +89,6 @@ def ipm(g={}):
         rv = eval(co, g)
 
         # Send a byte to indicate completion of evaluation
-        print '\x04',
+        print('\x04')
 
 # :mode=c:

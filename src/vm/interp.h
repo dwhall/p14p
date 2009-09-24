@@ -214,12 +214,13 @@ typedef enum PmBcode_e
     LOAD_NAME,
     BUILD_TUPLE,
     BUILD_LIST,
+BUILD_SET,
     BUILD_MAP,
     LOAD_ATTR,
     COMPARE_OP,
     IMPORT_NAME,
     IMPORT_FROM,
-    UNUSED_6D,
+/*    UNUSED_6D,*/
     JUMP_FORWARD,               /* d110 */
     JUMP_IF_FALSE,
     JUMP_IF_TRUE,               /* 0x70 */

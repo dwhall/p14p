@@ -347,6 +347,14 @@ interpret(const uint8_t returnOnNoThreads)
                 TOS = pobj3;
                 continue;
 
+            case BINARY_TRUE_DIVIDE:
+            case INPLACE_TRUE_DIVIDE:
+                retval = float_op(TOS1, TOS, &pobj3, '/');
+                PM_BREAK_IF_ERROR(retval);
+                SP--;
+                TOS = pobj3;
+                continue;
+
             case BINARY_MODULO:
             case INPLACE_MODULO:
 
@@ -585,6 +593,12 @@ interpret(const uint8_t returnOnNoThreads)
                 SP -= 2;
                 continue;
 #endif /* HAVE_DEL */
+
+            case LOAD_BUILD_CLASS:
+                /* Pushes builtins.__build_class__() onto the stack */
+                retval = dict_getItem((pPmObj_t)FP->fo_globals, gVmGlobal.pbcStr, &pobj3);
+                PM_PUSH(pobj3);
+                break;
 
             case BINARY_LSHIFT:
             case INPLACE_LSHIFT:
@@ -1498,19 +1512,27 @@ interpret(const uint8_t returnOnNoThreads)
                 IP += t16;
                 continue;
 
-            case JUMP_IF_FALSE:
+            case JUMP_IF_FALSE_OR_POP:
                 t16 = GET_ARG();
                 if (obj_isFalse(TOS))
                 {
                     IP += t16;
                 }
+                else
+                {
+                    SP--;
+                }
                 continue;
 
-            case JUMP_IF_TRUE:
+            case JUMP_IF_TRUE_OR_POP:
                 t16 = GET_ARG();
                 if (!obj_isFalse(TOS))
                 {
                     IP += t16;
+                }
+                else
+                {
+                    SP--;
                 }
                 continue;
 
@@ -1521,6 +1543,24 @@ interpret(const uint8_t returnOnNoThreads)
 
                 /* Jump to base_ip + arg */
                 IP = FP->fo_func->f_co->co_codeaddr + t16;
+                continue;
+
+            case POP_JUMP_IF_FALSE:
+                t16 = GET_ARG();
+                pobj1 = PM_POP();
+                if (obj_isFalse(pobj1))
+                {
+                    IP += t16;
+                }
+                continue;
+
+            case POP_JUMP_IF_TRUE:
+                t16 = GET_ARG();
+                pobj1 = PM_POP();
+                if (!obj_isFalse(pobj1))
+                {
+                    IP += t16;
+                }
                 continue;
 
             case LOAD_GLOBAL:

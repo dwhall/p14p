@@ -46,6 +46,7 @@ global_init(void)
     pPmObj_t pobj;
 #ifdef HAVE_CLASSES
     uint8_t const *initstr = (uint8_t const *)"__init__"; 
+    uint8_t const *bcstr = (uint8_t const *)"__bc"; 
 #endif /* HAVE_CLASSES */
 #ifdef HAVE_GENERATORS
     uint8_t const *genstr = (uint8_t const *)"Generator";
@@ -115,6 +116,11 @@ global_init(void)
     retval = string_new((uint8_t const **)&initstr, &pobj);
     PM_RETURN_IF_ERROR(retval);
     gVmGlobal.pinitStr = (pPmString_t)pobj;
+
+    /* Init "__bc" string obj */
+    retval = string_new((uint8_t const **)&bcstr, &pobj);
+    PM_RETURN_IF_ERROR(retval);
+    gVmGlobal.pbcStr = (pPmString_t)pobj;
 #endif /* HAVE_CLASSES */
 
 #ifdef HAVE_GENERATORS

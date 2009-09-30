@@ -5,7 +5,7 @@
 # This file is part of the Python-on-a-Chip program.
 # Python-on-a-Chip is free software: you can redistribute it and/or modify
 # it under the terms of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
-# 
+#
 # Python-on-a-Chip is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -59,8 +59,9 @@ def dismantle(source, fn=""):
         py_compile.compile(fn)
         #open the .pyc file
         f = open(fn + 'c','rb')
-        pyc = f.read()
+        pyba = f.read()
         f.close()
+        pyc = "".join(map(chr, list(pyba)))
 
         #check for magic number
         magic = int((ord(pyc[0])      ) | (ord(pyc[1]) <<  8) |
@@ -73,20 +74,20 @@ def dismantle(source, fn=""):
     code = compile(source, fn, "exec")
 
     #print header
-    print "BEGIN DISMANTLE"
-    print "date:           \t", time.ctime(time.time())
-    print "src file:       \t", fn
-    print "src file size:  \t", len(source), "bytes"
-    print "pyc file size:  \t", len(pyc), "bytes"
-    print
-    print "magic:          \t0x%08x" % magic
-    print "ignore:         \t0x%08x" % ignore
-    print
+    print("BEGIN DISMANTLE")
+    print("date:           \t", time.ctime(time.time()))
+    print("src file:       \t", fn)
+    print("src file size:  \t", len(source), "bytes")
+    print("pyc file size:  \t", len(pyc), "bytes")
+    print()
+    print("magic:          \t0x%08x" % magic)
+    print("ignore:         \t0x%08x" % ignore)
+    print()
 
     #recurse into the code object
     rdismantle(code)
 
-    print "END DISMANTLE"
+    print("END DISMANTLE")
     return code
 
 
@@ -106,45 +107,45 @@ def rdismantle(co, parent = None):
         fullname = co.co_name
 
     #print object fields and values
-    print "fullname:       \t", fullname
-    print " co_name:       \t", co.co_name
-    print " co_filename:   \t", co.co_filename
-    print " co_firstlineno:\t", co.co_firstlineno
-    print " co_flags:      \t0x%04x"  % co.co_flags
-    print " co_stacksize:  \t", co.co_stacksize
-    print " co_lnotab:     \t", repr(co.co_lnotab[:8]), "..."
-    print " co_argcount:   \t", co.co_argcount
-    print " co_nlocals:    \t", co.co_nlocals
+    print("fullname:       \t", fullname)
+    print(" co_name:       \t", co.co_name)
+    print(" co_filename:   \t", co.co_filename)
+    print(" co_firstlineno:\t", co.co_firstlineno)
+    print(" co_flags:      \t0x%04x"  % co.co_flags)
+    print(" co_stacksize:  \t", co.co_stacksize)
+    print(" co_lnotab:     \t", repr(co.co_lnotab[:8]), "...")
+    print(" co_argcount:   \t", co.co_argcount)
+    print(" co_nlocals:    \t", co.co_nlocals)
 
     #print vital compound components
     tabspacing = "\t\t"
 
-    print " co_varnames:"
+    print(" co_varnames:")
     i = 0
     for item in co.co_varnames:
-        print tabspacing, i, ":\t", item
+        print(tabspacing, i, ":\t", item)
         i += 1
 
-    print " co_names:       "
+    print(" co_names:       ")
     i = 0
     for item in co.co_names:
-        print tabspacing, i, ":\t", item
+        print(tabspacing, i, ":\t", item)
         i += 1
 
-    print " co_consts:      "
+    print(" co_consts:      ")
     i = 0
     for item in co.co_consts:
-        if type(item) == types.StringType and \
+        if type(item) == str and \
            len(item) > STRINGTOOLONG:
-                print tabspacing, i, ":\t", repr(item[:STRINGTOOLONG]), "..."
+                print(tabspacing, i, ":\t", repr(item[:STRINGTOOLONG]), "...")
         else:
-            print tabspacing, i, ":\t", repr(item)
+            print(tabspacing, i, ":\t", repr(item))
         i += 1
 
     #print disassembly
-    print " co_code:"
+    print(" co_code:")
     dis.dis(co)
-    print "\n"
+    print("\n")
 
     #dismantle code objects in constant pool
     for obj in co.co_consts:
@@ -162,7 +163,7 @@ def main():
     if len(sys.argv) == 2:
         return dismantle_file(sys.argv[1])
     else:
-        print __usage__
+        print(__usage__)
 
 if __name__ == "__main__":
         main()

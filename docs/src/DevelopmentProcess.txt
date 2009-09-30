@@ -112,12 +112,13 @@ During this phase, if the trunk is updated, you should merge those changes into
 your branch so that your working copy is always up-to-date.  Doing this
 merge-forward step avoids the problem of when you mainline your branch and your
 changes don't work with the modified trunk.  Use the following command to
-merge-forward changes from the trunk::
+merge-forward changes from the trunk to your working copy of the branch::
 
-    svn update
+    svn merge -c RRR https://python-on-a-chip.googlecode.com/svn/trunk .
 
-Pay attention to the output of this command to see if there are conflicts that
-must be resolved.
+Fix any conflicts that result and then check-in the merge to the branch:
+
+    svn ci -m "issue #NNN: check in on branch: merged trunk@RRR."
 
 .. WARNING:: the `mainlining step`_ described below will merge improperly
              if you do not keep your branch up-to-date using the merge-forward

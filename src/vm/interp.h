@@ -161,7 +161,7 @@ typedef enum PmBcode_e
     DELETE_SLICE_1,
     DELETE_SLICE_2,
     DELETE_SLICE_3,
-    UNUSED_36,
+    STORE_MAP,
     INPLACE_ADD,
     INPLACE_SUBTRACT,
     INPLACE_MULTIPLY,
@@ -176,9 +176,9 @@ typedef enum PmBcode_e
     BINARY_OR,
     INPLACE_POWER,
     GET_ITER,
-    UNUSED_45,
+    STORE_LOCALS,
     PRINT_EXPR,                 /* d070 */
-    PRINT_ITEM,
+    LOAD_BUILD_CLASS, /*PRINT_ITEM,*/
     PRINT_NEWLINE,
     PRINT_ITEM_TO,
     PRINT_NEWLINE_TO,
@@ -196,7 +196,7 @@ typedef enum PmBcode_e
     YIELD_VALUE,
     POP_BLOCK,
     END_FINALLY,
-    BUILD_CLASS,
+    POP_EXCEPT, /*BUILD_CLASS,*/
 
     /* Opcodes from here have an argument */
     HAVE_ARGUMENT = 90,         /* d090 */
@@ -204,7 +204,7 @@ typedef enum PmBcode_e
     DELETE_NAME,
     UNPACK_SEQUENCE,
     FOR_ITER,
-    UNUSED_5E,
+    UNPACK_EX,
     STORE_ATTR,
     DELETE_ATTR,                /* 0x60 */
     STORE_GLOBAL,
@@ -214,7 +214,7 @@ typedef enum PmBcode_e
     LOAD_NAME,
     BUILD_TUPLE,
     BUILD_LIST,
-BUILD_SET,
+    BUILD_SET,
     BUILD_MAP,
     LOAD_ATTR,
     COMPARE_OP,
@@ -222,11 +222,11 @@ BUILD_SET,
     IMPORT_FROM,
 /*    UNUSED_6D,*/
     JUMP_FORWARD,               /* d110 */
-    JUMP_IF_FALSE,
-    JUMP_IF_TRUE,               /* 0x70 */
+    JUMP_IF_FALSE_OR_POP, /*JUMP_IF_FALSE,*/
+    JUMP_IF_TRUE_OR_POP, /*JUMP_IF_TRUE,*/               /* 0x70 */
     JUMP_ABSOLUTE,
-    UNUSED_72,
-    UNUSED_73,
+    POP_JUMP_IF_FALSE,
+    POP_JUMP_IF_TRUE,
     LOAD_GLOBAL,
     UNUSED_75,
     UNUSED_76,
@@ -255,8 +255,11 @@ BUILD_SET,
     CALL_FUNCTION_KW,
     CALL_FUNCTION_VAR_KW,
     EXTENDED_ARG,
-
-    UNUSED_90, UNUSED_91, UNUSED_92, UNUSED_93,
+    UNUSED_90, 
+    LIST_APPEND,
+    SET_ADD,
+    MAP_ADD,
+    
     UNUSED_94, UNUSED_95, UNUSED_96, UNUSED_97,
     UNUSED_98, UNUSED_99, UNUSED_9A, UNUSED_9B,
     UNUSED_9C, UNUSED_9D, UNUSED_9E, UNUSED_9F,

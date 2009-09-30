@@ -641,6 +641,45 @@ def Co(i):
     pass
 
 
+#
+# Builds a class object from the code object, name and base class
+# This function should only be called by the VM.
+#
+def __bc():
+    """__NATIVE__
+    PmReturn_t retval;
+    pPmObj_t pco;
+    pPmObj_t pname;
+    pPmObj_t pbase;
+    pPmObj_t pcli;
+    
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 3)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Get args */
+    pco = NATIVE_GET_LOCAL(0);
+    pname = NATIVE_GET_LOCAL(1);
+    pbase = NATIVE_GET_LOCAL(2);
+
+    /* Raise TypeError if args are wrong type */
+    if ((OBJ_GET_TYPE(pco) != OBJ_TYPE_FXN) 
+        || (OBJ_GET_TYPE(pname) != OBJ_TYPE_STR) 
+        || (OBJ_GET_TYPE(pbase) != OBJ_TYPE_CLI))
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+    
+    class_instantiate(pPmObj_t pclass, &pcli);
+
+    """
+    pass
+
+
 # This must be declared before any classes because LOAD_NAME(__name__) is
 # part of every class-declaration, so __name__ must exist.
 # This is a temporary workaround until __name__ is properly handled.

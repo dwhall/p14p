@@ -114,6 +114,9 @@ typedef struct PmVmGlobal_s
     /* NOTE: placing this field before the nativeframe field causes errors */
     /** The string "__init__", used in interp.c CALL_FUNCTION */
     pPmString_t pinitStr;
+
+    /** The string "__bc", used in interp.c LOAD_BUILD_CLASS */
+    pPmString_t pbcStr;
 #endif /* HAVE_CLASSES */
 
 #ifdef HAVE_GENERATORS

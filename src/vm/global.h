@@ -117,6 +117,9 @@ typedef struct PmVmGlobal_s
 
     /** The string "__bc", used in interp.c LOAD_BUILD_CLASS */
     pPmString_t pbcStr;
+
+    /** The string "__rc", used in builtin __bc() */
+    pPmString_t prcStr;
 #endif /* HAVE_CLASSES */
 
 #ifdef HAVE_GENERATORS

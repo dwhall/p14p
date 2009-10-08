@@ -53,7 +53,7 @@ MARK_GLOBAL = "\tg"
 MARK_FUNC_PARM = "\tp"
 
 # Reverse the key,value pairs in the token dict
-tok_name_lookup = dict((v,k) for k,v in token.tok_name.iteritems())
+tok_name_lookup = dict((v,k) for k,v in token.tok_name.items())
 TOK_NEWLINE = tok_name_lookup["NEWLINE"]
 TOK_NAME = tok_name_lookup["NAME"]
 TOK_LPAR = tok_name_lookup["LPAR"]
@@ -62,7 +62,7 @@ TOK_INDENT = tok_name_lookup["INDENT"]
 TOK_DEDENT = tok_name_lookup["DEDENT"]
 
 # Reverse the key,value pairs in the symbol dict
-sym_name_lookup = dict((v,k) for k,v in symbol.sym_name.iteritems())
+sym_name_lookup = dict((v,k) for k,v in symbol.sym_name.items())
 SYM_TRAILER = sym_name_lookup["trailer"]
 SYM_VARARGSLIST = sym_name_lookup["varargslist"]
 
@@ -87,7 +87,7 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "Rf:i:")
     except getopt.GetoptError:
-        print __usage__
+        print(__usage__)
         sys.exit(2)
     recurse = False
     indexfn = "cscope.out"
@@ -163,7 +163,7 @@ def parseFile(basepath, relpath, indexbuff, fnamesbuff):
     # Add path info to any syntax errors in the source files
     try:
         parseSource(filecontents, indexbuff)
-    except SyntaxError, se:
+    except SyntaxError as se:
         se.filename = fullpath
         raise se
 
@@ -173,7 +173,7 @@ def parseSource(sourcecode, indexbuff):
     """
     # Parse the source to an Abstract Syntax Tree
     ast = parser.suite(sourcecode)
-    astlist = parser.ast2list(ast, True)
+    astlist = parser.st2list(ast, True)
 
     # Set these globals before each file's AST is walked
     global sourcelinehassymbol
@@ -302,7 +302,7 @@ def walkAst(astlist, indexbuff):
 
     # Recurse into all nodes
     for i in range(1, len(astlist)):
-        if type(astlist[i]) == types.ListType:
+        if type(astlist[i]) == list:
             walkAst(astlist[i], indexbuff)
 
 

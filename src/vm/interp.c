@@ -594,11 +594,28 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 #endif /* HAVE_DEL */
 
+#ifdef HAVE_CLASSES
             case LOAD_BUILD_CLASS:
-                /* Pushes builtins.__build_class__() onto the stack */
-                retval = dict_getItem((pPmObj_t)FP->fo_globals, gVmGlobal.pbcStr, &pobj3);
+                /* #214: Pushes builtins.__build_class__() onto the stack */
+printf("DWH:000\n");
+                /* If __bc isn't in the globals */
+                retval = dict_getItem((pPmObj_t)FP->fo_globals,
+                                      (pPmObj_t)gVmGlobal.pbcStr,
+                                      &pobj3);
+
+                /* We might be initializing the builtins, try local attrs */
+                if (retval == PM_RET_EX_KEY)
+                {
+                    retval = dict_getItem((pPmObj_t)FP->fo_attrs,
+                                          (pPmObj_t)gVmGlobal.pbcStr,
+                                          &pobj3);
+                }
+                PM_BREAK_IF_ERROR(retval);
+printf("DWH:001\n");
+
                 PM_PUSH(pobj3);
-                break;
+                continue;
+#endif /* HAVE_CLASSES */
 
             case BINARY_LSHIFT:
             case INPLACE_LSHIFT:
@@ -695,6 +712,7 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Print interactive expression */
                 /* Fallthrough */
 
+#ifdef DWH
             case PRINT_ITEM:
                 /* Print out topmost stack element */
                 retval = obj_print(TOS, (uint8_t)0);
@@ -712,6 +730,7 @@ interpret(const uint8_t returnOnNoThreads)
                 retval = plat_putByte('\n');
                 PM_BREAK_IF_ERROR(retval);
                 continue;
+#endif
 #endif /* HAVE_PRINT */
 
             case BREAK_LOOP:
@@ -890,6 +909,7 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
 #ifdef HAVE_CLASSES
+#ifdef DWH
             case BUILD_CLASS:
                 /* Create and push new class */
                 retval = class_new(TOS, TOS1, TOS2, &pobj2);
@@ -897,6 +917,7 @@ interpret(const uint8_t returnOnNoThreads)
                 SP -= 2;
                 TOS = pobj2;
                 continue;
+#endif
 #endif /* HAVE_CLASSES */
 
 

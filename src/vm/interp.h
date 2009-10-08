@@ -125,7 +125,7 @@ typedef enum PmBcode_e
     UNARY_INVERT,
     UNUSED_10,                  /* 0x10 */
     UNUSED_11,
-    LIST_APPEND,
+    UNUSED_12,/*    LIST_APPEND,*/
     BINARY_POWER,
     BINARY_MULTIPLY,            /* d020 */
     BINARY_DIVIDE,

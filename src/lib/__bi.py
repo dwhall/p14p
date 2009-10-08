@@ -642,40 +642,101 @@ def Co(i):
 
 
 #
+# Returns the argument given to it.
+# This function should only be called by __bc().
+#
+def __rc(clo):
+    print("in __rc")
+    return clo
+
+
+#
 # Builds a class object from the code object, name and base class
 # This function should only be called by the VM.
 #
-def __bc():
+def __bc(cofxn, name, bases):
     """__NATIVE__
     PmReturn_t retval;
-    pPmObj_t pco;
+    pPmObj_t pcofxn;
+    pPmObj_t prcfxn;
     pPmObj_t pname;
-    pPmObj_t pbase;
+    pPmObj_t pbases;
     pPmObj_t pcli;
-    
+    pPmObj_t plocals;
+    pPmObj_t pframe1;
+    pPmObj_t pframe2;
+    uint8_t i;
+
     /* Raise TypeError if wrong number of args */
-    if (NATIVE_GET_NUM_ARGS() != 3)
+    if (NATIVE_GET_NUM_ARGS() < 2)
     {
         PM_RAISE(retval, PM_RET_EX_TYPE);
         return retval;
     }
 
     /* Get args */
-    pco = NATIVE_GET_LOCAL(0);
+    pcofxn = NATIVE_GET_LOCAL(0);
     pname = NATIVE_GET_LOCAL(1);
-    pbase = NATIVE_GET_LOCAL(2);
 
     /* Raise TypeError if args are wrong type */
-    if ((OBJ_GET_TYPE(pco) != OBJ_TYPE_FXN) 
-        || (OBJ_GET_TYPE(pname) != OBJ_TYPE_STR) 
-        || (OBJ_GET_TYPE(pbase) != OBJ_TYPE_CLI))
+    if ((OBJ_GET_TYPE(pcofxn) != OBJ_TYPE_FXN)
+        || (OBJ_GET_TYPE(pname) != OBJ_TYPE_STR))
     {
         PM_RAISE(retval, PM_RET_EX_TYPE);
         return retval;
     }
-    
-    class_instantiate(pPmObj_t pclass, &pcli);
 
+    /* Collect args[2:] into a tuple of base classes */
+    retval = tuple_new(NATIVE_GET_NUM_ARGS() - 2, &pbases);
+    for (i = 0; i < NATIVE_GET_NUM_ARGS() - 2; i++)
+    {
+        ((pPmTuple_t)pbases)->val[i] = NATIVE_GET_LOCAL(i + 2);
+
+        /* Raise TypeError if base object is not a class */
+        if (OBJ_GET_TYPE(NATIVE_GET_LOCAL(i + 2)) != OBJ_TYPE_CLO)
+        {
+            PM_RAISE(retval, PM_RET_EX_TYPE);
+        }
+    }
+
+puts("DWH;000");
+    /* Get the builtin __rc() function */
+    retval = dict_getItem((pPmObj_t)NATIVE_GET_PFRAME()->fo_globals,
+                          (pPmObj_t)gVmGlobal.prcStr,
+                          &prcfxn);
+puts("DWH;001");
+
+    /* Create an execution frame for __rc */
+    retval = frame_new(prcfxn, &pframe2);
+    PM_RETURN_IF_ERROR(retval);
+    ((pPmFrame_t)pframe2)->fo_globals = NATIVE_GET_PFRAME()->fo_globals;
+    ((pPmFrame_t)pframe2)->fo_back = NATIVE_GET_PFRAME()->fo_back;
+    retval = dict_new(&plocals);
+    ((pPmFrame_t)pframe2)->fo_attrs = (pPmDict_t)plocals;
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Build the class and pass it to __rc so it will be returned to this caller */
+    retval = class_new((pPmObj_t)((pPmFunc_t)pcofxn)->f_attrs,
+                       pbases,
+                       pname,
+                       &pcli);
+    ((pPmFrame_t)pframe2)->fo_locals[0] = pcli;
+
+    /* Create an execution frame for pcofxn */
+    retval = frame_new(pcofxn, &pframe1);
+    PM_RETURN_IF_ERROR(retval);
+    ((pPmFrame_t)pframe1)->fo_globals = NATIVE_GET_PFRAME()->fo_globals;
+
+    /* Set pcofxn's fo_back so __rc() is called */
+    ((pPmFrame_t)pframe1)->fo_back = (pPmFrame_t)pframe2;
+    retval = dict_new(&plocals);
+    ((pPmFrame_t)pframe1)->fo_attrs = (pPmDict_t)plocals;
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Execute class's code object function */
+    NATIVE_GET_PFRAME()->fo_back = (pPmFrame_t)pframe1;
+puts("DWH;002");
+    return retval;
     """
     pass
 

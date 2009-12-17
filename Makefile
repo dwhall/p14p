@@ -42,6 +42,10 @@ latex :
 	$(MKDIR) docs/latex
 	cd docs/src; $(MAKE) latex
 
+pdf :
+	$(MKDIR) docs/pdf
+	cd docs/src; $(MAKE) pdf
+
 indent :
 	$(MAKE) -C src/vm indent
 

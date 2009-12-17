@@ -36,15 +36,15 @@ ipm :
 
 html :
 	$(MKDIR) docs/html
-	cd docs/src; $(MAKE) html
+	$(MAKE) -C docs/src html
 
 latex :
 	$(MKDIR) docs/latex
-	cd docs/src; $(MAKE) latex
+	$(MAKE) -C docs/src latex
 
 pdf :
 	$(MKDIR) docs/pdf
-	cd docs/src; $(MAKE) pdf
+	$(MAKE) -C docs/src pdf
 
 indent :
 	$(MAKE) -C src/vm indent

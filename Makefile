@@ -34,9 +34,13 @@ ipm :
 	$(MAKE) -C src/platform/desktop
 	cd src/tools && ./ipm.py -d
 
-html : docs/src/*.txt
+html :
 	$(MKDIR) docs/html
-	$(MAKE) -C docs/src
+	cd docs/src; $(MAKE) html
+
+latex :
+	$(MKDIR) docs/latex
+	cd docs/src; $(MAKE) latex
 
 indent :
 	$(MAKE) -C src/vm indent

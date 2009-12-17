@@ -62,6 +62,10 @@ check :
 clean :
 	$(MAKE) -C src/platform/$(PLATFORM) clean
 
+# Removes all generated documentation files
+docs-clean :
+	$(MAKE) -C docs/src/ clean
+
 # Removes files made by make check
 check-clean :
 	$(MAKE) -C src/tests/unit clean

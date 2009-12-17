@@ -1,5 +1,5 @@
 SHELL = /bin/sh
-RST2HTML := rst2html.py
+RST2HTML := rst2html
 HTML_DEST := ../html/
 DOC_SOURCES := $(wildcard *.txt)
 DOC_HTML := $(addprefix $(HTML_DEST),$(DOC_SOURCES:.txt=.html))

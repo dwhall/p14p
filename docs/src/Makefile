@@ -11,7 +11,8 @@ LATEX_SOURCES := $(wildcard $(LATEX_FILES))
 DOC_HTML := $(addprefix $(HTML_DEST),$(DOC_SOURCES:.txt=.html))
 DOC_LATEX := $(addprefix $(LATEX_DEST),$(DOC_SOURCES:.txt=.tex))
 DOC_PDF := $(addprefix $(PDF_DEST),$(DOC_SOURCES:.txt=.pdf))
-PDF_TEMP_FILES = $(wildcard $(PDF_DEST)*.out) $(wildcard $(PDF_DEST)*.log) $(wildcard $(PDF_DEST)*.aux)
+PDF_TEMP_FILES = $(wildcard $(PDF_DEST)*.out) $(wildcard $(PDF_DEST)*.log) \
+$(wildcard $(PDF_DEST)*.aux)
 
 
 .PHONY: all html latex pdf clean

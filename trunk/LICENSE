@@ -1,0 +1,60 @@
+=====================================
+Python-on-a-Chip and PyMite Licensing
+=====================================
+
+
+:Author: Dean Hall
+:Email: dwhall256@yahoo.com
+:Id: $Id$
+
+
+Overview
+--------
+
+The Python-on-a-Chip program consists of the PyMite virtual machine,
+ports to specific platforms, libraries, tests, tools and documentation.
+This document explains the licensing terms of the different components
+of the Python-on-a-Chip program.
+
+The Python-on-a-Chip program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+The following table explains which license applies to which files
+in the Python-on-a-Chip program:
+
+=====================   ========================================================
+The files in . . .      are licensed under the . . .
+=====================   ========================================================
+src/vm/                 GNU GENERAL PUBLIC LICENSE Version 2
+                        or a commercial license
+src/lib/                GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+src/platform/           GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+src/tests/              GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+src/tools/              GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+docs/                   GNU Free Documentation License Version 1.2
+=====================   ========================================================
+
+
+Details
+-------
+
+The files in the directory src/vm/ constitute the PyMite VM.
+The PyMite VM is Copyright 2003, 2006, 2007, 2009 Dean Hall.  All rights reserved.
+The author offers the PyMite VM under two separate licenses: open source
+and commercial.  The PyMite VM is offered under the
+GNU GENERAL PUBLIC LICENSE Version 2.  See src/vm/COPYING for details.
+For commercial licensing terms, please contact the author directly.
+
+The files in the directory docs/ constitute "the documentation."
+The documentation is copyrighted by the individual author(s) of the file.
+All documentation is licensed under the GNU Free Documentation License.
+See docs/COPYING for details.
+
+The remaining components of the Python-on-a-Chip program are copyrighted
+by the individual author(s) of the file and offered under the
+GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
+See src/lib/COPYING for details.
+
+
+.. :mode=rest:

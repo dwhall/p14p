@@ -28,8 +28,7 @@ endif
 # Note: using $(abspath .) produces a path with /cygdrive/c/..., which isn't
 # recognized by pic30-gcc. Not sure how to work around this. For now, hard
 # code the path.
-ABS_PATH_WIN = c:/Users/bjones/Documents/svns/python-on-a-chip/src/platform/pic24
-CINCS = -I$(ABS_PATH_WIN)/. -I$(ABS_PATH_WIN)/include
+CINCS = -I$(shell cygpath -m $(abspath .)) -I$(shell cygpath -m $(abspath include))
 # Note: use of -mlarge-data below increases code size, but allows a heap of > 6K.
 # A better solution: use an __attribute__((far)) in heap.c on the statement
 # static PmHeap_t pmHeap;

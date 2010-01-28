@@ -46,7 +46,7 @@ endif
 
 .PHONY: all size indent clean
 # Must delete/rebuild these intermediate files because they depend on the platform
-.INTERMEDIATE: $(SOURCE_IMG) $(SOURCE_NAT)
+#.INTERMEDIATE: $(SOURCE_IMG) $(SOURCE_NAT)
 
 # Default action is to build the archive from object files
 all : $(SOURCE_IMG) $(SOURCE_NAT) $(PM_LIB_FN)

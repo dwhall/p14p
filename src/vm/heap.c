@@ -146,6 +146,9 @@ typedef struct PmHeap_s
 
 
 /** The PyMite heap */
+#if defined(__PIC24H__) || defined(__PIC24F__) || defined(__dsPIC33F__) || defined(__PIC24FK__)
+__attribute__((far))
+#endif
 static PmHeap_t pmHeap;
 
 

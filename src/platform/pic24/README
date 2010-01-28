@@ -1,0 +1,65 @@
+======================
+The AVR Sample Project
+======================
+
+:Author:    Dean Hall
+:Id:        $Id: README 317 2009-03-17 02:25:27Z dwhall $
+
+Purpose
+-------
+
+This is a sample project that demonstrates the use of PyMite on the
+`AVR family`_ of microcontrollers.  Any AVR with at least 64 KiB of
+program memory and 4 KiB of RAM can run PyMite.
+
+.. _`AVR family`: http://www.atmel.com/products/AVR/
+
+Details
+-------
+
+This sample project demonstrates a simple use case of PyMite on a
+microcontroller.  The file ``main.c`` is used to initialize PyMite
+and indicate the name of the module it should run.  In this case, it
+will run the module ``main.py``
+
+In the module ``main.py``, we see that the program prints a "Hello world"
+message, defines and runs an initialization function and then imports the
+``avr`` module that is provided by PyMite.  The function ``avr.portA()`` is
+called with the argument ``0xaa`` which will set the Port A pins to binary
+``10101010``.  Afterwards, another print statement warns of a pending error.
+This is followed by a call to the function ``foo()`` which, because it is not
+defined, will generate a NameError and an exception and traceback will be
+printed out the AVR's serial port.
+
+
+Building the Project
+--------------------
+
+Start with a clean PyMite tree.  Edit the ``src/platform/avr/Makefile`` near
+line 20 to set the type of AVR you are using and near line 23 to set the
+frequency of your AVR's main clock.  The default values are::
+
+    MCU = atmega103
+    F_CPU = 4000000UL
+
+``platform/avr/Makefile`` will build the PyMite VM archive as well as the 
+sample application::
+
+    $ cd src/platform/avr
+    $ make
+
+
+Flashing the Binary
+-------------------
+
+The steps above result in the binary file(s) that need to go on the AVR.
+The Makefile is configured to use avrdude with an stk500v2 compatible
+programmer.  If this matches your configuration, or you change the Makefile
+to match your configuration, then you connect your device and type::
+
+    $ make program
+
+Otherwise, use your AVR programmer of choice to program
+``src/platform/avr/main.hex`` onto your target AVR device.
+
+.. :mode=rest:

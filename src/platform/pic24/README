@@ -39,8 +39,8 @@ sample application::
     $ make
 
 As a second alternative, the p14p.mcp project file loaded into the Microchip
-MPLAB IDE will build *most* of the project; support for translation of Python
-to C files isn't yet included.
+MPLAB IDE will build the project. However, you must have the path to Cygwin's
+make.exe in your Windows path for this to work.
 
 
 Flashing the Binary

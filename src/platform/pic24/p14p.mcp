@@ -102,6 +102,7 @@ file_074=.
 file_075=.
 file_076=.
 file_077=.
+file_078=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -181,6 +182,7 @@ file_074=no
 file_075=no
 file_076=no
 file_077=no
+file_078=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -260,6 +262,7 @@ file_074=yes
 file_075=yes
 file_076=yes
 file_077=yes
+file_078=yes
 [FILE_INFO]
 file_000=main.c
 file_001=main_img.c
@@ -339,6 +342,7 @@ file_074=..\..\lib\list.py
 file_075=..\..\lib\sizeof.py
 file_076=..\..\lib\string.py
 file_077=..\..\lib\sys.py
+file_078=README
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
@@ -352,7 +356,7 @@ enable=0
 transport=0
 format=0
 [CUSTOM_BUILD]
-Pre-Build=
+Pre-Build=make -C /cygdrive/c/Users/bjones/Documents/svns/python-on-a-chip/src/platform/pic24 bytecode
 Pre-BuildEnabled=1
 Post-Build=
 Post-BuildEnabled=1

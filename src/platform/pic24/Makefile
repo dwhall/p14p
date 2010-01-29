@@ -7,14 +7,14 @@ PM_USR_SOURCES = main.py
 PMIMGCREATOR := ../../tools/pmImgCreator.py
 IPM = true
 DEBUG = false
-# If I wasn't lazy, I'd add these to my path. But I'm lazy.
-CC = /cygdrive/c/Program\ Files/Microchip/MPLAB\ C30/bin/pic30-gcc.exe
-AR = /cygdrive/c/Program\ Files/Microchip/MPLAB\ C30/bin/pic30-ar.exe
-B2H = /cygdrive/c/Program\ Files/Microchip/MPLAB\ C30/bin/pic30-bin2hex.exe
+# The PIC30 compiler binaries must be in your path.
+CC = pic30-gcc.exe
+AR = pic30-ar.exe
+B2H = pic30-bin2hex.exe
 CPU = 24HJ64GP502
 # Per docs, the PIC$(CPU) define should already exist. Not sure why this is necessary.
 # If running in simulation, include the -DSIM below; otherwise, remove it.
-CDEFS = -D__PIC$(CPU)__  -DSIM
+CDEFS = -D__PIC$(CPU)__ # -DSIM
 
 TARGET = main
 PIC24_LIB_SOURCES = common/pic24_clockfreq.c common/pic24_configbits.c common/pic24_uart.c common/pic24_util.c common/pic24_serial.c
@@ -26,15 +26,11 @@ ifeq ($(DEBUG),true)
 endif
 
 # Note: using $(abspath .) produces a path with /cygdrive/c/..., which isn't
-# recognized by pic30-gcc. Not sure how to work around this. For now, hard
-# code the path.
+# recognized by pic30-gcc. The use of cygpath solves this; thanks to Tyler 
+# Wilson for this fix.
 CINCS = -I$(shell cygpath -m $(abspath .)) -I$(shell cygpath -m $(abspath include))
-# Note: use of -mlarge-data below increases code size, but allows a heap of > 6K.
-# A better solution: use an __attribute__((far)) in heap.c on the statement
-# static PmHeap_t pmHeap;
-# This keeps code size lower, but still allows large heaps.
 CFLAGS = -mcpu=$(CPU) -mlarge-code -Wall -O1 -Wdeclaration-after-statement -I../../vm $(CDEFS) $(CINCS)
-# A generous stack -- too small will call overflows.
+# A generous stack -- too small will cause stack overflows.
 # A bit of heap, in case user C code wants to malloc (can't imagine why, though).
 LDFLAGS = -Wl,--script="lkr\p$(CPU)_bootldr.gld",--stack=400,--heap=100,--report-mem
 
@@ -43,7 +39,10 @@ export CFLAGS IPM PM_LIB_FN CC AR LDFLAGS
 
 .PHONY: all clean
 
-all : $(TARGET).hex
+all : $(TARGET).hex $(TARGET)_nat.c $(TARGET)_img.c
+
+bytecode: $(TARGET)_nat.c $(TARGET)_img.c
+	make -C ../../vm bytecode
 
 $(PM_LIB_PATH) : ../../vm/*.c ../../vm/*.h
 	make -C ../../vm

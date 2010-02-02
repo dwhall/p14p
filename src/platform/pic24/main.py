@@ -22,22 +22,79 @@
 
 
 
-#
-# Initialize the AVR's port A pin direction
-#
-def init():
+## Read bits from the evenAddress.
+#  \param evenAddress The word address to read from. Must be even.
+#  \param startBit The starting bit to read from; must be from 0 to 15.
+#  \param numBits The number of bits to read, must be > 0. 
+#                 Also, startBit + numBits must be <= 16.
+def readBits(evenAddress, startBit, numBits):
     """__NATIVE__
-    printf("Hello C world.\\n");
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t ppo_evenAddress;
+	pPmObj_t ppo_startBit;
+	pPmObj_t ppo_numBits;
+	uint16_t* pu16_evenAddress;
+	uint16_t u16_startBit;
+	uint16_t u16_numBits;
+	uint16_t u16_bitmask;
+	uint16_t u16_value;
+
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 3)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    // Raise TypeError if args are not the right type.
+    // Otherwise, extract their values.
+    ppo_evenAddress = NATIVE_GET_LOCAL(0);
+    if (OBJ_GET_TYPE(ppo_evenAddress) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+	pu16_evenAddress = (uint16_t*) ((pPmInt_t) ppo_evenAddress)->val;
+
+    ppo_startBit = NATIVE_GET_LOCAL(1);
+    if (OBJ_GET_TYPE(ppo_startBit) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+	u16_startBit = ((pPmInt_t) ppo_startBit)->val;
+
+    ppo_numBits = NATIVE_GET_LOCAL(2);
+    if (OBJ_GET_TYPE(ppo_numBits) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+	u16_numBits = ((pPmInt_t) ppo_numBits)->val;
+
+	// Check these args:
+	// 1. The address must be even.
+	C_ASSERT( !(((uint16_t) pu16_evenAddress) & 1) );
+	// 2. The start bit must be <= 15
+	C_ASSERT(u16_startBit <= 15);
+	// 3. The number of bits must be > 0
+	C_ASSERT(u16_numBits > 0);
+	// 4. start bit + num bits <= 16
+	C_ASSERT(u16_startBit + u16_numBits <= 16);
+
+	// Form the bitmask
+	u16_bitmask = (1 << u16_numBits) - 1;
+	// Read the port and mask
+	u16_value = (*pu16_evenAddress >> u16_numBits) & u16_bitmask;
+	printf("Value at 0x%04X, bit(s) %d to %d = 0x%02X.\\n", pu16_evenAddress, 
+	  u16_startBit, u16_startBit + u16_numBits - 1, u16_value);
 
     return PM_RET_OK;
     """
     pass
 
-#init()
-import ipm
-print "Welcome to PIC24 Python! Starting interactive mode."
+readBits(2, 3, 2)
 
-import sys
-while True:
-	print sys.time()
+print "Welcome to PIC24 Python! Starting interactive mode."
+import ipm
 ipm.ipm()

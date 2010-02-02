@@ -17,7 +17,9 @@
 #define __FILE_ID__ 0x51
 
 
-/** PyMite platform-specific routines for AVR target */
+/** \file
+ *  PyMite platform-specific routines for a PIC24 target 
+ */
 
 
 #include <stdio.h>
@@ -25,10 +27,41 @@
 
 #include "pm.h"
 
+/** Number of milliseconds since the system
+ *  was initialized.
+ */
+volatile uint32 u32_ms = 0;
+
+/** Interrupt Service Routine for Timer2.
+ *  Receives one interrupts per millisecond.
+ */
+void _ISRFAST _T2Interrupt (void) {
+  u32_ms++;
+  _T2IF = 0;                 //clear the timer interrupt bit
+}
+
+#define ISR_PERIOD  1    // in ms
+void  configTimer2(void) {
+  // Configure the timer
+  T2CON = T2_OFF | T2_IDLE_CON | T2_GATE_OFF
+          | T2_32BIT_MODE_OFF
+          | T2_SOURCE_INT
+          | T2_PS_1_64 ;  //results in T2CON = 0x0020
+  //subtract 1 from ticks value assigned to PR2 because period is PRx + 1
+  PR2 = msToU16Ticks (ISR_PERIOD, getTimerPrescale(T2CONbits)) - 1;
+  TMR2  = 0;                       //clear timer2 value
+  _T2IF = 0;                       //clear interrupt flag
+  _T2IP = 1;                       //choose a priority
+  _T2IE = 1;                       //enable the interrupt
+  T2CONbits.TON = 1;               //turn on the timer
+}
+
 
 PmReturn_t plat_init(void)
 {
   configBasic(HELLO_MSG);
+  configTimer2();
+  
   return PM_RET_OK;
 }
 
@@ -60,10 +93,6 @@ plat_memGetByte(PmMemSpace_t memspace, uint8_t const **paddr)
         /* For now, assume a large memory model, so all program memory
          * can be mapped into the PSV space. */
         case MEMSPACE_PROG:
-//            printf("Flash data at %04x is %02x.\n", *paddr, **paddr);
-//            if (*paddr < ((uint8_t*) 0x8000)) {
-//              printf("Crashing now...\n");
-//            }
             b = **paddr;
             *paddr += 1;
             return b;
@@ -117,14 +146,13 @@ plat_putByte(uint8_t b)
 }
 
 
-/*
- * This operation is made atomic by temporarily disabling
- * the interrupts. The old state is restored afterwards.
+/** Return the number of milliseconds since the system
+ *  was initialized.
  */
 PmReturn_t
 plat_getMsTicks(uint32_t *r_ticks)
 {
-    *r_ticks = 0;
+    *r_ticks = u32_ms;
     return PM_RET_OK;
 }
 

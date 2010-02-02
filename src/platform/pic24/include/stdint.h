@@ -74,7 +74,7 @@ typedef signed long long    int64_t;   //64 bits
 typedef signed short intptr_t;
 typedef unsigned short uintptr_t;
 
-/* Kludge around lack of snprintf by using sprintf instead. Very scary. */
-#define snprintf(buffer, buff_size, format, ...) sprintf(buffer, format, __VA_ARGS__)
+/* Apparently, this is actually in the library but simply not prototyped. */
+int snprintf( char *buffer, int buff_size, const char *format, ... );
 
 #endif

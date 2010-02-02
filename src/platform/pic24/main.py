@@ -36,4 +36,8 @@ def init():
 #init()
 import ipm
 print "Welcome to PIC24 Python! Starting interactive mode."
+
+import sys
+while True:
+	print sys.time()
 ipm.ipm()

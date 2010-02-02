@@ -12,14 +12,14 @@
 # is seen in the file COPYING up one directory from this.
 */
 
-/** Sample PyMite application */
+/** \file
+ *  Initialize then run the Python VM on power-up.
+ */
 
 
 #include "pm.h"
 
-
 extern unsigned char usrlib_img[];
-
 
 int main(void)
 {

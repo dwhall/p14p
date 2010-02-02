@@ -17,7 +17,7 @@ CPU = 24HJ64GP502
 CDEFS = -D__PIC$(CPU)__ # -DSIM
 
 TARGET = main
-PIC24_LIB_SOURCES = common/pic24_clockfreq.c common/pic24_configbits.c common/pic24_uart.c common/pic24_util.c common/pic24_serial.c
+PIC24_LIB_SOURCES = common/pic24_clockfreq.c common/pic24_configbits.c common/pic24_uart.c common/pic24_util.c common/pic24_serial.c common/pic24_timer.c
 SOURCES = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c $(PIC24_LIB_SOURCES)
 OBJS = $(SOURCES:.c=.o)
 

@@ -46,7 +46,7 @@ void  configTimer2(void) {
   T2CON = T2_OFF | T2_IDLE_CON | T2_GATE_OFF
           | T2_32BIT_MODE_OFF
           | T2_SOURCE_INT
-          | T2_PS_1_64 ;
+          | T2_PS_1_1;
   // Subtract 1 from ticks value assigned to PR2 because period is PRx + 1
   PR2 = msToU16Ticks(ISR_PERIOD, getTimerPrescale(T2CONbits)) - 1;
   TMR2  = 0;                       //clear timer2 value

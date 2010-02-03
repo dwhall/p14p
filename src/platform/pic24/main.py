@@ -19,10 +19,13 @@
 #include <stdio.h>
 """
 
+def init():
+	pass
 
 
-
-## Read bits from the evenAddress.
+## Read bits from evenAddress.
+#  \todo Python returns PmInt_t values, which are 32-bit signed integers.
+#        Need to check this for negative values, >16 bit values.
 #  \param evenAddress The word address to read from. Must be even.
 #  \param startBit The starting bit to read from; must be from 0 to 15.
 #  \param numBits The number of bits to read, must be > 0. 
@@ -33,6 +36,7 @@ def readBits(evenAddress, startBit, numBits):
     pPmObj_t ppo_evenAddress;
 	pPmObj_t ppo_startBit;
 	pPmObj_t ppo_numBits;
+	pPmObj_t ppo_value;
 	uint16_t* pu16_evenAddress;
 	uint16_t u16_startBit;
 	uint16_t u16_numBits;
@@ -86,14 +90,17 @@ def readBits(evenAddress, startBit, numBits):
 	u16_bitmask = (1 << u16_numBits) - 1;
 	// Read the port and mask
 	u16_value = (*pu16_evenAddress >> u16_numBits) & u16_bitmask;
-	printf("Value at 0x%04X, bit(s) %d to %d = 0x%02X.\\n", pu16_evenAddress, 
-	  u16_startBit, u16_startBit + u16_numBits - 1, u16_value);
+//	printf("Value at 0x%04X, bit(s) %d to %d = 0x%02X.\\n", pu16_evenAddress, 
+//	  u16_startBit, u16_startBit + u16_numBits - 1, u16_value);
 
-    return PM_RET_OK;
+    retval = int_new(u16_value, &ppo_value);
+    NATIVE_SET_TOS(ppo_value);
+
+    return retval;
     """
     pass
 
-readBits(2, 3, 2)
+print readBits(2, 3, 2)
 
 print "Welcome to PIC24 Python! Starting interactive mode."
 import ipm

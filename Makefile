@@ -83,3 +83,6 @@ check-clean :
 ipm-clean :
 	$(MAKE) -C src/sample/desktop-ipm clean
 
+# Remove all generated files
+clean-all : clean docs-clean check-clean ipm-clean
+	echo "Removed all generated files."

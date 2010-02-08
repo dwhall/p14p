@@ -1,0 +1,7 @@
+In order to generate LaTeX versions of the documents, you will need the following:
+    * texlive-latex-base
+    * texlive-latex-recommended
+
+In order to generate PDF versions of the documents, you will need the LaTeX
+dependencies as well as the following:
+    * python-docutils

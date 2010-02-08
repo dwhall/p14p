@@ -19,11 +19,11 @@ $(wildcard $(PDF_DEST)*.aux)
 
 # Generates html from restructured text source
 $(HTML_DEST)%.html : %.txt
-	$(RST2HTML) $< $@
+	-$(RST2HTML) $< $@
 
 # Generates the latex from restructured text source
 $(LATEX_DEST)%.tex : %.txt
-	$(RST2LATEX) $< $@
+	-$(RST2LATEX) $< $@
 
 # Generates the pdf from generated latex docs
 $(PDF_DEST)%.pdf : $(LATEX_DEST)%.tex
@@ -41,7 +41,14 @@ latex : $(DOC_LATEX)
 
 # Generates the pdf documentation
 pdf : latex $(DOC_PDF)
-	@rm $(PDF_TEMP_FILES) &> /dev/null || echo -n
+	# XXX Ugh. This is a horrible hack; the removals don't happen on my
+	# machine unless the sleep is present. Need a Make expert to check this
+	# out (my guess is that the latex/pdf stuff is running in another
+	# process, and the sleep gives some more time for those processes to
+	# finish so that the out/log/aux files are actually present when the rm
+	# is called).
+	sleep 5
+	rm $(PDF_DEST)*.out $(PDF_DEST)*.log $(PDF_DEST)*.aux
 
 # Removes generated documentation files
 clean :

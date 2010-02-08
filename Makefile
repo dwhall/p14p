@@ -42,7 +42,7 @@ latex :
 	$(MKDIR) docs/latex
 	$(MAKE) -C docs/src latex
 
-pdf :
+pdf : latex
 	$(MKDIR) docs/pdf
 	$(MAKE) -C docs/src pdf
 

@@ -29,7 +29,7 @@ message, defines and runs an initialization function and then execute ipm.
 Building the Project
 --------------------
 
-Start with a clean PyMite tree.  Edit the ``src/platform/avr/Makefile`` 
+Start with a clean PyMite tree.  Edit the ``src/platform/pic24/Makefile`` 
 near line 14 to set the part number of your PIC.
 
 ``platform/pic24/Makefile`` will build the PyMite VM archive as well as the 

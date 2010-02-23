@@ -100,8 +100,10 @@ def readBits(evenAddress, startBit, numBits):
     """
     pass
 
-print readBits(2, 3, 2)
+# print readBits(2, 3, 2)
 
-print "Welcome to PIC24 Python! Starting interactive mode."
+import sys
+print "Welcome to PIC24 Python! Free space:", sys.heap()
+print "Starting interactive mode."
 import ipm
 ipm.ipm()

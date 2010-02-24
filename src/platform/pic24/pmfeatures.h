@@ -138,4 +138,13 @@
 #error HAVE_CLOSURES requires HAVE_DEFAULTARGS
 #endif
 
+/* No corresponding system test for this. */
+/**
+ * Define a processor-specific specifier for use in declaring the heap.
+ * Leave this definition blank if no such specifier is needed.
+ * See \ref pmHead for its use, which is:
+ * <code>static PmHeap_t pmHeap PM_PLAT_HEAP_ATTR;</code>
+ */
+#define PM_PLAT_HEAP_ATTR __attribute__((far))
+
 #endif /* FEATURES_H_ */

@@ -10,27 +10,34 @@ This is a sample project that demonstrates the use of PyMite on the
 and dsPIC33 family</a> of microcontrollers.  Any PIC with at least 64 KiB of
 program memory and 4 KiB of RAM can run PyMite.
 
+
 \section details Details
 
-This sample project demonstrates a simple use case of PyMite on a
-microcontroller.  The file ``main.c`` is used to initialize PyMite
+This sample project demonstrates a simple use case of 
+python-on-a-chip (p14p) on a microcontroller.  The file 
+\ref src/platform/pic24/main.c "main.c" is used to initialize p14p
 and indicate the name of the module it should run.  In this case, it
-will run the module ``main.py``
+will run the module \ref src/platform/pic24/main.py "main.py".
 
-In the module ``main.py``, we see that the program prints a "Hello world"
-message, defines and runs an initialization function and then execute ipm.
+In the module \ref src/platform/pic24/main.py "main.py", we see that 
+the program prints a "Hello world" message, defines and runs an 
+initialization function and then executes ipm.
 
 
 \section building Building the Project
 
-Start with a clean PyMite tree.  Edit the ``src/platform/pic24/Makefile`` 
+Start with a clean PyMite tree.  Edit 
+<a href="../../../src/platform/pic24/Makefile">src/platform/pic24/Makefile</a>
 near line 14 to set the part number of your PIC.
 
-``platform/pic24/Makefile`` will build the PyMite VM archive as well as the 
-sample application::
+<a href="../../../src/platform/pic24/Makefile">src/platform/pic24/Makefile</a>
+will build the PyMite VM archive as well as the 
+sample application
 
+@verbatim
     $ cd src/platform/pic24
     $ make
+@endverbatim
 
 As a second alternative, the p14p.mcp project file loaded into the Microchip
 MPLAB IDE will build the project. However, you must have the path to Cygwin's

@@ -13,10 +13,11 @@
 */
 
 
-/**
- * VM feature configuration
+/** 
+ * @file
+ * @brief VM feature configuration for the PIC24/dsPIC33
  *
- * Compile time switches to include features or save space.
+ * These compile time switches include features or save space.
  *
  * IMPORTANT: All of the HAVE_* items in this file should also exist in the
  * PM_FEATURES dict in src/tools/pmImgCreator.py.  If the item is defined here,
@@ -56,7 +57,13 @@
  * in the build.
  */
 #define HAVE_FLOAT
+
+/**
+ * If \ref HAVE_FLOAT is defined, then define the storage scheme for 
+ * floating-point numbers by uncommenting only one of the two options below.
+ */
 #define PM_FLOAT_LITTLE_ENDIAN
+// #define PM_FLOAT_BIG_ENDIAN
 
 /**
  * When defined, the code to support the keyword del is included in the build.
@@ -141,8 +148,7 @@
 /* No corresponding system test for this. */
 /**
  * Define a processor-specific specifier for use in declaring the heap.
- * Leave this definition blank if no such specifier is needed.
- * See \ref pmHead for its use, which is:
+ * See <code>pmHeap</code> in heap.c for its use, which is:<br>
  * <code>static PmHeap_t pmHeap PM_PLAT_HEAP_ATTR;</code>
  */
 #define PM_PLAT_HEAP_ATTR __attribute__((far))

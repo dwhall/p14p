@@ -30,8 +30,8 @@
 
 // Documentation for this file. If the \file tag isn't present,
 // this file won't be documented.
-/** \file
- *  Typedefs and structures to allow for generic 8-, 16-, 32-, and 64-bit
+/** @file
+ *  @brief Typedefs and structures to allow for generic 8-, 16-, 32-, and 64-bit
  *  variables.
  */
 

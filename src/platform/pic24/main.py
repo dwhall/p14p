@@ -10,8 +10,8 @@
 # A copy of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
 # is seen in the file COPYING up one directory from this.
 
-#
-# This is a sample application that calls functions in the AVR module.
+## @file
+#  @brief PIC24/dsPIC33-specific Python functions
 #
 
 """__NATIVE__

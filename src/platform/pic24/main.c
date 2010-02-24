@@ -12,8 +12,8 @@
 # is seen in the file COPYING up one directory from this.
 */
 
-/** \file
- *  Initialize then run the Python VM on power-up.
+/** @file
+ *  @brief Initialize then run the Python VM on power-up.
  */
 
 

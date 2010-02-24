@@ -17,8 +17,8 @@
 #define __FILE_ID__ 0x51
 
 
-/** \file
- *  PyMite platform-specific routines for a PIC24 target 
+/** @file
+ *  @brief PyMite platform-specific routines for a PIC24/dsPIC33 target 
  */
 
 
@@ -40,7 +40,10 @@ void _ISRFAST _T2Interrupt (void) {
   _T2IF = 0;                 //clear the timer interrupt bit
 }
 
+/** The number of milliseconds between timer interrupts. */
 #define ISR_PERIOD  1    // in ms
+
+/** Configure timer 2 to produce interrupts every \ref ISR_PERIOD ms. */
 void  configTimer2(void) {
   // Configure the timer
   T2CON = T2_OFF | T2_IDLE_CON | T2_GATE_OFF

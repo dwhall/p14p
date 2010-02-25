@@ -1,7 +1,7 @@
-/** \file
- *  \brief The PIC24 and dsPIC33 port
- *
- *  \author Bryan A. Jones
+/** 
+\page PIC24_dsPIC33_port The PIC24 and dsPIC33 port
+ 
+\author Bryan A. Jones
 
 \section purpose Purpose
 

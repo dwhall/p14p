@@ -248,6 +248,15 @@ void checkDeviceAndRevision(void) {
               "*****************************************************\n"
               "* WARNING - this program was compiled for the wrong *\n"
               "* chip or for an unknown revision of this chip!     *\n"
+              "* This program may produce unexpected behvior! Edit *\n"
+              "* the header files to properly define this chip or  *\n"
+              "* revision and to insure correct operation.         *\n"
+              "*                                                   *\n"
+              "* NOTE: If this was compiled for the correct chip,  *\n"
+              "* and only occurs at power-on (not during a MCLR    *\n"
+              "* reset, verify that AVDD and AVSS are connected.   *\n"
+              "* On the PIC24H32GP202, not connecting AVDD         *\n"
+              "* produces this message only at power-up.           *\n"
               "*****************************************************\n");
 #endif
 }
@@ -398,6 +407,79 @@ void printResetCause(void) {
   checkOscOption();
 }
 
+/** This function puts the PIC24 in low-power mode by:
+ *  - Configuring all digital I/O pins as inputs
+ *  - Configuring all analog I/O pins shared with
+ *    digital I/O pins to be digital only
+ *  - Enables pullups on all pins not used by the
+ *    oscillator.
+ *
+ * WARNING: if pullups are enabled on pins used by
+ * the oscillator, the clock typically stops running.
+ * Currently, this code works for demo purposes with
+ * the FRC oscillator when used in the reset.c program.
+ * It *should* also work with primary and secondary
+ * oscillators, using conditional compiles in the code.
+*/
+//this function is processor specific
+#if (defined(__PIC24HJ32GP202__) || \
+   defined(__PIC24FJ64GA002__))
+void configPinsForLowPower(void) {
+  // Configure all digital I/O pins for input
+  TRISB = 0xFFFF;
+  TRISA = 0xFFFF;
+  // Configure all analog pins as digital I/O
+#if defined(__PIC24F__)
+  AD1PCFG = 0xFFFF;
+#elif defined(__PIC24H__)
+  AD1PCFGL = 0xFFFF;
+#else
+#error Unknown processor
+#endif
+  // Enable all pullups, except those which clocks are
+  // connected to.
+
+  // CN31-CN16 enable, based on if primary osc is used
+  // or not.
+  /// \todo Base this on COSC instead, in case the oscillator
+  /// was switched.
+#if (FNOSC_SEL == FNOSC_PRI) || (FNOSC_SEL == FNOSC_PRIPLL)
+#if (POSCMD_SEL == POSCMD_EC)
+  // The external oscillator driving the clock is on OSCI,
+  // which is CN30. Don't enable the pullup on this pin to
+  // avoid interfering with it.
+  // Note that CNPU2 covers CN31 to CN16.
+  /// \todo Not tested with the EC.
+  CNPU2 = 0xBFFF;
+#else
+  // The crystal driving the primary oscillator is on OSCI/OSCO,
+  // which is CN30 and CN29. Don't enable pullups on these pins,
+  // since that will prevent the crystal from oscillating.
+  // Note that CNPU2 covers CN31 to CN16.
+  CNPU2 = 0x9FFF;
+#endif // #if (POSCMD_SEL == POSCMD_EC)
+#else // The primary oscillator is not selected
+  // Turn on all the pull-ups
+  CNPU2 = 0xFFFF;
+#endif
+
+  // CN15-CN0 enable, based on if secondary osc is used
+  // or not.
+#if (FNOSC_SEL == FNOSC_SOSC)
+  // The crystal driving the secondary oscillator is on
+  // SOSCI/SOSCO, which is CN1 and CN0.
+  /// \todo Not tested with SOSC.
+  CNPU1 = 0xFFFC;
+#else
+  CNPU1 = 0xFFFF;
+#endif
+}
+#else
+#warning Using dummy function for configPinsForLowPower() in 'common/pic24_util.c'
+void configPinsForLowPower(void) {
+}
+#endif
+
 
 /** Perform basic chip configuration:
  *  - Configure the heartbeat
@@ -437,3 +519,5 @@ uint16 roundFloatToUint16(float f_x) {
   if ((f_x - u16_y) < 0.5) return u16_y;
   else return u16_y+1;
 }
+
+

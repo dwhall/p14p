@@ -155,7 +155,16 @@ static void checkClockTimeout(void) {
 
   configFrcUART();
   outString("\n\n"
-            "Your clock choice failed to initialize, have switched to internal Fast RC oscillator +PLL.\n");
+            "Your clock choice failed to initialize, have switched to internal Fast RC oscillator +PLL.\n"
+            "Check your setting for the 'CLOCK_CONFIG' macro.\n"
+            "Watch the compiler output window when pic24_clockfreq.c is compiled, a warning message\n"
+            "will tell you the selected value for 'CLOCK_CONFIG'.\n"
+            "In MPLAB, use Project->Build Options->Project, then click on MPLAB C30 tab to see if \n"
+            "the macro is defined there. If the macro is selecting an external crystal (the primary oscillator),\n"
+            "and your board does not have a crystal, you will get this message.\n"
+            "Delete the macro definition from the MPLAB project if you want to use the default \n"
+            "clock choice of FRC + PLL.\n"
+            "You must recompile and reprogram with an appropriate CLOCK_CONFIG choice for this code to execute.\n");
 
   while(1) {
     doHeartbeat();  // never return.

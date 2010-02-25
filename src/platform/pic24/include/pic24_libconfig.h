@@ -149,9 +149,9 @@
  */
 #ifndef DEFAULT_BAUDRATE
 // For convenience, common baud rates (uncomment one):
-//#define DEFAULT_BAUDRATE  230400
+#define DEFAULT_BAUDRATE  230400
 //#define DEFAULT_BAUDRATE  115200
-#define DEFAULT_BAUDRATE   57600
+//#define DEFAULT_BAUDRATE   57600
 //#define DEFAULT_BAUDRATE   38400
 //#define DEFAULT_BAUDRATE   19200
 //#define DEFAULT_BAUDRATE    9600

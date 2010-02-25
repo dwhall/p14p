@@ -69,5 +69,12 @@
 #endif
 
 #include "pic24_timer.h"
+//#include "pic24_i2c.h"
+//#include "pic24_spi.h"
+//#include "pic24_adc.h"
+//#include "pic24_dma.h"
+//#include "pic24_ecan.h"
+//#include "pic24_flash.h"
+//#include "pic24_comparator.h"
 
 #endif // #ifndef  _PIC24_ALL_H_

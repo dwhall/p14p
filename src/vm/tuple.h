@@ -66,6 +66,7 @@ typedef struct PmTuple_s
  *
  * @param   memspace memory space.
  * @param   paddr ptr to ptr to tuple in memspace
+ * @param   r_ptuple Return arg; Ptr to new tuple.
  * @return  new tuple with fields and objs filled in.
  *          return by reference: paddr points one byte
  *          past end of last obj in tuple.
@@ -97,7 +98,7 @@ PmReturn_t tuple_replicate(pPmObj_t ptup, int16_t n, pPmObj_t *r_ptuple);
 /**
  * Gets the object in the tuple at the index.
  *
- * @param   pobj Ptr to tuple obj
+ * @param   ptup Ptr to tuple obj
  * @param   index Index into tuple
  * @param   r_pobj Return; ptr to return obj
  * @return  Return status

@@ -33,7 +33,7 @@ def readBits(evenAddress, startBit, numBits):
     """
     pass
 
-print readBits(2, 3, 2)
+print readBits(10, 3, 2)
 
 import sys
 print "Welcome to PIC24 Python! Free space:", sys.heap()

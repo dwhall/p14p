@@ -44,7 +44,7 @@ typedef unsigned char       uint8;   //8 bits
 /** unsigned 16-bit integers
  * \note Prefix for all uint16s is <em>u16_</em>
  */
-typedef unsigned short      uint16;  //16 bits
+typedef unsigned int      uint16;  //16 bits
 /** unsigned 32-bit integers
  * \note Prefix for all uint32s is <em>u32_</em>
  */
@@ -61,7 +61,7 @@ typedef signed char         int8;    //8 bits
 /** signed 16-bit integers
  * \note Prefix for all int16s is <em>i16_</em>
  */
-typedef signed short        int16;   //16 bits
+typedef signed int        int16;   //16 bits
 /** signed 32-bit integers
  * \note Prefix for all int32s is <em>i32_</em>
  */
@@ -98,6 +98,3 @@ typedef union _union64 {
 
 
 #endif
-
-
-

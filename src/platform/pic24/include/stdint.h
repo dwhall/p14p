@@ -44,7 +44,7 @@ typedef unsigned char       uint8_t;   //8 bits
 /** unsigned 16-bit integers
  * \note Prefix for all uint16s is <em>u16_</em>
  */
-typedef unsigned short      uint16_t;  //16 bits
+typedef unsigned int      uint16_t;  //16 bits
 /** unsigned 32-bit integers
  * \note Prefix for all uint32s is <em>u32_</em>
  */
@@ -61,7 +61,7 @@ typedef signed char         int8_t;    //8 bits
 /** signed 16-bit integers
  * \note Prefix for all int16s is <em>i16_</em>
  */
-typedef signed short        int16_t;   //16 bits
+typedef signed int        int16_t;   //16 bits
 /** signed 32-bit integers
  * \note Prefix for all int32s is <em>i32_</em>
  */
@@ -72,16 +72,16 @@ typedef signed long         int32_t;   //32 bits
 typedef signed long long    int64_t;   //64 bits
 
 /** Signed integer wide enough to hold pointers. */
-typedef signed short intptr_t;
+typedef signed int intptr_t;
 
 /** Signed integer wide enough to hold pointers. */
-typedef unsigned short uintptr_t;
+typedef unsigned int uintptr_t;
 
 /** A processor-sized signed int. */
-typedef signed short int_t;
+typedef signed int int_t;
 
 /** A processor-sized unsigned int. */
-typedef unsigned short uint_t;
+typedef unsigned int uint_t;
 
 /* Apparently, this is actually in the library but simply not prototyped. */
 int snprintf( char *buffer, int buff_size, const char *format, ... );

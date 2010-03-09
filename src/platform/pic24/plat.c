@@ -32,16 +32,20 @@
  */
 volatile uint32 u32_ms = 0;
 
-/** Interrupt Service Routine for Timer2.
- *  Receives one interrupts per millisecond.
- */
-void _ISRFAST _T2Interrupt (void) {
-  u32_ms++;
-  _T2IF = 0;                 //clear the timer interrupt bit
-}
-
 /** The number of milliseconds between timer interrupts. */
 #define ISR_PERIOD  1    // in ms
+
+/** Interrupt Service Routine for Timer2.
+ *  Receives one interrupts per \ref ISR_PERIOD milliseconds.
+ */
+void _ISRFAST _T2Interrupt (void) {
+    PmReturn_t retval;
+
+    u32_ms++;
+    _T2IF = 0;                 //clear the timer interrupt bit
+    retval = pm_vmPeriodic(ISR_PERIOD * 1000);
+    PM_REPORT_IF_ERROR(retval);
+}
 
 /** Configure timer 2 to produce interrupts every \ref ISR_PERIOD ms. */
 void  configTimer2(void) {

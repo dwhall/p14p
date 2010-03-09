@@ -71,8 +71,17 @@ typedef signed long         int32_t;   //32 bits
  */
 typedef signed long long    int64_t;   //64 bits
 
+/** Signed integer wide enough to hold pointers. */
 typedef signed short intptr_t;
+
+/** Signed integer wide enough to hold pointers. */
 typedef unsigned short uintptr_t;
+
+/** A processor-sized signed int. */
+typedef signed short int_t;
+
+/** A processor-sized unsigned int. */
+typedef unsigned short uint_t;
 
 /* Apparently, this is actually in the library but simply not prototyped. */
 int snprintf( char *buffer, int buff_size, const char *format, ... );

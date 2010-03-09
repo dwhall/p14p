@@ -72,6 +72,18 @@ PmReturn_t getUint16(pPmFrame_t *ppframe, uint16_t u16_ndx, uint16_t* pu16_val) 
         PM_RETURN_IF_ERROR(retval); \
     } while (C_FALSE)
 
+/** Check the number of arguments passed to a Python function.
+ *  Report an exception if the number is incorrect. This MUST be called from
+ *  the C implementation of a Python function, becuase it assumes
+ *  the existance of:
+ *  - PmReturn_t retval
+ *  - pPmFrame_t* ppframe
+ *  @param numArgs Number of arguemnts expected.
+ */
+#define CHECK_NUM_ARGS(numArgs) \
+    EXCEPTION_ASSERT(NATIVE_GET_NUM_ARGS() == numArgs, PM_RET_EX_TYPE, \
+      "Incorrect number of arguments.")
+
 /** Implements the Python \ref readBits function. See it for details. */
 PmReturn_t readBitsC(pPmFrame_t *ppframe)
 {
@@ -84,11 +96,8 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
     uint16_t u16_bitmask;
     uint16_t u16_value;
 
-    // Raise TypeError if wrong number of args
-    EXCEPTION_ASSERT(NATIVE_GET_NUM_ARGS() == 3, PM_RET_EX_TYPE,
-      "Incorrect number of arguments.");
-
     // Get the arguments
+    CHECK_NUM_ARGS(3);
     GET_UINT16(0, u16);
     pu16_evenAddress = (uint16_t*) u16;
     GET_UINT16(1, u16_startBit);
@@ -119,6 +128,37 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
     return retval;
 }
 
+/** Look up a specific bit in a bitfield.
+ *  @param u16_bitfeld Bitfield to access.
+ *  @param u_bit Bit in bitfield to access. Must be from
+ *               0 to 15.
+ *  @return C_TRUE if the bit is a 1, C_FALSE otherwise.
+ */
+uint_t getBit(uint16_t u16_bitfield, uint_t u_bit)
+{
+    ASSERT(u_bit < 16);
+    return (u16_bitfield & (1 << u_bit)) ? C_TRUE : C_FALSE;
+}
+
+/** Determine if the given digitial I/O port/pin exists.
+ *  @param u_port Port, where 0 = A, 1 = B, etc.
+ *  @param u_pin  Pin of the given port; from 0 to 15.
+ *  @return Returns C_TRUE if the port/pin exists, C_FALSE otherwise.
+ *          Nonexistant ports or pins simply return C_FALSE.
+ */
+uint_t digitalPortPinExists(uint_t u_port, uint_t u_pin)
+{
+    // Check for an out-of-range port
+    if (u_port > NUM_DIGITAL_PORTS)
+        return C_FALSE;
+    // Check for an out-of-range pin
+    if (u_pin > 15)
+        return C_FALSE;
+    // Otherwise, check the map of pins.
+    return getBit(u16_digitalPinPresent[u_port], u_pin);
+}
+
+
 /** Implements the Python \ref configDigitalPin function. 
  *  See it for details. Implementation:
  *  -# Check to see if the port/pin exists.
@@ -132,5 +172,16 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
 PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_port;
+    uint16_t u16_pin;
+
+    // Get the arguments
+    u16_port = 0;
+    CHECK_NUM_ARGS(5);
+    GET_UINT16(0, u16_port);
+    GET_UINT16(0, u16_pin);
+    EXCEPTION_ASSERT(digitalPortPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid port or pin.");
+
     return retval;
 }

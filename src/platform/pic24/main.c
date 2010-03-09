@@ -18,15 +18,21 @@
 
 
 #include "pm.h"
+#include "pic24_all.h"
 
 extern unsigned char usrlib_img[];
 
 int main(void)
 {
     PmReturn_t retval;
+    uint16_t u16_i;
 
     retval = pm_init(MEMSPACE_PROG, usrlib_img);
     PM_RETURN_IF_ERROR(retval);
+    for (u16_i = 0; u16_i < NUM_DIGITAL_PORTS; u16_i++) {
+      printf("Port %c = %04x, OD = %04x.\n", u16_i + 'A', u16_digitalPinPresent[u16_i],
+        u16_digitalPinOpenDrainPresent[u16_i]);
+    }
     printf("Python initialized.\n");
 
     retval = pm_run((uint8_t *)"main");

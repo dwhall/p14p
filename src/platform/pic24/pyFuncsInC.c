@@ -7,7 +7,7 @@
 #include <stdio.h>
 
 #undef __FILE_ID__
-#define __FILE_ID__ 0x0B
+#define __FILE_ID__ 0x70
 
 /** Raise an exception if the given expression is false.
  *  This MUST be called from the C implementation of a 
@@ -116,5 +116,21 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
     PM_RETURN_IF_ERROR(retval);
     NATIVE_SET_TOS(ppo);
 
+    return retval;
+}
+
+/** Implements the Python \ref configDigitalPin function. 
+ *  See it for details. Implementation:
+ *  -# Check to see if the port/pin exists.
+ *  -# If the pin has analog capability, turn it off.
+ *  -# Select the pin to be either an input or an output.
+ *  -# Check and configure open-drain for the pin.
+ *  -# Check and configure pull-ups/pull-downs for the pin.
+ *  \todo Need to also remove any peripheral outputs mapped to
+ *  this pin if it's a remappable pin.
+ */
+PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
     return retval;
 }

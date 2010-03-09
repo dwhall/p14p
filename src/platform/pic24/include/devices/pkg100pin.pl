@@ -129,10 +129,18 @@
    );
  
  ##these parts are strange, open drain no avaialable
- ## on RB or RC
+ ## on RB, RC, RE, some RA
  
  %opendrain_100pin_24H_1 = (
- "RD0"=> "_ODCD0",
+"RA0"=> "_ODCA0",
+"RA1"=> "_ODCA1",
+"RA2"=> "_ODCA2",
+"RA3"=> "_ODCA3",
+"RA4"=> "_ODCA4",
+"RA5"=> "_ODCA5",
+"RA14"=> "_ODCA14",
+"RA15"=> "_ODCA15",
+"RD0"=> "_ODCD0",
 "RD1"=> "_ODCD1",
 "RD2"=> "_ODCD2",
 "RD3"=> "_ODCD3",

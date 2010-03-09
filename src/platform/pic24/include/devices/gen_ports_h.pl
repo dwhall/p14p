@@ -1,11 +1,15 @@
-
-
 require "pic24dev_data.pl";
 
 $rp_max = 46;    #max value for higher end devices
 
+%ports = ("Name" => ());
+%pullups = ("Name" => ());
+%ods = ("Name" => ());
+%analogs = ("Name" => ());
 
+$i = 0;
 foreach $devref (@pic24_devices) {
+  # Name each field nicely
   $devname = $$devref[0];  
   $ioref =$$devref[1];
   $pullref=$$devref[2];
@@ -13,27 +17,94 @@ foreach $devref (@pic24_devices) {
   $anaref=$$devref[4];
   $rpanaref=$$devref[5];
   $disanaref = $$devref[6];
-  $fname = $devname . "_ports.h";  
   $reverse_anaref = &get_reverse_hash($anaref);
-  if (-e $fname) {
-   unlink($fname);  
-   }
-  print "$fname\n";
-  open(OUTPUT, ">$fname") || die "Cannot create file $fname";
-  &printpullups($ioref, $pullref);
-  &printcninterrupts($ioref, $pullref);
-  &printanalog($ioref, $anaref);
-  &printopendrain($ioref, $odref);
-  &printdigout($ioref, $anaref,$pullref,$odref);
-  &printdigoutod($ioref, $anaref,$pullref,$odref);
-  &printdigin($ioref, $anaref,$pullref);
-  &printrpdigin($rpanaref);
-  &printanaout($reverse_anaref);  
-  &printanalog_disable($disanaref);
-  print OUTPUT "#define _PIC24_DIGIO_DEFINED\n";
-  close(OUTPUT);
+  
+  $ports{"Name"}->[$i] = $devname;
+  $pullups{"Name"}->[$i] = $devname;
+  $ods{"Name"}->[$i] = $devname;
+  $analogs{"Name"}->[$i] = $devname;
+  
+  
+  # Dump out which ports are defined
+  foreach $j (@$ioref) {
+    $ports{$j}->[$i] = "X";
   }
- exit;
+  
+  # Dump out which pullups map to ports
+  foreach $j (keys(%$pullref)) {
+    # Return just the numeric portion using substr.
+    $pullups{$j}->[$i] = int(substr($pullref->{$j}, 3));
+  }
+  
+  # Demp out which open-drains map to ports
+  foreach $j (keys(%$odref)) {
+    # Return just the numeric portion using substr.
+    # PIC24F uses _ODxy, but PIC24H uses _ODCxy.
+    # Look for this case
+    $pin = substr($odref->{$j}, 3);
+    $secondChar = substr($pin, 1, 1);
+    if ( (ord($secondChar) >= ord('A')) && (ord($secondChar) <= ord('Z')) ) {
+#      print "$secondChar - $pin => ";
+      $pin = substr($pin, 1); 
+#      print "$pin\n";
+    }
+    $ods{$j}->[$i] = $pin;
+  }
+  
+  # Determine which analog inputs map to ports
+  foreach $j (keys(%$anaref)) {
+    # Return just the numeric portion using substr
+    $analogs{$j}->[$i] = int(substr($anaref->{$j}, 5));
+  }
+
+  # Update the count
+  $i = $i + 1;
+}
+
+#printList(\%ports);
+#printList(\%pullups);
+#printList(\%ods);
+printList(\%analogs);
+
+## This function prints out a list sorted by port/pin.
+#  It expects a reference to a dict.
+sub printList {
+  %list = %{$_[0]};
+  # Print out a list in order
+  $value = $list{"Name"};
+  print "\n\nName," . join(',', @$value) . "\n";
+  foreach $port ("A" .. "H") {
+    foreach $pin (0 .. 15) {
+	  # Print each port/pin's string.
+      $key = "R$port$pin";
+      print "$key," . join(',', @{$list{$key}}) . "\n" if exists $list{$key};
+      
+      # See if OD and ports line up. The conclusion: nope.
+#      for ($k = 0; $k < $#{$list{$key}}; $k++) {
+#       if (($ports{$key}->[$k] ne "") && ($list{$key}->[$k] eq "")) {
+#          print "$k " . $ports{$key}->[$k] . " " . $list{$key}->[$k] . "\n";
+#          print "$key has no pullup.\n" unless ();
+#       }
+#      }
+      
+      next;
+      # Compare all the strings in this port/pin to see if they're the same.
+      $val = "";
+      foreach $k (@{$list{$key}}) {
+		# Skip empty entries
+		next if (length($k) == 0);
+		if (length($val) == 0) {
+		  $val = $k;
+		} else {
+		  print "Mismatch in $key; expected $val.\n" unless ($val eq $k);
+		}
+      }
+    }
+  }
+}
+
+# Done!
+exit;
  
   
   # creating mapping of analog ports to 

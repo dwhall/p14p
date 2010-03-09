@@ -34,6 +34,7 @@
  *
  * @param ms memoryspace paddr points to
  * @param paddr address in memoryspace of source string
+ * @param r_pstring Return arg; addr of ptr to string
  */
 #define string_loadFromImg(ms, paddr, r_pstring) \
     string_create((ms), (paddr), (int16_t)-1, (int16_t)1, (r_pstring))
@@ -130,7 +131,7 @@ typedef struct PmString_s
  * @param   paddr ptr to ptr to null term character array or image.
  * @param   len length of the C character array 
  *          (use -1 for string images, 0 for C strings)
- * @param   Return arg; ptr to String obj
+ * @param   r_pstring Return arg; ptr to String obj
  * @return  Return status
  */
 PmReturn_t string_create(PmMemSpace_t memspace, uint8_t const **paddr,
@@ -141,7 +142,7 @@ PmReturn_t string_create(PmMemSpace_t memspace, uint8_t const **paddr,
  * Creates a new String object from a single character.
  *
  * @param   c the character to become the string
- * @param   r_psting Return arg; ptr to String obj
+ * @param   r_pstring Return arg; ptr to String obj
  * @return  Return status
  */
 PmReturn_t string_newFromChar(uint8_t const c, pPmObj_t *r_pstring);
@@ -153,14 +154,14 @@ PmReturn_t string_newFromChar(uint8_t const c, pPmObj_t *r_pstring);
  * @param   pstr2 Ptr to second string
  * @return  C_SAME if the strings are equivalent, C_DIFFER otherwise
  */
-int8_t string_compare(pPmString_t, pPmString_t);
+int8_t string_compare(pPmString_t pstr1, pPmString_t pstr2);
 
 #ifdef HAVE_PRINT
 /**
  * Sends out a string object bytewise. Escaping and framing is configurable
  * via marshall.
  *
- * @param pobj Ptr to string object
+ * @param pstr Ptr to string object
  * @param marshall If 0, print out string as is. Otherwise escape unprintable
  *                 characters and surround string with single quotes.
  * @return Return status

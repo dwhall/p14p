@@ -11,14 +11,18 @@ DEBUG = false
 CC = pic30-gcc.exe
 AR = pic30-ar.exe
 B2H = pic30-bin2hex.exe
-CPU = 24HJ64GP502
+CPU = 24HJ128GP502
 # Per docs, the PIC$(CPU) define should already exist. Not sure why this is necessary.
 # If running in simulation, include the -DSIM below; otherwise, remove it.
 CDEFS = -D__PIC$(CPU)__ # -DSIM
 
 TARGET = main
-PIC24_LIB_SOURCES = common/pic24_clockfreq.c common/pic24_configbits.c common/pic24_uart.c common/pic24_util.c common/pic24_serial.c common/pic24_timer.c
-SOURCES = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c $(PIC24_LIB_SOURCES)
+PIC24_LIB_SOURCES = common/pic24_clockfreq.c \
+	common/pic24_configbits.c common/pic24_uart.c \
+	common/pic24_util.c common/pic24_serial.c \
+	common/pic24_timer.c common/pic24_pyports.c
+SOURCES = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c \
+	pyFuncsInC.c $(PIC24_LIB_SOURCES)
 OBJS = $(SOURCES:.c=.o)
 
 ifeq ($(DEBUG),true)

@@ -30,9 +30,9 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
 #                 Also, startBit + numBits must be <= 16.
 def readBits(evenAddress, startBit, numBits):
 # Uncommenting lines below causes VM to not start.
-#    """__NATIVE__
-#    return readBitsC(ppframe);
-#    """
+    """__NATIVE__
+    return readBitsC(ppframe);
+    """
     pass
 
 ## Configures a pin for digital operation.
@@ -70,8 +70,8 @@ def configDigitalPin(port, pin, isInput, isOpenDrain, pullDir):
 
 
 # Start of main code
-#readBits(10, 3, 2)
-#configDigitalPin(1, 1, False, False, 0)
+readBits(10, 3, 2)
+configDigitalPin(1, 1, False, False, 0)
 
 import sys
 print "Welcome to PIC24 Python! Free space:", sys.heap()

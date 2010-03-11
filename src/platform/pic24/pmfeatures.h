@@ -151,6 +151,6 @@
  * See <code>pmHeap</code> in heap.c for its use, which is:<br>
  * <code>static PmHeap_t pmHeap PM_PLAT_HEAP_ATTR;</code>
  */
-#define PM_PLAT_HEAP_ATTR __attribute__((far))
+#define PM_PLAT_HEAP_ATTR __attribute__((far)) __attribute__((aligned ((4))))
 
 #endif /* FEATURES_H_ */

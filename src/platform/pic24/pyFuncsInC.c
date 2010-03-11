@@ -310,10 +310,13 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
 
     // 4. Check and configure open-drain for the pin.
     // First, see if the pin exists.
-    if (digitalPortPinExists(u16_port, u16_pin)) {
+    if (digitalPortPinOpenDrainExists(u16_port, u16_pin)) {
         // Set the pin per the OD boolean.
         // PIC24F names this differently, so define around it.
-        #ifdef ODA
+        #if defined (_ODA0)  || defined (_ODA1)  || defined (_ODA2)  || defined (_ODA3) || \
+            defined (_ODA4)  || defined (_ODA5)  || defined (_ODA6)  || defined (_ODA7) || \
+            defined (_ODA8)  || defined (_ODA9)  || defined (_ODA10) || defined (_ODA11) || \
+            defined (_ODA12) || defined (_ODA12) || defined (_ODA14) || defined (_ODA15)
         #define ODCA ODA
         #endif
         setBit((&ODCA) + u16_port*u16_offset, u16_pin, u_isOpenDrain);

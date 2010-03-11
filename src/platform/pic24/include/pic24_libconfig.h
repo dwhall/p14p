@@ -181,30 +181,34 @@
  */
 
 #ifndef USE_CLOCK_TIMEOUT
-#ifdef BUILT_ON_ESOS
-#define USE_CLOCK_TIMEOUT 0
-#else
-#define USE_CLOCK_TIMEOUT 1
-#endif
+  #ifdef BUILT_ON_ESOS
+    #define USE_CLOCK_TIMEOUT 0
+  #else
+    #define USE_CLOCK_TIMEOUT 1
+  #endif
 #endif
 
 #ifndef USE_HEARTBEAT
-/// \copysee{pic24_uart.h::USE_HEARTBEAT}
-#define USE_HEARTBEAT 1
+  /// \copysee{pic24_uart.h::USE_HEARTBEAT}
+  #define USE_HEARTBEAT 1
 #endif
 
 
 
 #ifndef HB_LED
-#if defined(EXPLORER16_100P)
-#define HB_LED _LATA7
-#define CONFIG_HB_LED() CONFIG_RA7_AS_DIG_OUTPUT()
-#else
-/// \copysee{pic24_uart.h::HB_LED}
-#define HB_LED _LATB15
-/// \copysee{pic24_uart.h::CONFIG_HB_LED}
-#define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OD_OUTPUT()
-#endif
+  #if defined(EXPLORER16_100P)
+    #define HB_LED _LATA7
+    #define CONFIG_HB_LED() CONFIG_RA7_AS_DIG_OUTPUT()
+  #elif defined(DANGEROUS_WEB)
+    #define HB_LED _LATA9
+    /** Define a config function for the heartbeat pin. */
+    #define CONFIG_HB_LED() CONFIG_RA9_AS_DIG_OUTPUT()
+  #else
+    /// \copysee{pic24_uart.h::HB_LED}
+    #define HB_LED _LATB15
+    /// \copysee{pic24_uart.h::CONFIG_HB_LED}
+    #define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OD_OUTPUT()
+  #endif
 #endif // #ifndef HB_LED
 
 /// @}

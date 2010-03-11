@@ -863,9 +863,15 @@ uint16 roundFloatToUint16(float f_x);
  *  If \ref USE_HEARTBEAT is false, the heartbeat is disabled.
  */
 #ifndef HB_LED
-#define HB_LED _LATB15
-/** Define a config function for the heartbeat pin. */
-#define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OD_OUTPUT()
+  #ifdef DANGEROUS_WEB
+    #define HB_LED _LATA9
+    /** Define a config function for the heartbeat pin. */
+    #define CONFIG_HB_LED() CONFIG_RA9_AS_DIG_OUTPUT()
+  #else
+    #define HB_LED _LATB15
+    /** Define a config function for the heartbeat pin. */
+    #define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OD_OUTPUT()
+  #endif // #ifdef DANGEROUS_WEB
 #endif // #ifndef HB_LED
 
 extern _PERSISTENT char* sz_lastTimeoutError;

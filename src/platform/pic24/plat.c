@@ -67,7 +67,7 @@ void  configTimer2(void) {
 PmReturn_t plat_init(void)
 {
   configBasic(HELLO_MSG);
-  configTimer2();
+//  configTimer2();
   
   return PM_RET_OK;
 }

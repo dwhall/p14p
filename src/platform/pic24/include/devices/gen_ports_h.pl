@@ -56,15 +56,35 @@ foreach $devref (@pic24_devices) {
     # Return just the numeric portion using substr
     $analogs{$j}->[$i] = int(substr($anaref->{$j}, 5));
   }
+  
+  # Generate a table which matches digital port/pin to analog and pullups
+  print "$devname:\n";
+  foreach $port ("A" .. "G") {
+    foreach $pin (0 .. 15) {
+	  # Print each port/pin's string.
+      $key = "R$port$pin";
+      
+      # Replace empty AN pins with a message
+      $an = $analogs{$key}->[$i];
+      $an = "xx" if (length($an) == 0);
+      
+      # Replace empty CN pins with a message
+      $cn = $pullups{$key}->[$i];
+      $cn = "xx" if (length($cn) == 0);
+      print "$key => AN$an, CN$cn\n";
+    }
+  }
+  
 
   # Update the count
   $i = $i + 1;
+  exit;
 }
 
 #printList(\%ports);
 #printList(\%pullups);
 #printList(\%ods);
-printList(\%analogs);
+#printList(\%analogs);
 
 ## This function prints out a list sorted by port/pin.
 #  It expects a reference to a dict.
@@ -73,7 +93,7 @@ sub printList {
   # Print out a list in order
   $value = $list{"Name"};
   print "\n\nName," . join(',', @$value) . "\n";
-  foreach $port ("A" .. "H") {
+  foreach $port ("A" .. "G") {
     foreach $pin (0 .. 15) {
 	  # Print each port/pin's string.
       $key = "R$port$pin";

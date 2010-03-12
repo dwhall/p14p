@@ -71,7 +71,9 @@
  */
 inline static void delayAndUpdateHeartbeatCount(uint32 u32_cyc) {
   __delay32(u32_cyc);
+#if USE_HEARTBEAT
   u32_heartbeatCount += (u32_cyc >> 4);
+#endif
 }
 
 

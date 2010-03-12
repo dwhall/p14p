@@ -872,11 +872,11 @@ extern _PERSISTENT char* sz_lastTimeoutError;
 
 #if USE_HEARTBEAT
 extern uint32 u32_heartbeatCount;
+#endif
 
 void configHeartbeat(void);
 void doHeartbeat(void);
 void toggleHeartbeat(void);
-#endif
 
 
 #endif

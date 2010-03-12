@@ -189,7 +189,7 @@
 #endif
 
 #ifndef USE_HEARTBEAT
-  /// \copysee{pic24_uart.h::USE_HEARTBEAT}
+  /// \copysee{pic24_util.h::USE_HEARTBEAT}
   #define USE_HEARTBEAT 1
 #endif
 

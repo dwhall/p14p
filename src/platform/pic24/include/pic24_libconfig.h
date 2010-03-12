@@ -200,9 +200,9 @@
     #define HB_LED _LATA7
     #define CONFIG_HB_LED() CONFIG_RA7_AS_DIG_OUTPUT()
   #elif defined(DANGEROUS_WEB)
-    #define HB_LED _LATA9
+    #define HB_LED _LATA8
     /** Define a config function for the heartbeat pin. */
-    #define CONFIG_HB_LED() CONFIG_RA9_AS_DIG_OUTPUT()
+    #define CONFIG_HB_LED() CONFIG_RA8_AS_DIG_OUTPUT()
   #else
     /// \copysee{pic24_uart.h::HB_LED}
     #define HB_LED _LATB15

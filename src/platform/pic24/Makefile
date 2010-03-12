@@ -36,7 +36,7 @@ CINCS = -I$(shell cygpath -m $(abspath .)) -I$(shell cygpath -m $(abspath includ
 CFLAGS = -mcpu=$(CPU) -Wall -O1 -Wdeclaration-after-statement -I../../vm $(CDEFS) $(CINCS)
 # A generous stack -- too small will cause stack overflows.
 # A bit of heap, in case user C code wants to malloc (can't imagine why, though).
-LDFLAGS = -Wl,--stack=400,--heap=50,--report-mem
+LDFLAGS = -Wl,--script="lkr\p$(CPU).gld",--stack=400,--heap=50,--report-mem
 
 export CFLAGS IPM PM_LIB_FN CC AR LDFLAGS
 

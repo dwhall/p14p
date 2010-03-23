@@ -8,7 +8,7 @@
  */
 
 #undef __FILE_ID__
-#define __FILE_ID__ 0x52
+#define __FILE_ID__ 0x70
 
 #include <stdio.h>
 #include "stm32f10x.h"
@@ -68,7 +68,6 @@ NVIC_Configuration(void)
 
 /**
   * @brief  Configures the RTC.
-  * @param  None
   * @retval None
   */
 void RTC_Configuration(void)

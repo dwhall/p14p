@@ -27,7 +27,6 @@ int main(void)
     PmReturn_t retval;
     uint16_t u16_i;
 
-    printf("Python initializing...\n");
     retval = pm_init(MEMSPACE_PROG, usrlib_img);
     printf("Python initialized; result was 0x%02x.\n", retval);
     PM_RETURN_IF_ERROR(retval);
@@ -38,7 +37,11 @@ int main(void)
 
     printf("Running Python...\n");
     retval = pm_run((uint8_t *)"main");
-    printf("\n\nPython finished, return of 0x%02x.\n", retval);
+
+    printf("\n\nPython finished, return of 0x%02x.\nResetting...\n\n", retval);
+    // Wait for characters to finish printing before reset
+    while (!IS_TRANSMIT_COMPLETE_UART1()) doHeartbeat();
+    asm("reset");
 
     return (int)retval;
 }

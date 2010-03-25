@@ -70,8 +70,8 @@ def configDigitalPin(port, pin, isInput, isOpenDrain, pullDir):
 
 
 # Start of main code
-readBits(10, 3, 2)
-configDigitalPin(1, 1, False, False, 0)
+#readBits(10, 3, 2)
+#configDigitalPin(1, 1, False, False, 0)
 
 import sys
 print "Welcome to PIC24 Python! Free space:", sys.heap()

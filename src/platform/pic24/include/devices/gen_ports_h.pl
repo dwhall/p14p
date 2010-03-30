@@ -60,18 +60,35 @@ foreach $devref (@pic24_devices) {
   # Generate a table which matches digital port/pin to analog and pullups
   print "$devname:\n";
   foreach $port ("A" .. "G") {
+    # Scan to see if this port has any defined pins
+    $hasPins = 0;
+    foreach $pin (0 .. 15) {
+      $key = "R$port$pin";
+      
+      $an = $analogs{$key}->[$i];
+      $hasPins = 1 unless (length($an) == 0);
+      
+      $cn = $pullups{$key}->[$i];
+      $hasPins = 1 unless (length($cn) == 0);
+    }
+    last if ($hasPins == 0);
+	  
     foreach $pin (0 .. 15) {
 	  # Print each port/pin's string.
       $key = "R$port$pin";
       
       # Replace empty AN pins with a message
       $an = $analogs{$key}->[$i];
-      $an = "xx" if (length($an) == 0);
+      $an = "UNDEF_AN_PIN" if (length($an) == 0);
+      $anStr = "xx" if (length($an) == 0);
       
       # Replace empty CN pins with a message
       $cn = $pullups{$key}->[$i];
-      $cn = "xx" if (length($cn) == 0);
-      print "$key => AN$an, CN$cn\n";
+      $cn = "UNDEF_CN_PIN" if (length($cn) == 0);
+      $cnStr = "xx" if (length($cn) == 0);
+      
+      # Format and print
+      print "{ $an, $cn },  // $key => AN$anStr, CN$cnStr \\\n";
     }
   }
   

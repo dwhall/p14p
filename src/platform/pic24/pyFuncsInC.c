@@ -28,7 +28,7 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
     GET_UINT16(2, u16_numBits);
 
     // Check their values.
-    /// \todo Allow an odd addres for 8 bit values.
+    /// \todo Allow an odd address for 8 bit values.
     EXCEPTION_UNLESS( !(((uint16_t) pu16_evenAddress) & 1), PM_RET_EX_VAL,
       "The address must be even.");
     EXCEPTION_UNLESS(u16_startBit <= 15, PM_RET_EX_VAL,

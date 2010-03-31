@@ -15,10 +15,10 @@
  *  \param eStr Diagostic string to inclcude with the exception.
  *              Currently, not used.
  */
-#define EXCEPTION_UNLESS(expr, prReturn, eStr) \
+#define EXCEPTION_UNLESS(expr, prReturn, ...) \
     do { \
         if (!(expr)) { \
-            printf("Error: %s\n", eStr); \
+            printf("Error: " __VA_ARGS__); \
             PM_RAISE(retval, prReturn); \
             return retval; \
         } \
@@ -86,6 +86,19 @@
 #define CHECK_NUM_ARGS(numArgs) \
     EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() == numArgs, PM_RET_EX_TYPE, \
       "Incorrect number of arguments.")
+
+/** Get an integer from one of the arguments passed to a Python function,
+ *  requiring that the integer lie winin a minimum and minimum value.
+ *  Raises errors as necessary.
+ *  \param ppframe The Python stack frame containing user arguments.
+ *  \param u16_ndx Zero-based index of the desired parameter to extract.
+ *  \param i32_min Minimum allowable value.
+ *  \param i32_max Maximum allowable value.
+ *  \param pi32_val Pointer to resulting int32 value extracted.
+ *  \return Standard Python return value.
+ */
+PmReturn_t getRangedInt(pPmFrame_t *ppframe, uint16_t u16_ndx, 
+  int32_t i32_min, int32_t i32_max, int32_t* pi32_val);
 
 /** Get an unsigned, 16-bit value from the arguments passed to a Python
  *  function. Raises errors as necessary.

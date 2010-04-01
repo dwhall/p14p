@@ -22,7 +22,7 @@ PIC24_LIB_SOURCES = common/pic24_clockfreq.c \
 	common/pic24_util.c common/pic24_serial.c \
 	common/pic24_timer.c common/pic24_pyports.c
 SOURCES = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c \
-	pyFuncsInC.c $(PIC24_LIB_SOURCES)
+	pyFuncsInC.c pyToC.c $(PIC24_LIB_SOURCES)
 OBJS = $(SOURCES:.c=.o)
 
 ifeq ($(DEBUG),true)

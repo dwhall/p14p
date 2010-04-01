@@ -89,6 +89,8 @@ does not occur.
 
 
 static void configFrcUART(void) {
+  float f_brg;
+  uint16 UxBRG;
   // First, switch to a known-good clock
 #if ( defined(__PIC24H__) || defined(__dsPIC33F__) )
   configClockFRCPLL_FCY40MHz();
@@ -103,11 +105,11 @@ static void configFrcUART(void) {
   configDefaultUART(DEFAULT_BAUDRATE);
   // BRG register is probably wrong since not using defined FCY. Fix it.
 #if (FRC_BRGH == 0)
-  float f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/16.0) - 1.0;
+  f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/16.0) - 1.0;
 #else
-  float f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/4.0) - 1.0;
+  f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/4.0) - 1.0;
 #endif
-  uint16 UxBRG = roundFloatToUint16(f_brg);
+  UxBRG = roundFloatToUint16(f_brg);
   switch (DEFAULT_UART) {
 #if (NUM_UART_MODS >= 1)
     case 1 :

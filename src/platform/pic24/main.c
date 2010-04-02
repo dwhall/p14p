@@ -39,8 +39,8 @@ int main(void)
     retval = pm_run((uint8_t *)"main");
 
     printf("\n\nPython finished, return of 0x%02x.\nResetting...\n\n", retval);
-    // Wait for characters to finish printing before reset
-    while (!IS_TRANSMIT_COMPLETE_UART1()) doHeartbeat();
+    // Wait a bit, so reset so flash by too fast.
+    DELAY_MS(1000);
     asm("reset");
 
     return (int)retval;

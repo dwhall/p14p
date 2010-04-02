@@ -31,14 +31,15 @@
 // Documentation for this file. If the \file tag isn't present,
 // this file won't be documented.
 /** \file
- *  \brief This file supports configuration of IO ports on the PIC24.
+ *  \brief This file supports Python-based configuration of 
+ *  IO ports on the PIC24.
  */
 
 #include "pic24_all.h"
 
 // These macro auto-generate the bits by testing for their presense
 // as macros in the chip-specific include file.
-uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS] = { 
+const uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS] = { 
   #if NUM_DIGITAL_PORTS >= 1
     #ifdef _RA0
       0x0001 |
@@ -413,7 +414,7 @@ uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS] = {
 // as macros in the chip-specific include file. Note that the bit
 // name for PIC24H and dsPIC33 processors is _ODCxy, while PIC24F 
 // uses _ODxy. Therefore, these macros test for both.
-uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
+const uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
   #if NUM_DIGITAL_PORTS >= 1
     #if defined(_ODCA0)  || defined(_ODA0)
       0x0001 |
@@ -778,3 +779,9 @@ uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
     0x0000,
   #endif 
  };
+
+
+
+// The AN_CN_MAP macro specifies the mapping. It is defined in
+// the device/<devicename>_pyports.h file.
+const anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16] = { AN_CN_MAP };

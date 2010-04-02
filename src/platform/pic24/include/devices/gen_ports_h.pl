@@ -56,9 +56,18 @@ foreach $devref (@pic24_devices) {
     # Return just the numeric portion using substr
     $analogs{$j}->[$i] = int(substr($anaref->{$j}, 5));
   }
+
+  # Write each device's info out to a header file
+  $fname = $devname . "_pyports.h";  
+  unlink($fname) if (-e $fname);
+  open(OUTPUT, ">$fname") || die "Cannot create file $fname";
   
   # Generate a table which matches digital port/pin to analog and pullups
   print "$devname:\n";
+  print OUTPUT
+        "#define AN_CN_MAP \\\n" .
+        "  /*   AN pin   ,    CN pin    */ \\\n" .
+        "  /* -----------, ------------ */";
   foreach $port ("A" .. "G") {
     # Scan to see if this port has any defined pins
     $hasPins = 0;
@@ -79,23 +88,36 @@ foreach $devref (@pic24_devices) {
       
       # Replace empty AN pins with a message
       $an = $analogs{$key}->[$i];
-      $an = "UNDEF_AN_PIN" if (length($an) == 0);
-      $anStr = "xx" if (length($an) == 0);
+      if (length($an) == 0) {
+        $an = "UNDEF_AN_PIN";
+        $anStr = "xx";
+      } else {
+        $anStr = $an;
+      }
       
       # Replace empty CN pins with a message
       $cn = $pullups{$key}->[$i];
-      $cn = "UNDEF_CN_PIN" if (length($cn) == 0);
-      $cnStr = "xx" if (length($cn) == 0);
+      if (length($cn) == 0) {
+        $cn = "UNDEF_CN_PIN";
+        $cnStr = "xx";
+      } else {
+        $cnStr = $cn;
+      }
       
       # Format and print
-      print "{ $an, $cn },  // $key => AN$anStr, CN$cnStr \\\n";
+      printf(OUTPUT " \\\n  { %12s, %12s },  /* %4s => %4s, %4s */", 
+        $an, $cn, $key, "AN$anStr", "CN$cnStr");
     }
   }
+  print OUTPUT "\n\n";
   
+  # Close the file
+  print OUTPUT "#define _PIC24_PYDIGIO_DEFINED\n";
+  close(OUTPUT);
 
   # Update the count
   $i = $i + 1;
-  exit;
+#  exit;
 }
 
 #printList(\%ports);

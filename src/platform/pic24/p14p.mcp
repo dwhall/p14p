@@ -110,6 +110,7 @@ file_082=.
 file_083=.
 file_084=.
 file_085=.
+file_086=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -197,6 +198,7 @@ file_082=no
 file_083=no
 file_084=no
 file_085=no
+file_086=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -284,6 +286,7 @@ file_082=yes
 file_083=yes
 file_084=yes
 file_085=yes
+file_086=yes
 [FILE_INFO]
 file_000=main.c
 file_001=main_img.c
@@ -371,6 +374,7 @@ file_082=..\..\lib\sizeof.py
 file_083=..\..\lib\string.py
 file_084=..\..\lib\sys.py
 file_085=README
+file_086=include\devices\gen_ports_h.pl
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=

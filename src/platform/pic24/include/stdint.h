@@ -83,6 +83,9 @@ typedef signed int int_t;
 /** A processor-sized unsigned int. */
 typedef unsigned int uint_t;
 
+/** A datatype for Boolean values. Choose speed, rather than size. */
+typedef uint_t bool_t;
+
 /* Apparently, this is actually in the library but simply not prototyped. */
 int snprintf( char *buffer, int buff_size, const char *format, ... );
 

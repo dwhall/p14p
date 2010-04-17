@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <include/pic24_all.h>
+#include <pyFuncsInC.h>
 
 #include "pm.h"
 
@@ -66,6 +67,7 @@ void  configTimer2(void) {
 
 PmReturn_t plat_init(void)
 {
+  initDigitalIoConst();
   configBasic(HELLO_MSG);
   configTimer2();
   

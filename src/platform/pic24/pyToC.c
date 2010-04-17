@@ -51,7 +51,7 @@ PmReturn_t getUint16(pPmFrame_t *ppframe, uint8_t u8_ndx, uint16_t* pu16_val) {
     return retval;
 }
 
-PmReturn_t getBool(pPmFrame_t *ppframe, uint8_t u8_ndx, uint_t* pu_bool) {
+PmReturn_t getBool(pPmFrame_t *ppframe, uint8_t u8_ndx, bool_t* pb_bool) {
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t ppo;
 
@@ -60,7 +60,7 @@ PmReturn_t getBool(pPmFrame_t *ppframe, uint8_t u8_ndx, uint_t* pu_bool) {
     EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo) == OBJ_TYPE_BOOL, PM_RET_EX_TYPE, 
       "Argument %u must be a bool", (uint16_t) u8_ndx);
     
-    *pu_bool = ((pPmBoolean_t) ppo)->val ? C_TRUE : C_FALSE;
+    *pb_bool = ((pPmBoolean_t) ppo)->val;
 
     return retval;
 }

@@ -78,6 +78,11 @@
   #error Something is very confused.
 #endif
 
+#if defined(_CN0PDE)  || defined(_CN1PDE)  || \
+    defined(_CN2PDE)  || defined(_CN3PDE)  || \
+    defined(_CN2PDE)  || defined(_CN3PDE)  || \
+    defined(_CN2PDE)  || defined(_CN3PDE)  || \
+    defined(_CN2PDE)  || defined(_CN3PDE)  || \
 
 /** This variable stores a bitmap describing which digitial I/O pins exist
  *  on the current processor. Port A is stored at [0], B at [1], etc. A value

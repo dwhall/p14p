@@ -1,18 +1,70 @@
 /** \file
  *  \brief This file implements Python functions defined in main.py.
+ * 
+ *  \section pinConfiguration Pin configuration
+ *  The PIC24 and dsPIC33 processors support a rich and varied I/O
+ *  ability. Before configuring a pin, the I/O system must first be
+ *  initialized by a call to \ref initIoConst. Next, each pin
+ *  most be configured. The high-level functions 
+ *  \ref configDigitalPinC, \ref configAnalogPinC simplify this
+ *  process. \todo more here
+ *  Manual I/O configuration requires making the following
+ *  choices:
+ *  - First, use \ref setPinIsInput to configure a pin as either
+ *    an input or an output.
+ *    - For inputs, use \ref setPinIsAnalogInput to configure the
+ *      pin as an analog or digital input.
+ *    - For outputs, use \ref setPinIsAnalogInput to configure the
+ *      pin as a digital input. While digital output functions
+ *      correctly when the pin is configured as both an analog
+ *      input and a digitial output, doing so slows the rise and
+ *      fall times of the output. This occurs because analog input
+ *      use a capacitor to sample and hold the analog voltage, which
+ *      loads the pin, slowing its edge rates.
+ *    - In either case, note that the device reset state of a pin
+ *      is with analog input capability enabled; when configuring
+ *      a pin for digital I/O, this must be changed for the pin to
+ *      operate correctly.
+ *  - Second, use \ref setPinPullDirection to
+ *    select either a weak pull-up, a weak pull-down, or no pull.
+ *    Note that only the PIC24F family supports
+ *    pull-downs. In addition, the availablity of pull-ups
+ *    and pull-downs varies based on the chip and pin; only pins with
+ *    change notification capability support pull-ups or pull-downs.
+ *    Pins with this ability are labeled CNx on the pinout for the chip.
+ *    - For analog inputs, the manual does not specify the
+ *      required pull; however, they should be configured with no
+ *      pull.
+ *    - For digital outputs, the manual states that no pull should be
+ *      enabled (see e.g. the PIC24HJ32GP202 manual, section 10.3,
+ *      grey box beginning with "Note:"). However, if the pin is
+ *      configured as an open-drain output (see next item), this
+ *      is expected and should be supported.
+ *  - Finally, for digital outputs only, select open-drain or standard
+ *    operation using \ref setPinIsOpenDrain. Recall that open-drain 
+ *    (also known as open-collector) operation
+ *    configures the digital output to only drive the pin low but allow
+ *    it to float when high; therefore, a pull-up must be connected either
+ *    externally or internally. In contrast, standard drivers (also known
+ *    as push/pull or totem-pole drivers) active drive the pin either
+ *    high or low.
+ *    
  */
 
 #include "pm.h"
 
 /** Initialize constants for this module. */
-void initDigitalIoConst(void);
+void initIoConst(void);
 
-/** Specify the direction (input or output) for an I/O pin.
+/** Set an I/O pin to be either an input or an output. Setting this
+ *  pin as an output implies that it is a digital outp0ut. In contrast,
+ *  configuring this pint to be an input allows it to be used as either
+ *  a digital input or an analog input.
  *  \param u16_port I/O port (A = 0, B = 1, etc.)
  *  \param u16_pin  Pin on the I/O port (from 0 to 15)
  *  \param b_isInput True to select the pin as an input, false as an output.
  */
-PmReturn_t configPinDirection(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput);
+PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput);
 
 /** Specify the direction (input or output) for an I/O pin.
  *  \param u16_port I/O port (A = 0, B = 1, etc.)
@@ -20,7 +72,16 @@ PmReturn_t configPinDirection(uint16_t u16_port, uint16_t u16_pin, bool_t b_isIn
  *  \param b_isOpenDrain True to select an open-drain driver for the
  *                       pin, false to select a standard push-pull (totem-pole) driver.
  */
-PmReturn_t configPinOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain);
+PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain);
+
+/** Specify the pull direction (up, down, or none) for an I/O pin.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param i16_dir  Pull direction: 0 = none, negative = pull down, 
+ *                    positive = pull up.
+ */
+PmReturn_t selectPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+  int16_t i16_dir);
 
 /** Implements the Python \ref main::readBits function. See it for details. */
 PmReturn_t readBitsC(pPmFrame_t *ppframe);

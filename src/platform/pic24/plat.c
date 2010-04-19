@@ -31,7 +31,7 @@
 /** Number of milliseconds since the system
  *  was initialized.
  */
-volatile uint32 u32_ms = 0;
+volatile uint32_t u32_ms = 0;
 
 /** The number of milliseconds between timer interrupts. */
 #define ISR_PERIOD  1    // in ms
@@ -67,7 +67,7 @@ void  configTimer2(void) {
 
 PmReturn_t plat_init(void)
 {
-  initDigitalIoConst();
+  initIoConst();
   configBasic(HELLO_MSG);
   configTimer2();
   

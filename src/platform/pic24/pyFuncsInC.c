@@ -9,6 +9,9 @@
 #undef __FILE_ID__
 #define __FILE_ID__ 0x70
 
+/// Determine the index of a pin, given its port and pin number.
+#define PIN_INDEX(port, pin) (port*16 + pin)
+
 PmReturn_t readBitsC(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -121,32 +124,41 @@ static bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 
 /** This values gives the number of words between I/O port control registers. */
 // I can't make this a const, since only the linker knows these values.
-static uint16_t u16_ioPortofControlOffset;
+static uint16_t u16_ioPortControlOffset;
 
 
-void initDigitalIoConst(void) {
-    u16_ioPortofControlOffset = (uint16_t) (&TRISB - &TRISA);
+void initIoConst(void) {
+    u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
 }
 
 
-PmReturn_t configPinDirection(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
+PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
 {
     PmReturn_t retval = PM_RET_OK;
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    setBit((&TRISA) + u16_port*u16_ioPortofControlOffset, u16_pin, b_isInput);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    // Select input or output for the pin
+    setBit((&TRISA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isInput);
     return retval;
 }
 
 
-PmReturn_t configPinOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
+PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
 {
     PmReturn_t retval = PM_RET_OK;
 
-    // First, see if the pin exists.
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    // There are four possibilities for open-drain configuration:
+    //                          | set as open-drain  | set as normal (push/pull aka totem-pole)
+    // -------------------------+--------------------+-----------------------------------------
+    // has open-drain           | set OD bit         | clear OD bit
+    // does not have open-drain | throw exception    | do nothing (already normal)
     if (digitalOpenDrainPinExists(u16_port, u16_pin)) {
         // Set the pin per the OD boolean.
         // PIC24F names this differently, so define around it.
@@ -156,13 +168,39 @@ PmReturn_t configPinOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOp
             defined (_ODA12) || defined (_ODA12) || defined (_ODA14) || defined (_ODA15)
         #define ODCA ODA
         #endif
-        setBit((&ODCA) + u16_port*u16_ioPortofControlOffset, u16_pin, b_isOpenDrain);
+        setBit((&ODCA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isOpenDrain);
     } else {
         // If open-drain is enabled on a pin without OD ability,
         // report an error. Otherwise, do nothing -- open-drain
         // is already disabled for a pin without OD ability.
         EXCEPTION_UNLESS(!b_isOpenDrain, PM_RET_EX_VAL,
           "The pin %c%d has no open-drain ability.", (char) (u16_port + 'A'), u16_pin);
+    }
+
+    return retval;
+}
+
+PmReturn_t selectPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+  int16_t i16_dir)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+
+    // Detetrmine which (if any) CN bit exists on the given pin
+    u8_cnPin = anCnMap[u16_port*16 + u16_pin].u8_cnPin;
+
+    // For no pull, disable pull-ups and pull-downs if they exist
+    if (i16_dir == 0) {
+        if (u8_cnPin != UNDEF_CN_PIN) {
+            setExtendedBit(&CNPU1, u8_cnPin, C_FALSE);
+            #ifdef HAS_PULL_DOWNS
+                setExtendedBit(&CNPD1, u8_cnPin, C_FALSE);
+            #endif
+        }
     }
 
     return retval;
@@ -185,12 +223,8 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
     GET_BOOL(3, b_isOpenDrain);
     GET_INT32(4, i32_pullDir);
 
-    // 1. Select the pin to be either an input or an output. This also
-    //    checks to see if the pin exists.
-    PM_CHECK_FUNCTION( configPinDirection(u16_port, u16_pin, b_isInput) );
-
-    // 2. Check and configure open-drain for the pin.
-    PM_CHECK_FUNCTION( configPinOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
+    PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
+    PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
 
     return retval;
 }

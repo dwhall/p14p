@@ -245,6 +245,13 @@ void configClockFRCPLL_FCY16MHz(void) {
   //      the 4x PLL block. Set this postscaler to 1 since the
   //      FRC runs at 8 MHz to get a 32 MHz FOSC = 16 MHz FCY.
   _RCDIV = 0;
+#ifdef _CPDIV
+  //      The PLL multiplies this 4 MHz input to 96 MHz then
+  //      divides it by 3 to 32 MHz. A second PLL prescaler
+  //      then selects the final FOSC. Choose a prescale of
+  //      1 so FOSC = 32 MHz, giving FCY = 16 MHz.
+  _CPDIV = 0;  // 0 means a prescale of 1
+#endif
 #ifdef _PLLDIV
   //   2. USB parts have a more complex clocking scheme. The
   //      FRC postscaler feeds a PLL prescaler rather than
@@ -252,11 +259,12 @@ void configClockFRCPLL_FCY16MHz(void) {
   //      PLL input must be 4 MHz, so choose a PLL prescaler
   //      of 2 since the FRC runs at 8 MHz.
   _PLLDIV = 1;  // 1 means a prescale of 2
-  //      The PLL multiplies this 4 MHz input to 96 MHz then
-  //      divides it by 3 to 32 MHz. A second PLL prescaler
-  //      then selects the final FOSC. Choose a prescale of
-  //      1 so FOSC = 32 MHz, giving FCY = 16 MHz.
-  _CPDIV = 0;  // 0 means a prescale of 1
+#elif defined(PLLDIV_NODIV)
+#warning Ensure that the PLLDIV value is set to divide by 2 in the configuration bits for FRCPLL_FCY16MHz clock option!!
+#endif
+#ifdef _PLLEN
+  _PLLEN = 1;
+#warning PLL Enabled
 #endif
   switchClock(GET_OSC_SEL_BITS(FNOSC_FRCPLL));
 }
@@ -397,6 +405,13 @@ void configClockPRIPLL_8MHzCrystal_16MHzFCY(void) {
   //      the 4x PLL block. Set this postscaler to 1 since the
   //      FRC runs at 8 MHz to get a 32 MHz FOSC = 16 MHz FCY.
   _RCDIV = 0;
+#ifdef _CPDIV
+  //      The PLL multiplies this 4 MHz input to 96 MHz then
+  //      divides it by 3 to 32 MHz. A second PLL prescaler
+  //      then selects the final FOSC. Choose a prescale of
+  //      1 so FOSC = 32 MHz, giving FCY = 16 MHz.
+  _CPDIV = 0;  // 0 means a prescale of 1
+#endif
 #ifdef _PLLDIV
   //   2. USB parts have a more complex clocking scheme. The
   //      FRC postscaler feeds a PLL prescaler rather than
@@ -404,12 +419,14 @@ void configClockPRIPLL_8MHzCrystal_16MHzFCY(void) {
   //      PLL input must be 4 MHz, so choose a PLL prescaler
   //      of 2 since the FRC runs at 8 MHz.
   _PLLDIV = 1;  // 1 means a prescale of 2
-  //      The PLL multiplies this 4 MHz input to 96 MHz then
-  //      divides it by 3 to 32 MHz. A second PLL prescaler
-  //      then selects the final FOSC. Choose a prescale of
-  //      1 so FOSC = 32 MHz, giving FCY = 16 MHz.
-  _CPDIV = 0;  // 0 means a prescale of 1
+#elif defined(PLLDIV_NODIV)
+#warning Ensure that the PLLDIV value is set to divide by 2 in the configuration bits for PRIPLL_8MHzCrystal_16MHzFCY clock option!!
 #endif
+#ifdef _PLLEN
+  _PLLEN = 1;
+#warning PLL Enabled
+#endif
+
   switchClock(GET_OSC_SEL_BITS(FNOSC_PRIPLL));
 }
 #endif

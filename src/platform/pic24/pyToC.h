@@ -40,7 +40,7 @@
         PM_RETURN_IF_ERROR(retval); \
     } while (C_FALSE)
 
-/** Macro to ease calling the getUint16 function. This MUST be called from
+/** Macro to ease calling the \ref getUint16 function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
  *  the existance of:
  *  - PmReturn_t retval
@@ -52,7 +52,19 @@
 #define GET_UINT16(u8_ndx, u16_val) \
     PM_CHECK_FUNCTION(getUint16(ppframe, u8_ndx, &u16_val))
 
-/** Macro to ease calling the getInt32 function. This MUST be called from
+/** Macro to ease calling the \ref getInt16 function. This MUST be called from
+ *  the C implementation of a Python function, becuase it assumes
+ *  the existance of:
+ *  - PmReturn_t retval
+ *  - pPmFrame_t* ppframe
+ *  \param u8_ndx Zero-based index of the desired parameter to extract.
+ *  \param i16_val Resulting value extracted.
+ *  \return Standard Python return value.
+ */
+#define GET_INT16(u8_ndx, i16_val) \
+    PM_CHECK_FUNCTION(getInt16(ppframe, u8_ndx, &i16_val))
+
+/** Macro to ease calling the \ref getInt32 function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
  *  the existance of:
  *  - PmReturn_t retval
@@ -64,7 +76,7 @@
 #define GET_INT32(u8_ndx, i32_val) \
     PM_CHECK_FUNCTION(getInt32(ppframe, u8_ndx, &i32_val))
 
-/** Macro to ease calling the getBool function. This MUST be called from
+/** Macro to ease calling the \ref getBool function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
  *  the existance of:
  *  - PmReturn_t retval

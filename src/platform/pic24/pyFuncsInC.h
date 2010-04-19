@@ -8,7 +8,9 @@
  *  most be configured. The high-level functions 
  *  \ref configDigitalPinC, \ref configAnalogPinC simplify this
  *  process. \todo more here
- *  Manual I/O configuration requires making the following
+ *
+ *  \subsection manualPinConfiguration Manual pin configuration
+ *  Manual I/O pin configuration requires making the following
  *  choices:
  *  - First, use \ref setPinIsInput to configure a pin as either
  *    an input or an output.
@@ -27,8 +29,8 @@
  *      operate correctly.
  *  - Second, use \ref setPinPullDirection to
  *    select either a weak pull-up, a weak pull-down, or no pull.
- *    Note that only the PIC24F family supports
- *    pull-downs. In addition, the availablity of pull-ups
+ *    Note that only the PIC24F family supports pull-downs (see the
+ *    24F FRM section 12.6). In addition, the availablity of pull-ups
  *    and pull-downs varies based on the chip and pin; only pins with
  *    change notification capability support pull-ups or pull-downs.
  *    Pins with this ability are labeled CNx on the pinout for the chip.
@@ -40,7 +42,7 @@
  *      grey box beginning with "Note:"). However, if the pin is
  *      configured as an open-drain output (see next item), this
  *      is expected and should be supported.
- *  - Finally, for digital outputs only, select open-drain or standard
+ *  - Third, for digital outputs only, select open-drain or standard
  *    operation using \ref setPinIsOpenDrain. Recall that open-drain 
  *    (also known as open-collector) operation
  *    configures the digital output to only drive the pin low but allow
@@ -48,6 +50,11 @@
  *    externally or internally. In contrast, standard drivers (also known
  *    as push/pull or totem-pole drivers) active drive the pin either
  *    high or low.
+ *  - Finally, any remappable peripherals which take control of the
+ *    I/O pin must be unmapped to make use of the pin. The
+ *    \ref unmapPin function does this; it can still be called for
+ *    chips which do not have remappable I/O. In this case, the
+ *    function does nothing.
  *    
  */
 
@@ -80,7 +87,7 @@ PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpe
  *  \param i16_dir  Pull direction: 0 = none, negative = pull down, 
  *                    positive = pull up.
  */
-PmReturn_t selectPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
   int16_t i16_dir);
 
 /** Implements the Python \ref main::readBits function. See it for details. */
@@ -101,6 +108,14 @@ bool_t getBit(uint16_t u16_bitfield, uint16_t u16_bit);
  *  @param b_val True to set the bit, false to clear it.
  */
 void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val);
+
+/** Set a specific bit in an extended (> 16 bit) bitfield.
+ *  @param pu16_bitfield Pointer to bitfield to modify.
+ *  @param u16_bit Bit in bitfield to access.
+ *  @param b_val True to set the bit, false to clear it.
+ */
+#define SET_EXTENDED_BIT(pu16_bitfield, u16_bit, b_val) \
+    setBit(pu16_bitfield + (u16_bit >> 4), u16_bit & 0x000F, b_val)
 
 /** Implements the Python \ref main::configDigitalPin function. 
  *  See it for details. Implementation:

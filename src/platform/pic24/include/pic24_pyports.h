@@ -78,11 +78,25 @@
   #error Something is very confused.
 #endif
 
+// Define HAS_PULL_DOWNS if this chip has pull-down ability.
 #if defined(_CN0PDE)  || defined(_CN1PDE)  || \
     defined(_CN2PDE)  || defined(_CN3PDE)  || \
-    defined(_CN2PDE)  || defined(_CN3PDE)  || \
-    defined(_CN2PDE)  || defined(_CN3PDE)  || \
-    defined(_CN2PDE)  || defined(_CN3PDE)  || \
+    defined(_CN4PDE)  || defined(_CN5PDE)  || \
+    defined(_CN6PDE)  || defined(_CN7PDE)  || \
+    defined(_CN8PDE)  || defined(_CN9PDE)  || \
+    defined(_CN10PDE) || defined(_CN11PDE) || \
+    defined(_CN12PDE) || defined(_CN13PDE) || \
+    defined(_CN14PDE) || defined(_CN15PDE) || \
+    defined(_CN15PDE) || defined(_CN17PDE) || \
+    defined(_CN18PDE) || defined(_CN19PDE) || \
+    defined(_CN20PDE) || defined(_CN21PDE) || \
+    defined(_CN22PDE) || defined(_CN23PDE) || \
+    defined(_CN24PDE) || defined(_CN25PDE) || \
+    defined(_CN26PDE) || defined(_CN27PDE) || \
+    defined(_CN28PDE) || defined(_CN29PDE) || \
+    defined(_CN30PDE) || defined(_CN31PDE)
+#define HAS_PULL_DOWNS
+#endif
 
 /** This variable stores a bitmap describing which digitial I/O pins exist
  *  on the current processor. Port A is stored at [0], B at [1], etc. A value
@@ -101,6 +115,34 @@ const extern uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS];
  *  output configuration.
  */
 const extern uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS];
+
+/** The values state that a given digital I/O pin does not 
+ *  have analog capability. It is used in \ref anCnMap.
+ */
+#define UNDEF_AN_PIN 255
+
+/** The values state that a given digital I/O pin does not 
+ *  have change notification capability. It is used in \ref anCnMap.
+ */
+#define UNDEF_CN_PIN 255
+
+/** Define a structure which contains a mapping from
+ *  a digital I/O port/pin to an analog pin and to
+ *  a change notification pin.
+ */
+typedef struct {
+  /// The analog pin (ANxx) corresponding to a given digital port/pin,
+  /// or \ref UNDEF_AN_PIN if the pin has no analog capability.
+  uint8_t u8_anPin;
+  /// The analog pin (ANxx) corresponding to a given digital port/pin,
+  /// or \ref UNDEF_CN_PIN if the pin has no change notification capability.
+  uint8_t u8_cnPin;
+} anCnMap_t;
+
+/** An array of the \ref anCnMap_t structure with an entry for each of
+ *  the (up to) 16 pins on each digitial I/O port for this device.
+ */
+const extern anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16];
 
 // Include appropriate ports file for the device in use.
 // These definitions are then used below to map digital I/O ports to the
@@ -820,33 +862,5 @@ const extern uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS];
 #warning Digital IO macros not defined for this device!
 #warning Edit common\pic24_pyports.h file!
 #endif
-
-/** The values state that a given digital I/O pin does not 
- *  have analog capability. It is used in \ref anCnMap.
- */
-#define UNDEF_AN_PIN 255
-
-/** The values state that a given digital I/O pin does not 
- *  have change notification capability. It is used in \ref anCnMap.
- */
-#define UNDEF_CN_PIN 255
-
-/** Define a structure which contains a mapping from
- *  a digital I/O port/pin to an analog pin and to
- *  a change notification pin.
- */
-typedef struct {
-  /// The analog pin (ANxx) corresponding to a given digital port/pin,
-  /// or \ref UNDEF_AN_PIN if the pin has no analog capability.
-  uint8_t u8_anPin;
-  /// The analog pin (ANxx) corresponding to a given digital port/pin,
-  /// or \ref UNDEF_CN_PIN if the pin has no change notification capability.
-  uint8_t u8_cnPin;
-} anCnMap_t;
-
-/** An array of the \ref anCnMap_t structure with an entry for each of
- *  the (up to) 16 pins on each digitial I/O port for this device.
- */
-const extern anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16];
 
 #endif  // #define _PIC24_PYPORTS_H_

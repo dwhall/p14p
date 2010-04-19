@@ -4,13 +4,11 @@
 
 #include <pic24_all.h>
 #include "pyToC.h"
+#include "pyFuncsInC.h"
 #include <stdio.h>
 
 #undef __FILE_ID__
 #define __FILE_ID__ 0x70
-
-/// Determine the index of a pin, given its port and pin number.
-#define PIN_INDEX(port, pin) (port*16 + pin)
 
 PmReturn_t readBitsC(pPmFrame_t *ppframe)
 {
@@ -180,10 +178,11 @@ PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpe
     return retval;
 }
 
-PmReturn_t selectPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
   int16_t i16_dir)
 {
     PmReturn_t retval = PM_RET_OK;
+    uint8_t u8_cnPin;
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
@@ -196,11 +195,39 @@ PmReturn_t selectPinPullDirection(uint16_t u16_port, uint16_t u16_pin,
     // For no pull, disable pull-ups and pull-downs if they exist
     if (i16_dir == 0) {
         if (u8_cnPin != UNDEF_CN_PIN) {
-            setExtendedBit(&CNPU1, u8_cnPin, C_FALSE);
+            SET_EXTENDED_BIT(&CNPU1, u8_cnPin, C_FALSE);
             #ifdef HAS_PULL_DOWNS
-                setExtendedBit(&CNPD1, u8_cnPin, C_FALSE);
+                SET_EXTENDED_BIT(&CNPD1, u8_cnPin, C_FALSE);
             #endif
         }
+    // For pull-ups, disable pull-downs if they exist. Throw
+    // an exception if pull-ups don't exist
+    } else if (i16_dir > 0) {
+        EXCEPTION_UNLESS(u8_cnPin != UNDEF_CN_PIN, PM_RET_EX_VAL,
+          "Pull-ups do not exist on %c%d.", 
+          (char) (u16_port + 'A'), u16_pin);
+        SET_EXTENDED_BIT(&CNPU1, u8_cnPin, C_TRUE);
+        #ifdef HAS_PULL_DOWNS
+            SET_EXTENDED_BIT(&CNPD1, u8_cnPin, C_FALSE);
+        #endif
+    // For pull-downs, disable pull-ups. Throw an exception
+    // if either don't exist.
+    } else {
+        ASSERT(i16_dir < 0);
+
+        // Verify pull-downs exist then enable them
+        #ifdef HAS_PULL_DOWNS
+            SET_EXTENDED_BIT(&CNPD1, u8_cnPin, C_TRUE);
+        #else
+            EXCEPTION_UNLESS(0, PM_RET_EX_VAL,
+              "Pull-downs do not exist on this chip.");
+        #endif
+
+        // Verify pull-ups exist then disable them
+        EXCEPTION_UNLESS(u8_cnPin != UNDEF_CN_PIN, PM_RET_EX_VAL,
+          "Pull-ups do not exist on %c%d.", 
+          (char) (u16_port + 'A'), u16_pin);
+        SET_EXTENDED_BIT(&CNPU1, u8_cnPin, C_FALSE);
     }
 
     return retval;
@@ -213,7 +240,7 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
     uint16_t u16_pin;
     bool_t b_isInput;
     bool_t b_isOpenDrain;
-    int32_t i32_pullDir;
+    int32_t i16_pullDir;
 
     // Get the arguments
     CHECK_NUM_ARGS(5);
@@ -221,10 +248,12 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
     GET_UINT16(1, u16_pin);
     GET_BOOL(2, b_isInput);
     GET_BOOL(3, b_isOpenDrain);
-    GET_INT32(4, i32_pullDir);
+    GET_INT16(4, i16_pullDir);
 
+//    PM_CHECK_FUNCTION( setPinIsAnalog(u16_port, u16_pin, C_FALSE) );
     PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
     PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
-
+    PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );
+//    PM_CHECK_FUNCTION( unmapPin(u16_port, u16_pin) );
     return retval;
 }

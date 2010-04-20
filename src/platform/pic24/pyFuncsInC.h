@@ -9,14 +9,14 @@
  *  \ref configDigitalPinC, \ref configAnalogPinC simplify this
  *  process. \todo more here
  *
- *  \subsection manualPinConfiguration Manual pin configuration
- *  Manual I/O pin configuration requires making the following
+ *  \subsection lowLevelPinConfiguration Low-level pin configuration
+ *  Low-level I/O pin configuration requires making the following
  *  choices:
  *  - First, use \ref setPinIsInput to configure a pin as either
  *    an input or an output.
- *    - For inputs, use \ref setPinIsAnalogInput to configure the
+ *    - For inputs, use \ref setPinIsDigital to configure the
  *      pin as an analog or digital input.
- *    - For outputs, use \ref setPinIsAnalogInput to configure the
+ *    - For outputs, use \ref setPinIsDigital to configure the
  *      pin as a digital input. While digital output functions
  *      correctly when the pin is configured as both an analog
  *      input and a digitial output, doing so slows the rise and
@@ -60,8 +60,36 @@
 
 #include "pm.h"
 
-/** Initialize constants for this module. */
+/** @name High-level pin configuration functions
+ *  These functions allow configuring an I/O pin using a single
+ *  function call.
+ */
+//@{
+
+/** Initialize constants necessary for correct operation of
+ *  all pin configuration functions, both high-level and
+ *  low-level. */
 void initIoConst(void);
+
+/** Implements the Python \ref main.configDigitalPin function. 
+ *  See it for details. Implementation:
+ *  -# Check to see if the port/pin exists.
+ *  -# If the pin has analog capability, turn it off.
+ *  -# Select the pin to be either an input or an output.
+ *  -# Check and configure open-drain for the pin.
+ *  -# Check and configure pull-ups/pull-downs for the pin.
+ *  \todo Need to also remove any peripheral outputs mapped to
+ *  this pin if it's a remappable pin.
+ */
+PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
+//@}
+
+/** @name low-level pin configuration functions
+ *  These functions allow low-level configuration of I/O pins.
+ *  See the \ref lowLevelPinConfiguration "low-level pin configuration"
+ *  section for usage.
+ */
+//@{
 
 /** Set an I/O pin to be either an input or an output. Setting this
  *  pin as an output implies that it is a digital outp0ut. In contrast,
@@ -72,6 +100,23 @@ void initIoConst(void);
  *  \param b_isInput True to select the pin as an input, false as an output.
  */
 PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput);
+
+
+/** Configure an I/O pin as either a digital I/O or an 
+ *  analog input. To use an an analog input, this pin
+ *  must already be configured as an input using
+ *  \ref setPinIsInput. For use as a digital pin (either as
+ *  an input or an output), configure this pin in digital mode.
+ *  See the \ref lowLevelPinConfiguration "low-level pin 
+ *  configuration" section for more details.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param b_isDigital True to configure the pin as a digital input, 
+ *           false to configure the pin as an analog input.
+ */
+PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
+  bool_t b_isDigital);
+
 
 /** Specify the direction (input or output) for an I/O pin.
  *  \param u16_port I/O port (A = 0, B = 1, etc.)
@@ -89,6 +134,11 @@ PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpe
  */
 PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
   int16_t i16_dir);
+//@}
+
+/** @name Utility functions
+ */
+//@{
 
 /** Implements the Python \ref main::readBits function. See it for details. */
 PmReturn_t readBitsC(pPmFrame_t *ppframe);
@@ -116,15 +166,4 @@ void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val);
  */
 #define SET_EXTENDED_BIT(pu16_bitfield, u16_bit, b_val) \
     setBit(pu16_bitfield + (u16_bit >> 4), u16_bit & 0x000F, b_val)
-
-/** Implements the Python \ref main::configDigitalPin function. 
- *  See it for details. Implementation:
- *  -# Check to see if the port/pin exists.
- *  -# If the pin has analog capability, turn it off.
- *  -# Select the pin to be either an input or an output.
- *  -# Check and configure open-drain for the pin.
- *  -# Check and configure pull-ups/pull-downs for the pin.
- *  \todo Need to also remove any peripheral outputs mapped to
- *  this pin if it's a remappable pin.
- */
-PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
+//@}

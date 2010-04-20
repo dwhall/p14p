@@ -46,11 +46,11 @@
  *  - PmReturn_t retval
  *  - pPmFrame_t* ppframe
  *  \param u8_ndx Zero-based index of the desired parameter to extract.
- *  \param u16_val Resulting value extracted.
+ *  \param pu16_val Resulting value extracted.
  *  \return Standard Python return value.
  */
-#define GET_UINT16(u8_ndx, u16_val) \
-    PM_CHECK_FUNCTION(getUint16(ppframe, u8_ndx, &u16_val))
+#define GET_UINT16(u8_ndx, pu16_val) \
+    PM_CHECK_FUNCTION(getUint16(ppframe, u8_ndx, pu16_val))
 
 /** Macro to ease calling the \ref getInt16 function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
@@ -58,11 +58,11 @@
  *  - PmReturn_t retval
  *  - pPmFrame_t* ppframe
  *  \param u8_ndx Zero-based index of the desired parameter to extract.
- *  \param i16_val Resulting value extracted.
+ *  \param pi16_val Resulting value extracted.
  *  \return Standard Python return value.
  */
-#define GET_INT16(u8_ndx, i16_val) \
-    PM_CHECK_FUNCTION(getInt16(ppframe, u8_ndx, &i16_val))
+#define GET_INT16(u8_ndx, pi16_val) \
+    PM_CHECK_FUNCTION(getInt16(ppframe, u8_ndx, pi16_val))
 
 /** Macro to ease calling the \ref getInt32 function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
@@ -70,11 +70,11 @@
  *  - PmReturn_t retval
  *  - pPmFrame_t* ppframe
  *  \param u8_ndx Zero-based index of the desired parameter to extract.
- *  \param i32_val Resulting value extracted.
+ *  \param pi32_val Resulting value extracted.
  *  \return Standard Python return value.
  */
-#define GET_INT32(u8_ndx, i32_val) \
-    PM_CHECK_FUNCTION(getInt32(ppframe, u8_ndx, &i32_val))
+#define GET_INT32(u8_ndx, pi32_val) \
+    PM_CHECK_FUNCTION(getInt32(ppframe, u8_ndx, pi32_val))
 
 /** Macro to ease calling the \ref getBool function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
@@ -82,11 +82,11 @@
  *  - PmReturn_t retval
  *  - pPmFrame_t* ppframe
  *  \param u8_ndx Zero-based index of the desired parameter to extract.
- *  \param b_bool Resulting boolean value extracted.
+ *  \param pb_bool Resulting boolean value extracted.
  *  \return Standard Python return value.
  */
-#define GET_BOOL(u8_ndx, b_bool) \
-    PM_CHECK_FUNCTION(getBool(ppframe, u8_ndx, &b_bool))
+#define GET_BOOL(u8_ndx, pb_bool) \
+    PM_CHECK_FUNCTION(getBool(ppframe, u8_ndx, pb_bool))
 
 /** Check the number of arguments passed to a Python function.
  *  Report an exception if the number is incorrect. This MUST be called from
@@ -122,6 +122,15 @@ PmReturn_t getRangedInt(pPmFrame_t *ppframe, uint8_t u8_ndx,
  *  \return Standard Python return value.
  */
 PmReturn_t getUint16(pPmFrame_t *ppframe, uint8_t u8_ndx, uint16_t* pu16_val);
+
+/** Get an signed, 16-bit value from the arguments passed to a Python
+ *  function. Raises errors as necessary.
+ *  \param ppframe The Python stack frame containing user arguments.
+ *  \param u8_ndx Zero-based index of the desired parameter to extract.
+ *  \param pi16_val Pointer to resulting int16 value extracted.
+ *  \return Standard Python return value.
+ */
+PmReturn_t getInt16(pPmFrame_t *ppframe, uint8_t u8_ndx, int16_t* pi16_val);
 
 /** Get a signed, 32-bit value from the arguments passed to a Python
  *  function. Raises errors as necessary.

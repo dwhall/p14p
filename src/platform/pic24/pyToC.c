@@ -9,7 +9,8 @@
 #undef __FILE_ID__
 #define __FILE_ID__ 0x71
 
-PmReturn_t getInt32(pPmFrame_t *ppframe, uint8_t u8_ndx, int32_t* pi32_val) {
+PmReturn_t getInt32(pPmFrame_t *ppframe, uint8_t u8_ndx, int32_t* pi32_val)
+{
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t ppo;
 
@@ -25,7 +26,8 @@ PmReturn_t getInt32(pPmFrame_t *ppframe, uint8_t u8_ndx, int32_t* pi32_val) {
 }
 
 PmReturn_t getRangedInt(pPmFrame_t *ppframe, uint8_t u8_ndx, 
-  int32_t i32_min, int32_t i32_max, int32_t* pi32_val) {
+  int32_t i32_min, int32_t i32_max, int32_t* pi32_val)
+{
     PmReturn_t retval = PM_RET_OK;
 
     // Get the int32 from the Python arguments passed to this function
@@ -41,7 +43,8 @@ PmReturn_t getRangedInt(pPmFrame_t *ppframe, uint8_t u8_ndx,
     return retval;
 }
 
-PmReturn_t getUint16(pPmFrame_t *ppframe, uint8_t u8_ndx, uint16_t* pu16_val) {
+PmReturn_t getUint16(pPmFrame_t *ppframe, uint8_t u8_ndx, uint16_t* pu16_val)
+{
     PmReturn_t retval = PM_RET_OK;
     int32_t i32;
 
@@ -51,7 +54,8 @@ PmReturn_t getUint16(pPmFrame_t *ppframe, uint8_t u8_ndx, uint16_t* pu16_val) {
     return retval;
 }
 
-PmReturn_t getInt16(pPmFrame_t *ppframe, uint8_t u8_ndx, int16_t* pi16_val) {
+PmReturn_t getInt16(pPmFrame_t *ppframe, uint8_t u8_ndx, int16_t* pi16_val)
+{
     PmReturn_t retval = PM_RET_OK;
     int32_t i32;
 
@@ -61,7 +65,8 @@ PmReturn_t getInt16(pPmFrame_t *ppframe, uint8_t u8_ndx, int16_t* pi16_val) {
     return retval;
 }
 
-PmReturn_t getBool(pPmFrame_t *ppframe, uint8_t u8_ndx, bool_t* pb_bool) {
+PmReturn_t getBool(pPmFrame_t *ppframe, uint8_t u8_ndx, bool_t* pb_bool)
+{
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t ppo;
 

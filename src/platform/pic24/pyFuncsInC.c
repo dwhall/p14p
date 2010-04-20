@@ -23,10 +23,10 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
 
     // Get the arguments
     CHECK_NUM_ARGS(3);
-    GET_UINT16(0, u16);
+    GET_UINT16(0, &u16);
     pu16_evenAddress = (uint16_t*) u16;
-    GET_UINT16(1, u16_startBit);
-    GET_UINT16(2, u16_numBits);
+    GET_UINT16(1, &u16_startBit);
+    GET_UINT16(2, &u16_numBits);
 
     // Check their values.
     /// \todo Allow an odd address for 8 bit values.
@@ -69,6 +69,7 @@ void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val)
     else
         *pu16_bitfield &= ~(1 << u16_bit);
 }
+
 
 /** Make sure the given pin is within bounds.
  *  @param u16_port Port, where 0 = A, 1 = B, etc.
@@ -140,6 +141,42 @@ PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
     ASSERT(u16_ioPortControlOffset);
     // Select input or output for the pin
     setBit((&TRISA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isInput);
+    return retval;
+}
+
+
+PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
+  bool_t b_isDigital)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint8_t u8_anPin;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+
+    // There are four possibilities for digital configuration:
+    //                      | set as analog   | set as digital
+    // ---------------------+-----------------+-----------------------------------------
+    // has analog           | clear PCFG bit  | set PCFG bit
+    // does not have analog | throw exception | do nothing (already digital)
+    u8_anPin = anCnMap[u16_port*16 + u16_pin].u8_cnPin;
+    if (u8_anPin != UNDEF_AN_PIN) {
+        // Enable/disable analog input mode on this pin.
+        // Each ADC handles 32 channels; some PIC24F / dsPIC33 parts have
+        // two converters. If so, need to clear the corresponding bit on both.
+        SET_EXTENDED_BIT(&AD1PCFGL, u8_anPin, b_isDigital);
+#ifdef _AD2IF
+        SET_EXTENDED_BIT(&AD2PCFGL, u8_anPin, b_isDigital);
+#endif
+    } else {
+        // If analog is enabled on a pin without analog ability,
+        // report an error. Otherwise, do nothing -- digital
+        // is the default for a pin without analog ability.
+        EXCEPTION_UNLESS(b_isDigital, PM_RET_EX_VAL,
+          "Pin %c%d does not support analog functionality.", 
+          (char) (u16_port + 'A'), u16_pin);
+    }
+
     return retval;
 }
 
@@ -240,17 +277,17 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
     uint16_t u16_pin;
     bool_t b_isInput;
     bool_t b_isOpenDrain;
-    int32_t i16_pullDir;
+    int16_t i16_pullDir;
 
     // Get the arguments
     CHECK_NUM_ARGS(5);
-    GET_UINT16(0, u16_port);
-    GET_UINT16(1, u16_pin);
-    GET_BOOL(2, b_isInput);
-    GET_BOOL(3, b_isOpenDrain);
-    GET_INT16(4, i16_pullDir);
+    GET_UINT16(0, &u16_port);
+    GET_UINT16(1, &u16_pin);
+    GET_BOOL(2, &b_isInput);
+    GET_BOOL(3, &b_isOpenDrain);
+    GET_INT16(4, &i16_pullDir);
 
-//    PM_CHECK_FUNCTION( setPinIsAnalog(u16_port, u16_pin, C_FALSE) );
+    PM_CHECK_FUNCTION( setPinIsDigital(u16_port, u16_pin, C_TRUE) );
     PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
     PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
     PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );

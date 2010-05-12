@@ -6,6 +6,7 @@
 #include "pyToC.h"
 #include "pyFuncsInC.h"
 #include <stdio.h>
+#include <pps.h>
 
 #undef __FILE_ID__
 #define __FILE_ID__ 0x70
@@ -270,6 +271,243 @@ PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin,
     return retval;
 }
 
+#ifdef HAS_REMAPPABLE_PINS
+
+/** Unmap a specific peripheral input from a given pin. Checks the peripheral
+ *  to see if it is mapped to the given pin; if so, that peripheral is
+ *  unmapped, freeing the pin.
+ *  @param rpinrBitfield A bitfield in one of the RPINRx registers which
+ *           maps the input of a peripheral to a pin.
+ *  @param rpPin An RPx value, indicating which RP pin should be free of
+ *           any mapping after this macro completes.
+ */
+#define UNMAP_PERIPHERAL_INPUT(rpinrBitfield, rpPin) \
+    if (rpinrBitfield == rpPin)                      \
+        rpinrBitfield = IN_PIN_PPS_VSS;              \
+    else                                             \
+        ((void) 0)
+
+/** Unmap a specific peripheral output from a given pin. Assigns the
+ *  pin to have no peripheral mapped to it. This create a case in a
+ *  switch statement, so it must be placed in a switch statement.
+ *  @param rpPin An RPx value, indicating which RP pin should be free of
+ *           any mapping after this macro completes.
+ */
+#define UNMAP_PERIPHERAL_OUTPUT(rpPin)        \
+    case rpPin :                              \
+        _RP ## rpPin ## R = OUT_FN_PPS_NULL;  \
+    break
+
+/// Call \ref unmapPins. See that function for parameters and return
+/// values.
+#define UNMAP_PIN(u16_port, u16_pin) unmapPin(u16_port, u16_pin)
+
+PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_rp;
+
+    // If this isn't a remappable pin (only ports B and C
+    // have remappable pins), we're done.
+    if ( (u16_port != PORT_B_INDEX) && (u16_port != PORT_C_INDEX) )
+        return retval;
+
+    // Convert from port/pin to an RP number.
+    // RP0-15 = RB0-15, RP16-31 = RB0-15
+    u16_rp = (u16_port - PORT_B_INDEX)*16 + u16_pin;
+
+    // See if this pin can be remapped. If not, we're done.
+    if (!GET_EXTENDED_BIT(u32_isRemappable, u16_rp))
+        return retval;
+
+    // For each remappable peripheral that takes full control
+    // of an I/O pin, check to see if a given pin is mapped to
+    // it. If so, unmap that peripheral.
+
+    // Unmap UART1 inputs
+#ifdef _U1CTSR
+    UNMAP_PERIPHERAL_INPUT(_U1CTSR, u16_rp);
+#endif
+#ifdef _U1RXR
+    UNMAP_PERIPHERAL_INPUT(_U1RXR, u16_rp);
+#endif
+
+    // Unmap UART2 inputs
+#ifdef _U2CTSR
+    UNMAP_PERIPHERAL_INPUT(_U2CTSR, u16_rp);
+#endif
+#ifdef _U2RXR
+    UNMAP_PERIPHERAL_INPUT(_U2RXR, u16_rp);
+#endif
+
+    // Unmap SPI1 inputs
+#ifdef _SCK1R
+    UNMAP_PERIPHERAL_INPUT(_SCK1R, u16_rp);
+#endif
+#ifdef _SDI1R
+    UNMAP_PERIPHERAL_INPUT(_SDI1R, u16_rp);
+#endif
+#ifdef _SS1R
+    UNMAP_PERIPHERAL_INPUT(_SS1R, u16_rp);
+#endif
+
+    // Unmap SPI2 inputs
+#ifdef _SCK2R
+    UNMAP_PERIPHERAL_INPUT(_SCK2R, u16_rp);
+#endif
+#ifdef _SDI2R
+    UNMAP_PERIPHERAL_INPUT(_SDI2R, u16_rp);
+#endif
+#ifdef _SS2R
+    UNMAP_PERIPHERAL_INPUT(_SS2R, u16_rp);
+#endif
+
+    // Unmap ECAN1 inputs
+#ifdef _C1RXR
+    UNMAP_PERIPHERAL_INPUT(_C1RXR, u16_rp);
+#endif
+
+    // Check to see if the pin to be unmapped has any
+    // ouputs mapped to it and unmap if so.
+    switch (u16_rp) {
+#ifdef _RP0R
+        UNMAP_PERIPHERAL_OUTPUT(0);
+#endif
+
+#ifdef _RP1R
+        UNMAP_PERIPHERAL_OUTPUT(1);
+#endif
+
+#ifdef _RP2R
+        UNMAP_PERIPHERAL_OUTPUT(2);
+#endif
+
+#ifdef _RP3R
+        UNMAP_PERIPHERAL_OUTPUT(3);
+#endif
+
+#ifdef _RP4R
+        UNMAP_PERIPHERAL_OUTPUT(4);
+#endif
+
+#ifdef _RP5R
+        UNMAP_PERIPHERAL_OUTPUT(5);
+#endif
+
+#ifdef _RP6R
+        UNMAP_PERIPHERAL_OUTPUT(6);
+#endif
+
+#ifdef _RP7R
+        UNMAP_PERIPHERAL_OUTPUT(7);
+#endif
+
+#ifdef _RP8R
+        UNMAP_PERIPHERAL_OUTPUT(8);
+#endif
+
+#ifdef _RP9R
+        UNMAP_PERIPHERAL_OUTPUT(9);
+#endif
+
+#ifdef _RP10R
+        UNMAP_PERIPHERAL_OUTPUT(10);
+#endif
+
+#ifdef _RP11R
+        UNMAP_PERIPHERAL_OUTPUT(11);
+#endif
+
+#ifdef _RP12R
+        UNMAP_PERIPHERAL_OUTPUT(12);
+#endif
+
+#ifdef _RP13R
+        UNMAP_PERIPHERAL_OUTPUT(13);
+#endif
+
+#ifdef _RP14R
+        UNMAP_PERIPHERAL_OUTPUT(14);
+#endif
+
+#ifdef _RP15R
+        UNMAP_PERIPHERAL_OUTPUT(15);
+#endif
+
+#ifdef _RP16R
+        UNMAP_PERIPHERAL_OUTPUT(16);
+#endif
+
+#ifdef _RP17R
+        UNMAP_PERIPHERAL_OUTPUT(17);
+#endif
+
+#ifdef _RP18R
+        UNMAP_PERIPHERAL_OUTPUT(18);
+#endif
+
+#ifdef _RP19R
+        UNMAP_PERIPHERAL_OUTPUT(19);
+#endif
+
+#ifdef _RP20R
+        UNMAP_PERIPHERAL_OUTPUT(20);
+#endif
+
+#ifdef _RP21R
+        UNMAP_PERIPHERAL_OUTPUT(21);
+#endif
+
+#ifdef _RP22R
+        UNMAP_PERIPHERAL_OUTPUT(22);
+#endif
+
+#ifdef _RP23R
+        UNMAP_PERIPHERAL_OUTPUT(23);
+#endif
+
+#ifdef _RP24R
+        UNMAP_PERIPHERAL_OUTPUT(24);
+#endif
+
+#ifdef _RP25R
+        UNMAP_PERIPHERAL_OUTPUT(25);
+#endif
+
+#ifdef _RP26R
+        UNMAP_PERIPHERAL_OUTPUT(26);
+#endif
+
+#ifdef _RP27R
+        UNMAP_PERIPHERAL_OUTPUT(27);
+#endif
+
+#ifdef _RP28R
+        UNMAP_PERIPHERAL_OUTPUT(28);
+#endif
+
+#ifdef _RP29R
+        UNMAP_PERIPHERAL_OUTPUT(29);
+#endif
+
+#ifdef _RP30R
+        UNMAP_PERIPHERAL_OUTPUT(30);
+#endif
+
+        default :
+            // No pin matches, so nothing to do
+        break;
+    }
+
+    return retval;
+}
+
+#else // !defined(HAS_REMAPPABLE_PINS)
+/// Define a "function" for devices without remappable I/O which
+/// returns OK -- all pins are automatically unmapped.
+#define UNMAP_PIN(u16_port, u16_pin) PM_RET_OK
+#endif
+
 PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -287,10 +525,12 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
     GET_BOOL(3, &b_isOpenDrain);
     GET_INT16(4, &i16_pullDir);
 
+    // Call the low-level functions to configure the port
     PM_CHECK_FUNCTION( setPinIsDigital(u16_port, u16_pin, C_TRUE) );
     PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
     PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
     PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );
-//    PM_CHECK_FUNCTION( unmapPin(u16_port, u16_pin) );
+    PM_CHECK_FUNCTION( UNMAP_PIN(u16_port, u16_pin) );
+
     return retval;
 }

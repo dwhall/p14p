@@ -36,6 +36,16 @@
  *  \brief This file supports configuration of IO ports on the PIC24.
  */
 
+/** Map ports to an index. */
+enum { PORT_A_INDEX = 0,
+       PORT_B_INDEX,
+       PORT_C_INDEX,
+       PORT_D_INDEX,
+       PORT_E_INDEX,
+       PORT_F_INDEX,
+       PORT_G_INDEX,
+};
+
 /** This macro tells how many digital I/O ports exist on the selected processor. */
 #if   defined(_RG0)  || defined(_RG1)  || defined(_RG2)  || defined(_RG3)  || \
       defined(_RG4)  || defined(_RG5)  || defined(_RG6)  || defined(_RG7)  || \
@@ -143,6 +153,28 @@ typedef struct {
  *  the (up to) 16 pins on each digitial I/O port for this device.
  */
 const extern anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16];
+
+
+#if defined(__DOXYGEN__) || \
+    defined(_RP0R)  || defined(_RP1R)  || defined(_RP2R)  || defined(_RP3R)  || \
+    defined(_RP4R)  || defined(_RP5R)  || defined(_RP6R)  || defined(_RP7R)  || \
+    defined(_RP8R)  || defined(_RP9R)  || defined(_RP10R) || defined(_RP11R) || \
+    defined(_RP12R) || defined(_RP13R) || defined(_RP14R) || defined(_RP15R) || \
+    defined(_RP16R) || defined(_RP17R) || defined(_RP18R) || defined(_RP19R) || \
+    defined(_RP20R) || defined(_RP21R) || defined(_RP22R) || defined(_RP23R) || \
+    defined(_RP24R) || defined(_RP25R) || defined(_RP26R) || defined(_RP27R) || \
+    defined(_RP28R) || defined(_RP29R) || defined(_RP30R) // Note: RP31 cannot exist
+/** When defined, indicates that this device has remappable pins. */
+#define HAS_REMAPPABLE_PINS
+#endif
+
+#ifdef HAS_REMAPPABLE_PINS
+/** This bitfield indicates which remappable pins exist on this device.
+ *  Each bit is true if the corresponding remappable pin exists.
+ *  In particular, bit 0 = RP0, bit 1 = RP1, etc.
+ */
+const extern uint32_t u32_isRemappable;
+#endif
 
 // Include appropriate ports file for the device in use.
 // These definitions are then used below to map digital I/O ports to the

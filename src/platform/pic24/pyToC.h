@@ -97,8 +97,8 @@
  *  @param u8_numArgs Number of arguemnts expected.
  */
 #define CHECK_NUM_ARGS(u8_numArgs) \
-    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() == u8_numArgs, PM_RET_EX_TYPE, \
-      "Expected %u arguments, but received %u.", (uint16_t) u8_numArgs, \
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() == (u8_numArgs), PM_RET_EX_TYPE, \
+      "Expected %u arguments, but received %u.", (uint16_t) (u8_numArgs), \
       (uint16_t) NATIVE_GET_NUM_ARGS())
 
 /** Get an integer from one of the arguments passed to a Python function,

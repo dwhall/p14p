@@ -785,3 +785,102 @@ const uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
 // The AN_CN_MAP macro specifies the mapping. It is defined in
 // the device/<devicename>_pyports.h file.
 const anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16] = { AN_CN_MAP };
+
+const uint32_t u32_isRemappable = {
+#ifdef _RP0R
+    0x00000001 |
+#endif
+#ifdef _RP1R
+    0x00000002 |
+#endif
+#ifdef _RP2R
+    0x00000004 |
+#endif
+#ifdef _RP3R
+    0x00000008 |
+#endif
+#ifdef _RP4R
+    0x00000010 |
+#endif
+#ifdef _RP5R
+    0x00000020 |
+#endif
+#ifdef _RP6R
+    0x00000040 |
+#endif
+#ifdef _RP7R
+    0x00000080 |
+#endif
+#ifdef _RP8R
+    0x00000100 |
+#endif
+#ifdef _RP9R
+    0x00000200 |
+#endif
+#ifdef _RP10R
+    0x00000400 |
+#endif
+#ifdef _RP11R
+    0x00000800 |
+#endif
+#ifdef _RP12R
+    0x00001000 |
+#endif
+#ifdef _RP13R
+    0x00002000 |
+#endif
+#ifdef _RP14R
+    0x00004000 |
+#endif
+#ifdef _RP15R
+    0x00008000 |
+#endif
+#ifdef _RP16R
+    0x00010000 |
+#endif
+#ifdef _RP17R
+    0x00020000 |
+#endif
+#ifdef _RP18R
+    0x00040000 |
+#endif
+#ifdef _RP19R
+    0x00080000 |
+#endif
+#ifdef _RP20R
+    0x00100000 |
+#endif
+#ifdef _RP21R
+    0x00200000 |
+#endif
+#ifdef _RP22R
+    0x00400000 |
+#endif
+#ifdef _RP23R
+    0x00800000 |
+#endif
+#ifdef _RP24R
+    0x01000000 |
+#endif
+#ifdef _RP25R
+    0x02000000 |
+#endif
+#ifdef _RP26R
+    0x04000000 |
+#endif
+#ifdef _RP27R
+    0x08000000 |
+#endif
+#ifdef _RP28R
+    0x10000000 |
+#endif
+#ifdef _RP29R
+    0x20000000 |
+#endif
+#ifdef _RP30R
+    0x40000000 |
+#endif
+// Note: RP31R can't exist, since this value is reserved
+// for assigning an input to Vss.
+    0x00000000 
+};

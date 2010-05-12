@@ -48,7 +48,7 @@ PmReturn_t getUint16(pPmFrame_t *ppframe, uint8_t u8_ndx, uint16_t* pu16_val)
     PmReturn_t retval = PM_RET_OK;
     int32_t i32;
 
-    retval = getRangedInt(ppframe, u8_ndx, 0, UINT_MAX, &i32);
+    retval = getRangedInt(ppframe, u8_ndx, 0, 65535, &i32);
     PM_RETURN_IF_ERROR(retval);
     *pu16_val = (uint16_t) i32;
     return retval;
@@ -59,7 +59,7 @@ PmReturn_t getInt16(pPmFrame_t *ppframe, uint8_t u8_ndx, int16_t* pi16_val)
     PmReturn_t retval = PM_RET_OK;
     int32_t i32;
 
-    retval = getRangedInt(ppframe, u8_ndx, INT_MIN, INT_MAX, &i32);
+    retval = getRangedInt(ppframe, u8_ndx, -32768, 32767, &i32);
     PM_RETURN_IF_ERROR(retval);
     *pi16_val = (int16_t) i32;
     return retval;

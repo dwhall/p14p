@@ -36,10 +36,22 @@
  */
 
 #include "pic24_all.h"
+#include "pyFuncsInC.h"
+#include "pyToC.h"
+#include <pps.h>
+
+#undef __FILE_ID__
+#define __FILE_ID__ 0x70
 
 // These macro auto-generate the bits by testing for their presense
 // as macros in the chip-specific include file.
-const uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS] = { 
+/** This variable stores a bitmap describing which digitial I/O pins exist
+ *  on the current processor. Port A is stored at [0], B at [1], etc. A value
+ *  of 1 for a gvien bit indicates the corresponding pin of that port exists.
+ *  For example, 0x0001 indicates that only pin 0 of the selected port exists, 
+ *  while pins 1-15 do not.
+ */
+static const uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS] = { 
   #if NUM_DIGITAL_PORTS >= 1
     #ifdef _RA0
       0x0001 |
@@ -414,7 +426,15 @@ const uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS] = {
 // as macros in the chip-specific include file. Note that the bit
 // name for PIC24H and dsPIC33 processors is _ODCxy, while PIC24F 
 // uses _ODxy. Therefore, these macros test for both.
-const uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
+/** This variable stores a bitmap describing which digitial I/O pins can be
+ *  configured as open-drain outputs on the current processor. Port A is 
+ *  stored at [0], B at [1], etc. A value of 1 for a gvien bit indicates 
+ *  the corresponding pin of that port can be made open-drain. For example, 
+ *  0x0001 indicates that only pin 0 of the selected port can be made, 
+ *  open-drain, while pins 1-15 operator only in the standard, totem-pole
+ *  output configuration.
+ */
+static const uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
   #if NUM_DIGITAL_PORTS >= 1
     #if defined(_ODCA0)  || defined(_ODA0)
       0x0001 |
@@ -782,11 +802,772 @@ const uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
 
 
 
+
+
+
+
+// Include appropriate ports file for the device in use.
+// These definitions are then used below to map digital I/O ports to the
+// corresponding analog and change notification pin
+#if defined(__PIC24HJ128GP202__)
+
+#include "devices/pic24hj128gp202_pyports.h"
+
+#elif defined(__PIC24HJ128GP204__)
+
+#include "devices/pic24hj128gp204_pyports.h"
+
+#elif defined(__PIC24HJ128GP206__)
+
+#include "devices/pic24hj128gp206_pyports.h"
+
+#elif defined(__PIC24HJ128GP210__)
+
+#include "devices/pic24hj128gp210_pyports.h"
+
+#elif defined(__PIC24HJ128GP306__)
+
+#include "devices/pic24hj128gp306_pyports.h"
+
+#elif defined(__PIC24HJ128GP310__)
+
+#include "devices/pic24hj128gp310_pyports.h"
+
+#elif defined(__PIC24HJ128GP502__)
+
+#include "devices/pic24hj128gp502_pyports.h"
+
+#elif defined(__PIC24HJ128GP504__)
+
+#include "devices/pic24hj128gp504_pyports.h"
+
+#elif defined(__PIC24HJ128GP506__)
+
+#include "devices/pic24hj128gp506_pyports.h"
+
+#elif defined(__PIC24HJ128GP510__)
+
+#include "devices/pic24hj128gp510_pyports.h"
+
+#elif defined(__PIC24HJ12GP201__)
+
+#include "devices/pic24hj12gp201_pyports.h"
+
+#elif defined(__PIC24HJ12GP202__)
+
+#include "devices/pic24hj12gp202_pyports.h"
+
+#elif defined(__PIC24HJ16GP304__)
+
+#include "devices/pic24hj16gp304_pyports.h"
+
+#elif defined(__PIC24HJ256GP206__)
+
+#include "devices/pic24hj256gp206_pyports.h"
+
+#elif defined(__PIC24HJ256GP210__)
+
+#include "devices/pic24hj256gp210_pyports.h"
+
+#elif defined(__PIC24HJ256GP610__)
+
+#include "devices/pic24hj256gp610_pyports.h"
+
+#elif defined(__PIC24HJ32GP202__)
+
+#include "devices/pic24hj32gp202_pyports.h"
+
+#elif defined(__PIC24HJ32GP204__)
+
+#include "devices/pic24hj32gp204_pyports.h"
+
+#elif defined(__PIC24HJ32GP302__)
+
+#include "devices/pic24hj32gp302_pyports.h"
+
+#elif defined(__PIC24HJ32GP304__)
+
+#include "devices/pic24hj32gp304_pyports.h"
+
+#elif defined(__PIC24HJ64GP202__)
+
+#include "devices/pic24hj64gp202_pyports.h"
+
+#elif defined(__PIC24HJ64GP204__)
+
+#include "devices/pic24hj64gp204_pyports.h"
+
+#elif defined(__PIC24HJ64GP206__)
+
+#include "devices/pic24hj64gp206_pyports.h"
+
+#elif defined(__PIC24HJ64GP210__)
+
+#include "devices/pic24hj64gp210_pyports.h"
+
+#elif defined(__PIC24HJ64GP502__)
+
+#include "devices/pic24hj64gp502_pyports.h"
+
+#elif defined(__PIC24HJ64GP504__)
+
+#include "devices/pic24hj64gp504_pyports.h"
+
+#elif defined(__PIC24HJ64GP506__)
+
+#include "devices/pic24hj64gp506_pyports.h"
+
+#elif defined(__PIC24HJ64GP510__)
+
+#include "devices/pic24hj64gp510_pyports.h"
+
+#elif defined(__PIC24F04KA200__)
+
+#include "devices/pic24f04ka200_pyports.h"
+
+#elif defined(__PIC24F04KA201__)
+
+#include "devices/pic24f04ka201_pyports.h"
+
+#elif defined(__PIC24F08KA101__)
+
+#include "devices/pic24f08ka101_pyports.h"
+
+#elif defined(__PIC24F08KA102__)
+
+#include "devices/pic24f08ka102_pyports.h"
+
+#elif defined(__PIC24F16KA101__)
+
+#include "devices/pic24f16ka101_pyports.h"
+
+#elif defined(__PIC24F16KA102__)
+
+#include "devices/pic24f16ka102_pyports.h"
+
+#elif defined(__PIC24F32KA101__)
+
+#include "devices/pic24f32ka101_pyports.h"
+
+#elif defined(__PIC24F32KA102__)
+
+#include "devices/pic24f32ka102_pyports.h"
+
+#elif defined(__PIC24FJ128GA006__)
+
+#include "devices/pic24fj128ga006_pyports.h"
+
+#elif defined(__PIC24FJ128GA008__)
+
+#include "devices/pic24fj128ga008_pyports.h"
+
+#elif defined(__PIC24FJ128GA010__)
+
+#include "devices/pic24fj128ga010_pyports.h"
+
+#elif defined(__PIC24FJ128GA106__)
+
+#include "devices/pic24fj128ga106_pyports.h"
+
+#elif defined(__PIC24FJ128GA108__)
+
+#include "devices/pic24fj128ga108_pyports.h"
+
+#elif defined(__PIC24FJ128GA110__)
+
+#include "devices/pic24fj128ga110_pyports.h"
+
+#elif defined(__PIC24FJ128GB106__)
+
+#include "devices/pic24fj128gb106_pyports.h"
+
+#elif defined(__PIC24FJ128GB108__)
+
+#include "devices/pic24fj128gb108_pyports.h"
+
+#elif defined(__PIC24FJ128GB110__)
+
+#include "devices/pic24fj128gb110_pyports.h"
+
+#elif defined(__PIC24FJ16GA002__)
+
+#include "devices/pic24fj16ga002_pyports.h"
+
+#elif defined(__PIC24FJ16GA004__)
+
+#include "devices/pic24fj16ga004_pyports.h"
+
+#elif defined(__PIC24FJ192GA106__)
+
+#include "devices/pic24fj192ga106_pyports.h"
+
+#elif defined(__PIC24FJ192GA108__)
+
+#include "devices/pic24fj192ga108_pyports.h"
+
+#elif defined(__PIC24FJ192GA110__)
+
+#include "devices/pic24fj192ga110_pyports.h"
+
+#elif defined(__PIC24FJ192GB106__)
+
+#include "devices/pic24fj192gb106_pyports.h"
+
+#elif defined(__PIC24FJ192GB108__)
+
+#include "devices/pic24fj192gb108_pyports.h"
+
+#elif defined(__PIC24FJ192GB110__)
+
+#include "devices/pic24fj192gb110_pyports.h"
+
+#elif defined(__PIC24FJ256GA106__)
+
+#include "devices/pic24fj256ga106_pyports.h"
+
+#elif defined(__PIC24FJ256GA108__)
+
+#include "devices/pic24fj256ga108_pyports.h"
+
+#elif defined(__PIC24FJ256GA110__)
+
+#include "devices/pic24fj256ga110_pyports.h"
+
+#elif defined(__PIC24FJ256GB106__)
+
+#include "devices/pic24fj256gb106_pyports.h"
+
+#elif defined(__PIC24FJ256GB108__)
+
+#include "devices/pic24fj256gb108_pyports.h"
+
+#elif defined(__PIC24FJ256GB110__)
+
+#include "devices/pic24fj256gb110_pyports.h"
+
+#elif defined(__PIC24FJ32GA002__)
+
+#include "devices/pic24fj32ga002_pyports.h"
+
+#elif defined(__PIC24FJ32GA004__)
+
+#include "devices/pic24fj32ga004_pyports.h"
+
+#elif defined(__PIC24FJ48GA002__)
+
+#include "devices/pic24fj48ga002_pyports.h"
+
+#elif defined(__PIC24FJ48GA004__)
+
+#include "devices/pic24fj48ga004_pyports.h"
+
+#elif defined(__PIC24FJ64GA002__)
+
+#include "devices/pic24fj64ga002_pyports.h"
+
+#elif defined(__PIC24FJ64GA004__)
+
+#include "devices/pic24fj64ga004_pyports.h"
+
+#elif defined(__PIC24FJ64GA006__)
+
+#include "devices/pic24fj64ga006_pyports.h"
+
+#elif defined(__PIC24FJ64GA008__)
+
+#include "devices/pic24fj64ga008_pyports.h"
+
+#elif defined(__PIC24FJ64GA010__)
+
+#include "devices/pic24fj64ga010_pyports.h"
+
+#elif defined(__PIC24FJ64GA106__)
+
+#include "devices/pic24fj64ga106_pyports.h"
+
+#elif defined(__PIC24FJ64GA108__)
+
+#include "devices/pic24fj64ga108_pyports.h"
+
+#elif defined(__PIC24FJ64GA110__)
+
+#include "devices/pic24fj64ga110_pyports.h"
+
+#elif defined(__PIC24FJ64GB106__)
+
+#include "devices/pic24fj64gb106_pyports.h"
+
+#elif defined(__PIC24FJ64GB108__)
+
+#include "devices/pic24fj64gb108_pyports.h"
+
+#elif defined(__PIC24FJ64GB110__)
+
+#include "devices/pic24fj64gb110_pyports.h"
+
+#elif defined(__PIC24FJ96GA006__)
+
+#include "devices/pic24fj96ga006_pyports.h"
+
+#elif defined(__PIC24FJ96GA008__)
+
+#include "devices/pic24fj96ga008_pyports.h"
+
+#elif defined(__PIC24FJ96GA010__)
+
+#include "devices/pic24fj96ga010_pyports.h"
+
+#elif defined(__dsPIC33FJ06GS101__)
+
+#include "devices/dspic33fj06gs101_pyports.h"
+
+#elif defined(__dsPIC33FJ06GS102__)
+
+#include "devices/dspic33fj06gs102_pyports.h"
+
+#elif defined(__dsPIC33FJ06GS202__)
+
+#include "devices/dspic33fj06gs202_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP202__)
+
+#include "devices/dspic33fj128gp202_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP204__)
+
+#include "devices/dspic33fj128gp204_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP206A__)
+
+#include "devices/dspic33fj128gp206a_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP206__)
+
+#include "devices/dspic33fj128gp206_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP306A__)
+
+#include "devices/dspic33fj128gp306a_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP306__)
+
+#include "devices/dspic33fj128gp306_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP310A__)
+
+#include "devices/dspic33fj128gp310a_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP310__)
+
+#include "devices/dspic33fj128gp310_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP706A__)
+
+#include "devices/dspic33fj128gp706a_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP706__)
+
+#include "devices/dspic33fj128gp706_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP708A__)
+
+#include "devices/dspic33fj128gp708a_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP708__)
+
+#include "devices/dspic33fj128gp708_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP710A__)
+
+#include "devices/dspic33fj128gp710a_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP710__)
+
+#include "devices/dspic33fj128gp710_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP802__)
+
+#include "devices/dspic33fj128gp802_pyports.h"
+
+#elif defined(__dsPIC33FJ128GP804__)
+
+#include "devices/dspic33fj128gp804_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC202__)
+
+#include "devices/dspic33fj128mc202_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC204__)
+
+#include "devices/dspic33fj128mc204_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC506A__)
+
+#include "devices/dspic33fj128mc506a_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC506__)
+
+#include "devices/dspic33fj128mc506_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC510A__)
+
+#include "devices/dspic33fj128mc510a_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC510__)
+
+#include "devices/dspic33fj128mc510_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC706A__)
+
+#include "devices/dspic33fj128mc706a_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC706__)
+
+#include "devices/dspic33fj128mc706_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC708A__)
+
+#include "devices/dspic33fj128mc708a_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC708__)
+
+#include "devices/dspic33fj128mc708_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC710A__)
+
+#include "devices/dspic33fj128mc710a_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC710__)
+
+#include "devices/dspic33fj128mc710_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC802__)
+
+#include "devices/dspic33fj128mc802_pyports.h"
+
+#elif defined(__dsPIC33FJ128MC804__)
+
+#include "devices/dspic33fj128mc804_pyports.h"
+
+#elif defined(__dsPIC33FJ12GP201__)
+
+#include "devices/dspic33fj12gp201_pyports.h"
+
+#elif defined(__dsPIC33FJ12GP202__)
+
+#include "devices/dspic33fj12gp202_pyports.h"
+
+#elif defined(__dsPIC33FJ12MC201__)
+
+#include "devices/dspic33fj12mc201_pyports.h"
+
+#elif defined(__dsPIC33FJ12MC202__)
+
+#include "devices/dspic33fj12mc202_pyports.h"
+
+#elif defined(__dsPIC33FJ16GP304__)
+
+#include "devices/dspic33fj16gp304_pyports.h"
+
+#elif defined(__dsPIC33FJ16GS402__)
+
+#include "devices/dspic33fj16gs402_pyports.h"
+
+#elif defined(__dsPIC33FJ16GS404__)
+
+#include "devices/dspic33fj16gs404_pyports.h"
+
+#elif defined(__dsPIC33FJ16GS502__)
+
+#include "devices/dspic33fj16gs502_pyports.h"
+
+#elif defined(__dsPIC33FJ16GS504__)
+
+#include "devices/dspic33fj16gs504_pyports.h"
+
+#elif defined(__dsPIC33FJ16MC304__)
+
+#include "devices/dspic33fj16mc304_pyports.h"
+
+#elif defined(__dsPIC33FJ256GP506A__)
+
+#include "devices/dspic33fj256gp506a_pyports.h"
+
+#elif defined(__dsPIC33FJ256GP506__)
+
+#include "devices/dspic33fj256gp506_pyports.h"
+
+#elif defined(__dsPIC33FJ256GP510A__)
+
+#include "devices/dspic33fj256gp510a_pyports.h"
+
+#elif defined(__dsPIC33FJ256GP510__)
+
+#include "devices/dspic33fj256gp510_pyports.h"
+
+#elif defined(__dsPIC33FJ256GP710A__)
+
+#include "devices/dspic33fj256gp710a_pyports.h"
+
+#elif defined(__dsPIC33FJ256GP710__)
+
+#include "devices/dspic33fj256gp710_pyports.h"
+
+#elif defined(__dsPIC33FJ256MC510A__)
+
+#include "devices/dspic33fj256mc510a_pyports.h"
+
+#elif defined(__dsPIC33FJ256MC510__)
+
+#include "devices/dspic33fj256mc510_pyports.h"
+
+#elif defined(__dsPIC33FJ256MC710A__)
+
+#include "devices/dspic33fj256mc710a_pyports.h"
+
+#elif defined(__dsPIC33FJ256MC710__)
+
+#include "devices/dspic33fj256mc710_pyports.h"
+
+#elif defined(__dsPIC33FJ32GP202__)
+
+#include "devices/dspic33fj32gp202_pyports.h"
+
+#elif defined(__dsPIC33FJ32GP204__)
+
+#include "devices/dspic33fj32gp204_pyports.h"
+
+#elif defined(__dsPIC33FJ32GP302__)
+
+#include "devices/dspic33fj32gp302_pyports.h"
+
+#elif defined(__dsPIC33FJ32GP304__)
+
+#include "devices/dspic33fj32gp304_pyports.h"
+
+#elif defined(__dsPIC33FJ32GS406__)
+
+#include "devices/dspic33fj32gs406_pyports.h"
+
+#elif defined(__dsPIC33FJ32GS606__)
+
+#include "devices/dspic33fj32gs606_pyports.h"
+
+#elif defined(__dsPIC33FJ32GS608__)
+
+#include "devices/dspic33fj32gs608_pyports.h"
+
+#elif defined(__dsPIC33FJ32GS610__)
+
+#include "devices/dspic33fj32gs610_pyports.h"
+
+#elif defined(__dsPIC33FJ32MC202__)
+
+#include "devices/dspic33fj32mc202_pyports.h"
+
+#elif defined(__dsPIC33FJ32MC204__)
+
+#include "devices/dspic33fj32mc204_pyports.h"
+
+#elif defined(__dsPIC33FJ32MC302__)
+
+#include "devices/dspic33fj32mc302_pyports.h"
+
+#elif defined(__dsPIC33FJ32MC304__)
+
+#include "devices/dspic33fj32mc304_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP202__)
+
+#include "devices/dspic33fj64gp202_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP204__)
+
+#include "devices/dspic33fj64gp204_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP206A__)
+
+#include "devices/dspic33fj64gp206a_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP206__)
+
+#include "devices/dspic33fj64gp206_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP306A__)
+
+#include "devices/dspic33fj64gp306a_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP306__)
+
+#include "devices/dspic33fj64gp306_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP310A__)
+
+#include "devices/dspic33fj64gp310a_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP310__)
+
+#include "devices/dspic33fj64gp310_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP706A__)
+
+#include "devices/dspic33fj64gp706a_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP706__)
+
+#include "devices/dspic33fj64gp706_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP708A__)
+
+#include "devices/dspic33fj64gp708a_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP708__)
+
+#include "devices/dspic33fj64gp708_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP710A__)
+
+#include "devices/dspic33fj64gp710a_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP710__)
+
+#include "devices/dspic33fj64gp710_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP802__)
+
+#include "devices/dspic33fj64gp802_pyports.h"
+
+#elif defined(__dsPIC33FJ64GP804__)
+
+#include "devices/dspic33fj64gp804_pyports.h"
+
+#elif defined(__dsPIC33FJ64GS406__)
+
+#include "devices/dspic33fj64gs406_pyports.h"
+
+#elif defined(__dsPIC33FJ64GS606__)
+
+#include "devices/dspic33fj64gs606_pyports.h"
+
+#elif defined(__dsPIC33FJ64GS608__)
+
+#include "devices/dspic33fj64gs608_pyports.h"
+
+#elif defined(__dsPIC33FJ64GS610__)
+
+#include "devices/dspic33fj64gs610_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC202__)
+
+#include "devices/dspic33fj64mc202_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC204__)
+
+#include "devices/dspic33fj64mc204_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC506A__)
+
+#include "devices/dspic33fj64mc506a_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC506__)
+
+#include "devices/dspic33fj64mc506_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC508A__)
+
+#include "devices/dspic33fj64mc508a_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC508__)
+
+#include "devices/dspic33fj64mc508_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC510A__)
+
+#include "devices/dspic33fj64mc510a_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC510__)
+
+#include "devices/dspic33fj64mc510_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC706A__)
+
+#include "devices/dspic33fj64mc706a_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC706__)
+
+#include "devices/dspic33fj64mc706_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC710A__)
+
+#include "devices/dspic33fj64mc710a_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC710__)
+
+#include "devices/dspic33fj64mc710_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC802__)
+
+#include "devices/dspic33fj64mc802_pyports.h"
+
+#elif defined(__dsPIC33FJ64MC804__)
+
+#include "devices/dspic33fj64mc804_pyports.h"
+
+#else
+
+#error -- processor ID not specified in pic24_pyports.h
+
+#endif
+
+
+#ifndef _PIC24_PYDIGIO_DEFINED
+#warning Digital IO macros not defined for this device!
+#warning Edit common\pic24_pyports.h file!
+#endif
+
+
+
+
+
+
+
+
+/** The values state that a given digital I/O pin does not 
+ *  have analog capability. It is used in \ref anCnMap.
+ */
+#define UNDEF_AN_PIN 255
+
+/** The values state that a given digital I/O pin does not 
+ *  have change notification capability. It is used in \ref anCnMap.
+ */
+#define UNDEF_CN_PIN 255
+
+/** Define a structure which contains a mapping from
+ *  a digital I/O port/pin to an analog pin and to
+ *  a change notification pin.
+ */
+typedef struct {
+  /// The analog pin (ANxx) corresponding to a given digital port/pin,
+  /// or \ref UNDEF_AN_PIN if the pin has no analog capability.
+  uint8_t u8_anPin;
+  /// The analog pin (ANxx) corresponding to a given digital port/pin,
+  /// or \ref UNDEF_CN_PIN if the pin has no change notification capability.
+  uint8_t u8_cnPin;
+} anCnMap_t;
+
 // The AN_CN_MAP macro specifies the mapping. It is defined in
 // the device/<devicename>_pyports.h file.
-const anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16] = { AN_CN_MAP };
+/** An array of the \ref anCnMap_t structure with an entry for each of
+ *  the (up to) 16 pins on each digitial I/O port for this device.
+ */
+static const anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16] = { AN_CN_MAP };
 
-const uint32_t u32_isRemappable = {
+#if defined(HAS_REMAPPABLE_PINS) || defined(__DOXYGEN__)
+/** This bitfield indicates which remappable pins exist on this device.
+ *  Each bit is true if the corresponding remappable pin exists.
+ *  In particular, bit 0 = RP0, bit 1 = RP1, etc.
+ */
+static const uint32_t u32_isRemappable = {
 #ifdef _RP0R
     0x00000001 |
 #endif
@@ -884,3 +1665,471 @@ const uint32_t u32_isRemappable = {
 // for assigning an input to Vss.
     0x00000000 
 };
+#endif
+
+
+
+
+
+/** Make sure the given pin is within bounds.
+ *  @param u16_port Port, where 0 = A, 1 = B, etc.
+ *  @param u16_pin  Pin of the given port; from 0 to 15.
+ *  @return Returns C_FALSE if the port exceeds \ref NUM_DIGITAL_PORTS
+ *          or if the pin > 15. Returns C_TRUE otherwise.
+ */
+inline static bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin)
+{
+    // Check for an out-of-range port
+    if (u16_port > NUM_DIGITAL_PORTS)
+        return C_FALSE;
+    // Check for an out-of-range pin
+    if (u16_pin > 15)
+        return C_FALSE;
+    else
+        return C_TRUE;
+}
+
+/** Determine if the given digitial I/O pin exists.
+ *  @param u16_port Port, where 0 = A, 1 = B, etc.
+ *  @param u16_pin  Pin of the given port; from 0 to 15.
+ *  @return Returns C_TRUE if the pin exists, C_FALSE otherwise.
+ *          Nonexistant ports or pins simply return C_FALSE.
+ */
+static bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
+{
+    // Check for an out-of-range port
+    if (!digitalPinInBounds(u16_port, u16_pin))
+        return C_FALSE;
+    // Check the map of pins.
+    return getBit(u16_digitalPinPresent[u16_port], u16_pin);
+}
+
+
+/** Determine if the given digitial I/O open-drain pin exists.
+ *  @param u16_port Port, where 0 = A, 1 = B, etc.
+ *  @param u16_pin  Pin of the given port; from 0 to 15.
+ *  @return Returns C_TRUE if the pin open-drain exists, C_FALSE otherwise.
+ *          Nonexistant ports or pins simply return C_FALSE.
+ */
+static bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
+{
+    // Check for an out-of-range port
+    if (!digitalPinInBounds(u16_port, u16_pin))
+        return C_FALSE;
+    // Check the map of pins.
+    return getBit(u16_digitalPinOpenDrainPresent[u16_port], u16_pin);
+}
+
+
+/** This values gives the number of words between I/O port control registers. */
+// I can't make this a const, since only the linker knows these values.
+static uint16_t u16_ioPortControlOffset;
+
+
+void initIoConst(void) {
+    u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
+}
+
+
+PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    // Select input or output for the pin
+    setBit((&TRISA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isInput);
+    return retval;
+}
+
+
+PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
+  bool_t b_isDigital)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint8_t u8_anPin;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+
+    // There are four possibilities for digital configuration:
+    //                      | set as analog   | set as digital
+    // ---------------------+-----------------+-----------------------------------------
+    // has analog           | clear PCFG bit  | set PCFG bit
+    // does not have analog | throw exception | do nothing (already digital)
+    u8_anPin = anCnMap[u16_port*16 + u16_pin].u8_cnPin;
+    if (u8_anPin != UNDEF_AN_PIN) {
+        // Enable/disable analog input mode on this pin.
+        // Each ADC handles 32 channels; some PIC24F / dsPIC33 parts have
+        // two converters. If so, need to clear the corresponding bit on both.
+        SET_EXTENDED_BIT(&AD1PCFGL, u8_anPin, b_isDigital);
+#ifdef _AD2IF
+        SET_EXTENDED_BIT(&AD2PCFGL, u8_anPin, b_isDigital);
+#endif
+    } else {
+        // If analog is enabled on a pin without analog ability,
+        // report an error. Otherwise, do nothing -- digital
+        // is the default for a pin without analog ability.
+        EXCEPTION_UNLESS(b_isDigital, PM_RET_EX_VAL,
+          "Pin %c%d does not support analog functionality.", 
+          (char) (u16_port + 'A'), u16_pin);
+    }
+
+    return retval;
+}
+
+
+PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    // There are four possibilities for open-drain configuration:
+    //                          | set as open-drain  | set as normal (push/pull aka totem-pole)
+    // -------------------------+--------------------+-----------------------------------------
+    // has open-drain           | set OD bit         | clear OD bit
+    // does not have open-drain | throw exception    | do nothing (already normal)
+    if (digitalOpenDrainPinExists(u16_port, u16_pin)) {
+        // Set the pin per the OD boolean.
+        // PIC24F names this differently, so define around it.
+        #if defined (_ODA0)  || defined (_ODA1)  || defined (_ODA2)  || defined (_ODA3)  || \
+            defined (_ODA4)  || defined (_ODA5)  || defined (_ODA6)  || defined (_ODA7)  || \
+            defined (_ODA8)  || defined (_ODA9)  || defined (_ODA10) || defined (_ODA11) || \
+            defined (_ODA12) || defined (_ODA12) || defined (_ODA14) || defined (_ODA15)
+        #define ODCA ODA
+        #endif
+        setBit((&ODCA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isOpenDrain);
+    } else {
+        // If open-drain is enabled on a pin without OD ability,
+        // report an error. Otherwise, do nothing -- open-drain
+        // is already disabled for a pin without OD ability.
+        EXCEPTION_UNLESS(!b_isOpenDrain, PM_RET_EX_VAL,
+          "The pin %c%d has no open-drain ability.", (char) (u16_port + 'A'), u16_pin);
+    }
+
+    return retval;
+}
+
+PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+  int16_t i16_dir)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint8_t u8_cnPin;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+
+    // Detetrmine which (if any) CN bit exists on the given pin
+    u8_cnPin = anCnMap[u16_port*16 + u16_pin].u8_cnPin;
+
+    // For no pull, disable pull-ups and pull-downs if they exist
+    if (i16_dir == 0) {
+        if (u8_cnPin != UNDEF_CN_PIN) {
+            SET_EXTENDED_BIT(&CNPU1, u8_cnPin, C_FALSE);
+            #ifdef HAS_PULL_DOWNS
+                SET_EXTENDED_BIT(&CNPD1, u8_cnPin, C_FALSE);
+            #endif
+        }
+    // For pull-ups, disable pull-downs if they exist. Throw
+    // an exception if pull-ups don't exist
+    } else if (i16_dir > 0) {
+        EXCEPTION_UNLESS(u8_cnPin != UNDEF_CN_PIN, PM_RET_EX_VAL,
+          "Pull-ups do not exist on %c%d.", 
+          (char) (u16_port + 'A'), u16_pin);
+        SET_EXTENDED_BIT(&CNPU1, u8_cnPin, C_TRUE);
+        #ifdef HAS_PULL_DOWNS
+            SET_EXTENDED_BIT(&CNPD1, u8_cnPin, C_FALSE);
+        #endif
+    // For pull-downs, disable pull-ups. Throw an exception
+    // if either don't exist.
+    } else {
+        ASSERT(i16_dir < 0);
+
+        // Verify pull-downs exist then enable them
+        #ifdef HAS_PULL_DOWNS
+            SET_EXTENDED_BIT(&CNPD1, u8_cnPin, C_TRUE);
+        #else
+            EXCEPTION_UNLESS(0, PM_RET_EX_VAL,
+              "Pull-downs do not exist on this chip.");
+        #endif
+
+        // Verify pull-ups exist then disable them
+        EXCEPTION_UNLESS(u8_cnPin != UNDEF_CN_PIN, PM_RET_EX_VAL,
+          "Pull-ups do not exist on %c%d.", 
+          (char) (u16_port + 'A'), u16_pin);
+        SET_EXTENDED_BIT(&CNPU1, u8_cnPin, C_FALSE);
+    }
+
+    return retval;
+}
+
+#ifdef HAS_REMAPPABLE_PINS
+
+/** Unmap a specific peripheral input from a given pin. Checks the peripheral
+ *  to see if it is mapped to the given pin; if so, that peripheral is
+ *  unmapped, freeing the pin.
+ *  @param rpinrBitfield A bitfield in one of the RPINRx registers which
+ *           maps the input of a peripheral to a pin.
+ *  @param rpPin An RPx value, indicating which RP pin should be free of
+ *           any mapping after this macro completes.
+ */
+#define UNMAP_PERIPHERAL_INPUT(rpinrBitfield, rpPin) \
+    if (rpinrBitfield == rpPin)                      \
+        rpinrBitfield = IN_PIN_PPS_VSS;              \
+    else                                             \
+        ((void) 0)
+
+/** Unmap a specific peripheral output from a given pin. Assigns the
+ *  pin to have no peripheral mapped to it. This create a case in a
+ *  switch statement, so it must be placed in a switch statement.
+ *  @param rpPin An RPx value, indicating which RP pin should be free of
+ *           any mapping after this macro completes.
+ */
+#define UNMAP_PERIPHERAL_OUTPUT(rpPin)        \
+    case rpPin :                              \
+        _RP ## rpPin ## R = OUT_FN_PPS_NULL;  \
+    break
+
+/// Call \ref unmapPins. See that function for parameters and return
+/// values.
+#define UNMAP_PIN(u16_port, u16_pin) unmapPin(u16_port, u16_pin)
+
+PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_rp;
+
+    // If this isn't a remappable pin (only ports B and C
+    // have remappable pins), we're done.
+    if ( (u16_port != PORT_B_INDEX) && (u16_port != PORT_C_INDEX) )
+        return retval;
+
+    // Convert from port/pin to an RP number.
+    // RP0-15 = RB0-15, RP16-31 = RB0-15
+    u16_rp = (u16_port - PORT_B_INDEX)*16 + u16_pin;
+
+    // See if this pin can be remapped. If not, we're done.
+    if (!GET_EXTENDED_BIT(u32_isRemappable, u16_rp))
+        return retval;
+
+    // For each remappable peripheral that takes full control
+    // of an I/O pin, check to see if a given pin is mapped to
+    // it. If so, unmap that peripheral.
+
+    // Unmap UART1 inputs
+#ifdef _U1CTSR
+    UNMAP_PERIPHERAL_INPUT(_U1CTSR, u16_rp);
+#endif
+#ifdef _U1RXR
+    UNMAP_PERIPHERAL_INPUT(_U1RXR, u16_rp);
+#endif
+
+    // Unmap UART2 inputs
+#ifdef _U2CTSR
+    UNMAP_PERIPHERAL_INPUT(_U2CTSR, u16_rp);
+#endif
+#ifdef _U2RXR
+    UNMAP_PERIPHERAL_INPUT(_U2RXR, u16_rp);
+#endif
+
+    // Unmap SPI1 inputs
+#ifdef _SCK1R
+    UNMAP_PERIPHERAL_INPUT(_SCK1R, u16_rp);
+#endif
+#ifdef _SDI1R
+    UNMAP_PERIPHERAL_INPUT(_SDI1R, u16_rp);
+#endif
+#ifdef _SS1R
+    UNMAP_PERIPHERAL_INPUT(_SS1R, u16_rp);
+#endif
+
+    // Unmap SPI2 inputs
+#ifdef _SCK2R
+    UNMAP_PERIPHERAL_INPUT(_SCK2R, u16_rp);
+#endif
+#ifdef _SDI2R
+    UNMAP_PERIPHERAL_INPUT(_SDI2R, u16_rp);
+#endif
+#ifdef _SS2R
+    UNMAP_PERIPHERAL_INPUT(_SS2R, u16_rp);
+#endif
+
+    // Unmap ECAN1 inputs
+#ifdef _C1RXR
+    UNMAP_PERIPHERAL_INPUT(_C1RXR, u16_rp);
+#endif
+
+    // Check to see if the pin to be unmapped has any
+    // ouputs mapped to it and unmap if so.
+    switch (u16_rp) {
+#ifdef _RP0R
+        UNMAP_PERIPHERAL_OUTPUT(0);
+#endif
+
+#ifdef _RP1R
+        UNMAP_PERIPHERAL_OUTPUT(1);
+#endif
+
+#ifdef _RP2R
+        UNMAP_PERIPHERAL_OUTPUT(2);
+#endif
+
+#ifdef _RP3R
+        UNMAP_PERIPHERAL_OUTPUT(3);
+#endif
+
+#ifdef _RP4R
+        UNMAP_PERIPHERAL_OUTPUT(4);
+#endif
+
+#ifdef _RP5R
+        UNMAP_PERIPHERAL_OUTPUT(5);
+#endif
+
+#ifdef _RP6R
+        UNMAP_PERIPHERAL_OUTPUT(6);
+#endif
+
+#ifdef _RP7R
+        UNMAP_PERIPHERAL_OUTPUT(7);
+#endif
+
+#ifdef _RP8R
+        UNMAP_PERIPHERAL_OUTPUT(8);
+#endif
+
+#ifdef _RP9R
+        UNMAP_PERIPHERAL_OUTPUT(9);
+#endif
+
+#ifdef _RP10R
+        UNMAP_PERIPHERAL_OUTPUT(10);
+#endif
+
+#ifdef _RP11R
+        UNMAP_PERIPHERAL_OUTPUT(11);
+#endif
+
+#ifdef _RP12R
+        UNMAP_PERIPHERAL_OUTPUT(12);
+#endif
+
+#ifdef _RP13R
+        UNMAP_PERIPHERAL_OUTPUT(13);
+#endif
+
+#ifdef _RP14R
+        UNMAP_PERIPHERAL_OUTPUT(14);
+#endif
+
+#ifdef _RP15R
+        UNMAP_PERIPHERAL_OUTPUT(15);
+#endif
+
+#ifdef _RP16R
+        UNMAP_PERIPHERAL_OUTPUT(16);
+#endif
+
+#ifdef _RP17R
+        UNMAP_PERIPHERAL_OUTPUT(17);
+#endif
+
+#ifdef _RP18R
+        UNMAP_PERIPHERAL_OUTPUT(18);
+#endif
+
+#ifdef _RP19R
+        UNMAP_PERIPHERAL_OUTPUT(19);
+#endif
+
+#ifdef _RP20R
+        UNMAP_PERIPHERAL_OUTPUT(20);
+#endif
+
+#ifdef _RP21R
+        UNMAP_PERIPHERAL_OUTPUT(21);
+#endif
+
+#ifdef _RP22R
+        UNMAP_PERIPHERAL_OUTPUT(22);
+#endif
+
+#ifdef _RP23R
+        UNMAP_PERIPHERAL_OUTPUT(23);
+#endif
+
+#ifdef _RP24R
+        UNMAP_PERIPHERAL_OUTPUT(24);
+#endif
+
+#ifdef _RP25R
+        UNMAP_PERIPHERAL_OUTPUT(25);
+#endif
+
+#ifdef _RP26R
+        UNMAP_PERIPHERAL_OUTPUT(26);
+#endif
+
+#ifdef _RP27R
+        UNMAP_PERIPHERAL_OUTPUT(27);
+#endif
+
+#ifdef _RP28R
+        UNMAP_PERIPHERAL_OUTPUT(28);
+#endif
+
+#ifdef _RP29R
+        UNMAP_PERIPHERAL_OUTPUT(29);
+#endif
+
+#ifdef _RP30R
+        UNMAP_PERIPHERAL_OUTPUT(30);
+#endif
+
+        default :
+            // No pin matches, so nothing to do
+        break;
+    }
+
+    return retval;
+}
+
+#else // !defined(HAS_REMAPPABLE_PINS)
+/// Define a "function" for devices without remappable I/O which
+/// returns OK -- all pins are automatically unmapped.
+#define UNMAP_PIN(u16_port, u16_pin) PM_RET_OK
+#endif
+
+PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_port;
+    uint16_t u16_pin;
+    bool_t b_isInput;
+    bool_t b_isOpenDrain;
+    int16_t i16_pullDir;
+
+    // Get the arguments
+    CHECK_NUM_ARGS(5);
+    GET_UINT16(0, &u16_port);
+    GET_UINT16(1, &u16_pin);
+    GET_BOOL(2, &b_isInput);
+    GET_BOOL(3, &b_isOpenDrain);
+    GET_INT16(4, &i16_pullDir);
+
+    // Call the low-level functions to configure the port
+    PM_CHECK_FUNCTION( setPinIsDigital(u16_port, u16_pin, C_TRUE) );
+    PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
+    PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
+    PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );
+    PM_CHECK_FUNCTION( UNMAP_PIN(u16_port, u16_pin) );
+
+    return retval;
+}

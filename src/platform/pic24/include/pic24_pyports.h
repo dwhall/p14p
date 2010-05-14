@@ -34,7 +34,151 @@
 // this file won't be documented.
 /** \file
  *  \brief This file supports configuration of IO ports on the PIC24.
+ *
+ *  \section pinConfiguration Pin configuration
+ *  The PIC24 and dsPIC33 processors support a rich and varied I/O
+ *  ability. Before configuring a pin, the I/O system must first be
+ *  initialized by a call to \ref initIoConst. Next, each pin
+ *  most be configured. The high-level functions 
+ *  \ref configDigitalPinC, \ref configAnalogPinC simplify this
+ *  process. \todo more here
+ *
+ *  \subsection lowLevelPinConfiguration Low-level pin configuration
+ *  Low-level I/O pin configuration requires making the following
+ *  choices:
+ *  - First, use \ref setPinIsInput to configure a pin as either
+ *    an input or an output.
+ *    - For inputs, use \ref setPinIsDigital to configure the
+ *      pin as an analog or digital input.
+ *    - For outputs, use \ref setPinIsDigital to configure the
+ *      pin as a digital input. While digital output functions
+ *      correctly when the pin is configured as both an analog
+ *      input and a digitial output, doing so slows the rise and
+ *      fall times of the output. This occurs because analog input
+ *      use a capacitor to sample and hold the analog voltage, which
+ *      loads the pin, slowing its edge rates.
+ *    - In either case, note that the device reset state of a pin
+ *      is with analog input capability enabled; when configuring
+ *      a pin for digital I/O, this must be changed for the pin to
+ *      operate correctly.
+ *  - Second, use \ref setPinPullDirection to
+ *    select either a weak pull-up, a weak pull-down, or no pull.
+ *    Note that only the PIC24F family supports pull-downs (see the
+ *    24F FRM section 12.6). In addition, the availablity of pull-ups
+ *    and pull-downs varies based on the chip and pin; only pins with
+ *    change notification capability support pull-ups or pull-downs.
+ *    Pins with this ability are labeled CNx on the pinout for the chip.
+ *    - For analog inputs, the manual does not specify the
+ *      required pull; however, they should be configured with no
+ *      pull.
+ *    - For digital outputs, the manual states that no pull should be
+ *      enabled (see e.g. the PIC24HJ32GP202 manual, section 10.3,
+ *      grey box beginning with "Note:"). However, if the pin is
+ *      configured as an open-drain output (see next item), this
+ *      is expected and should be supported.
+ *  - Third, for digital outputs only, select open-drain or standard
+ *    operation using \ref setPinIsOpenDrain. Recall that open-drain 
+ *    (also known as open-collector) operation
+ *    configures the digital output to only drive the pin low but allow
+ *    it to float when high; therefore, a pull-up must be connected either
+ *    externally or internally. In contrast, standard drivers (also known
+ *    as push/pull or totem-pole drivers) active drive the pin either
+ *    high or low.
+ *  - Finally, any remappable peripherals which take control of the
+ *    I/O pin must be unmapped to make use of the pin. The
+ *    \ref unmapPin function does this; it can still be called for
+ *    chips which do not have remappable I/O. In this case, the
+ *    function does nothing.
  */
+
+#include "pm.h"
+
+/** @name High-level pin configuration functions
+ *  These functions allow configuring an I/O pin using a single
+ *  function call.
+ */
+//@{
+
+/** Initialize constants necessary for correct operation of
+ *  all pin configuration functions, both high-level and
+ *  low-level. */
+void initIoConst(void);
+
+/** Implements the Python \ref main.configDigitalPin function. 
+ *  See it for details. Implementation:
+ *  -# Check to see if the port/pin exists.
+ *  -# If the pin has analog capability, turn it off.
+ *  -# Select the pin to be either an input or an output.
+ *  -# Check and configure open-drain for the pin.
+ *  -# Check and configure pull-ups/pull-downs for the pin.
+ *  \todo Need to also remove any peripheral outputs mapped to
+ *  this pin if it's a remappable pin.
+ */
+PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
+//@}
+
+/** @name low-level pin configuration functions
+ *  These functions allow low-level configuration of I/O pins.
+ *  See the \ref lowLevelPinConfiguration "low-level pin configuration"
+ *  section for usage.
+ */
+//@{
+
+/** Set an I/O pin to be either an input or an output. Setting this
+ *  pin as an output implies that it is a digital outp0ut. In contrast,
+ *  configuring this pint to be an input allows it to be used as either
+ *  a digital input or an analog input.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param b_isInput True to select the pin as an input, false as an output.
+ */
+PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput);
+
+
+/** Configure an I/O pin as either a digital I/O or an 
+ *  analog input. To use an an analog input, this pin
+ *  must already be configured as an input using
+ *  \ref setPinIsInput. For use as a digital pin (either as
+ *  an input or an output), configure this pin in digital mode.
+ *  See the \ref lowLevelPinConfiguration "low-level pin 
+ *  configuration" section for more details.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param b_isDigital True to configure the pin as a digital input, 
+ *           false to configure the pin as an analog input.
+ */
+PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
+  bool_t b_isDigital);
+
+
+/** Specify the direction (input or output) for an I/O pin.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param b_isOpenDrain True to select an open-drain driver for the
+ *                       pin, false to select a standard push-pull (totem-pole) driver.
+ */
+PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain);
+
+/** Specify the pull direction (up, down, or none) for an I/O pin.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param i16_dir  Pull direction: 0 = none, negative = pull down, 
+ *                    positive = pull up.
+ */
+PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+  int16_t i16_dir);
+
+/** For chip that support remappable peripherals, unmap any
+ *  peripherals which take full control of pin from the given
+ *  pin, freeing the pin for use with general-purpose I/O. if
+ *  the chip in use does not support remappable I/O, this routine
+ *  does nothing.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ */
+PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin);
+//@}
+
 
 /** Map ports to an index. */
 enum { PORT_A_INDEX = 0,
@@ -108,53 +252,6 @@ enum { PORT_A_INDEX = 0,
 #define HAS_PULL_DOWNS
 #endif
 
-/** This variable stores a bitmap describing which digitial I/O pins exist
- *  on the current processor. Port A is stored at [0], B at [1], etc. A value
- *  of 1 for a gvien bit indicates the corresponding pin of that port exists.
- *  For example, 0x0001 indicates that only pin 0 of the selected port exists, 
- *  while pins 1-15 do not.
- */
-const extern uint16_t u16_digitalPinPresent[NUM_DIGITAL_PORTS];
-
-/** This variable stores a bitmap describing which digitial I/O pins can be
- *  configured as open-drain outputs on the current processor. Port A is 
- *  stored at [0], B at [1], etc. A value of 1 for a gvien bit indicates 
- *  the corresponding pin of that port can be made open-drain. For example, 
- *  0x0001 indicates that only pin 0 of the selected port can be made, 
- *  open-drain, while pins 1-15 operator only in the standard, totem-pole
- *  output configuration.
- */
-const extern uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS];
-
-/** The values state that a given digital I/O pin does not 
- *  have analog capability. It is used in \ref anCnMap.
- */
-#define UNDEF_AN_PIN 255
-
-/** The values state that a given digital I/O pin does not 
- *  have change notification capability. It is used in \ref anCnMap.
- */
-#define UNDEF_CN_PIN 255
-
-/** Define a structure which contains a mapping from
- *  a digital I/O port/pin to an analog pin and to
- *  a change notification pin.
- */
-typedef struct {
-  /// The analog pin (ANxx) corresponding to a given digital port/pin,
-  /// or \ref UNDEF_AN_PIN if the pin has no analog capability.
-  uint8_t u8_anPin;
-  /// The analog pin (ANxx) corresponding to a given digital port/pin,
-  /// or \ref UNDEF_CN_PIN if the pin has no change notification capability.
-  uint8_t u8_cnPin;
-} anCnMap_t;
-
-/** An array of the \ref anCnMap_t structure with an entry for each of
- *  the (up to) 16 pins on each digitial I/O port for this device.
- */
-const extern anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16];
-
-
 #if defined(__DOXYGEN__) || \
     defined(_RP0R)  || defined(_RP1R)  || defined(_RP2R)  || defined(_RP3R)  || \
     defined(_RP4R)  || defined(_RP5R)  || defined(_RP6R)  || defined(_RP7R)  || \
@@ -166,733 +263,6 @@ const extern anCnMap_t anCnMap[NUM_DIGITAL_PORTS * 16];
     defined(_RP28R) || defined(_RP29R) || defined(_RP30R) // Note: RP31 cannot exist
 /** When defined, indicates that this device has remappable pins. */
 #define HAS_REMAPPABLE_PINS
-#endif
-
-#ifdef HAS_REMAPPABLE_PINS
-/** This bitfield indicates which remappable pins exist on this device.
- *  Each bit is true if the corresponding remappable pin exists.
- *  In particular, bit 0 = RP0, bit 1 = RP1, etc.
- */
-const extern uint32_t u32_isRemappable;
-#endif
-
-// Include appropriate ports file for the device in use.
-// These definitions are then used below to map digital I/O ports to the
-// corresponding analog and change notification pin
-#if defined(__PIC24HJ128GP202__)
-
-#include "devices/pic24hj128gp202_pyports.h"
-
-#elif defined(__PIC24HJ128GP204__)
-
-#include "devices/pic24hj128gp204_pyports.h"
-
-#elif defined(__PIC24HJ128GP206__)
-
-#include "devices/pic24hj128gp206_pyports.h"
-
-#elif defined(__PIC24HJ128GP210__)
-
-#include "devices/pic24hj128gp210_pyports.h"
-
-#elif defined(__PIC24HJ128GP306__)
-
-#include "devices/pic24hj128gp306_pyports.h"
-
-#elif defined(__PIC24HJ128GP310__)
-
-#include "devices/pic24hj128gp310_pyports.h"
-
-#elif defined(__PIC24HJ128GP502__)
-
-#include "devices/pic24hj128gp502_pyports.h"
-
-#elif defined(__PIC24HJ128GP504__)
-
-#include "devices/pic24hj128gp504_pyports.h"
-
-#elif defined(__PIC24HJ128GP506__)
-
-#include "devices/pic24hj128gp506_pyports.h"
-
-#elif defined(__PIC24HJ128GP510__)
-
-#include "devices/pic24hj128gp510_pyports.h"
-
-#elif defined(__PIC24HJ12GP201__)
-
-#include "devices/pic24hj12gp201_pyports.h"
-
-#elif defined(__PIC24HJ12GP202__)
-
-#include "devices/pic24hj12gp202_pyports.h"
-
-#elif defined(__PIC24HJ16GP304__)
-
-#include "devices/pic24hj16gp304_pyports.h"
-
-#elif defined(__PIC24HJ256GP206__)
-
-#include "devices/pic24hj256gp206_pyports.h"
-
-#elif defined(__PIC24HJ256GP210__)
-
-#include "devices/pic24hj256gp210_pyports.h"
-
-#elif defined(__PIC24HJ256GP610__)
-
-#include "devices/pic24hj256gp610_pyports.h"
-
-#elif defined(__PIC24HJ32GP202__)
-
-#include "devices/pic24hj32gp202_pyports.h"
-
-#elif defined(__PIC24HJ32GP204__)
-
-#include "devices/pic24hj32gp204_pyports.h"
-
-#elif defined(__PIC24HJ32GP302__)
-
-#include "devices/pic24hj32gp302_pyports.h"
-
-#elif defined(__PIC24HJ32GP304__)
-
-#include "devices/pic24hj32gp304_pyports.h"
-
-#elif defined(__PIC24HJ64GP202__)
-
-#include "devices/pic24hj64gp202_pyports.h"
-
-#elif defined(__PIC24HJ64GP204__)
-
-#include "devices/pic24hj64gp204_pyports.h"
-
-#elif defined(__PIC24HJ64GP206__)
-
-#include "devices/pic24hj64gp206_pyports.h"
-
-#elif defined(__PIC24HJ64GP210__)
-
-#include "devices/pic24hj64gp210_pyports.h"
-
-#elif defined(__PIC24HJ64GP502__)
-
-#include "devices/pic24hj64gp502_pyports.h"
-
-#elif defined(__PIC24HJ64GP504__)
-
-#include "devices/pic24hj64gp504_pyports.h"
-
-#elif defined(__PIC24HJ64GP506__)
-
-#include "devices/pic24hj64gp506_pyports.h"
-
-#elif defined(__PIC24HJ64GP510__)
-
-#include "devices/pic24hj64gp510_pyports.h"
-
-#elif defined(__PIC24F04KA200__)
-
-#include "devices/pic24f04ka200_pyports.h"
-
-#elif defined(__PIC24F04KA201__)
-
-#include "devices/pic24f04ka201_pyports.h"
-
-#elif defined(__PIC24F08KA101__)
-
-#include "devices/pic24f08ka101_pyports.h"
-
-#elif defined(__PIC24F08KA102__)
-
-#include "devices/pic24f08ka102_pyports.h"
-
-#elif defined(__PIC24F16KA101__)
-
-#include "devices/pic24f16ka101_pyports.h"
-
-#elif defined(__PIC24F16KA102__)
-
-#include "devices/pic24f16ka102_pyports.h"
-
-#elif defined(__PIC24F32KA101__)
-
-#include "devices/pic24f32ka101_pyports.h"
-
-#elif defined(__PIC24F32KA102__)
-
-#include "devices/pic24f32ka102_pyports.h"
-
-#elif defined(__PIC24FJ128GA006__)
-
-#include "devices/pic24fj128ga006_pyports.h"
-
-#elif defined(__PIC24FJ128GA008__)
-
-#include "devices/pic24fj128ga008_pyports.h"
-
-#elif defined(__PIC24FJ128GA010__)
-
-#include "devices/pic24fj128ga010_pyports.h"
-
-#elif defined(__PIC24FJ128GA106__)
-
-#include "devices/pic24fj128ga106_pyports.h"
-
-#elif defined(__PIC24FJ128GA108__)
-
-#include "devices/pic24fj128ga108_pyports.h"
-
-#elif defined(__PIC24FJ128GA110__)
-
-#include "devices/pic24fj128ga110_pyports.h"
-
-#elif defined(__PIC24FJ128GB106__)
-
-#include "devices/pic24fj128gb106_pyports.h"
-
-#elif defined(__PIC24FJ128GB108__)
-
-#include "devices/pic24fj128gb108_pyports.h"
-
-#elif defined(__PIC24FJ128GB110__)
-
-#include "devices/pic24fj128gb110_pyports.h"
-
-#elif defined(__PIC24FJ16GA002__)
-
-#include "devices/pic24fj16ga002_pyports.h"
-
-#elif defined(__PIC24FJ16GA004__)
-
-#include "devices/pic24fj16ga004_pyports.h"
-
-#elif defined(__PIC24FJ192GA106__)
-
-#include "devices/pic24fj192ga106_pyports.h"
-
-#elif defined(__PIC24FJ192GA108__)
-
-#include "devices/pic24fj192ga108_pyports.h"
-
-#elif defined(__PIC24FJ192GA110__)
-
-#include "devices/pic24fj192ga110_pyports.h"
-
-#elif defined(__PIC24FJ192GB106__)
-
-#include "devices/pic24fj192gb106_pyports.h"
-
-#elif defined(__PIC24FJ192GB108__)
-
-#include "devices/pic24fj192gb108_pyports.h"
-
-#elif defined(__PIC24FJ192GB110__)
-
-#include "devices/pic24fj192gb110_pyports.h"
-
-#elif defined(__PIC24FJ256GA106__)
-
-#include "devices/pic24fj256ga106_pyports.h"
-
-#elif defined(__PIC24FJ256GA108__)
-
-#include "devices/pic24fj256ga108_pyports.h"
-
-#elif defined(__PIC24FJ256GA110__)
-
-#include "devices/pic24fj256ga110_pyports.h"
-
-#elif defined(__PIC24FJ256GB106__)
-
-#include "devices/pic24fj256gb106_pyports.h"
-
-#elif defined(__PIC24FJ256GB108__)
-
-#include "devices/pic24fj256gb108_pyports.h"
-
-#elif defined(__PIC24FJ256GB110__)
-
-#include "devices/pic24fj256gb110_pyports.h"
-
-#elif defined(__PIC24FJ32GA002__)
-
-#include "devices/pic24fj32ga002_pyports.h"
-
-#elif defined(__PIC24FJ32GA004__)
-
-#include "devices/pic24fj32ga004_pyports.h"
-
-#elif defined(__PIC24FJ48GA002__)
-
-#include "devices/pic24fj48ga002_pyports.h"
-
-#elif defined(__PIC24FJ48GA004__)
-
-#include "devices/pic24fj48ga004_pyports.h"
-
-#elif defined(__PIC24FJ64GA002__)
-
-#include "devices/pic24fj64ga002_pyports.h"
-
-#elif defined(__PIC24FJ64GA004__)
-
-#include "devices/pic24fj64ga004_pyports.h"
-
-#elif defined(__PIC24FJ64GA006__)
-
-#include "devices/pic24fj64ga006_pyports.h"
-
-#elif defined(__PIC24FJ64GA008__)
-
-#include "devices/pic24fj64ga008_pyports.h"
-
-#elif defined(__PIC24FJ64GA010__)
-
-#include "devices/pic24fj64ga010_pyports.h"
-
-#elif defined(__PIC24FJ64GA106__)
-
-#include "devices/pic24fj64ga106_pyports.h"
-
-#elif defined(__PIC24FJ64GA108__)
-
-#include "devices/pic24fj64ga108_pyports.h"
-
-#elif defined(__PIC24FJ64GA110__)
-
-#include "devices/pic24fj64ga110_pyports.h"
-
-#elif defined(__PIC24FJ64GB106__)
-
-#include "devices/pic24fj64gb106_pyports.h"
-
-#elif defined(__PIC24FJ64GB108__)
-
-#include "devices/pic24fj64gb108_pyports.h"
-
-#elif defined(__PIC24FJ64GB110__)
-
-#include "devices/pic24fj64gb110_pyports.h"
-
-#elif defined(__PIC24FJ96GA006__)
-
-#include "devices/pic24fj96ga006_pyports.h"
-
-#elif defined(__PIC24FJ96GA008__)
-
-#include "devices/pic24fj96ga008_pyports.h"
-
-#elif defined(__PIC24FJ96GA010__)
-
-#include "devices/pic24fj96ga010_pyports.h"
-
-#elif defined(__dsPIC33FJ06GS101__)
-
-#include "devices/dspic33fj06gs101_pyports.h"
-
-#elif defined(__dsPIC33FJ06GS102__)
-
-#include "devices/dspic33fj06gs102_pyports.h"
-
-#elif defined(__dsPIC33FJ06GS202__)
-
-#include "devices/dspic33fj06gs202_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP202__)
-
-#include "devices/dspic33fj128gp202_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP204__)
-
-#include "devices/dspic33fj128gp204_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP206A__)
-
-#include "devices/dspic33fj128gp206a_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP206__)
-
-#include "devices/dspic33fj128gp206_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP306A__)
-
-#include "devices/dspic33fj128gp306a_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP306__)
-
-#include "devices/dspic33fj128gp306_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP310A__)
-
-#include "devices/dspic33fj128gp310a_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP310__)
-
-#include "devices/dspic33fj128gp310_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP706A__)
-
-#include "devices/dspic33fj128gp706a_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP706__)
-
-#include "devices/dspic33fj128gp706_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP708A__)
-
-#include "devices/dspic33fj128gp708a_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP708__)
-
-#include "devices/dspic33fj128gp708_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP710A__)
-
-#include "devices/dspic33fj128gp710a_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP710__)
-
-#include "devices/dspic33fj128gp710_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP802__)
-
-#include "devices/dspic33fj128gp802_pyports.h"
-
-#elif defined(__dsPIC33FJ128GP804__)
-
-#include "devices/dspic33fj128gp804_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC202__)
-
-#include "devices/dspic33fj128mc202_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC204__)
-
-#include "devices/dspic33fj128mc204_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC506A__)
-
-#include "devices/dspic33fj128mc506a_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC506__)
-
-#include "devices/dspic33fj128mc506_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC510A__)
-
-#include "devices/dspic33fj128mc510a_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC510__)
-
-#include "devices/dspic33fj128mc510_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC706A__)
-
-#include "devices/dspic33fj128mc706a_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC706__)
-
-#include "devices/dspic33fj128mc706_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC708A__)
-
-#include "devices/dspic33fj128mc708a_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC708__)
-
-#include "devices/dspic33fj128mc708_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC710A__)
-
-#include "devices/dspic33fj128mc710a_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC710__)
-
-#include "devices/dspic33fj128mc710_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC802__)
-
-#include "devices/dspic33fj128mc802_pyports.h"
-
-#elif defined(__dsPIC33FJ128MC804__)
-
-#include "devices/dspic33fj128mc804_pyports.h"
-
-#elif defined(__dsPIC33FJ12GP201__)
-
-#include "devices/dspic33fj12gp201_pyports.h"
-
-#elif defined(__dsPIC33FJ12GP202__)
-
-#include "devices/dspic33fj12gp202_pyports.h"
-
-#elif defined(__dsPIC33FJ12MC201__)
-
-#include "devices/dspic33fj12mc201_pyports.h"
-
-#elif defined(__dsPIC33FJ12MC202__)
-
-#include "devices/dspic33fj12mc202_pyports.h"
-
-#elif defined(__dsPIC33FJ16GP304__)
-
-#include "devices/dspic33fj16gp304_pyports.h"
-
-#elif defined(__dsPIC33FJ16GS402__)
-
-#include "devices/dspic33fj16gs402_pyports.h"
-
-#elif defined(__dsPIC33FJ16GS404__)
-
-#include "devices/dspic33fj16gs404_pyports.h"
-
-#elif defined(__dsPIC33FJ16GS502__)
-
-#include "devices/dspic33fj16gs502_pyports.h"
-
-#elif defined(__dsPIC33FJ16GS504__)
-
-#include "devices/dspic33fj16gs504_pyports.h"
-
-#elif defined(__dsPIC33FJ16MC304__)
-
-#include "devices/dspic33fj16mc304_pyports.h"
-
-#elif defined(__dsPIC33FJ256GP506A__)
-
-#include "devices/dspic33fj256gp506a_pyports.h"
-
-#elif defined(__dsPIC33FJ256GP506__)
-
-#include "devices/dspic33fj256gp506_pyports.h"
-
-#elif defined(__dsPIC33FJ256GP510A__)
-
-#include "devices/dspic33fj256gp510a_pyports.h"
-
-#elif defined(__dsPIC33FJ256GP510__)
-
-#include "devices/dspic33fj256gp510_pyports.h"
-
-#elif defined(__dsPIC33FJ256GP710A__)
-
-#include "devices/dspic33fj256gp710a_pyports.h"
-
-#elif defined(__dsPIC33FJ256GP710__)
-
-#include "devices/dspic33fj256gp710_pyports.h"
-
-#elif defined(__dsPIC33FJ256MC510A__)
-
-#include "devices/dspic33fj256mc510a_pyports.h"
-
-#elif defined(__dsPIC33FJ256MC510__)
-
-#include "devices/dspic33fj256mc510_pyports.h"
-
-#elif defined(__dsPIC33FJ256MC710A__)
-
-#include "devices/dspic33fj256mc710a_pyports.h"
-
-#elif defined(__dsPIC33FJ256MC710__)
-
-#include "devices/dspic33fj256mc710_pyports.h"
-
-#elif defined(__dsPIC33FJ32GP202__)
-
-#include "devices/dspic33fj32gp202_pyports.h"
-
-#elif defined(__dsPIC33FJ32GP204__)
-
-#include "devices/dspic33fj32gp204_pyports.h"
-
-#elif defined(__dsPIC33FJ32GP302__)
-
-#include "devices/dspic33fj32gp302_pyports.h"
-
-#elif defined(__dsPIC33FJ32GP304__)
-
-#include "devices/dspic33fj32gp304_pyports.h"
-
-#elif defined(__dsPIC33FJ32GS406__)
-
-#include "devices/dspic33fj32gs406_pyports.h"
-
-#elif defined(__dsPIC33FJ32GS606__)
-
-#include "devices/dspic33fj32gs606_pyports.h"
-
-#elif defined(__dsPIC33FJ32GS608__)
-
-#include "devices/dspic33fj32gs608_pyports.h"
-
-#elif defined(__dsPIC33FJ32GS610__)
-
-#include "devices/dspic33fj32gs610_pyports.h"
-
-#elif defined(__dsPIC33FJ32MC202__)
-
-#include "devices/dspic33fj32mc202_pyports.h"
-
-#elif defined(__dsPIC33FJ32MC204__)
-
-#include "devices/dspic33fj32mc204_pyports.h"
-
-#elif defined(__dsPIC33FJ32MC302__)
-
-#include "devices/dspic33fj32mc302_pyports.h"
-
-#elif defined(__dsPIC33FJ32MC304__)
-
-#include "devices/dspic33fj32mc304_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP202__)
-
-#include "devices/dspic33fj64gp202_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP204__)
-
-#include "devices/dspic33fj64gp204_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP206A__)
-
-#include "devices/dspic33fj64gp206a_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP206__)
-
-#include "devices/dspic33fj64gp206_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP306A__)
-
-#include "devices/dspic33fj64gp306a_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP306__)
-
-#include "devices/dspic33fj64gp306_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP310A__)
-
-#include "devices/dspic33fj64gp310a_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP310__)
-
-#include "devices/dspic33fj64gp310_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP706A__)
-
-#include "devices/dspic33fj64gp706a_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP706__)
-
-#include "devices/dspic33fj64gp706_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP708A__)
-
-#include "devices/dspic33fj64gp708a_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP708__)
-
-#include "devices/dspic33fj64gp708_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP710A__)
-
-#include "devices/dspic33fj64gp710a_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP710__)
-
-#include "devices/dspic33fj64gp710_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP802__)
-
-#include "devices/dspic33fj64gp802_pyports.h"
-
-#elif defined(__dsPIC33FJ64GP804__)
-
-#include "devices/dspic33fj64gp804_pyports.h"
-
-#elif defined(__dsPIC33FJ64GS406__)
-
-#include "devices/dspic33fj64gs406_pyports.h"
-
-#elif defined(__dsPIC33FJ64GS606__)
-
-#include "devices/dspic33fj64gs606_pyports.h"
-
-#elif defined(__dsPIC33FJ64GS608__)
-
-#include "devices/dspic33fj64gs608_pyports.h"
-
-#elif defined(__dsPIC33FJ64GS610__)
-
-#include "devices/dspic33fj64gs610_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC202__)
-
-#include "devices/dspic33fj64mc202_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC204__)
-
-#include "devices/dspic33fj64mc204_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC506A__)
-
-#include "devices/dspic33fj64mc506a_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC506__)
-
-#include "devices/dspic33fj64mc506_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC508A__)
-
-#include "devices/dspic33fj64mc508a_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC508__)
-
-#include "devices/dspic33fj64mc508_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC510A__)
-
-#include "devices/dspic33fj64mc510a_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC510__)
-
-#include "devices/dspic33fj64mc510_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC706A__)
-
-#include "devices/dspic33fj64mc706a_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC706__)
-
-#include "devices/dspic33fj64mc706_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC710A__)
-
-#include "devices/dspic33fj64mc710a_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC710__)
-
-#include "devices/dspic33fj64mc710_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC802__)
-
-#include "devices/dspic33fj64mc802_pyports.h"
-
-#elif defined(__dsPIC33FJ64MC804__)
-
-#include "devices/dspic33fj64mc804_pyports.h"
-
-#else
-
-#error -- processor ID not specified in pic24_pyports.h
-
-#endif
-
-
-#ifndef _PIC24_PYDIGIO_DEFINED
-#warning Digital IO macros not defined for this device!
-#warning Edit common\pic24_pyports.h file!
 #endif
 
 #endif  // #define _PIC24_PYPORTS_H_

@@ -1,0 +1,52 @@
+===========================
+The Econotag Sample Project
+===========================
+
+:Author:    Dean Hall
+:Id:        $Id$
+
+Purpose
+-------
+
+This is a sample project that demonstrates running interactive PyMite on the
+`Redbee Econotag`_.  A POSIX-compliant OS (Mac OS X, Linux) is required.
+Using the Cygwin_ environment within Windows might work.
+
+.. _`Redbee Econotag`: http://redwirellc.com/store/index.php?route=product/product&product_id=56
+.. _Cygwin: http://www.cygwin.com/
+
+
+Requirements
+------------
+
+In addition to PyMite's standard requirements, this platform also requires
+``git`` to obtain the libmc1322x third party library.
+
+The GCC for ARM is highly recommended to build for this platform.  All of the
+build scripts and Makefiles are tailored to use the ``arm-none-eabi-gcc``
+toolchain.  A good way to build the ``arm-none-eabi-gcc toolchain`` is to use
+the build assistant found here: http://github.com/jsnyder/arm-eabi-toolchain/
+
+Be sure you have installed every dependency listed and
+perform each preparation step shown on that page!
+
+
+Building the Project
+--------------------
+
+Start with a clean PyMite tree.  Run ``make once`` in the directory this file
+is in to download a required third-party library::
+
+    $ cd src/platform/econotag
+    $ make once
+
+Then build from the base of the project::
+
+    $ cd ../../..
+    $ make PLATFORM=econotag
+
+The default sample project is to run the interactive prompt, ipm.
+Read ``docs/src/InteractivePyMite.txt`` to learn how to run ipm.
+
+
+.. :mode=rest:

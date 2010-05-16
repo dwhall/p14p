@@ -71,12 +71,12 @@ DEBUG_FMT = dwarf-2
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
-EXTRAINCDIRS = . ../../vm
+EXTRAINCDIRS = . ../../vm libmc1322x/lib/include
 
 # List any extra directories to look for library files here.
 #     Each directory must be seperated by a space.
 #EXTRA_LIBDIRS = ../arm7_efsl_0_2_4
-EXTRA_LIBDIRS = . ../../vm
+EXTRA_LIBDIRS = . ../../vm libmc1322x/lib
 
 
 # Compiler flag to set the C Standard level.
@@ -157,7 +157,7 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),--g$(DEBUG_FMT)
 #    To add libxyz.a, libabc.a and libefsl.a:
 #    EXTRA_LIBS = xyz abc efsl
 #EXTRA_LIBS = efsl
-EXTRA_LIBS = $(PM_LIB_ROOT)
+EXTRA_LIBS = $(PM_LIB_ROOT) mc1322x
 
 #Support for newlibc-lpc (file: libnewlibc-lpc.a)
 #NEWLIBLPC = -lnewlib-lpc
@@ -171,15 +171,15 @@ MATH_LIB = -lm
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-LDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref,--gc-sections
-LDFLAGS += -lc
-LDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
-LDFLAGS += -lc -lgcc
-LDFLAGS += $(CPLUSPLUS_LIB)
-LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
-LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
+PMLDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref,--gc-sections
+PMLDFLAGS += -lc
+PMLDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
+PMLDFLAGS += -lc -lgcc
+PMLDFLAGS += $(CPLUSPLUS_LIB)
+PMLDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
+PMLDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 
-LDFLAGS +=-T$(LINKERSCRIPT)
+PMLDFLAGS +=-T$(LINKERSCRIPT)
 
 # Define programs and commands.
 SHELL = sh
@@ -315,8 +315,8 @@ gccversion :
 %.elf:  $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM)
 	@echo
 	@echo $(MSG_LINKING) $@
-	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(LDFLAGS)
-#	$(CPP) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(LDFLAGS)
+	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(PMLDFLAGS)
+#	$(CPP) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(PMLDFLAGS)
 
 # Compile: create object files from C source files. ARM/Thumb
 $(COBJ) : %.o : %.c

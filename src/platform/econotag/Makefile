@@ -71,12 +71,12 @@ DEBUG_FMT = dwarf-2
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
-EXTRAINCDIRS = . ../../vm libmc1322x/lib/include
+EXTRAINCDIRS = . ../../vm libmc1322x/lib/include libmc1322x/src
 
 # List any extra directories to look for library files here.
 #     Each directory must be seperated by a space.
 #EXTRA_LIBDIRS = ../arm7_efsl_0_2_4
-EXTRA_LIBDIRS = . ../../vm libmc1322x/lib
+EXTRA_LIBDIRS = . ../../vm libmc1322x/lib libmc1322x/src
 
 
 # Compiler flag to set the C Standard level.
@@ -157,7 +157,7 @@ ASFLAGS = $(ADEFS) -Wa,-adhlns=$(<:.S=.lst),--g$(DEBUG_FMT)
 #    To add libxyz.a, libabc.a and libefsl.a:
 #    EXTRA_LIBS = xyz abc efsl
 #EXTRA_LIBS = efsl
-EXTRA_LIBS = $(PM_LIB_ROOT) mc1322x
+EXTRA_LIBS = $(PM_LIB_ROOT) mc1322x src
 
 #Support for newlibc-lpc (file: libnewlibc-lpc.a)
 #NEWLIBLPC = -lnewlib-lpc
@@ -250,7 +250,7 @@ else
 $(error "$(MSG_FORMATERROR) $(FORMAT)")
 endif
 endif
-endif
+endif   
 
 elf: $(TARGET).elf
 lss: $(TARGET).lss
@@ -259,6 +259,8 @@ sym: $(TARGET).sym
 #export CROSS_COMPILE=$(TCHAIN) BOARD=redbee-econotag
 libmc1322x:
 	make -C libmc1322x/tests ../lib/libmc1322x.a
+	make -C libmc1322x/tests ../src/src.a
+	cd libmc1322x/src && ln -s src.a libsrc.a
 
 once1:
 	@echo "Obtaining third-party library, libmc1322x, and setting toolchain"

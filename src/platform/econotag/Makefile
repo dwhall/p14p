@@ -267,7 +267,8 @@ once1:
 	git clone git://git.devl.org/git/malvira/libmc1322x.git
 	cd libmc1322x && cp Makefile.include Makefile.include.bak \
 	&& sed 's/arm-linux-/$(TCHAIN)/g' Makefile.include > Makefile.include.tmp \
-	&& mv Makefile.include.tmp Makefile.include
+	&& mv Makefile.include.tmp Makefile.include \
+	&& patch -p 1 -i ../libmc1322x_types.patch
 
 once2: libmc1322x
 

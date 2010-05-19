@@ -23,6 +23,7 @@ plat_init(void)
     debug();
 #endif
 
+    return PM_RET_OK;
 }
 
 int fputc(int ch, FILE *f)

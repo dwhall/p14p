@@ -22,7 +22,7 @@ TARGET = main
 
 # List C source files here. (C dependencies are automatically generated.)
 # use file-extension c for "c-only"-files
-SRC = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c
+SRC = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c syscalls.c
 
 # List C source files here which must be compiled in ARM-Mode.
 # use file-extension c for "c-only"-files
@@ -171,7 +171,7 @@ MATH_LIB = -lm
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
 #    --cref:    add cross reference to  map file
-PMLDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref,--gc-sections
+PMLDFLAGS = -nostartfiles -Wl,-Map=$(TARGET).map,--cref
 PMLDFLAGS += -lc
 PMLDFLAGS += $(NEWLIBLPC) $(MATH_LIB)
 PMLDFLAGS += -lc -lgcc

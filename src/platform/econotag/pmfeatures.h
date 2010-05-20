@@ -38,7 +38,7 @@
  * printing of the object.
  * REQUIRES stdio.h to have snprintf()
  */
-//#define HAVE_PRINT
+#define HAVE_PRINT
 
 
 /**
@@ -55,8 +55,8 @@
  * When defined, the code to support floating point objects is included
  * in the build.
  */
-//#define HAVE_FLOAT
-//#define PM_FLOAT_LITTLE_ENDIAN
+/*#define HAVE_FLOAT*/
+/*#define PM_FLOAT_LITTLE_ENDIAN*/
 
 /**
  * When defined, the code to support the keyword del is included in the build.

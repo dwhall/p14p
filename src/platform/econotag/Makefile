@@ -8,6 +8,9 @@ PM_USR_SOURCES = main.py
 PMIMGCREATOR := ../../tools/pmImgCreator.py
 IPM := true
 
+# Serial device used to connect to Econotag
+PM_SER_DEV = /dev/tty.usbserial-000030FDB
+
 # Toolchain prefix (i.e arm-elf -> arm-elf-gcc.exe)
 TCHAIN = arm-none-eabi-
 
@@ -51,6 +54,8 @@ ASRCARM =
 
 # Linker Script
 LINKERSCRIPT= mc1322x.lds
+
+STARTOBJ = libmc1322x/src/start.o
 
 ## Output format. (can be ihex or binary or both)
 ## (binary i.e. for openocd and SAM-BA, hex i.e. for lpc21isp and uVision)
@@ -119,6 +124,7 @@ endif
 #
 # Flags for C and C++ (arm-elf-gcc/arm-elf-g++)
 PMCFLAGS = $(CDEFS) $(CINCS)
+PMCFLAGS += -g
 PMCFLAGS += -O$(OPT)
 PMCFLAGS += -Wcast-align
 PMCFLAGS += -Wall -Wimplicit
@@ -268,11 +274,18 @@ once1:
 	cd libmc1322x && cp Makefile.include Makefile.include.bak \
 	&& sed 's/arm-linux-/$(TCHAIN)/g' Makefile.include > Makefile.include.tmp \
 	&& mv Makefile.include.tmp Makefile.include \
-	&& patch -p 1 -i ../libmc1322x_types.patch
+	&& patch -p 1 -i ../patch_libmc1322x_types.patch
+	patch -p 0 -i patch_pmImgCreator.patch
 
 once2: libmc1322x
 
 once: once1 once2
+
+load:
+	libmc1322x/tools/mc1322x-load.pl -f $(TARGET).bin -t $(PM_SER_DEV)
+
+loadpy:
+	./red-bsl.py -f $(TARGET).bin -t $(PM_SER_DEV)
 
 # PyMite: Build the VM archive if it doesn't exist
 pmvm : $(PM_LIB_PATH)
@@ -314,11 +327,11 @@ gccversion :
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(TARGET).elf
-.PRECIOUS : $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM)
-%.elf:  $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM)
+.PRECIOUS : $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(STARTOBJ) $(CPPOBJARM)
+%.elf:  $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(STARTOBJ) $(CPPOBJARM)
 	@echo
 	@echo $(MSG_LINKING) $@
-	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(PMLDFLAGS)
+	$(CC) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(STARTOBJ) $(CPPOBJARM) --output $@ $(PMLDFLAGS)
 #	$(CPP) $(THUMB) $(ALL_CFLAGS) $(AOBJARM) $(AOBJ) $(COBJARM) $(COBJ) $(CPPOBJ) $(CPPOBJARM) --output $@ $(PMLDFLAGS)
 
 # Compile: create object files from C source files. ARM/Thumb

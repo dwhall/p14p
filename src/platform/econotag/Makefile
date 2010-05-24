@@ -234,9 +234,7 @@ TARGETS_WITH_ROM_VARS :=
 -include $(MC1322X)/Makefile.include
 
 
-# Default target.
-#all: begin gccversion pmvm sizebefore build sizeafter end
-all: libmc1322x pmvm build
+all: pmvm build
 
 ifeq ($(FORMAT),ihex)
 build: elf hex bin lss sym

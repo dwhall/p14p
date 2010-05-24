@@ -9,26 +9,40 @@ Purpose
 -------
 
 This is a sample project that demonstrates running interactive PyMite on the
-`Redbee Econotag`_.  A POSIX-compliant OS (Mac OS X, Linux) is required.
-Using the Cygwin_ environment within Windows might work.
+`Redbee Econotag`_.
 
 .. _`Redbee Econotag`: http://redwirellc.com/store/index.php?route=product/product&product_id=56
-.. _Cygwin: http://www.cygwin.com/
 
 
 Requirements
 ------------
 
-In addition to PyMite's standard requirements, this platform also requires
-``git`` to obtain the libmc1322x third party library.
+A POSIX-compliant OS (Mac OS X, Linux) is required for the build environment.
+Using the Cygwin_ environment within Windows might work, but is untested.
 
-The GCC for ARM is highly recommended to build for this platform.  All of the
-build scripts and Makefiles are tailored to use the ``arm-none-eabi-gcc``
-toolchain.  A good way to build the ``arm-none-eabi-gcc toolchain`` is to use
-the build assistant found here: http://github.com/jsnyder/arm-eabi-toolchain/
+Using GNU tools (GCC and Make) are strongly recommended.  Because the GNU
+toolchain for ARM varies significantly based on the configuration options when
+the toolchain was built, the following project is strongly recommended to
+use to build your own toolchain::
 
-Be sure you have installed every dependency listed and
-perform each preparation step shown on that page!
+    http://github.com/jsnyder/arm-eabi-toolchain/
+
+All of the makefile to build this sample project assume use of the
+arm-none-eabi- toolchain and Newlib.
+
+**Be sure you have installed every dependency listed and
+perform each preparation step shown on that page!**
+
+Both the toolchain builder and the libmc1322x third party library require
+the use of ``git``.
+
+The tool used to load the binary of the build product is written in Python
+and requires the PySerial_ library.  The quick way to install PySerial is::
+
+    $ sudo easy_install pyserial
+
+.. _Cygwin: http://www.cygwin.com/
+.. _PySerial: http://pyserial.sourceforge.net/
 
 
 Building the Project
@@ -45,8 +59,25 @@ Then build from the base of the project::
     $ cd ../../..
     $ make PLATFORM=econotag
 
-The default sample project is to run the interactive prompt, ipm.
-Read ``docs/src/InteractivePyMite.txt`` to learn how to run ipm.
 
+Loading and Running the Binary
+------------------------------
+
+Load the resulting binary on the econotag using either the perl-based loader::
+
+    $ cd src/platform/econotag
+    $ make load
+
+**or** the python-based loader::
+
+    $ cd src/platform/econotag
+    $ make loadpy
+
+The default sample project runs the interactive prompt, ipm.
+Read ``docs/src/InteractivePyMite.txt`` to learn more about ipm.
+Here is the shortcut (the path to your serial device will vary)::
+
+    $ cd ../../tools
+    $ ./ipm.py --serial /dev/tty.usbserial-000030FDB --baud=115200
 
 .. :mode=rest:

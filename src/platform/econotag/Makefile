@@ -76,7 +76,8 @@ DEBUG_FMT = dwarf-2
 
 # List any extra directories to look for include files here.
 #     Each directory must be seperated by a space.
-EXTRAINCDIRS = . ../../vm libmc1322x/lib/include libmc1322x/src
+EXTRAINCDIRS = . ../../vm obj_redbee-econotag_board \
+    libmc1322x/lib/include libmc1322x/src libmc1322x/board
 
 # List any extra directories to look for library files here.
 #     Each directory must be seperated by a space.
@@ -260,7 +261,6 @@ elf: $(TARGET).elf
 lss: $(TARGET).lss
 sym: $(TARGET).sym
 
-#export CROSS_COMPILE=$(TCHAIN) BOARD=redbee-econotag
 libmc1322x:
 	make -C libmc1322x/tests ../lib/libmc1322x.a
 	make -C libmc1322x/tests ../src/src.a
@@ -268,8 +268,9 @@ libmc1322x:
 
 once1:
 	@echo "Obtaining third-party library, libmc1322x, and setting toolchain"
-	git clone git://git.devl.org/git/malvira/libmc1322x.git
-	cd libmc1322x && cp Makefile.include Makefile.include.bak \
+	git clone -n git://git.devl.org/git/malvira/libmc1322x.git
+	cd libmc1322x && git checkout -q 7a462268c89399eadcf6c449667ccc8990729fdd \
+	&& cp Makefile.include Makefile.include.bak \
 	&& sed 's/arm-linux-/$(TCHAIN)/g' Makefile.include > Makefile.include.tmp \
 	&& mv Makefile.include.tmp Makefile.include \
 	&& patch -p 1 -i ../patch_libmc1322x_types.patch
@@ -388,7 +389,6 @@ $(TARGET)_nat.c $(TARGET)_img.c : $(PM_USR_SOURCES)
 # Target: clean project.
 clean:
 	$(MAKE) -C ../../vm clean
-	$(MAKE) -C libmc1322x/tests clean
 	@echo
 	@echo $(MSG_CLEANING)
 	$(REMOVE) $(TARGET).hex

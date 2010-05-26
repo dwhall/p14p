@@ -29,7 +29,7 @@
 
 
 /** Defines the size of the static heap */
-#define PM_HEAP_SIZE 0x7000
+#define PM_HEAP_SIZE 0x4000
 
 
 /**

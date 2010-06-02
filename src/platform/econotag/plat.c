@@ -39,11 +39,11 @@ plat_init(void)
 #define MOD 9999
 #define SAMP UCON_SAMP_8X
 
-/*    trim_xtal();*/
+    trim_xtal();
     uart1_init(INC,MOD,SAMP);
     vreg_init();
-/*    maca_init();*/
-/*    set_power(0x12);*/
+    maca_init();
+    set_power(0x12);
     set_channel(0);
 
     /* Use GPIO44 to flash red LED when transmission occurs */

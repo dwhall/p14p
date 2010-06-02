@@ -55,7 +55,8 @@ ASRCARM =
 # Linker Script
 LINKERSCRIPT= mc1322x.lds
 
-STARTOBJ = libmc1322x/src/start.o
+#STARTOBJ = libmc1322x/src/start.o
+STARTOBJ = libmc1322x/src/start-romvars.o
 
 ## Output format. (can be ihex or binary or both)
 ## (binary i.e. for openocd and SAM-BA, hex i.e. for lpc21isp and uVision)
@@ -263,12 +264,14 @@ sym: $(TARGET).sym
 
 libmc1322x:
 	make -C libmc1322x/tests ../lib/libmc1322x.a
-	make -C libmc1322x/tests ../src/src.a
+	TARGET_ROM_VARS=1 make -C libmc1322x/tests ../src/src.a
 	cd libmc1322x/src && ln -s src.a libsrc.a
 
 once1:
 	@echo "Obtaining third-party library, libmc1322x, and setting toolchain"
 	git clone -n git://git.devl.org/git/malvira/libmc1322x.git
+
+once2:
 	cd libmc1322x && git checkout -q 7a462268c89399eadcf6c449667ccc8990729fdd \
 	&& cp Makefile.include Makefile.include.bak \
 	&& sed 's/arm-linux-/$(TCHAIN)/g' Makefile.include > Makefile.include.tmp \
@@ -276,9 +279,9 @@ once1:
 	&& patch -p 1 -i ../patch_libmc1322x_types.patch
 	patch -p 0 -i patch_pmImgCreator.patch
 
-once2: libmc1322x
+once3: libmc1322x
 
-once: once1 once2
+once: once1 once2 once3
 
 load:
 	libmc1322x/tools/mc1322x-load.pl -f $(TARGET).bin -t $(PM_SER_DEV)
@@ -377,6 +380,9 @@ $(AOBJARM) : %.o : %.S
 	@echo $(MSG_ASSEMBLING_ARM) $<
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
+# Assemble using GCC with assembly flags
+$(STARTOBJ) : %.o : %.s
+	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 # PyMite: Generate native code and module images from the python source
 $(TARGET)_nat.c $(TARGET)_img.c : $(PM_USR_SOURCES)

@@ -4,7 +4,7 @@ PLATFORM := $(notdir $(CURDIR))
 PM_LIB_ROOT = pmvm_$(PLATFORM)
 PM_LIB_FN = lib$(PM_LIB_ROOT).a
 PM_LIB_PATH = ../../vm/$(PM_LIB_FN)
-PM_USR_SOURCES = main.py
+PM_USR_SOURCES = main.py econotag.py
 PMIMGCREATOR := ../../tools/pmImgCreator.py
 IPM := true
 
@@ -272,7 +272,7 @@ once1:
 	git clone -n git://git.devl.org/git/malvira/libmc1322x.git
 
 once2:
-	cd libmc1322x && git checkout -q 7a462268c89399eadcf6c449667ccc8990729fdd \
+	cd libmc1322x && git checkout -q 36361e1eb0eba99c8ab7807fa2f977c80a3be05c \
 	&& cp Makefile.include Makefile.include.bak \
 	&& sed 's/arm-linux-/$(TCHAIN)/g' Makefile.include > Makefile.include.tmp \
 	&& mv Makefile.include.tmp Makefile.include \

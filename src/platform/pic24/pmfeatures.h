@@ -30,8 +30,14 @@
 
 
 /** Defines the size of the static heap */
-#define PM_HEAP_SIZE 7000
-
+// Note: for unit testing, no Python heap is needed, so make it tiny.
+// The unit tests need lots of heap and stack, so a small Python heap
+// allows that.
+#ifdef UNIT_TEST
+#define PM_HEAP_SIZE 100
+#else
+#define PM_HEAP_SIZE 5000
+#endif
 
 /**
  * When defined, bytecodes PRINT_ITEM and PRINT_NEWLINE are supported. Along
@@ -133,7 +139,7 @@
  * operator is included in the build.
  * REQUIRES stdio.h to have snprintf()
  */
-#define HAVE_STRING_FORMAT
+//#define HAVE_STRING_FORMAT
 
 /* #256 Add support for closures */
 /**

@@ -265,4 +265,19 @@ enum { PORT_A_INDEX = 0,
 #define HAS_REMAPPABLE_PINS
 #endif
 
+/** For unit testing, make some of the static functions visible;
+ *  otherwise, leave them static. This macro's definition provides
+ *  this capability. */
+#ifdef UNIT_TEST
+#define __STATIC__
+// Prototype static functions that are otherwise hidden from the
+// user of the library and exposed here only for testing.
+inline __STATIC__ bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin);
+__STATIC__ bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin);
+#else
+#define __STATIC__ static
+#endif
+
+
+
 #endif  // #define _PIC24_PYPORTS_H_

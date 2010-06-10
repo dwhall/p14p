@@ -1677,7 +1677,7 @@ static const uint32_t u32_isRemappable = {
  *  @return Returns C_FALSE if the port exceeds \ref NUM_DIGITAL_PORTS
  *          or if the pin > 15. Returns C_TRUE otherwise.
  */
-inline static bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin)
+inline __STATIC__ bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin)
 {
     // Check for an out-of-range port
     if (u16_port > NUM_DIGITAL_PORTS)
@@ -1695,7 +1695,7 @@ inline static bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin)
  *  @return Returns C_TRUE if the pin exists, C_FALSE otherwise.
  *          Nonexistant ports or pins simply return C_FALSE.
  */
-static bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
+__STATIC__ bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
 {
     // Check for an out-of-range port
     if (!digitalPinInBounds(u16_port, u16_pin))
@@ -1711,7 +1711,7 @@ static bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
  *  @return Returns C_TRUE if the pin open-drain exists, C_FALSE otherwise.
  *          Nonexistant ports or pins simply return C_FALSE.
  */
-static bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
+__STATIC__ bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 {
     // Check for an out-of-range port
     if (!digitalPinInBounds(u16_port, u16_pin))

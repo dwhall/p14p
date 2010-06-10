@@ -336,6 +336,34 @@
 #define EXPECTED_REVISION5_STR "C2"
 #endif
 
+
+
+//PIC24FJ64GA104 Family
+#ifdef __PIC24FJ32GA102__
+#define DEV_ID 0x004202
+#define DEV_ID_STR "PIC24FJ32GA102"
+#endif
+#ifdef __PIC24FJ32GA104__
+#define DEV_ID 0x00420A
+#define DEV_ID_STR "PIC24FJ32GA104"
+#endif
+#ifdef __PIC24FJ64GA102__
+#define DEV_ID 0x004206
+#define DEV_ID_STR "PIC24FJ64GA102"
+#endif
+#ifdef __PIC24FJ64GA104__
+#define DEV_ID 0x00420E
+#define DEV_ID_STR "PIC24FJ64GA104"
+#endif
+
+
+#if (defined(__PIC24FJ32GA102__) || defined(__PIC24FJ32GA104__)\
+|| defined(__PIC24FJ64GA102__) || defined(__PIC24FJ64GA104__)) 
+#define EXPECTED_REVISION1 0x000002
+#define EXPECTED_REVISION1_STR "A2"
+#endif
+
+
 //PIC24FJXXGA002 (28 pin),PIC24FJXXGA004 (44 pin)
 #ifdef __PIC24FJ16GA002__
 #define DEV_ID 0x000444
@@ -559,6 +587,32 @@
 #define DEV_ID 0x001001
 #define DEV_ID_STR "PIC24FJ64GB106"
 #endif
+
+#ifdef __PIC24FJ32GB002__
+#define DEV_ID 0x004203
+#define DEV_ID_STR "PIC24FJ32GB002"
+#endif
+
+#ifdef __PIC24FJ32GB004__
+#define DEV_ID 0x00420B
+#define DEV_ID_STR "PIC24FJ32GB004"
+#endif
+
+#ifdef __PIC24FJ64GB002__
+#define DEV_ID 0x004207
+#define DEV_ID_STR "PIC24FJ64GB002"
+#endif
+
+#ifdef __PIC24FJ64GB004__
+#define DEV_ID 0x00420F
+#define DEV_ID_STR "PIC24FJ64GB004"
+#endif
+
+#if (defined(__PIC24FJ32GB002__) || defined(__PIC24FJ32GB004__) || defined(__PIC24FJ64GB002__) || defined(__PIC24FJ64GB004__))
+#define EXPECTED_REVISION1 0x000002
+#define EXPECTED_REVISION1_STR "A2"
+#endif
+
 
 #if (defined(__PIC24FJ256GB110__) || defined(__PIC24FJ192GB110__) || defined(__PIC24FJ128GB110__) || defined(__PIC24FJ64GB110__)\
 || defined(__PIC24FJ256GB108__) || defined(__PIC24FJ192GB108__) || defined(__PIC24FJ128GB108__) || defined(__PIC24FJ64GB108__)\
@@ -863,9 +917,9 @@ uint16 roundFloatToUint16(float f_x);
  *  If \ref USE_HEARTBEAT is false, the heartbeat is disabled.
  */
 #ifndef HB_LED
-  #define HB_LED _LATB15
-  /** Define a config function for the heartbeat pin. */
-  #define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OD_OUTPUT()
+#define HB_LED _LATB15
+/** Define a config function for the heartbeat pin. */
+#define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OD_OUTPUT()
 #endif // #ifndef HB_LED
 
 extern _PERSISTENT char* sz_lastTimeoutError;

@@ -158,6 +158,9 @@ require "pkg80pinF_GB.pl";
 ["pic24fj32ga002",\@digio_28pin_1, \%pullups_28pin_1, \%opendrain_28pin_24F_1,\%analog_28pin_1,\%RPanalog_28pin_1,\%disable_analog_default],
 ["pic24fj48ga002",\@digio_28pin_1, \%pullups_28pin_1, \%opendrain_28pin_24F_1,\%analog_28pin_1,\%RPanalog_28pin_1,\%disable_analog_default],
 ["pic24fj64ga002",\@digio_28pin_1, \%pullups_28pin_1, \%opendrain_28pin_24F_1,\%analog_28pin_1,\%RPanalog_28pin_1,\%disable_analog_default],
+##PIC24FJXXGA102
+["pic24fj32ga102",\@digio_28pin_1, \%pullups_28pin_1, \%opendrain_28pin_24F_1,\%analog_28pin_1,\%RPanalog_28pin_1,\%disable_analog_default],
+["pic24fj64ga102",\@digio_28pin_1, \%pullups_28pin_1, \%opendrain_28pin_24F_1,\%analog_28pin_1,\%RPanalog_28pin_1,\%disable_analog_default],
 ##28-pin devices, FB
 ["pic24fj32gb002",\@digio_28pin_FB, \%pullups_28pin_FB, \%opendrain_28pin_FB,\%analog_28pin_FB,\%RPanalog_28pin_FB,\%disable_analog_default],
 ["pic24fj64gb002",\@digio_28pin_FB, \%pullups_28pin_FB, \%opendrain_28pin_FB,\%analog_28pin_FB,\%RPanalog_28pin_FB,\%disable_analog_default],
@@ -166,6 +169,9 @@ require "pkg80pinF_GB.pl";
 ["pic24fj32ga004",\@digio_44pin_1, \%pullups_44pin_1, \%opendrain_44pin_24F_1,\%analog_44pin_1,\%RPanalog_44pin_1,\%disable_analog_default],
 ["pic24fj48ga004",\@digio_44pin_1, \%pullups_44pin_1, \%opendrain_44pin_24F_1,\%analog_44pin_1,\%RPanalog_44pin_1,\%disable_analog_default],
 ["pic24fj64ga004",\@digio_44pin_1, \%pullups_44pin_1, \%opendrain_44pin_24F_1,\%analog_44pin_1,\%RPanalog_44pin_1,\%disable_analog_default],
+##PIC24FJXXGA104
+["pic24fj32ga104",\@digio_44pin_1, \%pullups_44pin_1, \%opendrain_44pin_24F_1,\%analog_44pin_1,\%RPanalog_44pin_1,\%disable_analog_default],
+["pic24fj64ga104",\@digio_44pin_1, \%pullups_44pin_1, \%opendrain_44pin_24F_1,\%analog_44pin_1,\%RPanalog_44pin_1,\%disable_analog_default],
 ##44-pin devices, FB
 ["pic24fj32gb004",\@digio_44pin_FB, \%pullups_44pin_FB, \%opendrain_44pin_FB,\%analog_44pin_FB,\%RPanalog_44pin_FB,\%disable_analog_default],
 ["pic24fj64gb004",\@digio_44pin_FB, \%pullups_44pin_FB, \%opendrain_44pin_FB,\%analog_44pin_FB,\%RPanalog_44pin_FB,\%disable_analog_default],

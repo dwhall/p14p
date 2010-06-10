@@ -798,6 +798,22 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 
 #include "devices/pic24fj192ga110_ports.h"
 
+#elif defined(__PIC24FJ32GB002__)
+
+#include "devices/pic24fj32gb002_ports.h"
+
+#elif defined(__PIC24FJ64GB002__)
+
+#include "devices/pic24fj64gb002_ports.h"
+
+#elif defined(__PIC24FJ32GB004__)
+
+#include "devices/pic24fj32gb004_ports.h"
+
+#elif defined(__PIC24FJ64GB004__)
+
+#include "devices/pic24fj64gb004_ports.h"
+
 #elif defined(__PIC24FJ192GB106__)
 
 #include "devices/pic24fj192gb106_ports.h"
@@ -833,6 +849,23 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #elif defined(__PIC24FJ256GB110__)
 
 #include "devices/pic24fj256gb110_ports.h"
+
+
+#elif defined(__PIC24FJ32GA102__)
+
+#include "devices/pic24fj32ga102_ports.h"
+
+#elif defined(__PIC24FJ32GA104__)
+
+#include "devices/pic24fj32ga104_ports.h"
+
+#elif defined(__PIC24FJ64GA102__)
+
+#include "devices/pic24fj64ga102_ports.h"
+
+#elif defined(__PIC24FJ64GA104__)
+
+#include "devices/pic24fj64ga104_ports.h"
 
 #elif defined(__PIC24FJ32GA002__)
 

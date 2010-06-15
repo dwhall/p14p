@@ -25,6 +25,7 @@
 #include "pm.h"
 #include "pic24_all.h"
 #include "CuTestSmall.h"
+#include <pps.h>
 
 /* Need to declare this array since no PyMite application is linked */
 const unsigned char usr_nat_fxn_table[] = {};
@@ -183,22 +184,143 @@ void test_gpioOdExists(CuTest* tc)
     CuAssertTrue(tc, !digitalOpenDrainPinExists(PORT_A_INDEX, 0));
 }
 
-/** A series of tests on the existance of digital IO pins.
+/** A series of tests of setPinIsInput.
   * @param tc Test object.
   */
-void test_gpio(CuTest* tc)
+void test_gpioSetPinIsInput(CuTest* tc)
 {
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, setPinIsInput(PORT_A_INDEX, 5, C_TRUE) == PM_RET_EX_VAL);
+
+    // Check than configuring a specific pin as an input does indeed change
+    // the pin's TRIS value.
+    _TRISA0 = 0;
+    CuAssertTrue(tc, setPinIsInput(PORT_A_INDEX, 0, C_TRUE) == PM_RET_OK);
+    CuAssertTrue(tc, _TRISA0 == 1);
+    _TRISA0 = 1;
+    CuAssertTrue(tc, setPinIsInput(PORT_A_INDEX, 0, C_FALSE) == PM_RET_OK);
+    CuAssertTrue(tc, _TRISA0 == 0);
+}
+
+/** A series of tests of setPinIsDigital.
+  * @param tc Test object.
+  */
+void test_gpioSetPinIsDigital(CuTest* tc)
+{
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, setPinIsDigital(PORT_A_INDEX, 5, C_TRUE) == PM_RET_EX_VAL);
+
+    // Configuring a pin with no analog capability as digital should always
+    // work (and do nothing)
+    CuAssertTrue(tc, setPinIsDigital(PORT_A_INDEX, 2, C_TRUE) == PM_RET_OK);
+
+    // Configuring a pin with no analog capability as analog should always
+    // fail and report an exception
+    CuAssertTrue(tc, setPinIsDigital(PORT_A_INDEX, 2, C_FALSE) == PM_RET_EX_VAL);
+
+    // Test the PCFG bit when configuring a pin with analog capability
+    _PCFG0 = 0;
+    CuAssertTrue(tc, setPinIsDigital(PORT_A_INDEX, 0, C_TRUE) == PM_RET_OK);
+    CuAssertTrue(tc, _PCFG0 == 1);
+    _PCFG0 = 1;
+    CuAssertTrue(tc, setPinIsDigital(PORT_A_INDEX, 0, C_FALSE) == PM_RET_OK);
+    CuAssertTrue(tc, _PCFG0 == 0);
+}
+
+/** A series of tests of setPinIsOpenDrain.
+  * @param tc Test object.
+  */
+void test_gpioSetPinIsOpenDrain(CuTest* tc)
+{
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, setPinIsOpenDrain(PORT_A_INDEX, 5, C_TRUE) == PM_RET_EX_VAL);
+
+    // Configuring a pin with no open-drain capability as non-OD should always
+    // work (and do nothing)
+    CuAssertTrue(tc, setPinIsOpenDrain(PORT_A_INDEX, 0, C_FALSE) == PM_RET_OK);
+
+    // Configuring a pin with no open-drain capability as OD should always
+    // fail and report an exception
+    CuAssertTrue(tc, setPinIsOpenDrain(PORT_A_INDEX, 0, C_TRUE) == PM_RET_EX_VAL);
+
+    // Test the PCFG bit when configuring a pin with analog capability
+    _ODCA7 = 0;
+    CuAssertTrue(tc, setPinIsOpenDrain(PORT_A_INDEX, 7, C_TRUE) == PM_RET_OK);
+    CuAssertTrue(tc, _ODCA7 == 1);
+    _ODCA7 = 1;
+    CuAssertTrue(tc, setPinIsOpenDrain(PORT_A_INDEX, 7, C_FALSE) == PM_RET_OK);
+    CuAssertTrue(tc, _ODCA7 == 0);
+}
+
+/** A series of tests of setPinPullDirection.
+  * @param tc Test object.
+  */
+void test_gpioSetPinPullDirection(CuTest* tc)
+{
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 5, 0) == PM_RET_EX_VAL);
+
+    // Configuring a pin with no pull-up capability as non-PU should always
+    // work (and do nothing)
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 8, 0) == PM_RET_OK);
+
+    // Configuring a pin with no pull-up capability as PU should always
+    // fail and report an exception
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 8, 1) == PM_RET_EX_VAL);
+
+    // Configuring a pin with no pull-down capability as PD should always
+    // fail and report an exception
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 8, -1) == PM_RET_EX_VAL);
+    // Same for a pin with pull-up but not pull-down
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 0, -1) == PM_RET_EX_VAL);
+
+    // Test the PCFG bit when configuring a pin with analog capability
+    _CN2PUE = 0;
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 0, 1) == PM_RET_OK);
+    CuAssertTrue(tc, _CN2PUE == 1);
+    _CN2PUE = 1;
+    CuAssertTrue(tc, setPinPullDirection(PORT_A_INDEX, 0, 0) == PM_RET_OK);
+    CuAssertTrue(tc, _CN2PUE == 0);
+}
+
+/** A series of tests of unmapPin.
+  * @param tc Test object.
+  */
+void test_gpioUnmapPin(CuTest* tc)
+{
+    // This chip has remappable pins
+#ifndef HAS_REMAPPABLE_PINS
+    CuAssertTrue(tc, 0);
+#endif
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, unmapPin(PORT_A_INDEX, 5) == PM_RET_EX_VAL);
+
+    // Unmapping an unmappable pin should do nothing and return success
+    CuAssertTrue(tc, unmapPin(PORT_A_INDEX, 0) == PM_RET_OK);
+
+    // Map an input, then test the unmap
+    _U1RXR = 0;
+    CuAssertTrue(tc, unmapPin(PORT_B_INDEX, 0) == PM_RET_OK);
+    CuAssertTrue(tc, _U1RXR == IN_PIN_PPS_VSS);
+
+    // Map an output, then test the unmap
+    _RP0R = 3;  // U1TX
+    CuAssertTrue(tc, unmapPin(PORT_B_INDEX, 0) == PM_RET_OK);
+    CuAssertTrue(tc, _RP0R == OUT_FN_PPS_NULL);
 }
 
 /** Run a series of tests on general-purpose I/O functions.
     @return A suite of tests.
-
  */
-
 CuSuite* getSuite_testGpio() {
     CuSuite* suite = CuSuiteNew();
     SUITE_ADD_TEST(suite, test_gpioExists);
     SUITE_ADD_TEST(suite, test_gpioOdExists);
+    SUITE_ADD_TEST(suite, test_gpioSetPinIsInput);
+    SUITE_ADD_TEST(suite, test_gpioSetPinIsDigital);
+    SUITE_ADD_TEST(suite, test_gpioSetPinIsOpenDrain);
+    SUITE_ADD_TEST(suite, test_gpioSetPinPullDirection);
+    SUITE_ADD_TEST(suite, test_gpioUnmapPin);
     return suite;
 }
 

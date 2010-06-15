@@ -7,7 +7,7 @@
 
 This is a sample project that demonstrates the use of PyMite on the
 <a href="http://www.microchip.com/stellent/idcplg?IdcService=SS_GET_PAGE&nodeId=2629&param=en533465">PIC24
-and dsPIC33 family</a> of microcontrollers.  Any PIC with at least 64 KiB of
+and dsPIC33 family</a> of microcontrollers.  Any PIC with at least 128 KiB of
 program memory and 4 KiB of RAM can run PyMite.
 
 
@@ -25,6 +25,14 @@ initialization function and then executes ipm.
 
 
 \section building Building the Project
+
+First, install <a href="http://www.cygwin.com">Cygwin</a>, manually
+selecting installation of make and python. To build documentation,
+install <a href="http://docutils.sourceforge.net">docutils</a> <b>to
+the Cygwin Python</b> and
+<a href="http://www.doxygen.org">Doxygen</a>. Put the path to the
+Cygwin Python before the standard Windows Python, since this project
+WILL NOT BUILD with Windows Python. 
 
 Start with a clean PyMite tree.  Edit 
 <a href="../../../src/platform/pic24/Makefile">src/platform/pic24/Makefile</a>

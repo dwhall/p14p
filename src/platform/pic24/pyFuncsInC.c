@@ -14,37 +14,29 @@ PmReturn_t readBitsC(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t ppo;
-    uint16_t u16;
+    uint16_t u16_evenAddress;
     uint16_t* pu16_evenAddress;
-    uint16_t u16_startBit;
-    uint16_t u16_numBits;
+    uint16_t u16_bit;
     uint16_t u16_bitmask;
     uint16_t u16_value;
 
     // Get the arguments
-    CHECK_NUM_ARGS(3);
-    GET_UINT16(0, &u16);
-    pu16_evenAddress = (uint16_t*) u16;
-    GET_UINT16(1, &u16_startBit);
-    GET_UINT16(2, &u16_numBits);
+    CHECK_NUM_ARGS(2);
+    GET_UINT16(0, &u16_evenAddress);
+    GET_UINT16(1, &u16_bit);
 
     // Check their values.
     /// \todo Allow an odd address for 8 bit values.
-    EXCEPTION_UNLESS( !(((uint16_t) pu16_evenAddress) & 1), PM_RET_EX_VAL,
+    EXCEPTION_UNLESS( !(u16_evenAddress & 1), PM_RET_EX_VAL,
       "The address must be even.");
-    EXCEPTION_UNLESS(u16_startBit <= 15, PM_RET_EX_VAL,
-      "The start bit must be <= 15.");
-    EXCEPTION_UNLESS(u16_numBits > 0, PM_RET_EX_VAL,
-      "The number of bits must be > 0.");
-    EXCEPTION_UNLESS(u16_startBit + u16_numBits <= 16, PM_RET_EX_VAL,
-      "start bit + num bits <= 16.");
+    pu16_evenAddress = (uint16_t*) u16_evenAddress;
+    EXCEPTION_UNLESS(u16_bit <= 15, PM_RET_EX_VAL,
+      "The bit must be <= 15.");
 
-    // Form the bitmask
-    u16_bitmask = (1 << u16_numBits) - 1;
     // Read the port and mask
-    u16_value = (*pu16_evenAddress >> u16_numBits) & u16_bitmask;
-    printf("Value at 0x%04X, bit(s) %d to %d = 0x%02X.\n", (uint16_t) pu16_evenAddress, 
-      u16_startBit, u16_startBit + u16_numBits - 1, u16_value);
+    u16_value = getBit(*pu16_evenAddress, u16_bit);
+    printf("Value at 0x%04X, bit %d = %d.\n", (uint16_t) pu16_evenAddress, 
+      u16_bit, u16_value);
 
     retval = int_new(u16_value, &ppo);
     PM_RETURN_IF_ERROR(retval);

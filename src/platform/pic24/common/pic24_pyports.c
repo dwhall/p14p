@@ -43,6 +43,13 @@
 #undef __FILE_ID__
 #define __FILE_ID__ 0x70
 
+
+///\todo A hack to work around PIC header file bugs: the open-drain capabilities
+/// are misreported. When this is fixed, remove this!
+#ifdef UNIT_TEST
+#undef _ODCA0
+#endif
+
 // These macro auto-generate the bits by testing for their presense
 // as macros in the chip-specific include file.
 /** This variable stores a bitmap describing which digitial I/O pins exist
@@ -1680,7 +1687,7 @@ static const uint32_t u32_isRemappable = {
 inline __STATIC__ bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin)
 {
     // Check for an out-of-range port
-    if (u16_port > NUM_DIGITAL_PORTS)
+    if (u16_port >= NUM_DIGITAL_PORTS)
         return C_FALSE;
     // Check for an out-of-range pin
     if (u16_pin > 15)
@@ -1759,7 +1766,7 @@ PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin,
     // ---------------------+-----------------+-----------------------------------------
     // has analog           | clear PCFG bit  | set PCFG bit
     // does not have analog | throw exception | do nothing (already digital)
-    u8_anPin = anCnMap[u16_port*16 + u16_pin].u8_cnPin;
+    u8_anPin = anCnMap[u16_port*16 + u16_pin].u8_anPin;
     if (u8_anPin != UNDEF_AN_PIN) {
         // Enable/disable analog input mode on this pin.
         // Each ADC handles 32 channels; some PIC24F / dsPIC33 parts have
@@ -1905,6 +1912,9 @@ PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin)
 {
     PmReturn_t retval = PM_RET_OK;
     uint16_t u16_rp;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
 
     // If this isn't a remappable pin (only ports B and C
     // have remappable pins), we're done.

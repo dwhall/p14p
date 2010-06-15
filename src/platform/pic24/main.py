@@ -17,7 +17,7 @@
 """__NATIVE__
 #include <pic24_all.h>
 #include <stdio.h>
-PmReturn_t readBitsC(pPmFrame_t *ppframe);
+PmReturn_t readBitC(pPmFrame_t *ppframe);
 PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
 """
 
@@ -25,13 +25,11 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
 #  \todo Python returns PmInt_t values, which are 32-bit signed integers.
 #        Need to check this for negative values, >16 bit values.
 #  \param evenAddress The word address to read from. Must be even.
-#  \param startBit The starting bit to read from; must be from 0 to 15.
-#  \param numBits The number of bits to read, must be > 0. 
-#                 Also, startBit + numBits must be <= 16.
+#  \param bit The bit to read from; must be from 0 to 15.
 def readBits(evenAddress, startBit, numBits):
 # Uncommenting lines below causes VM to not start.
     """__NATIVE__
-    return readBitsC(ppframe);
+    return readBitC(ppframe);
     """
     pass
 

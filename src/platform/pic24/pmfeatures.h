@@ -36,7 +36,7 @@
 #ifdef UNIT_TEST
 #define PM_HEAP_SIZE 100
 #else
-#define PM_HEAP_SIZE 5000
+#define PM_HEAP_SIZE 6900
 #endif
 
 /**

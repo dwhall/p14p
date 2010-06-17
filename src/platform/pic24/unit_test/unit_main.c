@@ -22,10 +22,15 @@
  */
 
 
+#ifndef __PIC24HJ128GP504__
+#error These unit tests are desgined to work only on the PIC24HJ128GP504.
+#endif
+
 #include "pm.h"
 #include "pic24_all.h"
 #include "CuTestSmall.h"
 #include <pps.h>
+
 
 /* Need to declare this array since no PyMite application is linked */
 const unsigned char usr_nat_fxn_table[] = {};

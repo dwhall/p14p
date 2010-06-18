@@ -17,6 +17,15 @@
 """__NATIVE__
 #include <pic24_all.h>
 #include "pyToC.h"
+
+/** Macro to convert a number to a string.
+ *  Typical usage: <code>TOSTRING(__LINE__)</code>
+ */
+#define TOSTRING(x) _TOSTRING(x)
+// A helper macro used by \\ref TOSTRING.
+#define _TOSTRING(x) #x
+
+#define EXCEPTION_ASSERT(a) EXCEPTION_UNLESS(a, PM_RET_EX_VAL, __FILE__ ":" TOSTRING(__LINE__) " - " #a "\\n")
 """
 
 ## Check results of pin config
@@ -24,10 +33,10 @@ def testConfigDigitalPin1():
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
 
-    EXCEPTION_UNLESS(_PCFG3 == 0, PM_RET_EX_VAL, "");
-    EXCEPTION_UNLESS(_TRISB1 == 0, PM_RET_EX_VAL, "");
-    EXCEPTION_UNLESS(_ODCB1 == 0, PM_RET_EX_VAL, "");
-    EXCEPTION_UNLESS(_CN5PUE == 0, PM_RET_EX_VAL, "");
+    EXCEPTION_ASSERT(_PCFG3 == 1);
+    EXCEPTION_ASSERT(_TRISB1 == 0);
+    EXCEPTION_ASSERT(_ODCB1 == 0);
+    EXCEPTION_ASSERT(_CN5PUE == 0);
     return retval;
     """
     pass
@@ -37,23 +46,25 @@ def testConfigDigitalPin2():
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
 
-    EXCEPTION_UNLESS(_PCFG3 == 0, PM_RET_EX_VAL, "");
-    EXCEPTION_UNLESS(_TRISB1 == 1, PM_RET_EX_VAL, "");
-    EXCEPTION_UNLESS(_ODCB1 == 1, PM_RET_EX_VAL, "");
-    EXCEPTION_UNLESS(_CN5PUE == 1, PM_RET_EX_VAL, "");
+    EXCEPTION_ASSERT(_PCFG3 == 1);
+    EXCEPTION_ASSERT(_TRISB1 == 1);
+    EXCEPTION_ASSERT(_ODCB1 == 1);
+    EXCEPTION_ASSERT(_CN5PUE == 1);
     return retval;
     """
     pass
 
 import pic24_dspic33 as pic
 
+# Test digital I/O briefly
+# ------------------------
 #                    port pin isInput isOpenDrain pullDir
-pic.configDigitalPin(1,   1,  False,  False,      0)
+dio = pic.digital_io(1,   1,  False,  False,      0)
 testConfigDigitalPin1()
 #                    port pin isInput isOpenDrain pullDir
-#pic.configDigitalPin(1,   1,  True,   True,       1)
-#testConfigDigitalPin2()
+dio = pic.digital_io(1,   1,  True,   True,       1)
+testConfigDigitalPin2()
 
-print "All tess passed.\n"
+print "All tests passed.\n"
 while True:
     a = 0

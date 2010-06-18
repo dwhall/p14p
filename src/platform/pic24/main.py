@@ -16,7 +16,7 @@
 
 # Demo some of the PIC hardware functions
 import pic24_dspic33 as pic
-pic.configDigitalPin(1, 1, False, False, 0)
+dio = pic.digital_io(1, 1, False, False, 0)
 
 import sys
 print "Welcome to PIC24 Python! Free space:", sys.heap()

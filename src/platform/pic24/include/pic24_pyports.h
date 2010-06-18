@@ -40,7 +40,7 @@
  *  ability. Before configuring a pin, the I/O system must first be
  *  initialized by a call to \ref initIoConst. Next, each pin
  *  most be configured. The high-level functions 
- *  \ref configDigitalPinC, \ref configAnalogPinC simplify this
+ *  \ref configDigitalPin, \ref configAnalogPinC simplify this
  *  process. \todo more here
  *
  *  \subsection lowLevelPinConfiguration Low-level pin configuration
@@ -93,9 +93,9 @@
 
 #include "pm.h"
 
-/** @name High-level pin configuration functions
- *  These functions allow configuring an I/O pin using a single
- *  function call.
+/** @name Initialization, read/write, and high-level pin configuration functions
+ *  These functions set up the I/O system, read and write to a pin, and
+ *  allow configuring an I/O pin using a single function call.
  */
 //@{
 
@@ -105,17 +105,59 @@
 void initIoConst(void);
 
 /** Implements the Python \ref main.configDigitalPin function. 
- *  See it for details. Implementation:
+ *  See it for details.
+ */
+PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe);
+
+/** Configures a pin for digital operation. Implementation:
  *  -# Check to see if the port/pin exists.
  *  -# If the pin has analog capability, turn it off.
  *  -# Select the pin to be either an input or an output.
  *  -# Check and configure open-drain for the pin.
  *  -# Check and configure pull-ups/pull-downs for the pin.
- *  \todo Need to also remove any peripheral outputs mapped to
- *  this pin if it's a remappable pin.
+ *  -# Remove any peripheral outputs mapped to
+ *     this pin if it's a remappable pin.
+ * 
+ *  @param u16_port The port, consisting of one of \ref PORT_A_INDEX,
+ *                  \ref PORT_B_INDEX, etc.
+ *  @param u16_pin  The pin of the port to configure. Must be
+ *                  a number between 0 and 15.
+ *  @param b_isInput True to configure the pin as an input,
+ *                   false to configure the pin as an output.
+ *  @param b_isOpenDrain True to configure the pin's output
+ *                   drivers to be 
+ *                   <a href="http://en.wikipedia.org/wiki/Open_collector">open drain</a>,
+ *                   false to configure the pin's output drivers
+ *                   as a standrard
+ *                   <a href="http://en.wikipedia.org/wiki/Totem_pole_output">push-pull</a>
+ *                   output. <em>IMPORTANT</em>: Not all pins
+ *                   have open-drain ability; therefore, the only
+ *                   valid selection for this parameter may be false.
+ *                   All pins have standard, push-pull drivers.
+ *  @param i16_pullDir A value > 0 to enable a 
+ *              <a href="http://en.wikipedia.org/wiki/Pull-up_resistor">pull-up resistor</a>
+ *              on the pin, a value < 0 to enable a pull-down
+ *              resistor on the pin, or 0 to disable both.
+ *              <em>IMPORTANT</em>: Not all pins have pull-up
+ *              or pull-down capability. Valid values for
+ *              some pins are 0 (neither pull-up nor pull-down
+ *              resistors are available), or >=0 (only
+ *              pull-up resistors are available).
  */
-PmReturn_t configDigitalPinC(pPmFrame_t *ppframe);
+PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput,
+    bool_t b_isOpenDrain, int16_t i16_pullDir);
+
+/** Write to an I/O pin. If the pin is configured as an input, the value
+ *  will be stored but only appear on the pin when it is changed to an output.
+ *  @param u16_port The port, consisting of one of \ref PORT_A_INDEX,
+ *                  \ref PORT_B_INDEX, etc.
+ *  @param u16_pin  The pin of the port to configure. Must be
+ *                  a number between 0 and 15.
+ *  @param b_isHigh True to set the pin high, false to set it low.
+ */
+PmReturn_t setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh);
 //@}
+
 
 /** @name low-level pin configuration functions
  *  These functions allow low-level configuration of I/O pins.
@@ -274,6 +316,7 @@ enum { PORT_A_INDEX = 0,
 // user of the library and exposed here only for testing.
 inline __STATIC__ bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin);
 __STATIC__ bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin);
+__STATIC__ bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin);
 #else
 #define __STATIC__ static
 #endif

@@ -35,10 +35,6 @@
 /* Need to declare this array since no PyMite application is linked */
 const unsigned char usr_nat_fxn_table[] = {};
 
-// I don't understand why this is necessary, since the same prototype exists
-// in pic24_pyports.h.
-__STATIC__ bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin);
-
 /** A series of tests on the existance of digital IO pins.
   * @param tc Test object.
   */

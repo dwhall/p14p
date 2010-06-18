@@ -2117,7 +2117,22 @@ PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin)
 #define UNMAP_PIN(u16_port, u16_pin) PM_RET_OK
 #endif
 
-PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
+PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput,
+    bool_t b_isOpenDrain, int16_t i16_pullDir)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    // Call the low-level functions to configure the port
+    PM_CHECK_FUNCTION( setPinIsDigital(u16_port, u16_pin, C_TRUE) );
+    PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
+    PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
+    PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );
+    PM_CHECK_FUNCTION( UNMAP_PIN(u16_port, u16_pin) );
+
+    return retval;
+}
+
+PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
     uint16_t u16_port;
@@ -2127,19 +2142,24 @@ PmReturn_t configDigitalPinC(pPmFrame_t *ppframe)
     int16_t i16_pullDir;
 
     // Get the arguments
-    CHECK_NUM_ARGS(5);
-    GET_UINT16(0, &u16_port);
-    GET_UINT16(1, &u16_pin);
-    GET_BOOL(2, &b_isInput);
-    GET_BOOL(3, &b_isOpenDrain);
-    GET_INT16(4, &i16_pullDir);
+    CHECK_NUM_ARGS(6);
+    // Argument 0 is a pointer to the object.
+    // Todo: store port and pin in it.
+    GET_UINT16(1, &u16_port);
+    GET_UINT16(2, &u16_pin);
+    GET_BOOL(3, &b_isInput);
+    GET_BOOL(4, &b_isOpenDrain);
+    GET_INT16(5, &i16_pullDir);
 
-    // Call the low-level functions to configure the port
-    PM_CHECK_FUNCTION( setPinIsDigital(u16_port, u16_pin, C_TRUE) );
-    PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, b_isInput) );
-    PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
-    PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );
-    PM_CHECK_FUNCTION( UNMAP_PIN(u16_port, u16_pin) );
+    PM_CHECK_FUNCTION( configDigitalPin(u16_port, u16_pin, b_isInput, 
+        b_isOpenDrain, i16_pullDir) );
+
+    return retval;
+}
+
+PmReturn_t setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh)
+{
+    PmReturn_t retval = PM_RET_OK;
 
     return retval;
 }

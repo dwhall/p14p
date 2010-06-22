@@ -310,10 +310,68 @@ void test_gpioUnmapPin(CuTest* tc)
     CuAssertTrue(tc, _RP0R == OUT_FN_PPS_NULL);
 }
 
+/** A series of tests of setDigitalPin.
+  * @param tc Test object.
+  */
+void
+test_gpioSetDigitalPin(CuTest* tc)
+{
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, setDigitalPin(PORT_A_INDEX, 5, C_TRUE) == PM_RET_EX_VAL);
+
+    // Test setting a pin true and false
+    _LATA0 = 0;
+    CuAssertTrue(tc, setDigitalPin(PORT_A_INDEX, 0, C_TRUE) == PM_RET_OK);
+    CuAssertTrue(tc, _LATA0 == 1);
+    CuAssertTrue(tc, setDigitalPin(PORT_A_INDEX, 0, C_FALSE) == PM_RET_OK);
+    CuAssertTrue(tc, _LATA0 == 0);
+}
+
+/** A series of tests of readDigitalPin.
+  * @param tc Test object.
+  */
+void
+test_gpioReadDigitalPin(CuTest* tc)
+{
+    // An exception should be thrown in an invalid port / pin
+    bool_t b_pin;
+    CuAssertTrue(tc, readDigitalPin(PORT_A_INDEX, 5, &b_pin) == PM_RET_EX_VAL);
+
+    // Test setting a pin true and false
+    // Make RA0 an output, then set its value and read that value back.
+    configDigitalPin(PORT_A_INDEX, 0, C_FALSE, C_FALSE, 0);
+    _LATA0 = 1;
+    CuAssertTrue(tc, readDigitalPin(PORT_A_INDEX, 0, &b_pin) == PM_RET_OK);
+    CuAssertTrue(tc, b_pin);
+    _LATA0 = 0;
+    CuAssertTrue(tc, readDigitalPin(PORT_A_INDEX, 0, &b_pin) == PM_RET_OK);
+    CuAssertTrue(tc, !b_pin);
+}
+
+/** A series of tests of readDigitalPin.
+  * @param tc Test object.
+  */
+void
+test_gpioReadDigitalLatch(CuTest* tc)
+{
+    // An exception should be thrown in an invalid port / pin
+    bool_t b_pin;
+    CuAssertTrue(tc, readDigitalLatch(PORT_A_INDEX, 5, &b_pin) == PM_RET_EX_VAL);
+
+    // Test setting a pin true and false
+    _LATA0 = 1;
+    CuAssertTrue(tc, readDigitalLatch(PORT_A_INDEX, 0, &b_pin) == PM_RET_OK);
+    CuAssertTrue(tc, b_pin);
+    _LATA0 = 0;
+    CuAssertTrue(tc, readDigitalLatch(PORT_A_INDEX, 0, &b_pin) == PM_RET_OK);
+    CuAssertTrue(tc, !b_pin);
+}
+
 /** Run a series of tests on general-purpose I/O functions.
     @return A suite of tests.
  */
-CuSuite* getSuite_testGpio() {
+CuSuite*
+getSuite_testGpio() {
     CuSuite* suite = CuSuiteNew();
     SUITE_ADD_TEST(suite, test_gpioExists);
     SUITE_ADD_TEST(suite, test_gpioOdExists);
@@ -322,6 +380,9 @@ CuSuite* getSuite_testGpio() {
     SUITE_ADD_TEST(suite, test_gpioSetPinIsOpenDrain);
     SUITE_ADD_TEST(suite, test_gpioSetPinPullDirection);
     SUITE_ADD_TEST(suite, test_gpioUnmapPin);
+    SUITE_ADD_TEST(suite, test_gpioSetDigitalPin);
+    SUITE_ADD_TEST(suite, test_gpioReadDigitalPin);
+    SUITE_ADD_TEST(suite, test_gpioReadDigitalLatch);
     return suite;
 }
 

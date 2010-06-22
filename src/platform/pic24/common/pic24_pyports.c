@@ -2157,9 +2157,45 @@ PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe)
     return retval;
 }
 
-PmReturn_t setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh)
+PmReturn_t
+setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh)
 {
     PmReturn_t retval = PM_RET_OK;
 
-    return retval;
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    setBit((&PORTA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isHigh);
+
+   return retval;
 }
+
+PmReturn_t
+readDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    *pb_isHigh = getBit(*(&PORTA + u16_port*u16_ioPortControlOffset), u16_pin);
+
+   return retval;
+}
+
+PmReturn_t
+readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    *pb_isHigh = getBit(*(&LATA + u16_port*u16_ioPortControlOffset), u16_pin);
+
+   return retval;
+}
+

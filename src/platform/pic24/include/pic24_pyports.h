@@ -156,6 +156,32 @@ PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInpu
  *  @param b_isHigh True to set the pin high, false to set it low.
  */
 PmReturn_t setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh);
+
+
+/** Read the digital value sensed on an I/O pin. The pin should be
+ *  configured as a digital input. If it's a digital output, then
+ *  then this function simple read what's being written.
+ *  @param u16_port  The port, consisting of one of \ref PORT_A_INDEX,
+ *                   \ref PORT_B_INDEX, etc.
+ *  @param u16_pin   The pin of the port to configure. Must be
+ *                   a number between 0 and 15.
+ *  @param pb_isHigh True if the pin is high, false if low.
+ */
+PmReturn_t
+readDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh);
+
+
+/** Read the last value written to an I/O pin. Therefore, this returns
+ *  not the current value on the pin, but the last value written to
+ *  the pin.
+ *  @param u16_port  The port, consisting of one of \ref PORT_A_INDEX,
+ *                   \ref PORT_B_INDEX, etc.
+ *  @param u16_pin   The pin of the port to configure. Must be
+ *                   a number between 0 and 15.
+ *  @param pb_isHigh True if the last write was high, false if low.
+ */
+PmReturn_t
+readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh);
 //@}
 
 
@@ -175,7 +201,6 @@ PmReturn_t setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh);
  *  \param b_isInput True to select the pin as an input, false as an output.
  */
 PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput);
-
 
 /** Configure an I/O pin as either a digital I/O or an 
  *  analog input. To use an an analog input, this pin

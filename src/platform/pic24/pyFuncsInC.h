@@ -44,3 +44,28 @@ void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val);
 #define SET_EXTENDED_BIT(p_bitfield, u16_bit, b_val) \
     setBit(((uint16_t*) (p_bitfield)) + ((u16_bit) >> 4), (u16_bit) & 0x000F, b_val)
 //@}
+
+
+/** @name Initialization, read/write, and high-level pin configuration functions
+ *  These functions set up the I/O system, read and write to a pin, and
+ *  allow configuring an I/O pin using a single function call.
+ */
+//@{
+/** Calls \ref initIoConst from Python. */
+PmReturn_t initIoConstPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref main.configDigitalPin function. 
+ *  See it for details.
+ */
+PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref digitalIo.set function.
+ *  The \ref setDigitalPin function does the work.
+ */
+PmReturn_t setDigitalPinPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref digitalIo.getPin function.
+ *  The \ref readDigitalPin function does the work.
+ */
+PmReturn_t readDigitalPinPy(pPmFrame_t *ppframe);
+//@}

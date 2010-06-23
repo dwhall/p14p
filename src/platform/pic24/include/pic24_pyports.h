@@ -104,11 +104,6 @@
  *  low-level. */
 void initIoConst(void);
 
-/** Implements the Python \ref main.configDigitalPin function. 
- *  See it for details.
- */
-PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe);
-
 /** Configures a pin for digital operation. Implementation:
  *  -# Check to see if the port/pin exists.
  *  -# If the pin has analog capability, turn it off.

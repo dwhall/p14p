@@ -1732,11 +1732,10 @@ __STATIC__ bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 // I can't make this a const, since only the linker knows these values.
 static uint16_t u16_ioPortControlOffset;
 
-
-void initIoConst(void) {
+void
+initIoConst(void) {
     u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
 }
-
 
 PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
 {
@@ -2128,31 +2127,6 @@ PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInpu
     PM_CHECK_FUNCTION( setPinIsOpenDrain(u16_port, u16_pin, b_isOpenDrain) );
     PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, i16_pullDir) );
     PM_CHECK_FUNCTION( UNMAP_PIN(u16_port, u16_pin) );
-
-    return retval;
-}
-
-PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe)
-{
-    PmReturn_t retval = PM_RET_OK;
-    uint16_t u16_port;
-    uint16_t u16_pin;
-    bool_t b_isInput;
-    bool_t b_isOpenDrain;
-    int16_t i16_pullDir;
-
-    // Get the arguments
-    CHECK_NUM_ARGS(6);
-    // Argument 0 is a pointer to the object.
-    // Todo: store port and pin in it.
-    GET_UINT16(1, &u16_port);
-    GET_UINT16(2, &u16_pin);
-    GET_BOOL(3, &b_isInput);
-    GET_BOOL(4, &b_isOpenDrain);
-    GET_INT16(5, &i16_pullDir);
-
-    PM_CHECK_FUNCTION( configDigitalPin(u16_port, u16_pin, b_isInput, 
-        b_isOpenDrain, i16_pullDir) );
 
     return retval;
 }

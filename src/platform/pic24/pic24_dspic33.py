@@ -16,7 +16,18 @@
 
 """__NATIVE__
 #include <pic24_all.h>
+#include "pyFuncsInC.h"
 """
+
+## Initialize constants needed by the I/O libraries.
+def initIoConst():
+    """__NATIVE__
+    return initIoConstPy(ppframe);
+    """
+    pass
+
+# Initialize constants when loading this module.
+initIoConst()
 
 class digital_io(object):
     ## Configures a pin for digital operation.
@@ -47,12 +58,20 @@ class digital_io(object):
     #              resistors are available), or >=0 (only
     #              pull-up resistors are available).
     def __init__(self, port, pin, isInput, isOpenDrain, pullDir):
-        self.port = port
-        self.pin = pin
-        self.__configDigitalPin(port, pin, isInput, isOpenDrain, pullDir)
-
-    def __configDigitalPin(self, port, pin, isInput, isOpenDrain, pullDir):
         """__NATIVE__
         return configDigitalPinPy(ppframe);
         """
         pass
+
+    def set(self, isHigh):
+        """__NATIVE__
+        return setDigitalPinPy(ppframe);
+        """
+        pass
+
+    def getPin(self):
+        """__NATIVE__
+        return readDigitalPinPy(ppframe);
+        """
+        pass
+

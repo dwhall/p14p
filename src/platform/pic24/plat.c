@@ -23,9 +23,9 @@
 
 
 #include <stdio.h>
-#include <include/pic24_all.h>
+#include <pic24_all.h>
 #include <pyFuncsInC.h>
-
+#include "pyToC.h"
 #include "pm.h"
 
 /** Number of milliseconds since the system
@@ -67,7 +67,6 @@ void  configTimer2(void) {
 
 PmReturn_t plat_init(void)
 {
-  initIoConst();
   configBasic(HELLO_MSG);
   configTimer2();
   
@@ -78,7 +77,6 @@ PmReturn_t plat_init(void)
 PmReturn_t
 plat_deinit(void)
 {
-
     return PM_RET_OK;
 }
 

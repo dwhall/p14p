@@ -235,3 +235,25 @@ configAnalogPinPy(pPmFrame_t *ppframe)
     return retval;
 }
 
+PmReturn_t
+readAnalogValuePy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    int32_t i32_analogPin;
+    uint16_t u16_analogPin;
+    uint16_t u16_analogValue;
+
+    // Get the arguments
+    CHECK_NUM_ARGS(1);
+    PM_CHECK_FUNCTION( getPyClassInt(ppframe, &i32_analogPin) );
+    u16_analogPin = i32_analogPin;
+
+    // Read analog value
+    configADC1_ManualCH0(ADC_CH0_POS_SAMPLEA_AN0 + u16_analogPin, 31, C_TRUE);
+    u16_analogValue = convertADC1();
+
+    // Return value
+//    NATIVE_SET_TOS(b_isHigh ? PM_TRUE : PM_FALSE);
+    return retval;
+}
+

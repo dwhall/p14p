@@ -27,56 +27,28 @@
  *
  */
 
-
 // Documentation for this file. If the \file tag isn't present,
 // this file won't be documented.
 /** \file
- *  This header file includes the all the pic24_*.h files as detailed
- *  in the \ref index and also includes the necessary
- *  processor-specific include file (via a \#include p24h/fxxxx.h).
+ *  FLASH memory read/write support functions
  */
 
-#ifndef _PIC24_ALL_H_
-#define _PIC24_ALL_H_
+#ifndef _PIC24_FLASH_H_
+#define _PIC24_FLASH_H_
 
-// Include processor-specific header file
-#if defined(__PIC24H__)
-#include "p24hxxxx.h"
-#elif defined(__PIC24F__)
-#include "p24fxxxx.h"
-#elif defined(__dsPIC33F__)
-#include "p33fxxxx.h"
-#elif defined(__PIC24FK__)
-#include "p24fxxxx.h"      //this is a variant of the PIC24F family
-#else
-#error Unknown processor.
+#define FLASH_ROWSIZE    64       //in number of instructions
+#define FLASH_ROWS_PER_PAGE 8
+#define FLASH_PAGEINSTR (FLASH_ROWSIZE * FLASH_ROWS_PER_PAGE)  //8 rows of 64 instructions
+#define FLASH_PAGESIZE (FLASH_PAGEINSTR*2)     //each instruction appears to occupy 2 program memory addresses
+#define FLASH_PAGEBYTES (FLASH_PAGEINSTR*3)  //total bytes is FLASH_PAGEINSTR *3 = 1536
+#define FLASH_ROWBYTES  (FLASH_ROWSIZE*3)    //bytes in one row
+
+void doWriteLatchFlash(uint16 u16_addrhi, uint16 u16_addrlo, uint16 u16_wordhi, uint16 u16_wordlo);
+uint32 doReadLatchFlash(uint16 u16_addrhi, uint16 u16_addrlo);
+void doEraseFlash (uint16 u16_addrhi, uint16 u16_addrlo);
+void doWriteFlash();
+void doWritePageFlash(union32 u32_pmemAddress, uint8* pu8_data, uint16 u16_len);
+void doReadPageFlash(union32 u32_pmemAddress, uint8* pu8_data, uint16 u16_len);
+
+
 #endif
-
-// Include user-configurable options
-#include "pic24_libconfig.h"
-
-// Include PIC24 support library headers
-#include "pic24_generic.h"
-#include "stdint.h"
-#include "pic24_unittest.h"
-#include "pic24_clockfreq.h"
-#include "pic24_delay.h"
-#include "pic24_ports.h"
-#include "pic24_pyports.h"
-
-#ifndef BUILT_ON_ESOS
-#include "pic24_uart.h"
-#include "pic24_serial.h"
-#include "pic24_util.h"
-#endif
-
-#include "pic24_timer.h"
-#include "pic24_i2c.h"
-#include "pic24_spi.h"
-#include "pic24_adc.h"
-#include "pic24_dma.h"
-#include "pic24_ecan.h"
-#include "pic24_flash.h"
-#include "pic24_comparator.h"
-
-#endif // #ifndef  _PIC24_ALL_H_

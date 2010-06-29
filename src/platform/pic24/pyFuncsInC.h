@@ -64,8 +64,19 @@ PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe);
  */
 PmReturn_t setDigitalPinPy(pPmFrame_t *ppframe);
 
+/** Implements the Python \ref digitalIo.get function.
+ *  The \ref readDigitalValue function does the work.
+ */
+PmReturn_t
+readDigitalValuePy(pPmFrame_t *ppframe);
+
 /** Implements the Python \ref digitalIo.getPin function.
  *  The \ref readDigitalPin function does the work.
  */
 PmReturn_t readDigitalPinPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref digitalIo.getLatch function.
+ *  The \ref readDigitalLatch function does the work.
+ */
+PmReturn_t readDigitalLatchPy(pPmFrame_t *ppframe);
 //@}

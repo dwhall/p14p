@@ -150,7 +150,8 @@ PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInpu
  *                  a number between 0 and 15.
  *  @param b_isHigh True to set the pin high, false to set it low.
  */
-PmReturn_t setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh);
+PmReturn_t
+setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh);
 
 
 /** Read the digital value sensed on an I/O pin. The pin should be
@@ -188,7 +189,7 @@ readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh);
 //@{
 
 /** Set an I/O pin to be either an input or an output. Setting this
- *  pin as an output implies that it is a digital outp0ut. In contrast,
+ *  pin as an output implies that it is a digital output. In contrast,
  *  configuring this pint to be an input allows it to be used as either
  *  a digital input or an analog input.
  *  \param u16_port I/O port (A = 0, B = 1, etc.)
@@ -196,6 +197,14 @@ readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh);
  *  \param b_isInput True to select the pin as an input, false as an output.
  */
 PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput);
+
+/** Determine if an I/O pin is an input or an output.
+ *  \param u16_port I/O port (A = 0, B = 1, etc.)
+ *  \param u16_pin  Pin on the I/O port (from 0 to 15)
+ *  \param pb_isInput True if the pin is an input, false if it's an output.
+ */
+PmReturn_t
+getPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isInput);
 
 /** Configure an I/O pin as either a digital I/O or an 
  *  analog input. To use an an analog input, this pin

@@ -1751,6 +1751,21 @@ PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
 }
 
 
+PmReturn_t
+getPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isInput)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
+      "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
+    // Make sure u16_ioPortControlOffset was initialized.
+    ASSERT(u16_ioPortControlOffset);
+    // Determine if pin is an input or an output
+    *pb_isInput = getBit(*((&TRISA) + u16_port*u16_ioPortControlOffset), u16_pin);
+    return retval;
+}
+
+
 PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
   bool_t b_isDigital)
 {

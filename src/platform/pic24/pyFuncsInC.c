@@ -160,6 +160,34 @@ readDigitalPinPy(pPmFrame_t *ppframe)
     NATIVE_SET_TOS(b_isHigh ? PM_TRUE : PM_FALSE);
     return retval;
 }
+
+PmReturn_t
+readDigitalValuePy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_port;
+    uint16_t u16_pin;
+    bool_t b_isHigh;
+    bool_t b_isInput;
+
+    // Get the arguments
+    CHECK_NUM_ARGS(1);
+    PM_CHECK_FUNCTION( getPyPortPin(ppframe, &u16_port, &u16_pin) );
+
+    // Determine if this is an input or an output
+    PM_CHECK_FUNCTION( getPinIsInput(u16_port, u16_pin, &b_isInput) );
+    // Read the pin (if it's an input) or the port (if it's an output)
+    if (b_isInput) {
+        PM_CHECK_FUNCTION( readDigitalPin(u16_port, u16_pin, &b_isHigh) );
+    } else {
+        PM_CHECK_FUNCTION( readDigitalLatch(u16_port, u16_pin, &b_isHigh) );
+    }
+
+    // Return bool
+    NATIVE_SET_TOS(b_isHigh ? PM_TRUE : PM_FALSE);
+    return retval;
+}
+
 PmReturn_t
 readDigitalLatchPy(pPmFrame_t *ppframe)
 {

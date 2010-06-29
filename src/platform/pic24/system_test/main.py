@@ -65,9 +65,19 @@ testConfigDigitalPin1()
 dio = pic.digital_io(1,   1,  True,   True,       1)
 testConfigDigitalPin2()
 
-#                    port pin isInput isOpenDrain pullDir
-dio = pic.digital_io(1,   1,  False,  False,      0)
+#                    port pin isInput        others use default values
+dio = pic.digital_io(1,   1,  False, False, 0)
 dio.set(True)
+assert(dio.get())
 assert(dio.getPin())
+assert(dio.getLatch())
+
+print dio.get()
+print not dio.get()
+a = not dio.get()
+print a
+dio.set(a)
+print "all the way\n"
+dio.set(not dio.get())
 
 print "All tests passed.\n"

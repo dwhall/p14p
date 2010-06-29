@@ -203,6 +203,28 @@ void test_gpioSetPinIsInput(CuTest* tc)
     CuAssertTrue(tc, _TRISA0 == 0);
 }
 
+/** A series of tests of getPinIsInput.
+  * @param tc Test object.
+  */
+void test_gpioGetPinIsInput(CuTest* tc)
+{
+    bool_t b_isInput;
+
+    // An exception should be thrown in an invalid port / pin
+    CuAssertTrue(tc, getPinIsInput(PORT_A_INDEX, 5, &b_isInput) == PM_RET_EX_VAL);
+
+    // Check than configuring a specific pin as an input does indeed change
+    // the pin's TRIS value.
+    _TRISA0 = 0;
+    b_isInput = C_TRUE;
+    CuAssertTrue(tc, getPinIsInput(PORT_A_INDEX, 0, &b_isInput) == PM_RET_OK);
+    CuAssertTrue(tc, !b_isInput);
+    _TRISA0 = 1;
+    b_isInput = C_FALSE;
+    CuAssertTrue(tc, getPinIsInput(PORT_A_INDEX, 0, &b_isInput) == PM_RET_OK);
+    CuAssertTrue(tc, b_isInput);
+}
+
 /** A series of tests of setPinIsDigital.
   * @param tc Test object.
   */
@@ -376,6 +398,7 @@ getSuite_testGpio() {
     SUITE_ADD_TEST(suite, test_gpioExists);
     SUITE_ADD_TEST(suite, test_gpioOdExists);
     SUITE_ADD_TEST(suite, test_gpioSetPinIsInput);
+    SUITE_ADD_TEST(suite, test_gpioGetPinIsInput);
     SUITE_ADD_TEST(suite, test_gpioSetPinIsDigital);
     SUITE_ADD_TEST(suite, test_gpioSetPinIsOpenDrain);
     SUITE_ADD_TEST(suite, test_gpioSetPinPullDirection);

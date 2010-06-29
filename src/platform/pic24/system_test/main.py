@@ -54,6 +54,18 @@ def testConfigDigitalPin2():
     """
     pass
 
+## Check results of analog pin config
+def testConfigAnalogPin():
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_ASSERT(_PCFG0 == 0);
+    EXCEPTION_ASSERT(_TRISA0 == 1);
+    EXCEPTION_ASSERT(_CN2PUE == 0);
+    return retval;
+    """
+    pass
+
 import pic24_dspic33 as pic
 
 # Test digital I/O briefly
@@ -65,19 +77,20 @@ testConfigDigitalPin1()
 dio = pic.digital_io(1,   1,  True,   True,       1)
 testConfigDigitalPin2()
 
-#                    port pin isInput        others use default values
-dio = pic.digital_io(1,   1,  False, False, 0)
+#                    port pin isInput isOpenDrain pullDir
+dio = pic.digital_io(1,   1,  False,  False,      0)
 dio.set(True)
 assert(dio.get())
 assert(dio.getPin())
 assert(dio.getLatch())
 
-print dio.get()
-print not dio.get()
-a = not dio.get()
-print a
-dio.set(a)
-print "all the way\n"
-dio.set(not dio.get())
+# Test analog input
+# -----------------
+# Set up a digital input, then change to analog to
+# verify that the analog config reset everything
+# properly.
+dio = pic.digital_io(0,   0,  False,  False,      1)
+ain = pic.analog_input(0)
+testConfigAnalogPin()
 
 print "All tests passed.\n"

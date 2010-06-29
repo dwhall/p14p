@@ -14,6 +14,7 @@
 char* CuStrAlloc(int size)
 {
     char* newStr = (char*) malloc( sizeof(char) * (size) );
+    assert(newStr != NULL);
     return newStr;
 }
 
@@ -34,15 +35,18 @@ void CuStringInit(CuString* str)
     str->length = 0;
     str->size = STRING_MAX;
     str->buffer = (char*) malloc(sizeof(char) * str->size);
+    assert(str->buffer != NULL);
     str->buffer[0] = '\0';
 }
 
 CuString* CuStringNew(void)
 {
     CuString* str = (CuString*) malloc(sizeof(CuString));
+    assert(str != NULL);
     str->length = 0;
     str->size = STRING_MAX;
     str->buffer = (char*) malloc(sizeof(char) * str->size);
+    assert(str->buffer != NULL);
     str->buffer[0] = '\0';
     return str;
 }
@@ -50,6 +54,7 @@ CuString* CuStringNew(void)
 void CuStringResize(CuString* str, int newSize)
 {
     str->buffer = (char*) realloc(str->buffer, sizeof(char) * newSize);
+    assert(str->buffer != NULL);
     str->size = newSize;
 }
 
@@ -115,6 +120,7 @@ void CuTestInit(CuTest* t, const char* name, TestFunction function)
 CuTest* CuTestNew(const char* name, TestFunction function)
 {
     CuTest* tc = CU_ALLOC(CuTest);
+    assert(tc != NULL);
     CuTestInit(tc, name, function);
     return tc;
 }
@@ -229,6 +235,7 @@ void CuSuiteInit(CuSuite* testSuite)
 CuSuite* CuSuiteNew(void)
 {
     CuSuite* testSuite = CU_ALLOC(CuSuite);
+    assert(testSuite);
     CuSuiteInit(testSuite);
     return testSuite;
 }

@@ -16,11 +16,13 @@
 
 # Demo some of the PIC hardware functions
 import pic24_dspic33 as pic
-dio = pic.digital_io(1, 1, False, False, 0)
-while True:
-    dio.set(True)
-    dio.set(False)
+
+# Toggle a pin
+#dio = pic.digital_io(1, 1, False, False, 0)
 #    dio.set(not dio.get())
+
+# Do some analog input
+ain = pic.analog_input(0)
 
 import sys
 print "Welcome to PIC24 Python! Free space:", sys.heap()

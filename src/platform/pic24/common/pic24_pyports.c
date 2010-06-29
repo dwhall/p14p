@@ -50,7 +50,27 @@
 #undef _ODCA0
 #endif
 
-// These macro auto-generate the bits by testing for their presense
+
+bool_t 
+getBit(uint16_t u16_bitfield, uint16_t u16_bit)
+{
+    ASSERT(u16_bit < 16);
+    return (u16_bitfield & (1 << u16_bit)) ? C_TRUE : C_FALSE;
+}
+
+
+void
+setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val)
+{
+    ASSERT(u16_bit < 16);
+    if (b_val)
+        *pu16_bitfield |= 1 << u16_bit;
+    else
+        *pu16_bitfield &= ~(1 << u16_bit);
+}
+
+
+// These macros auto-generate the bits by testing for their presense
 // as macros in the chip-specific include file.
 /** This variable stores a bitmap describing which digitial I/O pins exist
  *  on the current processor. Port A is stored at [0], B at [1], etc. A value
@@ -2147,6 +2167,35 @@ PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInpu
 }
 
 PmReturn_t
+configAnalogPin(uint16_t u16_analogPin)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_port;
+    uint16_t u16_pin;
+    uint16_t u16_ndx;
+
+    // Search for this analog pin in the anCnMap
+    for (u16_ndx = 0; u16_ndx < 16*NUM_DIGITAL_PORTS; u16_ndx++)
+    {
+        if (anCnMap[u16_ndx].u8_anPin == u16_analogPin)
+            break;
+    }
+    EXCEPTION_UNLESS(anCnMap[u16_ndx].u8_anPin == u16_analogPin, PM_RET_EX_VAL,
+      "Invalid analog pin %d.", u16_analogPin);
+    u16_port = u16_ndx >> 4;
+    u16_pin = u16_ndx & 0xF;
+            
+    // Configure the pine    
+    PM_CHECK_FUNCTION( setPinIsDigital(u16_port, u16_pin, C_FALSE) );
+    PM_CHECK_FUNCTION( setPinIsInput(u16_port, u16_pin, C_TRUE) );
+    PM_CHECK_FUNCTION( setPinPullDirection(u16_port, u16_pin, 0) );
+    PM_CHECK_FUNCTION( UNMAP_PIN(u16_port, u16_pin) );
+
+    return retval;
+}
+
+
+PmReturn_t
 setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -2157,7 +2206,7 @@ setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh)
     ASSERT(u16_ioPortControlOffset);
     setBit((&PORTA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isHigh);
 
-   return retval;
+    return retval;
 }
 
 PmReturn_t
@@ -2171,7 +2220,7 @@ readDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh)
     ASSERT(u16_ioPortControlOffset);
     *pb_isHigh = getBit(*(&PORTA + u16_port*u16_ioPortControlOffset), u16_pin);
 
-   return retval;
+    return retval;
 }
 
 PmReturn_t
@@ -2185,6 +2234,6 @@ readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh)
     ASSERT(u16_ioPortControlOffset);
     *pb_isHigh = getBit(*(&LATA + u16_port*u16_ioPortControlOffset), u16_pin);
 
-   return retval;
+    return retval;
 }
 

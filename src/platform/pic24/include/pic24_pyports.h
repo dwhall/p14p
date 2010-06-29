@@ -142,6 +142,13 @@ void initIoConst(void);
 PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput,
     bool_t b_isOpenDrain, int16_t i16_pullDir);
 
+/** Configure a pin for analog operation.
+ *  @param u16_analogPin Pin x (named ANxx on the data sheet) to 
+ *     configure as an analog pin
+ */
+PmReturn_t
+configAnalogPin(uint16_t u16_analogPin);
+
 /** Write to an I/O pin. If the pin is configured as an input, the value
  *  will be stored but only appear on the pin when it is changed to an output.
  *  @param u16_port The port, consisting of one of \ref PORT_A_INDEX,
@@ -252,14 +259,52 @@ PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin);
 
 
 /** Map ports to an index. */
-enum { PORT_A_INDEX = 0,
-       PORT_B_INDEX,
-       PORT_C_INDEX,
-       PORT_D_INDEX,
-       PORT_E_INDEX,
-       PORT_F_INDEX,
-       PORT_G_INDEX,
+enum { PORT_A_INDEX = 0, ///< Index of port A
+       PORT_B_INDEX,     ///< Index of port B
+       PORT_C_INDEX,     ///< Index of port C
+       PORT_D_INDEX,     ///< Index of port D
+       PORT_E_INDEX,     ///< Index of port E
+       PORT_F_INDEX,     ///< Index of port F
+       PORT_G_INDEX,     ///< Index of port G
 };
+
+/** @name Bit manipulation functions
+ */
+//@{
+
+/** Look up a specific bit in a bitfield.
+ *  @param u16_bitfield Bitfield to access.
+ *  @param u16_bit Bit in bitfield to access. Must be from
+ *               0 to 15.
+ *  @return True if the bit is a 1, false otherwise.
+ */
+bool_t getBit(uint16_t u16_bitfield, uint16_t u16_bit);
+
+/** Look up a specific bit in an extended (> 16 bit) bitfield.
+ *  @param u_bitfield Bitfield to access.
+ *  @param u16_bit Bit in bitfield to access
+ *  @return True if the bit is a 1, false otherwise.
+ */
+#define GET_EXTENDED_BIT(u_bitfield, u16_bit) \
+    getBit(*(((uint16_t*) &(u_bitfield)) + ((u16_bit) >> 4)), (u16_bit) & 0x000F)
+
+/** Set a specific bit in a bitfield.
+ *  @param pu16_bitfield Pointer to bitfield to modify.
+ *  @param u16_bit Bit in bitfield to access. Must be from
+ *               0 to 15.
+ *  @param b_val True to set the bit, false to clear it.
+ */
+void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val);
+
+/** Set a specific bit in an extended (> 16 bit) bitfield.
+ *  @param p_bitfield Pointer to bitfield to modify.
+ *  @param u16_bit Bit in bitfield to access.
+ *  @param b_val True to set the bit, false to clear it.
+ */
+#define SET_EXTENDED_BIT(p_bitfield, u16_bit, b_val) \
+    setBit(((uint16_t*) (p_bitfield)) + ((u16_bit) >> 4), (u16_bit) & 0x000F, b_val)
+//@}
+
 
 /** This macro tells how many digital I/O ports exist on the selected processor. */
 #if   defined(_RG0)  || defined(_RG1)  || defined(_RG2)  || defined(_RG3)  || \

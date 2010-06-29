@@ -389,6 +389,45 @@ test_gpioReadDigitalLatch(CuTest* tc)
     CuAssertTrue(tc, !b_pin);
 }
 
+/** A series of tests of configDigitalPin.
+  * @param tc Test object.
+  */
+void
+test_configDigitalPin(CuTest* tc)
+{
+    // Config a pin and check results
+    CuAssertTrue(tc, configDigitalPin(PORT_B_INDEX, 1, C_FALSE, C_FALSE, 0) == PM_RET_OK);
+    CuAssertTrue(tc, _PCFG3 == 1);
+    CuAssertTrue(tc, _TRISB1 == 0);
+    CuAssertTrue(tc, _ODCB1 == 0);
+    CuAssertTrue(tc, _CN5PUE == 0);
+
+    // Config with opposite params and check
+    CuAssertTrue(tc, configDigitalPin(PORT_B_INDEX, 1, C_TRUE, C_TRUE, 1) == PM_RET_OK);
+    CuAssertTrue(tc, _PCFG3 == 1);
+    CuAssertTrue(tc, _TRISB1 == 1);
+    CuAssertTrue(tc, _ODCB1 == 1);
+    CuAssertTrue(tc, _CN5PUE == 1);
+
+}
+/** A series of tests of configAnalogPin.
+  * @param tc Test object.
+  */
+void
+test_configAnalogPin(CuTest* tc)
+{
+    // An exception should bethrown for an invalid analog pin
+    CuAssertTrue(tc, configAnalogPin(13) == PM_RET_EX_VAL);
+
+    // Config RA0 / AN0 as a digital output
+    CuAssertTrue(tc, configDigitalPin(PORT_A_INDEX, 0, C_FALSE, C_FALSE, 1) == PM_RET_OK);
+    // Now make it an analog input
+    CuAssertTrue(tc, configAnalogPin(0) == PM_RET_OK);
+    CuAssertTrue(tc, _PCFG0 == 0);
+    CuAssertTrue(tc, _CN2PUE == 0);
+    CuAssertTrue(tc, _TRISA0 == 1);
+}
+
 /** Run a series of tests on general-purpose I/O functions.
     @return A suite of tests.
  */
@@ -406,6 +445,8 @@ getSuite_testGpio() {
     SUITE_ADD_TEST(suite, test_gpioSetDigitalPin);
     SUITE_ADD_TEST(suite, test_gpioReadDigitalPin);
     SUITE_ADD_TEST(suite, test_gpioReadDigitalLatch);
+    SUITE_ADD_TEST(suite, test_configDigitalPin);
+    SUITE_ADD_TEST(suite, test_configAnalogPin);
     return suite;
 }
 

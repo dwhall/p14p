@@ -29,7 +29,7 @@ def initIoConst():
 # Initialize constants when loading this module.
 initIoConst()
 
-## This class provide basic digital I/O for the PIC.
+## This class provides basic digital I/O for the PIC.
 #  Configuring a given pin overrides any previous
 #  configuration (as an analog input, other digitial
 #  I/O, peripheral such as UART, SPI, etc.)
@@ -98,3 +98,18 @@ class digital_io(object):
        return readDigitalLatchPy(ppframe);
        """
        pass
+
+
+## This class provides basic analog input for the PIC.
+#  Configuring a given pin overrides any previous
+#  configuration (as a digital input, other digital
+#  I/O, peripheral such as UART, SPI, etc.)
+class analog_input(object):
+    ## Create the class for a specific analog pin, numbered ANxx on the
+    #  data sheet. Configures the pin as an analog input.
+    def __init__(self, port, analogPin):
+        """__NATIVE__
+        return configAnalogPinPy(ppframe);
+        """
+        pass
+

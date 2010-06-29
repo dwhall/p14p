@@ -10,29 +10,61 @@
 #undef __FILE_ID__
 #define __FILE_ID__ 0x70
 
-bool_t getBit(uint16_t u16_bitfield, uint16_t u16_bit)
+/// @name Helper functions
+//@{
+/** Store an int of private data to a Python class.
+ *  @param ppframe Stack frame containing Python arguments.
+ *                 Argument 0 should be the object.
+ *  @param i32_val An int to store in the class.
+ */
+static PmReturn_t
+putPyClassInt(pPmFrame_t *ppframe, int32_t i32_val)
 {
-    ASSERT(u16_bit < 16);
-    return (u16_bitfield & (1 << u16_bit)) ? C_TRUE : C_FALSE;
+    PmReturn_t retval = PM_RET_OK;
+
+    pPmObj_t ppo_self;
+    pPmObj_t ppo_attrs;
+    pPmObj_t ppo_int;
+
+    // Argument 0 is a pointer to the object.
+    // Store port and pin in it.
+    // Raise TypeError if address isn't an object
+    ppo_self = NATIVE_GET_LOCAL(0);
+    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
+      "Argument 0 must be an class instance");
+    ppo_attrs = (pPmObj_t)((pPmInstance_t)ppo_self)->cli_attrs;
+    PM_CHECK_FUNCTION( int_new(i32_val, &ppo_int) );
+    PM_CHECK_FUNCTION( dict_setItem(ppo_attrs, PM_NONE, ppo_int) );
+
+    return retval;
 }
 
-
-void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val)
+/** Get an int of private data from a Python class.
+ *  @param ppframe Stack frame containing Python arguments.
+ *                 Argument 0 should be the object.
+ *  @param pi32_val An int stored in the class is returned here.
+ */
+static PmReturn_t
+getPyClassInt(pPmFrame_t *ppframe, int32_t* pi32_val)
 {
-    ASSERT(u16_bit < 16);
-    if (b_val)
-        *pu16_bitfield |= 1 << u16_bit;
-    else
-        *pu16_bitfield &= ~(1 << u16_bit);
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t ppo_self;
+    pPmObj_t ppo_attrs;
+    pPmObj_t ppo_int;
+
+    // Argument 0 is a pointer to the object.
+    // Store port and pin in it.
+    // Raise TypeError if address isn't an object
+    ppo_self = NATIVE_GET_LOCAL(0);
+    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
+      "Argument 0 must be an class instance");
+    ppo_attrs = (pPmObj_t) ((pPmInstance_t) ppo_self)->cli_attrs;
+    PM_CHECK_FUNCTION( dict_getItem(ppo_attrs, PM_NONE, &ppo_int) );
+    PM_CHECK_FUNCTION( getInt32(ppo_int, pi32_val) );
+
+    return retval;
 }
-
-/** C strings to convert to Python strings. */
-static const char* psz_port = "port";
-static const char* psz_pin = "pin";
-
-/** Python strings to hold C strings above. */
-static pPmObj_t ppo_portStr;
-static pPmObj_t ppo_pinStr;
+//@}
 
 PmReturn_t
 initIoConstPy(pPmFrame_t *ppframe)
@@ -41,14 +73,13 @@ initIoConstPy(pPmFrame_t *ppframe)
 
     initIoConst();
     CHECK_NUM_ARGS(0);
-    PM_CHECK_FUNCTION( string_new(&psz_port, &ppo_portStr) );
-    PM_CHECK_FUNCTION( string_new(&psz_pin, &ppo_pinStr) );
     NATIVE_SET_TOS(PM_NONE);
 
     return retval;
 }
 
-PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe)
+PmReturn_t
+configDigitalPinPy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
     uint16_t u16_port;
@@ -56,10 +87,6 @@ PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe)
     bool_t b_isInput;
     bool_t b_isOpenDrain;
     int16_t i16_pullDir;
-    pPmObj_t ppo_self;
-    pPmObj_t ppo_attrs;
-    pPmObj_t ppo_portVal;
-    pPmObj_t ppo_pinVal;
 
     // Get the arguments
     CHECK_NUM_ARGS(6);
@@ -69,20 +96,12 @@ PmReturn_t configDigitalPinPy(pPmFrame_t *ppframe)
     GET_BOOL_ARG(4, &b_isOpenDrain);
     GET_INT16_ARG(5, &i16_pullDir);
 
-    // Argument 0 is a pointer to the object.
-    // Store port and pin in it.
-    // Raise TypeError if address isn't an object
-    ppo_self = NATIVE_GET_LOCAL(0);
-    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
-      "Argument 0 must be an class instance");
-    ppo_attrs = (pPmObj_t)((pPmInstance_t)ppo_self)->cli_attrs;
-    PM_CHECK_FUNCTION( int_new(u16_port, &ppo_portVal) );
-    PM_CHECK_FUNCTION( dict_setItem(ppo_attrs, ppo_portStr, ppo_portVal) );
-    PM_CHECK_FUNCTION( int_new(u16_port, &ppo_pinVal) );
-    PM_CHECK_FUNCTION( dict_setItem(ppo_attrs, ppo_pinStr, ppo_pinVal) );
+    // Save the port and pin in theclass
+    PM_CHECK_FUNCTION( putPyClassInt(ppframe, 
+      (((int32_t) u16_port) << 16) | u16_pin) );
 
     PM_CHECK_FUNCTION( configDigitalPin(u16_port, u16_pin, b_isInput, 
-        b_isOpenDrain, i16_pullDir) );
+      b_isOpenDrain, i16_pullDir) );
     NATIVE_SET_TOS(PM_NONE);
 
     return retval;
@@ -100,22 +119,11 @@ static PmReturn_t
 getPyPortPin(pPmFrame_t *ppframe, uint16_t* pu16_port, uint16_t* pu16_pin)
 {
     PmReturn_t retval = PM_RET_OK;
-    pPmObj_t ppo_self;
-    pPmObj_t ppo_attrs;
-    pPmObj_t ppo_portVal;
-    pPmObj_t ppo_pinVal;
+    int32_t i32_portPin;
 
-    // Argument 0 is a pointer to the object.
-    // Store port and pin in it.
-    // Raise TypeError if address isn't an object
-    ppo_self = NATIVE_GET_LOCAL(0);
-    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
-      "Argument 0 must be an class instance");
-    ppo_attrs = (pPmObj_t) ((pPmInstance_t) ppo_self)->cli_attrs;
-    PM_CHECK_FUNCTION( dict_getItem(ppo_attrs, ppo_portStr, &ppo_portVal) );
-    PM_CHECK_FUNCTION( dict_getItem(ppo_attrs, ppo_pinStr, &ppo_pinVal) );
-    PM_CHECK_FUNCTION( getUint16(ppo_portVal, pu16_port) );
-    PM_CHECK_FUNCTION( getUint16(ppo_pinVal, pu16_pin) );
+    PM_CHECK_FUNCTION( getPyClassInt(ppframe, &i32_portPin) );
+    *pu16_port = i32_portPin >> 16;
+    *pu16_pin = i32_portPin & 0x00FF;
 
     return retval;
 }
@@ -207,3 +215,23 @@ readDigitalLatchPy(pPmFrame_t *ppframe)
     NATIVE_SET_TOS(b_isHigh ? PM_TRUE : PM_FALSE);
     return retval;
 }
+
+PmReturn_t
+configAnalogPinPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_analogPin;
+
+    // Get the arguments
+    CHECK_NUM_ARGS(2);
+    GET_UINT16_ARG(1, &u16_analogPin);
+
+    // Save the analog pin number in the class
+    PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_analogPin) );
+
+    PM_CHECK_FUNCTION( configAnalogPin(u16_analogPin) );
+    NATIVE_SET_TOS(PM_NONE);
+
+    return retval;
+}
+

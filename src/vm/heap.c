@@ -323,7 +323,7 @@ heap_init(void)
     pmHeap.avail = 0;
 #ifdef HAVE_GC
     pmHeap.gcval = (uint8_t)0;
-    pmHeap.auto_gc = C_TRUE;
+    heap_gcSetAuto(C_TRUE);
 #endif /* HAVE_GC */
 
     /* Create as many max-sized chunks as possible in the freelist */
@@ -835,6 +835,18 @@ heap_gcMarkObj(pPmObj_t pobj)
                 }
             }
             break;
+
+#ifdef HAVE_BYTEARRAY
+        case OBJ_TYPE_BYA:
+            OBJ_SET_GCVAL(pobj, pmHeap.gcval);
+
+            retval = heap_gcMarkObj((pPmObj_t)((pPmBytearray_t)pobj)->val);
+            break;
+
+        case OBJ_TYPE_BYS:
+            OBJ_SET_GCVAL(pobj, pmHeap.gcval);
+            break;
+#endif /* HAVE_BYTEARRAY */
 
         default:
             /* There should be no invalid types */

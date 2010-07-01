@@ -24,8 +24,6 @@
 
 #include <stdio.h>
 #include <pic24_all.h>
-#include <pyFuncsInC.h>
-#include "pyToC.h"
 #include "pm.h"
 
 /** Number of milliseconds since the system

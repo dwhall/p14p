@@ -113,3 +113,27 @@ class analog_input(object):
         """
         pass
 
+    ## Read the code produced by the ADC, a value from 0 to 4095
+    #  which is linearly proportional to the input voltage.
+    def getCode(self, port, analogPin):
+        """__NATIVE__
+        return readAnalogCodePy(ppframe);
+        """
+        pass
+
+    ## Read the voltage produced by the ADC, resulting in a
+    #  returned value between 0 and 3.3V.
+    def getVoltage(self, port, analogPin):
+        """__NATIVE__
+        return readAnalogFloatPy(ppframe, 3.3/4096.0);
+        """
+        pass
+
+    ## Read the voltage produced by the ADC, resulting in a
+    #  normalized value ranging from 0 to 1.
+    def getNorm(self, port, analogPin):
+        """__NATIVE__
+        return readAnalogFloatPy(ppframe, 1.0/4096.0);
+        """
+        pass
+

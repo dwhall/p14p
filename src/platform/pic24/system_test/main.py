@@ -92,5 +92,6 @@ assert(dio.getLatch())
 dio = pic.digital_io(0,   0,  False,  False,      1)
 ain = pic.analog_input(0)
 testConfigAnalogPin()
+#print ain.getCode()
 
 print "All tests passed.\n"

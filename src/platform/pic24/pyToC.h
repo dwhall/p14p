@@ -90,6 +90,18 @@
 #define GET_INT32_ARG(u8_ndx, pi32_val) \
     PM_ARG_CHECK_FUNCTION( getInt32(NATIVE_GET_LOCAL(u8_ndx), pi32_val), u8_ndx )
 
+/** Macro to ease calling the \ref getUint32 function. This MUST be called from
+ *  the C implementation of a Python function, becuase it assumes
+ *  the existance of:
+ *  - PmReturn_t retval
+ *  - pPmFrame_t* ppframe
+ *  \param u8_ndx Zero-based index of the desired parameter to extract.
+ *  \param pu32_val Resulting value extracted.
+ *  \return Standard Python return value.
+ */
+#define GET_UINT32_ARG(u8_ndx, pu32_val) \
+    PM_ARG_CHECK_FUNCTION( getUint32(NATIVE_GET_LOCAL(u8_ndx), pu32_val), u8_ndx )
+
 /** Macro to ease calling the \ref getBool function. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
  *  the existance of:
@@ -124,7 +136,8 @@
  *  \param pi32_val Pointer to resulting int32 value extracted.
  *  \return Standard Python return value.
  */
-PmReturn_t getRangedInt(pPmObj_t ppo, 
+PmReturn_t
+getRangedInt(pPmObj_t ppo, 
   int32_t i32_min, int32_t i32_max, int32_t* pi32_val);
 
 /** Get an unsigned, 16-bit value from a Python object. 
@@ -133,7 +146,8 @@ PmReturn_t getRangedInt(pPmObj_t ppo,
  *  \param pu16_val Pointer to resulting uint16 value extracted.
  *  \return Standard Python return value.
  */
-PmReturn_t getUint16(pPmObj_t ppo, uint16_t* pu16_val);
+PmReturn_t
+getUint16(pPmObj_t ppo, uint16_t* pu16_val);
 
 /** Get an signed, 16-bit value from the arguments passed to a Python
  *  function. Raises errors as necessary.
@@ -141,7 +155,8 @@ PmReturn_t getUint16(pPmObj_t ppo, uint16_t* pu16_val);
  *  \param pi16_val Pointer to resulting int16 value extracted.
  *  \return Standard Python return value.
  */
-PmReturn_t getInt16(pPmObj_t ppo, int16_t* pi16_val);
+PmReturn_t
+getInt16(pPmObj_t ppo, int16_t* pi16_val);
 
 /** Get a signed, 32-bit value from the arguments passed to a Python
  *  function. Raises errors as necessary.
@@ -149,7 +164,17 @@ PmReturn_t getInt16(pPmObj_t ppo, int16_t* pi16_val);
  *  \param pi32_val Pointer to resulting int32 value extracted.
  *  \return Standard Python return value.
  */
-PmReturn_t getInt32(pPmObj_t ppo, int32_t* pi32_val);
+PmReturn_t
+getInt32(pPmObj_t ppo, int32_t* pi32_val);
+
+/** Get an unsigned, 32-bit value from the arguments passed to a Python
+ *  function. Raises errors as necessary.
+ *  \param ppo A Python object.
+ *  \param pu32_val Pointer to resulting int32 value extracted.
+ *  \return Standard Python return value.
+ */
+PmReturn_t 
+getUint32(pPmObj_t ppo, uint32_t* pu32_val);
 
 /** Get a boolean value from the arguments passed to a Python
  *  function. Raises errors as necessary.
@@ -157,4 +182,5 @@ PmReturn_t getInt32(pPmObj_t ppo, int32_t* pi32_val);
  *  \param pb_bool Pointer to resulting boolean value extracted.
  *  \return Standard Python return value.
  */
-PmReturn_t getBool(pPmObj_t ppo, bool_t* pb_bool);
+PmReturn_t
+getBool(pPmObj_t ppo, bool_t* pb_bool);

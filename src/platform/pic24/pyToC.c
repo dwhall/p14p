@@ -9,7 +9,8 @@
 #undef __FILE_ID__
 #define __FILE_ID__ 0x71
 
-PmReturn_t getInt32(pPmObj_t ppo, int32_t* pi32_val)
+PmReturn_t
+getInt32(pPmObj_t ppo, int32_t* pi32_val)
 {
     PmReturn_t retval = PM_RET_OK;
 
@@ -23,14 +24,31 @@ PmReturn_t getInt32(pPmObj_t ppo, int32_t* pi32_val)
     return retval;
 }
 
-PmReturn_t getRangedInt(pPmObj_t ppo,
+PmReturn_t 
+getUint32(pPmObj_t ppo, uint32_t* pu32_val)
+{
+    PmReturn_t retval = PM_RET_OK;
+    int32_t i32_val;
+
+    // Get the int32 from the Python arguments passed to this function
+    PM_CHECK_FUNCTION( getInt32(ppo, &i32_val) );
+
+    // Raise a ValueError if address is < min or > max
+    EXCEPTION_UNLESS(i32_val >= 0, PM_RET_EX_VAL, 
+        "Object value must be non-negative");
+    *pu32_val = i32_val;
+
+    return retval;
+}
+
+PmReturn_t
+getRangedInt(pPmObj_t ppo,
   int32_t i32_min, int32_t i32_max, int32_t* pi32_val)
 {
     PmReturn_t retval = PM_RET_OK;
 
     // Get the int32 from the Python arguments passed to this function
-    retval = getInt32(ppo, pi32_val);
-    PM_RETURN_IF_ERROR(retval);
+    PM_CHECK_FUNCTION( getInt32(ppo, pi32_val) );
 
     // Raise a ValueError if address is < min or > max
     EXCEPTION_UNLESS((*pi32_val >= i32_min) && 
@@ -41,29 +59,30 @@ PmReturn_t getRangedInt(pPmObj_t ppo,
     return retval;
 }
 
-PmReturn_t getUint16(pPmObj_t ppo, uint16_t* pu16_val)
+PmReturn_t
+getUint16(pPmObj_t ppo, uint16_t* pu16_val)
 {
     PmReturn_t retval = PM_RET_OK;
     int32_t i32;
 
-    retval = getRangedInt(ppo, 0, 65535, &i32);
-    PM_RETURN_IF_ERROR(retval);
+    PM_CHECK_FUNCTION( getRangedInt(ppo, 0, 65535, &i32) );
     *pu16_val = (uint16_t) i32;
     return retval;
 }
 
-PmReturn_t getInt16(pPmObj_t ppo, int16_t* pi16_val)
+PmReturn_t
+getInt16(pPmObj_t ppo, int16_t* pi16_val)
 {
     PmReturn_t retval = PM_RET_OK;
     int32_t i32;
 
-    retval = getRangedInt(ppo, -32768, 32767, &i32);
-    PM_RETURN_IF_ERROR(retval);
+    PM_CHECK_FUNCTION( getRangedInt(ppo, -32768, 32767, &i32) );
     *pi16_val = (int16_t) i32;
     return retval;
 }
 
-PmReturn_t getBool(pPmObj_t ppo, bool_t* pb_bool)
+PmReturn_t
+getBool(pPmObj_t ppo, bool_t* pb_bool)
 {
     PmReturn_t retval = PM_RET_OK;
 

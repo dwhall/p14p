@@ -867,8 +867,8 @@ def ismain():
 class bytearray(object):
     def __init__(self, o):
         """__NATIVE__
+        PmReturn_t retval = PM_RET_OK;
 #ifdef HAVE_BYTEARRAY
-        PmReturn_t retval;
         pPmObj_t pself;
         pPmObj_t po;
         pPmObj_t pba;
@@ -902,8 +902,8 @@ class bytearray(object):
                               PM_NONE, pba);
 
         NATIVE_SET_TOS(PM_NONE);
-        return retval;
 #endif /* HAVE_BYTEARRAY */
+        return retval;
         """
         pass
 

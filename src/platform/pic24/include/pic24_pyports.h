@@ -195,6 +195,14 @@ readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh);
  */
 //@{
 
+/** Determine if the given digitial I/O pin exists.
+ *  @param u16_port Port, where 0 = A, 1 = B, etc.
+ *  @param u16_pin  Pin of the given port; from 0 to 15.
+ *  @return Returns C_TRUE if the pin exists, C_FALSE otherwise.
+ *          Nonexistant ports or pins simply return C_FALSE.
+ */
+bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin);
+
 /** Set an I/O pin to be either an input or an output. Setting this
  *  pin as an output implies that it is a digital output. In contrast,
  *  configuring this pint to be an input allows it to be used as either
@@ -389,7 +397,6 @@ void setBit(volatile uint16_t* pu16_bitfield, uint16_t u16_bit, bool_t b_val);
 // Prototype static functions that are otherwise hidden from the
 // user of the library and exposed here only for testing.
 inline __STATIC__ bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin);
-__STATIC__ bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin);
 __STATIC__ bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin);
 #else
 #define __STATIC__ static

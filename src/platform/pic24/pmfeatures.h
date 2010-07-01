@@ -120,7 +120,7 @@
  * When defined, the code to support the yield keyword's use for 
  * generator-iterators is included in the build.
  */
-#define HAVE_GENERATORS // Saves  1014 bytes
+//#define HAVE_GENERATORS // Saves  1014 bytes
 #if defined(HAVE_GENERATORS) && !defined(HAVE_CLASSES)
 #error HAVE_GENERATORS requires HAVE_CLASSES
 #endif
@@ -146,7 +146,7 @@
  * When defined, the code to support function closures is included in the 
  * build.
  */
-#define HAVE_CLOSURES // Saves 738 bytes
+//#define HAVE_CLOSURES // Saves 738 bytes
 #if defined(HAVE_CLOSURES) && !defined(HAVE_DEFAULTARGS)
 #error HAVE_CLOSURES requires HAVE_DEFAULTARGS
 #endif

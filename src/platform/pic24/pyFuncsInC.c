@@ -235,25 +235,152 @@ configAnalogPinPy(pPmFrame_t *ppframe)
     return retval;
 }
 
-PmReturn_t
-readAnalogValuePy(pPmFrame_t *ppframe)
+/** Read an analog code from the ADC and return it.
+ *  @param ppframe Stack frame of Python arguments 
+ *      passed to the function
+ *  @param pu16_code Code read from the ADC.
+ */
+static PmReturn_t
+readAnalogCode(pPmFrame_t *ppframe, uint16_t* pu16_analogCode)
 {
     PmReturn_t retval = PM_RET_OK;
     int32_t i32_analogPin;
     uint16_t u16_analogPin;
-    uint16_t u16_analogValue;
 
     // Get the arguments
     CHECK_NUM_ARGS(1);
     PM_CHECK_FUNCTION( getPyClassInt(ppframe, &i32_analogPin) );
+    ASSERT( (i32_analogPin >= 0) && (i32_analogPin < 32) );
     u16_analogPin = i32_analogPin;
 
     // Read analog value
     configADC1_ManualCH0(ADC_CH0_POS_SAMPLEA_AN0 + u16_analogPin, 31, C_TRUE);
-    u16_analogValue = convertADC1();
+    *pu16_analogCode = convertADC1();
 
-    // Return value
-//    NATIVE_SET_TOS(b_isHigh ? PM_TRUE : PM_FALSE);
     return retval;
 }
 
+PmReturn_t
+readAnalogCodePy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_analogCode;
+    pPmObj_t ppo_analogCode;
+        
+    PM_CHECK_FUNCTION( readAnalogCode(ppframe, &u16_analogCode) );
+    PM_CHECK_FUNCTION( int_new(u16_analogCode, &ppo_analogCode) );
+    NATIVE_SET_TOS(ppo_analogCode);
+    return retval;
+}
+
+PmReturn_t
+readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_analogCode;
+    pPmObj_t ppo_analogCode;
+        
+    PM_CHECK_FUNCTION( readAnalogCode(ppframe, &u16_analogCode) );
+    PM_CHECK_FUNCTION( float_new(f_scale*u16_analogCode, &ppo_analogCode) );
+    NATIVE_SET_TOS(ppo_analogCode);
+    return retval;
+}
+
+PmReturn_t
+configPwmPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint32_t u32_freq;
+    bool_t b_isTimer2;
+    uint16_t u16_oc;
+    int16_t i16_ocPin;
+
+    // Get the arguments and error check them
+    CHECK_NUM_ARGS(5);
+    GET_UINT32_ARG(1, &u32_freq);
+    GET_BOOL_ARG(2, &b_isTimer2);
+    GET_UINT16_ARG(3, &u16_oc);
+    GET_INT16_ARG(2, &i16_ocPin);
+
+    PM_CHECK_FUNCTION( configPwm(u32_freq, b_isTimer2, u16_oc, i16_ocPin) );
+
+    // Save the timer and OC number in the class
+    PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_oc | (((int32_t) b_isTimer2) << 16)) );
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+PmReturn_t
+configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc, 
+  int16_t i16_ocPin)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint32_t u32_counts;
+    uint16_t u16_prescale;
+    uint16_t u16_t2con;
+    uint16_t u16_counts;
+
+    EXCEPTION_UNLESS((u16_oc < NUM_OC_MODS) && (u16_oc > 0), PM_RET_EX_VAL,
+      "Requested OC module %d does not exist", u16_oc);
+#ifdef HAS_REMAPPABLE_PINS
+    EXCEPTION_UNLESS(i16_ocPin >= 0, PM_RET_EX_VAL,
+      "Invalid pin RP%d.", i16_ocPin);
+    EXCEPTION_UNLESS(digitalPinExists(PORT_B_INDEX + (i16_ocPin >> 4), 
+      i16_ocPin & 0xF), PM_RET_EX_VAL,
+      "Invalid pin RP%d.", i16_ocPin);
+#else
+    EXCEPTION_UNLESS(i16_ocPin < 0, PM_RET_EX_VAL,
+      "Remapping not possible on this device.");
+#endif
+
+    /// @todo: Config selected OC
+    //CONFIG_OC1_TO_RP(ocPin);
+    OC1RS = 0;
+
+    // Determine prescale and counts for timer
+    EXCEPTION_UNLESS(u32_freq <= FCY, PM_RET_EX_VAL,
+      "Frequency %ld too high", u32_freq);
+    u32_counts = FCY/u32_freq;
+    u16_prescale = u32_counts >> 16;
+    EXCEPTION_UNLESS(u16_prescale <= 256, PM_RET_EX_VAL,
+      "Frequency %ld too low", u32_freq);
+    u16_t2con = 0;
+    if (u16_prescale > 64)
+    {
+        u16_t2con = T2_PS_1_256;
+        u16_counts = (u32_counts >> 8) - 1;
+    } else if (u16_prescale > 8)
+    {
+        u16_t2con = T2_PS_1_64;
+        u16_counts = (u32_counts >> 6) - 1;
+    } else if (u16_prescale > 0)
+    {
+        u16_t2con = T2_PS_1_8;
+        u16_counts = (u32_counts >> 3) - 1;
+    } else {
+        u16_t2con = T2_PS_1_1;
+        u16_prescale = 0;
+        u16_counts = u32_counts - 1;
+    }
+
+    // Configure timer with count and prescale
+    if (b_isTimer2)
+    {
+        T2CON = T2_OFF | T2_IDLE_CON | T2_GATE_OFF
+          | T2_32BIT_MODE_OFF
+          | T2_SOURCE_INT
+          | u16_t2con;
+        TMR2 = 0;
+        PR2 = u16_counts;
+        OC1CON = OC_TIMER2_SRC | OC_PWM_FAULT_PIN_DISABLE;
+    } else {
+        T3CON = T3_OFF | T3_IDLE_CON | T3_GATE_OFF
+          | T3_SOURCE_INT
+          | u16_t2con;
+        PR3 = 0;
+        PR3 = u16_counts;
+        OC1CON = OC_TIMER3_SRC | OC_PWM_FAULT_PIN_DISABLE;
+    }
+
+    return retval;
+}

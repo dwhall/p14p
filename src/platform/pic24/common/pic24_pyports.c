@@ -1716,13 +1716,8 @@ inline __STATIC__ bool_t digitalPinInBounds(uint16_t u16_port, uint16_t u16_pin)
         return C_TRUE;
 }
 
-/** Determine if the given digitial I/O pin exists.
- *  @param u16_port Port, where 0 = A, 1 = B, etc.
- *  @param u16_pin  Pin of the given port; from 0 to 15.
- *  @return Returns C_TRUE if the pin exists, C_FALSE otherwise.
- *          Nonexistant ports or pins simply return C_FALSE.
- */
-__STATIC__ bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
+bool_t 
+digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
 {
     // Check for an out-of-range port
     if (!digitalPinInBounds(u16_port, u16_pin))
@@ -1738,7 +1733,8 @@ __STATIC__ bool_t digitalPinExists(uint16_t u16_port, uint16_t u16_pin)
  *  @return Returns C_TRUE if the pin open-drain exists, C_FALSE otherwise.
  *          Nonexistant ports or pins simply return C_FALSE.
  */
-__STATIC__ bool_t digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
+__STATIC__ bool_t
+digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 {
     // Check for an out-of-range port
     if (!digitalPinInBounds(u16_port, u16_pin))
@@ -1757,7 +1753,8 @@ initIoConst(void) {
     u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
 }
 
-PmReturn_t setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
+PmReturn_t
+setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
 {
     PmReturn_t retval = PM_RET_OK;
 
@@ -1786,7 +1783,8 @@ getPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isInput)
 }
 
 
-PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
+PmReturn_t
+setPinIsDigital(uint16_t u16_port, uint16_t u16_pin, 
   bool_t b_isDigital)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -1822,7 +1820,8 @@ PmReturn_t setPinIsDigital(uint16_t u16_port, uint16_t u16_pin,
 }
 
 
-PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
+PmReturn_t
+setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
 {
     PmReturn_t retval = PM_RET_OK;
 
@@ -1856,7 +1855,8 @@ PmReturn_t setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpe
     return retval;
 }
 
-PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
+PmReturn_t
+setPinPullDirection(uint16_t u16_port, uint16_t u16_pin, 
   int16_t i16_dir)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -1942,7 +1942,8 @@ PmReturn_t setPinPullDirection(uint16_t u16_port, uint16_t u16_pin,
 /// values.
 #define UNMAP_PIN(u16_port, u16_pin) unmapPin(u16_port, u16_pin)
 
-PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin)
+PmReturn_t
+unmapPin(uint16_t u16_port, uint16_t u16_pin)
 {
     PmReturn_t retval = PM_RET_OK;
     uint16_t u16_rp;
@@ -2151,7 +2152,8 @@ PmReturn_t unmapPin(uint16_t u16_port, uint16_t u16_pin)
 #define UNMAP_PIN(u16_port, u16_pin) PM_RET_OK
 #endif
 
-PmReturn_t configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput,
+PmReturn_t
+configDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput,
     bool_t b_isOpenDrain, int16_t i16_pullDir)
 {
     PmReturn_t retval = PM_RET_OK;

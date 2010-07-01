@@ -29,6 +29,7 @@
 #include "pm.h"
 #include "pic24_all.h"
 #include "CuTestSmall.h"
+#include "pyFuncsInC.h"
 #include <pps.h>
 
 
@@ -428,6 +429,49 @@ test_configAnalogPin(CuTest* tc)
     CuAssertTrue(tc, _TRISA0 == 1);
 }
 
+/** A series of tests of configPwm.
+  * @param tc Test object.
+  */
+void
+test_configPwm(CuTest* tc)
+{
+    // An exception should be thrown for an invalid OC pin
+    //                         u32_freq, b_isTimer2, u16_oc, i16_ocPin)
+    CuAssertTrue(tc, configPwm(1000,     C_TRUE,     1,      -1) == PM_RET_EX_VAL);
+    CuAssertTrue(tc, configPwm(1000,     C_TRUE,     1,      26) == PM_RET_EX_VAL);
+
+    // An exception should be thrown for an invalid OC peripheral
+    //                         u32_freq, b_isTimer2, u16_oc, i16_ocPin)
+    CuAssertTrue(tc, configPwm(1000,     C_TRUE,     -1,     0) == PM_RET_EX_VAL);
+    CuAssertTrue(tc, configPwm(1000,     C_TRUE,     0,      0) == PM_RET_EX_VAL);
+    CuAssertTrue(tc, configPwm(1000,     C_TRUE,     5,      0) == PM_RET_EX_VAL);
+
+    // An exception should be thrown for an invalid frequency
+    //                         u32_freq, b_isTimer2, u16_oc, i16_ocPin)
+    CuAssertTrue(tc, configPwm(0,        C_TRUE,     1,      0) == PM_RET_EX_VAL);
+#if (FCY > 34000000L)
+    // A min FCY given above gives a min frequnecy of 2 Hz, so we can test 1 Hz for failure.
+    //                         u32_freq, b_isTimer2, u16_oc, i16_ocPin)
+    CuAssertTrue(tc, configPwm(FCY/256L/65536L - 1L, C_TRUE,     1,      0) == PM_RET_EX_VAL);
+#endif
+    //                         u32_freq, b_isTimer2, u16_oc, i16_ocPin)
+    CuAssertTrue(tc, configPwm(FCY + 1L, C_TRUE,     1,      0) == PM_RET_EX_VAL);    
+
+    // Configure and check bits
+    //                         u32_freq, b_isTimer2, u16_oc, i16_ocPin)
+    CuAssertTrue(tc, configPwm(1000,     C_TRUE,     2,      0) == PM_RET_OK);
+    CuAssertTrue(tc, OC2CON == (OC_TIMER2_SRC | OC_PWM_FAULT_PIN_DISABLE));
+#if (FCY == 1000000L)
+    CuAssertTrue(tc, T2CON == (T2_OFF | T2_IDLE_CON | T2_GATE_OFF
+          | T2_32BIT_MODE_OFF | T2_SOURCE_INT | T2_PS_1_1));
+    CuAssertTrue(tc, PR2 == 999);
+#endif
+    CuAssertTrue(tc, _RP0R == OUT_FN_PPS_OC2);
+    CuAssertTrue(tc, _TRISB0 == 0);
+    CuAssertTrue(tc, _PCFG2 == 1);
+    CuAssertTrue(tc, _CN4PUE == 0);
+}
+
 /** Run a series of tests on general-purpose I/O functions.
     @return A suite of tests.
  */
@@ -447,6 +491,7 @@ getSuite_testGpio() {
     SUITE_ADD_TEST(suite, test_gpioReadDigitalLatch);
     SUITE_ADD_TEST(suite, test_configDigitalPin);
     SUITE_ADD_TEST(suite, test_configAnalogPin);
+    SUITE_ADD_TEST(suite, test_configPwm);
     return suite;
 }
 

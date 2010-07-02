@@ -5,6 +5,7 @@
 #include <pic24_all.h>
 #include "pyToC.h"
 #include "pyFuncsInC.h"
+#include <pps.h>
 #include <stdio.h>
 
 #undef __FILE_ID__
@@ -66,15 +67,20 @@ getPyClassInt(pPmFrame_t *ppframe, int32_t* pi32_val)
 }
 //@}
 
+/** The offset between successive OC control registers. */
+static uint16_t u16_ocControlOffset;
+
+
 PmReturn_t
 initIoConstPy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
 
-    initIoConst();
     CHECK_NUM_ARGS(0);
-    NATIVE_SET_TOS(PM_NONE);
+    initIoConst();
+    initPwmConst();
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -286,6 +292,16 @@ readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale)
     return retval;
 }
 
+void
+initPwmConst(void)
+{
+#ifdef _OC2IF
+    u16_ocControlOffset = (uint16_t) (&OC2CON - &OC1CON);
+#else
+    u16_ocControloffset = 0x8000;
+#endif
+}
+
 PmReturn_t
 configPwmPy(pPmFrame_t *ppframe)
 {
@@ -294,21 +310,30 @@ configPwmPy(pPmFrame_t *ppframe)
     bool_t b_isTimer2;
     uint16_t u16_oc;
     int16_t i16_ocPin;
+    uint16_t u16_pr;
 
     // Get the arguments and error check them
     CHECK_NUM_ARGS(5);
     GET_UINT32_ARG(1, &u32_freq);
     GET_BOOL_ARG(2, &b_isTimer2);
     GET_UINT16_ARG(3, &u16_oc);
-    GET_INT16_ARG(2, &i16_ocPin);
+    GET_INT16_ARG(4, &i16_ocPin);
 
     PM_CHECK_FUNCTION( configPwm(u32_freq, b_isTimer2, u16_oc, i16_ocPin) );
 
     // Save the timer and OC number in the class
-    PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_oc | (((int32_t) b_isTimer2) << 16)) );
+    u16_pr = b_isTimer2 ? PR2 : PR3;
+    PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_oc | (u16_pr << 16)) );
     NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
+
+/** A macro to access an Output Compare control register.
+ *  @param u16_reg Control register to set
+ *  @param u16_n   Offset to set: the n in OCnRS, for example.
+ */
+#define OC_REG(u16_reg, u16_n) \
+  ((volatile uint16_t*) &u16_reg)[(u16_n - 1)*u16_ocControlOffset]
 
 PmReturn_t
 configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc, 
@@ -322,20 +347,31 @@ configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc,
 
     EXCEPTION_UNLESS((u16_oc < NUM_OC_MODS) && (u16_oc > 0), PM_RET_EX_VAL,
       "Requested OC module %d does not exist", u16_oc);
+
+    // Check and remap pins if possible
 #ifdef HAS_REMAPPABLE_PINS
     EXCEPTION_UNLESS(i16_ocPin >= 0, PM_RET_EX_VAL,
       "Invalid pin RP%d.", i16_ocPin);
     EXCEPTION_UNLESS(digitalPinExists(PORT_B_INDEX + (i16_ocPin >> 4), 
       i16_ocPin & 0xF), PM_RET_EX_VAL,
       "Invalid pin RP%d.", i16_ocPin);
+    // Make the selected pin an output.
+    PM_CHECK_FUNCTION( 
+      configDigitalPin(PORT_B_INDEX + (i16_ocPin >> 4), 
+      i16_ocPin & 0xF, C_FALSE, C_FALSE, 0) );
+    // Register RPOR0 has the _RP0R bitfield, with _RPnR bitfields
+    // every 8 bits. So, cast this as a uint8_t to easily access
+    // the nth _RPnR bitfield. Then assign it to the appropriate
+    // OC peripheral.
+    ((volatile uint8_t*) &RPOR0)[i16_ocPin] = OUT_FN_PPS_OC1 + u16_oc - 1;
 #else
     EXCEPTION_UNLESS(i16_ocPin < 0, PM_RET_EX_VAL,
       "Remapping not possible on this device.");
 #endif
 
-    /// @todo: Config selected OC
-    //CONFIG_OC1_TO_RP(ocPin);
-    OC1RS = 0;
+    // Start with no PWM signal
+    ASSERT(u16_ocControlOffset);
+    OC_REG(OC1RS, u16_oc) = 0;
 
     // Determine prescale and counts for timer
     EXCEPTION_UNLESS(u32_freq <= FCY, PM_RET_EX_VAL,
@@ -372,14 +408,14 @@ configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc,
           | u16_t2con;
         TMR2 = 0;
         PR2 = u16_counts;
-        OC1CON = OC_TIMER2_SRC | OC_PWM_FAULT_PIN_DISABLE;
+        OC_REG(OC1CON, u16_oc) = OC_TIMER2_SRC | OC_PWM_FAULT_PIN_DISABLE;
     } else {
         T3CON = T3_OFF | T3_IDLE_CON | T3_GATE_OFF
           | T3_SOURCE_INT
           | u16_t2con;
         PR3 = 0;
         PR3 = u16_counts;
-        OC1CON = OC_TIMER3_SRC | OC_PWM_FAULT_PIN_DISABLE;
+        OC_REG(OC1CON, u16_oc) = OC_TIMER3_SRC | OC_PWM_FAULT_PIN_DISABLE;
     }
 
     return retval;

@@ -467,6 +467,7 @@ test_configPwm(CuTest* tc)
     CuAssertTrue(tc, PR2 == 999);
 #endif
     CuAssertTrue(tc, _RP0R == OUT_FN_PPS_OC2);
+    CuAssertTrue(tc, OC2RS == 0);
     CuAssertTrue(tc, _TRISB0 == 0);
     CuAssertTrue(tc, _PCFG2 == 1);
     CuAssertTrue(tc, _CN4PUE == 0);
@@ -501,8 +502,9 @@ int main(void)
     CuString* output = CuStringNew();
     CuSuite*  suite = CuSuiteNew();
 
-    // Before testing, I/O constants must be set up.
+    // Before testing, constants must be set up.
     initIoConst();
+    initPwmConst();
 
     // Add all suites to be tested
     CuSuiteAddSuite(suite, getSuite_testGpio());

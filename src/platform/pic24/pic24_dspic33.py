@@ -69,6 +69,7 @@ class digital_io(object):
 
     ## Set a pin's output to be high or low (True or False). The pin
     #  must be configured as an output for this value to appear on the pin.
+    #  @param isHigh True to set the pin high, False to set it low.
     def set(self, isHigh):
         """__NATIVE__
         return setDigitalPinPy(ppframe);
@@ -107,7 +108,8 @@ class digital_io(object):
 class analog_input(object):
     ## Create the class for a specific analog pin, numbered ANxx on the
     #  data sheet. Configures the pin as an analog input.
-    def __init__(self, port, analogPin):
+    #  @param analogPin Pin to configure.
+    def __init__(self, analogPin):
         """__NATIVE__
         return configAnalogPinPy(ppframe);
         """
@@ -115,7 +117,7 @@ class analog_input(object):
 
     ## Read the code produced by the ADC, a value from 0 to 4095
     #  which is linearly proportional to the input voltage.
-    def getCode(self, port, analogPin):
+    def getCode(self):
         """__NATIVE__
         return readAnalogCodePy(ppframe);
         """
@@ -123,7 +125,7 @@ class analog_input(object):
 
     ## Read the voltage produced by the ADC, resulting in a
     #  returned value between 0 and 3.3V.
-    def getVoltage(self, port, analogPin):
+    def getVoltage(self):
         """__NATIVE__
         return readAnalogFloatPy(ppframe, 3.3/4096.0);
         """
@@ -131,9 +133,26 @@ class analog_input(object):
 
     ## Read the voltage produced by the ADC, resulting in a
     #  normalized value ranging from 0 to 1.
-    def getNorm(self, port, analogPin):
+    def getNorm(self):
         """__NATIVE__
         return readAnalogFloatPy(ppframe, 1.0/4096.0);
+        """
+        pass
+
+## This class provides basic control of the pulse-width
+#  modulation peripheral for the PIC.
+class pwm(object):
+    ## Create the class instance for a PWM output.
+    #  @param freq Frequency at which the PWM will operate, in Hz.
+    #  @param isTimer2 True to use timer2, false to use timer3 for
+    #      PWM.
+    #  @param oc Output compare module to use.
+    #  @param ocPin For remappable devices, the port P pin on
+    #      which to map the PWM output. For non-remappable devices,
+    #      this value must be < 0.
+    def __init__(self, freq, isTimer2, oc, ocPin=-1):
+        """__NATIVE__
+        return configPwmPy(ppframe);
         """
         pass
 

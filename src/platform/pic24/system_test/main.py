@@ -94,4 +94,9 @@ ain = pic.analog_input(0)
 testConfigAnalogPin()
 #print ain.getCode()
 
+# Test PWM
+# --------
+#              freq  isTimer2 oc ocPin
+pwm1 = pic.pwm(1000, True,    1, 0)
+
 print "All tests passed.\n"

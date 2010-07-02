@@ -69,6 +69,12 @@ readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale);
 
 /// @name PWM configuration and use
 //@{
+/** Initialize constants used in the PWM calls below. Must be called
+ *  before calling any of the other PWM functions.
+ */
+void
+initPwmConst(void);
+
 /** Implements the Python \ref pic24_dspic33::pwm::__init__ function.
  *  The \ref configPwm function does the work.
  */

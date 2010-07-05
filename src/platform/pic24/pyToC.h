@@ -114,6 +114,18 @@
 #define GET_BOOL_ARG(u8_ndx, pb_bool) \
     PM_ARG_CHECK_FUNCTION( getBool(NATIVE_GET_LOCAL(u8_ndx), pb_bool), u8_ndx )
 
+/** Macro to ease calling the \ref getFloat function. This MUST be called from
+ *  the C implementation of a Python function, becuase it assumes
+ *  the existance of:
+ *  - PmReturn_t retval
+ *  - pPmFrame_t* ppframe
+ *  \param u8_ndx Zero-based index of the desired parameter to extract.
+ *  \param pf_val Resulting floating-point value extracted.
+ *  \return Standard Python return value.
+ */
+#define GET_FLOAT_ARG(u8_ndx, pf_val) \
+    PM_ARG_CHECK_FUNCTION( getFloat(NATIVE_GET_LOCAL(u8_ndx), pf_val), u8_ndx )
+
 /** Check the number of arguments passed to a Python function.
  *  Report an exception if the number is incorrect. This MUST be called from
  *  the C implementation of a Python function, becuase it assumes
@@ -149,8 +161,8 @@ getRangedInt(pPmObj_t ppo,
 PmReturn_t
 getUint16(pPmObj_t ppo, uint16_t* pu16_val);
 
-/** Get an signed, 16-bit value from the arguments passed to a Python
- *  function. Raises errors as necessary.
+/** Get an signed, 16-bit value from a Python object.
+ *  Raises errors as necessary.
  *  \param ppo A Python object.
  *  \param pi16_val Pointer to resulting int16 value extracted.
  *  \return Standard Python return value.
@@ -158,8 +170,8 @@ getUint16(pPmObj_t ppo, uint16_t* pu16_val);
 PmReturn_t
 getInt16(pPmObj_t ppo, int16_t* pi16_val);
 
-/** Get a signed, 32-bit value from the arguments passed to a Python
- *  function. Raises errors as necessary.
+/** Get a signed, 32-bit value from a Python
+ *  object. Raises errors as necessary.
  *  \param ppo A Python object.
  *  \param pi32_val Pointer to resulting int32 value extracted.
  *  \return Standard Python return value.
@@ -167,8 +179,8 @@ getInt16(pPmObj_t ppo, int16_t* pi16_val);
 PmReturn_t
 getInt32(pPmObj_t ppo, int32_t* pi32_val);
 
-/** Get an unsigned, 32-bit value from the arguments passed to a Python
- *  function. Raises errors as necessary.
+/** Get an unsigned, 32-bit value from a Python
+ *  object. Raises errors as necessary.
  *  \param ppo A Python object.
  *  \param pu32_val Pointer to resulting int32 value extracted.
  *  \return Standard Python return value.
@@ -176,11 +188,20 @@ getInt32(pPmObj_t ppo, int32_t* pi32_val);
 PmReturn_t 
 getUint32(pPmObj_t ppo, uint32_t* pu32_val);
 
-/** Get a boolean value from the arguments passed to a Python
- *  function. Raises errors as necessary.
+/** Get a boolean value from a Python
+ *  object. Raises errors as necessary.
  *  \param ppo A Python object.
  *  \param pb_bool Pointer to resulting boolean value extracted.
  *  \return Standard Python return value.
  */
 PmReturn_t
 getBool(pPmObj_t ppo, bool_t* pb_bool);
+
+/** Get a floating-point value from a Python
+ *  object. Raises errors as necessary.
+ *  \param ppo A Python object.
+ *  \param pf_val Pointer to resulting floating-point value extracted.
+ *  \return Standard Python return value.
+ */
+PmReturn_t
+getFloat(pPmObj_t ppo, float* pf_val);

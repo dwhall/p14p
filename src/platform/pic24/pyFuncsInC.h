@@ -94,6 +94,26 @@ PmReturn_t
 configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc, 
   int16_t i16_ocPin);
 
+/** Implements the Python \ref pic24_dspic33::pwm::setCounts function.
+ *  The \ref setPwmCounts function does the work.
+ */
+PmReturn_t
+setPwmCountsPy(pPmFrame_t *ppframe);
+
+/** Set the duty cycle of the PWM peripheral.
+ *  @param u16_counts A number of PR2/3 counts which gives the on
+ *      time of the PWM wave to generate. Must be less than the
+ *      PR2/3 value.
+ *  @param u16_oc Output compare module to use.
+ */
+PmReturn_t
+setPwmCounts(uint16_t u16_counts, uint16_t u16_oc);
+
+/** Implements the Python \ref pic24_dspic33::pwm::set function.
+ */
+PmReturn_t
+setPwmRatioPy(pPmFrame_t *ppframe);
+
 /** Determine the number of Output Compare modules available on
  *  this processor.
  */

@@ -323,7 +323,7 @@ configPwmPy(pPmFrame_t *ppframe)
 
     // Save the timer and OC number in the class
     u16_pr = b_isTimer2 ? PR2 : PR3;
-    PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_oc | (u16_pr << 16)) );
+    PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_oc | (((uint32_t) u16_pr) << 16)) );
     NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
@@ -417,6 +417,71 @@ configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc,
         PR3 = u16_counts;
         OC_REG(OC1CON, u16_oc) = OC_TIMER3_SRC | OC_PWM_FAULT_PIN_DISABLE;
     }
+
+    return retval;
+}
+
+/** Get the PR2/3 value and the OC peripheral in use from the
+ *  Python PWM object.
+ *  @param ppframe Stack frame containing Python arguments.
+ *                 Argument 0 should be the object.
+ *  @param u16_oc Output compare module to use.
+ *  @param u16_prn The value of the PR2/3 register. The register
+ *      passed is based on which timer (Timer 2 or 3) the OC
+ *      module was configured to use.
+ */
+static PmReturn_t
+getPyOcPrn(pPmFrame_t *ppframe, uint16_t* pu16_oc, uint16_t* pu16_prn)
+{
+    PmReturn_t retval = PM_RET_OK;
+    int32_t i32_prnOc;
+
+    PM_CHECK_FUNCTION( getPyClassInt(ppframe, &i32_prnOc) );
+    *pu16_prn = i32_prnOc >> 16;
+    *pu16_oc = i32_prnOc & 0x00FF;
+
+    return retval;
+}
+
+PmReturn_t
+setPwmCountsPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_counts;
+    uint16_t u16_oc;
+    uint16_t u16_prn;
+
+    CHECK_NUM_ARGS(2);
+    GET_UINT16_ARG(1, &u16_counts);
+    PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
+    PM_CHECK_FUNCTION(setPwmCounts(u16_counts, u16_oc) );
+
+    return retval;
+}
+
+PmReturn_t
+setPwmCounts(uint16_t u16_counts, uint16_t u16_oc)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    ASSERT(u16_oc <= NUM_OC_MODS);
+    OC_REG(OC1RS, u16_oc) = u16_counts;
+
+    return retval;
+}
+
+PmReturn_t
+setPwmRatioPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    float f_ratio;
+    uint16_t u16_oc;
+    uint16_t u16_prn;
+
+    CHECK_NUM_ARGS(2);
+    GET_FLOAT_ARG(1, &f_ratio);
+    PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
+    PM_CHECK_FUNCTION(setPwmCounts((((uint32_t) u16_prn) + 1)*f_ratio, u16_oc) );
 
     return retval;
 }

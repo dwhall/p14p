@@ -473,6 +473,17 @@ test_configPwm(CuTest* tc)
     CuAssertTrue(tc, _CN4PUE == 0);
 }
 
+/** A series of tests of setPwm.
+  * @param tc Test object.
+  */
+void
+test_setPwm(CuTest* tc)
+{
+    //                            OCnRS OC
+    CuAssertTrue(tc, setPwmCounts(600,  2) == PM_RET_OK);
+    CuAssertTrue(tc, OC2RS == 600);
+}
+
 /** Run a series of tests on general-purpose I/O functions.
     @return A suite of tests.
  */
@@ -493,6 +504,7 @@ getSuite_testGpio() {
     SUITE_ADD_TEST(suite, test_configDigitalPin);
     SUITE_ADD_TEST(suite, test_configAnalogPin);
     SUITE_ADD_TEST(suite, test_configPwm);
+    SUITE_ADD_TEST(suite, test_setPwm);
     return suite;
 }
 

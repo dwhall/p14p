@@ -16,6 +16,7 @@
 
 """__NATIVE__
 #include <pic24_all.h>
+#include <pps.h>
 #include "pyToC.h"
 
 /** Macro to convert a number to a string.
@@ -66,6 +67,52 @@ def testConfigAnalogPin():
     """
     pass
 
+## Check results of analog pin config
+def testConfigPwm():
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+
+    EXCEPTION_ASSERT(_PCFG0 == 0);
+    EXCEPTION_ASSERT(_TRISA0 == 1);
+    EXCEPTION_ASSERT(_CN2PUE == 0);
+    EXCEPTION_ASSERT(OC2CON == (OC_TIMER2_SRC | OC_PWM_FAULT_PIN_DISABLE));
+#if (FCY == 1000000L)
+    EXCEPTION_ASSERT(T2CON == (T2_OFF | T2_IDLE_CON | T2_GATE_OFF
+          | T2_32BIT_MODE_OFF | T2_SOURCE_INT | T2_PS_1_1));
+    EXCEPTION_ASSERT(PR2 == 999);
+#endif
+    EXCEPTION_ASSERT(_RP0R == OUT_FN_PPS_OC2);
+    EXCEPTION_ASSERT(OC2RS == 0);
+    EXCEPTION_ASSERT(_TRISB0 == 0);
+    EXCEPTION_ASSERT(_PCFG2 == 1);
+    EXCEPTION_ASSERT(_CN4PUE == 0);
+    return retval;
+    """
+    pass
+
+## Check results of PWM setCounts method
+def testPwmSetCounts():
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+    EXCEPTION_ASSERT(OC2RS == 600);
+    return retval;
+    """
+    pass
+
+## Check results of PWM setCounts method
+def testPwmSet():
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+#if (FCY == 1000000L)
+    // At a PWM frequeny of 1000 Hz, PR2 = 999, so
+    // half of (PR2 + 1) is 500.
+    EXCEPTION_ASSERT(OC2RS == 500);
+#endif
+    return retval;
+    """
+    pass
+
+
 import pic24_dspic33 as pic
 
 # Test digital I/O briefly
@@ -92,11 +139,22 @@ assert(dio.getLatch())
 dio = pic.digital_io(0,   0,  False,  False,      1)
 ain = pic.analog_input(0)
 testConfigAnalogPin()
-#print ain.getCode()
+# Works only in Simulation mode. Follow the directions in
+# http://www.microchip.com/forums/tm.aspx?m=170556
+# to set everything up; this simulation assumes use of
+# system_test.sbs, which uses adc_injection.txt as input.
+# From this, the generated system_test.scl file provides
+# stimulus for the ADC.
+assert(ain.getCode() == 0x1A4)
 
 # Test PWM
 # --------
 #              freq  isTimer2 oc ocPin
-pwm1 = pic.pwm(1000, True,    1, 0)
+pwm1 = pic.pwm(1000, True,    2, 0)
+testConfigPwm()
+pwm1.setCounts(600)
+testPwmSetCounts()
+pwm1.set(0.5)
+testPwmSet()
 
 print "All tests passed.\n"

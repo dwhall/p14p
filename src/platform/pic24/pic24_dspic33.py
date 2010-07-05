@@ -156,3 +156,21 @@ class pwm(object):
         """
         pass
 
+    ## Set the duty cycle for a PWM output.
+    #  @param ratio The desired duty cycle, ranging from 0 (off
+    #      completely) to 1 (maximum, 100% duty cycle).
+    def set(self, ratio):
+        """__NATIVE__
+        return setPwmRatioPy(ppframe);
+        """
+        pass
+
+    ## Set the duty cycle for a PWM output.
+    #  @param ucounts A number of PR2/3 counts which gives the on
+    #      time of the PWM wave to generate.
+    def setCounts(self, counts):
+        """__NATIVE__
+        return setPwmCountsPy(ppframe);
+        """
+        pass
+

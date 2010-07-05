@@ -24,6 +24,21 @@ getInt32(pPmObj_t ppo, int32_t* pi32_val)
     return retval;
 }
 
+PmReturn_t
+getFloat(pPmObj_t ppo, float* pf_val)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    // Raise TypeError if Python object isn't an int
+    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo) == OBJ_TYPE_FLT, PM_RET_EX_TYPE, 
+      "Object must be a float");
+
+    // Get the value, now that we know it's an int
+    *pf_val = ((pPmFloat_t) ppo)->val;
+
+    return retval;
+}
+
 PmReturn_t 
 getUint32(pPmObj_t ppo, uint32_t* pu32_val)
 {

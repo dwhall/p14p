@@ -14,18 +14,27 @@
 #  @brief PIC24/dsPIC33-specific Python functions
 #
 
-# Demo some of the PIC hardware functions
 import pic24_dspic33 as pic
+import sys
+import ipm
 
+# Demo some of the PIC hardware functions
+# ---------------------------------------
 # Toggle a pin
-#dio = pic.digital_io(1, 1, False, False, 0)
-#    dio.set(not dio.get())
+#                    port pin isInput isOpenDrain pullDir
+#dio = pic.digital_io(1,   1,  False,  False,      0)
+#dio.set(not dio.get())
 
 # Do some analog input
-ain = pic.analog_input(0)
+#ain = pic.analog_input(0)
+# Uncomment below if not in simulation mode
+#print ain.get()
 
-import sys
-print "Welcome to PIC24 Python! Free space:", sys.heap()
+# Do some PWM
+#              freq  isTimer2 oc ocPin
+#pwm1 = pic.pwm(1000, True,    2, 0)
+#pwm1.set(0.5)
+
+#print "Welcome to PIC24 Python! Free space:", sys.heap()
 print "Starting interactive mode."
-import ipm
 ipm.ipm()

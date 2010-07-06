@@ -25,7 +25,6 @@
  * definitions.
  */
 
-/* No corresponding system test for this. */
 /**
  * Define a processor-specific specifier for use in declaring the heap.
  * If not defined, make it empty.

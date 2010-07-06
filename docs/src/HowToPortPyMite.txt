@@ -51,9 +51,8 @@ Here is a step-by-step guide to porting PyMite to a new platform.
 
 - Edit ``pmfeatures.h`` to include the features that you want the VM to have.
   Edit PM_FEATURES in src/tools/pmImgCreator.py to reflect the feature set
-  you selected. (Is a recompile to get pmImgCreator.pyc necessary?)
-  Set the size of the platform's heap in ``PM_HEAP_SIZE`` and be sure
-  to leave enough RAM for the C stack.
+  you selected.  Set the size of the platform's heap in ``PM_HEAP_SIZE`` and be
+  sure to leave enough RAM for the C stack.
 
 - Edit the build environment so that it builds the PyMite library,
   ``../../vm/libpmvm_<plat>.a``, and links it to ``main.c``, ``plat.c``

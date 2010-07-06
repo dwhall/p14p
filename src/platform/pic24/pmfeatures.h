@@ -76,13 +76,13 @@
  * This involves the bytecodes: DELETE_SUBSCR, DELETE_NAME, DELETE_ATTR,
  * DELETE_GLOBAL and DELETE_FAST.
  */
-// #define HAVE_DEL // Saves 813 bytes
+#define HAVE_DEL // Saves 813 bytes
 
 /**
  * When defined, the code to support the IMPORT_FROM and IMPORT_STAR styles
  * is included in the build.
  */
-// #define HAVE_IMPORTS // Saves 207 bytes
+#define HAVE_IMPORTS // Saves 207 bytes
 
 /* #157 Support default args */
 /**
@@ -120,7 +120,7 @@
  * When defined, the code to support the yield keyword's use for 
  * generator-iterators is included in the build.
  */
-// #define HAVE_GENERATORS // Saves  1014 bytes
+#define HAVE_GENERATORS // Saves  1014 bytes
 #if defined(HAVE_GENERATORS) && !defined(HAVE_CLASSES)
 #error HAVE_GENERATORS requires HAVE_CLASSES
 #endif
@@ -131,7 +131,7 @@
  * in the build.
  * REQUIRES stdio.h to have snprintf()
  */
-// #define HAVE_BACKTICK // Saves about 216 bytes
+#define HAVE_BACKTICK // Saves about 216 bytes
 
 /* #205 Add support for string format operation */
 /**
@@ -146,7 +146,7 @@
  * When defined, the code to support function closures is included in the 
  * build.
  */
-//#define HAVE_CLOSURES // Saves 738 bytes
+#define HAVE_CLOSURES // Saves 738 bytes
 #if defined(HAVE_CLOSURES) && !defined(HAVE_DEFAULTARGS)
 #error HAVE_CLOSURES requires HAVE_DEFAULTARGS
 #endif
@@ -161,7 +161,6 @@
 #error HAVE_BYTEARRAY requires HAVE_CLASSES
 #endif
 
-/* No corresponding system test for this. */
 /**
  * Define a processor-specific specifier for use in declaring the heap.
  * See <code>pmHeap</code> in heap.c for its use, which is:<br>

@@ -73,15 +73,15 @@ PM_FEATURES = {
     "HAVE_GC": True, # This flag currently has no effect in this file
     "HAVE_FLOAT": True,
     "HAVE_DEL": True,
-    "HAVE_IMPORTS": False,
+    "HAVE_IMPORTS": True,
     "HAVE_ASSERT": True,
     "HAVE_DEFAULTARGS": True,
     "HAVE_REPLICATION": True, # This flag currently has no effect in this file
     "HAVE_CLASSES": True,
-    "HAVE_GENERATORS": False,
-    "HAVE_BACKTICK": False,
-    "HAVE_CLOSURES": False,
-    "HAVE_BYTEARRAY": False,  # This flag currently has no effect in this file
+    "HAVE_GENERATORS": True,
+    "HAVE_BACKTICK": True,
+    "HAVE_CLOSURES": True,
+    "HAVE_BYTEARRAY": True,  # This flag currently has no effect in this file
 }
 
 

@@ -901,8 +901,8 @@ class bytearray(object):
         retval = dict_setItem((pPmObj_t)((pPmInstance_t)pself)->cli_attrs,
                               PM_NONE, pba);
 
-        NATIVE_SET_TOS(PM_NONE);
 #endif /* HAVE_BYTEARRAY */
+        NATIVE_SET_TOS(PM_NONE);
         return retval;
         """
         pass

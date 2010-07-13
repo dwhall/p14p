@@ -99,11 +99,6 @@
  */
 //@{
 
-/** Initialize constants necessary for correct operation of
- *  all pin configuration functions, both high-level and
- *  low-level. */
-void initIoConst(void);
-
 /** Configures a pin for digital operation. Implementation:
  *  -# Check to see if the port/pin exists.
  *  -# If the pin has analog capability, turn it off.

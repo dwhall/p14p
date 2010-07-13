@@ -67,22 +67,10 @@ getPyClassInt(pPmFrame_t *ppframe, int32_t* pi32_val)
 }
 //@}
 
-/** The offset between successive OC control registers. */
-static uint16_t u16_ocControlOffset;
-
-
-PmReturn_t
-initIoConstPy(pPmFrame_t *ppframe)
-{
-    PmReturn_t retval = PM_RET_OK;
-
-    CHECK_NUM_ARGS(0);
-    initIoConst();
-    initPwmConst();
-
-    NATIVE_SET_TOS(PM_NONE);
-    return retval;
-}
+/** The offset in words between successive OC control registers. 
+ *  For example, &OC1RS = 0x0180 and &OC2RS = 0x0186, a three
+ *  byte difference. */
+#define OC_CONTROL_OFFSET 3
 
 PmReturn_t
 configDigitalPinPy(pPmFrame_t *ppframe)
@@ -91,15 +79,19 @@ configDigitalPinPy(pPmFrame_t *ppframe)
     uint16_t u16_port;
     uint16_t u16_pin;
     bool_t b_isInput;
-    bool_t b_isOpenDrain;
-    int16_t i16_pullDir;
+    bool_t b_isOpenDrain = C_FALSE;
+    int16_t i16_pullDir = 0;
 
     // Get the arguments
-    CHECK_NUM_ARGS(6);
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 4, PM_RET_EX_TYPE,
+      "Expected at least 4 arguments, but received %u.",
+      (uint16_t) NATIVE_GET_NUM_ARGS());
     GET_UINT16_ARG(1, &u16_port);
     GET_UINT16_ARG(2, &u16_pin);
     GET_BOOL_ARG(3, &b_isInput);
-    GET_BOOL_ARG(4, &b_isOpenDrain);
+    if (NATIVE_GET_NUM_ARGS() >= 5)
+        GET_BOOL_ARG(4, &b_isOpenDrain);
+    if (NATIVE_GET_NUM_ARGS() >= 6)
     GET_INT16_ARG(5, &i16_pullDir);
 
     // Save the port and pin in theclass
@@ -292,16 +284,6 @@ readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale)
     return retval;
 }
 
-void
-initPwmConst(void)
-{
-#ifdef _OC2IF
-    u16_ocControlOffset = (uint16_t) (&OC2CON - &OC1CON);
-#else
-    u16_ocControloffset = 0x8000;
-#endif
-}
-
 PmReturn_t
 configPwmPy(pPmFrame_t *ppframe)
 {
@@ -333,7 +315,7 @@ configPwmPy(pPmFrame_t *ppframe)
  *  @param u16_n   Offset to set: the n in OCnRS, for example.
  */
 #define OC_REG(u16_reg, u16_n) \
-  ((volatile uint16_t*) &u16_reg)[(u16_n - 1)*u16_ocControlOffset]
+  ((volatile uint16_t*) &u16_reg)[(u16_n - 1)*OC_CONTROL_OFFSET]
 
 PmReturn_t
 configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc, 
@@ -370,7 +352,6 @@ configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc,
 #endif
 
     // Start with no PWM signal
-    ASSERT(u16_ocControlOffset);
     OC_REG(OC1RS, u16_oc) = 0;
 
     // Determine prescale and counts for timer

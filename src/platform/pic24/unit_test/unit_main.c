@@ -514,10 +514,6 @@ int main(void)
     CuString* output = CuStringNew();
     CuSuite*  suite = CuSuiteNew();
 
-    // Before testing, constants must be set up.
-    initIoConst();
-    initPwmConst();
-
     // Add all suites to be tested
     CuSuiteAddSuite(suite, getSuite_testGpio());
 

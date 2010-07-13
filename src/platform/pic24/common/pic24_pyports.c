@@ -1744,14 +1744,14 @@ digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 }
 
 
-/** This values gives the number of words between I/O port control registers. */
-// I can't make this a const, since only the linker knows these values.
-static uint16_t u16_ioPortControlOffset;
-
-void
-initIoConst(void) {
-    u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
-}
+/** This values gives the number of words between I/O port control registers.
+ *  For example, &TRISA = 0x02C0 and &TRISB = 0x2C8, a difference of
+ *  four words. 
+ */
+// Note: I can't make this a const, since only the linker knows these values.
+// E.g. the statement below produces a compile error:
+// static const u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
+#define IO_PORT_CONTROL_OFFSET 4
 
 PmReturn_t
 setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
@@ -1760,10 +1760,8 @@ setPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t b_isInput)
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
     // Select input or output for the pin
-    setBit((&TRISA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isInput);
+    setBit((&TRISA) + u16_port*IO_PORT_CONTROL_OFFSET, u16_pin, b_isInput);
     return retval;
 }
 
@@ -1775,10 +1773,8 @@ getPinIsInput(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isInput)
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
     // Determine if pin is an input or an output
-    *pb_isInput = getBit(*((&TRISA) + u16_port*u16_ioPortControlOffset), u16_pin);
+    *pb_isInput = getBit(*((&TRISA) + u16_port*IO_PORT_CONTROL_OFFSET), u16_pin);
     return retval;
 }
 
@@ -1827,8 +1823,6 @@ setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
     // There are four possibilities for open-drain configuration:
     //                          | set as open-drain  | set as normal (push/pull aka totem-pole)
     // -------------------------+--------------------+-----------------------------------------
@@ -1843,7 +1837,7 @@ setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
             defined (_ODA12) || defined (_ODA12) || defined (_ODA14) || defined (_ODA15)
         #define ODCA ODA
         #endif
-        setBit((&ODCA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isOpenDrain);
+        setBit((&ODCA) + u16_port*IO_PORT_CONTROL_OFFSET, u16_pin, b_isOpenDrain);
     } else {
         // If open-drain is enabled on a pin without OD ability,
         // report an error. Otherwise, do nothing -- open-drain
@@ -1864,8 +1858,6 @@ setPinPullDirection(uint16_t u16_port, uint16_t u16_pin,
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
 
     // Detetrmine which (if any) CN bit exists on the given pin
     u8_cnPin = anCnMap[u16_port*16 + u16_pin].u8_cnPin;
@@ -2204,9 +2196,7 @@ setDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t b_isHigh)
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
-    setBit((&PORTA) + u16_port*u16_ioPortControlOffset, u16_pin, b_isHigh);
+    setBit((&PORTA) + u16_port*IO_PORT_CONTROL_OFFSET, u16_pin, b_isHigh);
 
     return retval;
 }
@@ -2218,9 +2208,7 @@ readDigitalPin(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh)
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
-    *pb_isHigh = getBit(*(&PORTA + u16_port*u16_ioPortControlOffset), u16_pin);
+    *pb_isHigh = getBit(*(&PORTA + u16_port*IO_PORT_CONTROL_OFFSET), u16_pin);
 
     return retval;
 }
@@ -2232,9 +2220,7 @@ readDigitalLatch(uint16_t u16_port, uint16_t u16_pin, bool_t* pb_isHigh)
 
     EXCEPTION_UNLESS(digitalPinExists(u16_port, u16_pin), PM_RET_EX_VAL,
       "Invalid pin %c%d.", (char) (u16_port + 'A'), u16_pin);
-    // Make sure u16_ioPortControlOffset was initialized.
-    ASSERT(u16_ioPortControlOffset);
-    *pb_isHigh = getBit(*(&LATA + u16_port*u16_ioPortControlOffset), u16_pin);
+    *pb_isHigh = getBit(*(&LATA + u16_port*IO_PORT_CONTROL_OFFSET), u16_pin);
 
     return retval;
 }

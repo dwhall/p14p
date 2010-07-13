@@ -22,19 +22,19 @@ import ipm
 # ---------------------------------------
 # Toggle a pin
 #                    port pin isInput isOpenDrain pullDir
-#dio = pic.digital_io(1,   1,  False,  False,      0)
-#dio.set(not dio.get())
+dio = pic.digital_io(1,   1,  False,  False,      0)
+dio.set(not dio.get())
 
 # Do some analog input
-#ain = pic.analog_input(0)
+ain = pic.analog_input(0)
 # Uncomment below if not in simulation mode
 #print ain.get()
 
 # Do some PWM
 #              freq  isTimer2 oc ocPin
-#pwm1 = pic.pwm(1000, True,    2, 0)
-#pwm1.set(0.5)
+pwm1 = pic.pwm(1000, True,    2, 0)
+pwm1.set(0.5)
 
-#print "Welcome to PIC24 Python! Free space:", sys.heap()
+print "Welcome to PIC24 Python! Free space:", sys.heap()
 print "Starting interactive mode."
 ipm.ipm()

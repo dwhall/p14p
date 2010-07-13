@@ -131,6 +131,9 @@ assert(dio.get())
 assert(dio.getPin())
 assert(dio.getLatch())
 
+# Test default args
+dio = pic.digital_io(1, 1, False);
+
 # Test analog input
 # -----------------
 # Set up a digital input, then change to analog to

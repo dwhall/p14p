@@ -6,10 +6,6 @@
 #include "pm.h"
 
 
-/** Calls \ref initIoConst from Python. */
-PmReturn_t
-initIoConstPy(pPmFrame_t *ppframe);
-
 /** @name Read/write and high-level digital pin configuration functions
  *  These functions set up the I/O system, read and write to a pin, and
  *  allow configuring an I/O pin using a single function call. They wrap a
@@ -69,11 +65,6 @@ readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale);
 
 /// @name PWM configuration and use
 //@{
-/** Initialize constants used in the PWM calls below. Must be called
- *  before calling any of the other PWM functions.
- */
-void
-initPwmConst(void);
 
 /** Implements the Python \ref pic24_dspic33::pwm::__init__ function.
  *  The \ref configPwm function does the work.

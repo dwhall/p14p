@@ -75,6 +75,9 @@ PmReturn_t plat_init(void)
 PmReturn_t
 plat_deinit(void)
 {
+    // Disable timer interrupts
+    _T2IE = 0;
+
     return PM_RET_OK;
 }
 

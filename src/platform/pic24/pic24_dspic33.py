@@ -19,16 +19,6 @@
 #include "pyFuncsInC.h"
 """
 
-## Initialize constants needed by the I/O libraries.
-def initIoConst():
-    """__NATIVE__
-    return initIoConstPy(ppframe);
-    """
-    pass
-
-# Initialize constants when loading this module.
-initIoConst()
-
 ## This class provides basic digital I/O for the PIC.
 #  Configuring a given pin overrides any previous
 #  configuration (as an analog input, other digitial

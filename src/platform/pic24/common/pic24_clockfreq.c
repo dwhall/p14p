@@ -157,16 +157,7 @@ static void checkClockTimeout(void) {
 
   configFrcUART();
   outString("\n\n"
-            "Your clock choice failed to initialize, have switched to internal Fast RC oscillator +PLL.\n"
-            "Check your setting for the 'CLOCK_CONFIG' macro.\n"
-            "Watch the compiler output window when pic24_clockfreq.c is compiled, a warning message\n"
-            "will tell you the selected value for 'CLOCK_CONFIG'.\n"
-            "In MPLAB, use Project->Build Options->Project, then click on MPLAB C30 tab to see if \n"
-            "the macro is defined there. If the macro is selecting an external crystal (the primary oscillator),\n"
-            "and your board does not have a crystal, you will get this message.\n"
-            "Delete the macro definition from the MPLAB project if you want to use the default \n"
-            "clock choice of FRC + PLL.\n"
-            "You must recompile and reprogram with an appropriate CLOCK_CONFIG choice for this code to execute.\n");
+            "Your clock choice failed to initialize");
 
   while(1) {
     doHeartbeat();  // never return.
@@ -271,45 +262,6 @@ void configClockFRCPLL_FCY16MHz(void) {
 #endif
 
 
-#if IS_CLOCK_CONFIG(FRC_FCY4MHz)
-#warning Clock configured for FRC, FCY = 4 MHz.
-#warning Baud rates of 19200 or lower recommended for this clock choice.
-#endif
-#if GET_IS_SUPPORTED(FRC_FCY4MHz)
-void configClockFRC_FCY4MHz(void) {
-  // Ensure that the FRC postscaler is at '1' and not its reset default of '2' (PIC24F family)
-  _RCDIV = 0;
-  switchClock(GET_OSC_SEL_BITS(FNOSC_FRC));
-}
-#endif
-
-
-#if IS_CLOCK_CONFIG(PRI_NO_PLL_7372KHzCrystal)
-#warning Clock configured for a 7.372 MHz crystal primary oscillator, no PLL
-#endif
-#if GET_IS_SUPPORTED(PRI_NO_PLL_7372KHzCrystal)
-void configClockPRI_NO_PLL_7372KHzCrystal(void) {
-  switchClock(GET_OSC_SEL_BITS(FNOSC_PRI));
-}
-#endif
-
-
-#if IS_CLOCK_CONFIG(FRC_FCY3685KHz)
-#warning Clock configured for FRC, FCY = 3.685 MHz
-#warning Baud rates of 9600 or lower recommended for this clock choice.
-#endif
-#if GET_IS_SUPPORTED(FRC_FCY3685KHz)
-void configClockFRC_FCY3685KHz(void) {
-  switchClock(GET_OSC_SEL_BITS(FNOSC_FRC));
-  // Choose no tuning on FRC to get 7.37 MHz nominal FOSC.
-  // Do after clock switch in case FRCPLL was in use, since
-  // that would alter PLL input frequency. (Might be OK, but
-  // this is perhaps safer.)
-  _TUN = 0;
-}
-#endif
-
-
 #if IS_CLOCK_CONFIG(FRCPLL_FCY40MHz)
 #warning Clock configured for FRCPLL, FCY = 40 MHz
 #endif
@@ -350,95 +302,5 @@ void configClockFRCPLL_FCY40MHz(void) {
   // (See 7.7 of the FRM rev B). Pick 80 MHz, so postscale by 2.
   _PLLPOST = 0; // Postscale = 2 * (PLLPOST + 1)
   switchClock(GET_OSC_SEL_BITS(FNOSC_FRCPLL));
-}
-#endif
-
-#if IS_CLOCK_CONFIG(PRIPLL_7372KHzCrystal_40MHzFCY)
-#warning Clock configured for PRIPLL using a 7.3727 Mhz primary oscillator, FCY = 40 MHz
-#endif
-#if GET_IS_SUPPORTED(PRIPLL_7372KHzCrystal_40MHzFCY)
-void configClockPRIPLL_7372KHzCrystal_40MHzFCY(void) {
-  // To be safe: if this was run by a bootloader that chose PRIPLL mode,
-  // then we can't change the bits below. To do so, first switch to FRC,
-  // change bits, then switch back to PRIPLL.
-  switchClock(GET_OSC_SEL_BITS(FNOSC_FRC));
-  //settings for Cycle time = 40 MHz, primary oscillator with PLL
-  _PLLPRE = 4; // Prescale = PLLPRE + 2
-  _PLLDIV = 128; // Multiply = PLLDIV + 2
-  _PLLPOST = 0; // Postscale = 2 * (PLLPOST + 1)
-  switchClock(GET_OSC_SEL_BITS(FNOSC_PRIPLL));
-}
-#endif
-
-#if IS_CLOCK_CONFIG(PRIPLL_8MHzCrystal_40MHzFCY)
-#warning Clock configured for PRIPLL using an 8.0 Mhz primary oscillator, FCY = 40 MHz
-#endif
-#if GET_IS_SUPPORTED(PRIPLL_8MHzCrystal_40MHzFCY)
-void configClockPRIPLL_8MHzCrystal_40MHzFCY(void) {
-  //settings for Cycle time = 40 MHz, primary oscillator with PLL
-  //These PLL settings will give an FCY == Crystal Freq * 10/2, or FOSC = Crystal Freq * 10
-  /*
-  This settings assumes the external crystal on is 8.0MHz
-  */
-  // To be safe: if this was run by a bootloader that chose PRIPLL mode,
-  // then we can't change the bits below. To do so, first switch to FRC,
-  // change bits, then switch back to PRIPLL.
-  switchClock(GET_OSC_SEL_BITS(FNOSC_FRC));
-  _PLLPRE = 0; // Prescale = PLLPRE + 2
-  _PLLDIV = 38; // Multiply = PLLDIV + 2
-  _PLLPOST = 0; // Postscale = 2 * (PLLPOST + 1)
-  switchClock(GET_OSC_SEL_BITS(FNOSC_PRIPLL));
-}
-#endif
-
-#if IS_CLOCK_CONFIG(PRIPLL_8MHzCrystal_16MHzFCY)
-#warning Clock configured for PRIPLL using a 8.0 Mhz primary oscillator, FCY = 16 MHz
-#endif
-#if GET_IS_SUPPORTED(PRIPLL_8MHzCrystal_16MHzFCY)
-void configClockPRIPLL_8MHzCrystal_16MHzFCY(void) {
-  // To be safe: if this was run by a bootloader that chose FRCPLL mode,
-  // then we can't change the bits below. To do so, first switch to FRC,
-  // change bits, then switch back to FRCPLL.
-  switchClock(GET_OSC_SEL_BITS(FNOSC_FRC));
-  // Two cases:
-  //   1. Non-USB parts just have a FRC postscaler that feeds
-  //      the 4x PLL block. Set this postscaler to 1 since the
-  //      FRC runs at 8 MHz to get a 32 MHz FOSC = 16 MHz FCY.
-  _RCDIV = 0;
-#ifdef _CPDIV
-  //      The PLL multiplies this 4 MHz input to 96 MHz then
-  //      divides it by 3 to 32 MHz. A second PLL prescaler
-  //      then selects the final FOSC. Choose a prescale of
-  //      1 so FOSC = 32 MHz, giving FCY = 16 MHz.
-  _CPDIV = 0;  // 0 means a prescale of 1
-#endif
-#ifdef _PLLDIV
-  //   2. USB parts have a more complex clocking scheme. The
-  //      FRC postscaler feeds a PLL prescaler rather than
-  //      directly determining FOSC. The
-  //      PLL input must be 4 MHz, so choose a PLL prescaler
-  //      of 2 since the FRC runs at 8 MHz.
-  _PLLDIV = 1;  // 1 means a prescale of 2
-#elif defined(PLLDIV_NODIV)
-#warning Ensure that the PLLDIV value is set to divide by 2 in the configuration bits for PRIPLL_8MHzCrystal_16MHzFCY clock option!!
-#endif
-#ifdef _PLLEN
-  _PLLEN = 1;
-#warning PLL Enabled
-#endif
-
-  switchClock(GET_OSC_SEL_BITS(FNOSC_PRIPLL));
-}
-#endif
-
-#if IS_CLOCK_CONFIG(PRI_8MHzCrystal_4MHzFCY)
-#warning Clock configured for PRI using a 8.0 Mhz primary oscillator, FCY = 4 MHz
-#endif
-#if GET_IS_SUPPORTED(PRI_8MHzCrystal_4MHzFCY)
-void configClockPRI_8MHzCrystal_4MHzFCY(void) {
-  // To be safe: if this was run by a bootloader that chose FRCPLL mode,
-  // then we can't change the bits below. To do so, first switch to FRC,
-  // change bits, then switch back to FRCPLL.
-  switchClock(GET_OSC_SEL_BITS(FNOSC_PRI));
 }
 #endif

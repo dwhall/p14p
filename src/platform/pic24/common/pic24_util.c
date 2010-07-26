@@ -245,19 +245,7 @@ void checkDeviceAndRevision(void) {
 
   if (!correctChip)
     outString("\n\n"
-              "*****************************************************\n"
-              "* WARNING - this program was compiled for the wrong *\n"
-              "* chip or for an unknown revision of this chip!     *\n"
-              "* This program may produce unexpected behvior! Edit *\n"
-              "* the header files to properly define this chip or  *\n"
-              "* revision and to insure correct operation.         *\n"
-              "*                                                   *\n"
-              "* NOTE: If this was compiled for the correct chip,  *\n"
-              "* and only occurs at power-on (not during a MCLR    *\n"
-              "* reset, verify that AVDD and AVSS are connected.   *\n"
-              "* On the PIC24H32GP202, not connecting AVDD         *\n"
-              "* produces this message only at power-up.           *\n"
-              "*****************************************************\n");
+              "* WARNING - this program was compiled for the wrong chip *\n");
 #endif
 }
 
@@ -519,5 +507,3 @@ uint16 roundFloatToUint16(float f_x) {
   if ((f_x - u16_y) < 0.5) return u16_y;
   else return u16_y+1;
 }
-
-

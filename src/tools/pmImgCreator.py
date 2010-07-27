@@ -79,8 +79,8 @@ PM_FEATURES = {
     "HAVE_CLASSES": True,
     "HAVE_ASSERT": True,
     "HAVE_GENERATORS": False,
-    "HAVE_BACKTICK": True,
-    "HAVE_STRING_FORMAT": True,  # This flag currently has no effect in this file
+    "HAVE_BACKTICK": False,
+    "HAVE_STRING_FORMAT": False,  # This flag currently has no effect in this file
     "HAVE_CLOSURES": True,
     "HAVE_BYTEARRAY": False,  # This flag currently has no effect in this file
 }

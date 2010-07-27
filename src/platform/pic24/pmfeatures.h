@@ -36,7 +36,7 @@
 #ifdef UNIT_TEST
 #define PM_HEAP_SIZE 100
 #else
-#define PM_HEAP_SIZE 6900
+#define PM_HEAP_SIZE 6852
 #endif
 
 /**
@@ -76,7 +76,7 @@
  * This involves the bytecodes: DELETE_SUBSCR, DELETE_NAME, DELETE_ATTR,
  * DELETE_GLOBAL and DELETE_FAST.
  */
-//#define HAVE_DEL // Saves 813 bytes
+#define HAVE_DEL // Saves 813 bytes
 
 /**
  * When defined, the code to support the IMPORT_FROM and IMPORT_STAR styles
@@ -131,7 +131,7 @@
  * in the build.
  * REQUIRES stdio.h to have snprintf()
  */
-#define HAVE_BACKTICK // Saves about 216 bytes
+//#define HAVE_BACKTICK // Saves about 216 bytes
 
 /* #205 Add support for string format operation */
 /**
@@ -139,7 +139,7 @@
  * operator is included in the build.
  * REQUIRES stdio.h to have snprintf()
  */
-#define HAVE_STRING_FORMAT
+//#define HAVE_STRING_FORMAT
 
 /* #256 Add support for closures */
 /**

@@ -1,0 +1,1 @@
+\python26\python ipm.py -s com14 230400

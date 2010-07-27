@@ -36,7 +36,7 @@
 #ifdef UNIT_TEST
 #define PM_HEAP_SIZE 100
 #else
-#define PM_HEAP_SIZE 6852
+#define PM_HEAP_SIZE 6900
 #endif
 
 /**
@@ -110,7 +110,7 @@
  * When defined, the code to support the assert statement is included
  * in the build.
  */
-#define HAVE_ASSERT
+//#define HAVE_ASSERT
 #if defined(HAVE_ASSERT) && !defined(HAVE_CLASSES)
 #error HAVE_ASSERT requires HAVE_CLASSES
 #endif
@@ -146,7 +146,7 @@
  * When defined, the code to support function closures is included in the 
  * build.
  */
-//#define HAVE_CLOSURES // Saves 738 bytes
+#define HAVE_CLOSURES // Saves 738 bytes
 #if defined(HAVE_CLOSURES) && !defined(HAVE_DEFAULTARGS)
 #error HAVE_CLOSURES requires HAVE_DEFAULTARGS
 #endif

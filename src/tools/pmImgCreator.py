@@ -77,7 +77,7 @@ PM_FEATURES = {
     "HAVE_DEFAULTARGS": True,
     "HAVE_REPLICATION": True, # This flag currently has no effect in this file
     "HAVE_CLASSES": True,
-    "HAVE_ASSERT": True,
+    "HAVE_ASSERT": False,
     "HAVE_GENERATORS": False,
     "HAVE_BACKTICK": False,
     "HAVE_STRING_FORMAT": False,  # This flag currently has no effect in this file

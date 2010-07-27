@@ -161,6 +161,8 @@ class SerialConnection(Connection):
             raise e
 
         self.s = serial.Serial(serdev, baud)
+        print self.s.setDTR(False)
+        print self.s.setRTS(False)
         self.s.setTimeout(4)
 
     def read(self,):
@@ -316,6 +318,7 @@ class Interactive(cmd.Cmd):
 
         print INIT_MESSAGE,
         print HELP_MESSAGE,
+        self.do_load("robot.py")
 
         self.stop = False
         while not self.stop:

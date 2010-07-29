@@ -39,7 +39,7 @@ and the host computer prints the result.
 #  The target device then packages any result, sends it to the host computer
 #  and the host computer prints the result.
 
-import cmd, dis, getopt, os, subprocess, sys
+import cmd, dis, getopt, os, subprocess, sys, time
 import pmImgCreator
 
 
@@ -161,9 +161,10 @@ class SerialConnection(Connection):
             raise e
 
         self.s = serial.Serial(serdev, baud)
-        print self.s.setDTR(False)
-        print self.s.setRTS(False)
-        self.s.setTimeout(4)
+        self.s.setDTR(False)
+        self.s.setRTS(False)
+        self.s.setTimeout(1)
+        time.sleep(0.1)
 
     def read(self,):
         # Collect all characters up to and including the ipm reply terminator
@@ -318,7 +319,6 @@ class Interactive(cmd.Cmd):
 
         print INIT_MESSAGE,
         print HELP_MESSAGE,
-        self.do_load("robot.py")
 
         self.stop = False
         while not self.stop:
@@ -376,7 +376,8 @@ def parse_cmdline():
 def main():
     conn = parse_cmdline()
     i = Interactive(conn)
-    i.run()
+    i.do_load("robot.py")
+    #i.run()
 
 
 def ser_test():

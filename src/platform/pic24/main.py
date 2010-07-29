@@ -14,8 +14,8 @@
 #  @brief PIC24/dsPIC33-specific Python functions
 #
 
-import pic24_dspic33 as pic
-import sys
+#import pic24_dspic33 as pic
+#import sys
 import ipm
 
 # Demo some of the PIC hardware functions

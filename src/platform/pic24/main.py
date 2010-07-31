@@ -1,40 +1,29 @@
-# This file is Copyright 2007, 2009 Dean Hall.
-#
-# This file is part of the Python-on-a-Chip program.
-# Python-on-a-Chip is free software: you can redistribute it and/or modify
-# it under the terms of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
-# 
-# Python-on-a-Chip is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# A copy of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
-# is seen in the file COPYING up one directory from this.
+# Anything that starts with a # is a comment!
+# Use lots of comments in your code to explain what you're doing.
 
-## @file
-#  @brief PIC24/dsPIC33-specific Python functions
-#
-
+# Use the PIC-specific Python libraries
 import pic24_dspic33 as pic
-import sys
-import ipm
 
-# Demo some of the PIC hardware functions
-# ---------------------------------------
-# Toggle a pin
-#                    port pin isInput isOpenDrain pullDir
-dio = pic.digital_io(1,   1,  False,  False,      0)
-dio.set(not dio.get())
 
-# Do some analog input
-ain = pic.analog_input(0)
-# Uncomment below if not in simulation mode
-#print ain.get()
+###############################################################
+# Set up line sensors, distance sensor, motors 
+###############################################################
 
-# Do some PWM
-#              freq  isTimer2 oc ocPin
-pwm1 = pic.pwm(1000, True,    2, 0)
-pwm1.set(0.5)
+line_sensor_right =  pic.digital_io(1,   8,  True)
+right_wheel_stopped  = 938
 
-print "Welcome to PIC24 Python! Free space:", sys.heap()
-print "Starting interactive mode."
-ipm.ipm()
+def drive_forward():
+    right_wheel.setCounts(right_wheel_forward)
+    
+def stop_driving():
+    right_wheel.setCounts(right_wheel_stopped)
+
+
+###############################################################
+# Main loop
+###############################################################
+
+while True:
+    # Print out line following diags
+    if line_sensor_right.get():
+        pass    

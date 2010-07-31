@@ -559,7 +559,11 @@ heap_gcMarkObj(pPmObj_t pobj)
     PmType_t type;
 
     /* Return if ptr is null or object is already marked */
-    if ((pobj == C_NULL) || (OBJ_GET_GCVAL(pobj) == pmHeap.gcval))
+    if (pobj == C_NULL)
+    {
+        return retval;
+    }
+    if (OBJ_GET_GCVAL(pobj) == pmHeap.gcval)
     {
         return retval;
     }

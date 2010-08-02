@@ -41,10 +41,7 @@ export CFLAGS PM_LIB_FN
 # Default action is to build tests; run tests if target is desktop
 all : check
 
-check : $(PM_LIB_PATH) $(EXECS) my_test.out
-
-t999_nat.c t999_img.c : ../../platform/pic24/main.py ../../platform/pic24/pic24_dspic33.py
-	$(PMIMGCREATOR) -c -u -o t999_img.c --native-file=t999_nat.c ../../platform/pic24/main.py ../../platform/pic24/pic24_dspic33.py $(PMSTDLIB_SOURCES)
+check : $(PM_LIB_PATH) $(EXECS)
 
 $(PM_LIB_PATH) : ../../vm/*.c ../../vm/*.h
 	make -C ../../platform/$(PLATFORM)

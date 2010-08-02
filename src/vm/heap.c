@@ -28,7 +28,6 @@
 
 
 #include "pm.h"
-#include "string.h"
 
 
 /** Checks for heap size definition. */
@@ -330,7 +329,7 @@ heap_init(void)
 
 #if __DEBUG__
     /* Fill the heap with a non-NULL value to bring out any heap bugs. */
-    memset(pmHeap.base, 0xAA, sizeof(pmHeap.base));
+    sli_memset(pmHeap.base, 0xAA, sizeof(pmHeap.base));
 #endif
 
     /* Init heap globals */

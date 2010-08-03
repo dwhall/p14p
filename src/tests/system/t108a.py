@@ -2,7 +2,7 @@
 # Use lots of comments in your code to explain what you're doing.
 
 # Use the PIC-specific Python libraries
-import t108a as pic
+import t108b as pic
 
 
 ###############################################################

@@ -13,5 +13,5 @@
 class digital_io(object):
     def __init__(self, port, pin, isInput):
         pass
-    def get(self):
+    def get(self,):
         return True

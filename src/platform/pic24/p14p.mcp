@@ -402,7 +402,7 @@ file_089=include\devices\gen_ports_h.pl
 file_090=pic24_dspic33.py
 file_091=..\..\lib\__bi.py
 file_092=..\..\tools\pmImgCreator.py
-file_093=C:\Users\bjones\Documents\svns\python-on-a-chip_trunk\src\tests\system\t108b.py
+file_093=sample_lib.py
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=
@@ -416,7 +416,7 @@ enable=0
 transport=0
 format=0
 [CUSTOM_BUILD]
-Pre-Build=make -C . bytecode
+Pre-Build=make bytecode
 Pre-BuildEnabled=1
 Post-Build=
 Post-BuildEnabled=1

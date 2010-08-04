@@ -1,29 +1,22 @@
-# Anything that starts with a # is a comment!
-# Use lots of comments in your code to explain what you're doing.
+# This file is Copyright 2007, 2009 Dean Hall.
+#
+# This file is part of the Python-on-a-Chip program.
+# Python-on-a-Chip is free software: you can redistribute it and/or modify
+# it under the terms of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
+# 
+# Python-on-a-Chip is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# A copy of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+# is seen in the file COPYING up one directory from this.
 
-# Use the PIC-specific Python libraries
-import pic24_dspic33 as pic
+## @file
+#  @brief PIC24/dsPIC33 main code to run ipm.
+#
 
+import sys
+import ipm
 
-###############################################################
-# Set up line sensors, distance sensor, motors 
-###############################################################
-
-line_sensor_right =  pic.digital_io(1,   8,  True)
-right_wheel_stopped  = 938
-
-def drive_forward():
-    right_wheel.setCounts(right_wheel_forward)
-    
-def stop_driving():
-    right_wheel.setCounts(right_wheel_stopped)
-
-
-###############################################################
-# Main loop
-###############################################################
-
-while True:
-    # Print out line following diags
-    if line_sensor_right.get():
-        pass    
+print "Welcome to PIC24/dsPIC33 Python! (Free space, total RAM):", sys.heap()
+print "Starting interactive mode."
+ipm.ipm()

@@ -31,5 +31,5 @@ int main(void)
     PM_RETURN_IF_ERROR(retval);
 
     retval = pm_run((uint8_t *)"t108");
-    return (int)retval;
+    return (int) (retval == PM_RET_EX_MEM);
 }

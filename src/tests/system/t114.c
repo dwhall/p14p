@@ -30,6 +30,6 @@ int main(void)
     retval = pm_init(MEMSPACE_PROG, usrlib_img);
     PM_RETURN_IF_ERROR(retval);
 
-    retval = pm_run((uint8_t *)"t108");
-    return (int) (retval == PM_RET_EX_MEM);
+    retval = pm_run((uint8_t *)"t114");
+    return (int) !(retval == PM_RET_EX_MEM);
 }

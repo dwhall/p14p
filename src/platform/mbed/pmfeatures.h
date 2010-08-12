@@ -141,11 +141,31 @@
 /* #289 Create bytearray datatype */
 /**
  * When defined, the code to support the bytearray type is included in the
- * build.
+ * build.  NOTE: If this is defined, the bytearray class in src/lib/__bi.py
+ * must also be uncommented.
  */
-#define HAVE_BYTEARRAY
+/*#define HAVE_BYTEARRAY*/
 #if defined(HAVE_BYTEARRAY) && !defined(HAVE_CLASSES)
 #error HAVE_BYTEARRAY requires HAVE_CLASSES
 #endif
+
+/* Issue #103 Add debug info to exception reports */
+/**
+ * When defined, the code to support debug information in exception reports
+ * is included in the build.
+ */
+#define HAVE_DEBUG_INFO
+
+
+/*
+ * Platform-specific definitions that are used in the VM
+ */
+
+/**
+ * Define a processor-specific specifier for use in declaring the heap.
+ * See <code>pmHeap</code> in heap.c for its use, which is:<br>
+ * <code>static PmHeap_t pmHeap PM_PLAT_HEAP_ATTR;</code>
+ */
+#define PM_PLAT_HEAP_ATTR __attribute__((aligned (4)))
 
 #endif /* FEATURES_H_ */

@@ -3,7 +3,7 @@
 # This file is part of the Python-on-a-Chip program.
 # Python-on-a-Chip is free software: you can redistribute it and/or modify
 # it under the terms of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
-# 
+#
 # Python-on-a-Chip is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -71,9 +71,17 @@ def _getImg():
         pimg->val[i] = b;
     }
 
-    /* Return the image as a string object on the stack */
+    /* Return the image as a code image object on the stack */
     NATIVE_SET_TOS((pPmObj_t)pimg);
     return retval;
+    """
+    pass
+
+
+def x04():
+    """__NATIVE__
+    NATIVE_SET_TOS(PM_NONE);
+    return plat_putByte(0x04);
     """
     pass
 
@@ -89,8 +97,10 @@ def ipm(g={}):
         s = _getImg()
         co = Co(s)
         rv = eval(co, g)
+        x04()
 
-        # Send a byte to indicate completion of evaluation
-        print '\x04',
+    # Execution should never reach here
+    # The while loop (above) probably caught a StopIteration, accidentally
+    assert False
 
 # :mode=c:

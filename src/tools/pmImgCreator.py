@@ -74,14 +74,16 @@ PM_FEATURES = {
     "HAVE_FLOAT": False,
     "HAVE_DEL": True,
     "HAVE_IMPORTS": True,
-    "HAVE_ASSERT": True,
     "HAVE_DEFAULTARGS": True,
     "HAVE_REPLICATION": True, # This flag currently has no effect in this file
     "HAVE_CLASSES": True,
+    "HAVE_ASSERT": True,
     "HAVE_GENERATORS": True,
     "HAVE_BACKTICK": True,
+    "HAVE_STRING_FORMAT": True,  # This flag currently has no effect in this file
     "HAVE_CLOSURES": True,
-    "HAVE_BYTEARRAY": True,  # This flag currently has no effect in this file
+    "HAVE_BYTEARRAY": False,  # This flag currently has no effect in this file
+    "HAVE_DEBUG_INFO": True,
 }
 
 
@@ -113,10 +115,12 @@ OBJ_TYPE_NOB = 0x0C     # Native func obj
 # All types after this never appear in an image
 
 # Number of bytes from top of code img to start of consts:
-# sizelo, sizehi, type, co_argcount, co_flags, co_stacksize, co_nlocals
+# type, sizelo, sizehi, co_argcount, co_flags, co_stacksize, co_nlocals
 CO_IMG_FIXEDPART_SIZE = 7
 if PM_FEATURES["HAVE_CLOSURES"]:
     CO_IMG_FIXEDPART_SIZE += 1  # [co_nfreevars]
+if PM_FEATURES["HAVE_DEBUG_INFO"]:
+    CO_IMG_FIXEDPART_SIZE += 2  # [co_firstlineno]
 
 # Number of bytes in a native image (constant)
 NATIVE_IMG_SIZE = 4
@@ -151,8 +155,8 @@ NATIVE_TABLE_NAME = {"std": "std_nat_fxn_table",
 # String name to prefix all native functions
 NATIVE_FUNC_PREFIX = "nat_"
 
-# maximum number of locals a native func can have
-NATIVE_NUM_LOCALS = 8
+# Maximum number of locals a native func can have (frame.h)
+NATIVE_MAX_NUM_LOCALS = 8
 
 # Issue #51: In Python 2.5, the module identifier changed from '?' to '<module>'
 if float(sys.version[:3]) < 2.5:
@@ -200,19 +204,19 @@ if not PM_FEATURES["HAVE_CLASSES"]:
         "BUILD_CLASS",
         ])
 
-# #207: Add support for the yield keyword
+# Issue #7: Add support for the yield keyword
 if not PM_FEATURES["HAVE_GENERATORS"]:
     UNIMPLEMENTED_BCODES.extend([
         "YIELD_VALUE",
         ])
 
-# #244: Add support for the backtick operation (UNARY_CONVERT)
+# Issue #44: Add support for the backtick operation (UNARY_CONVERT)
 if not PM_FEATURES["HAVE_BACKTICK"]:
     UNIMPLEMENTED_BCODES.extend([
         "UNARY_CONVERT",
         ])
 
-# #213: Add support for Python 2.6 bytecodes.
+# Issue #13: Add support for Python 2.6 bytecodes.
 # The *_TRUE_DIVIDE bytecodes require support for float type
 if not PM_FEATURES["HAVE_FLOAT"]:
     UNIMPLEMENTED_BCODES.extend([
@@ -220,10 +224,10 @@ if not PM_FEATURES["HAVE_FLOAT"]:
         "INPLACE_TRUE_DIVIDE",
         ])
 
-# #152: Byte to append after the last image in the list
+# Old #152: Byte to append after the last image in the list
 IMG_LIST_TERMINATOR = "\xFF"
 
-# #256: Add support for decorators
+# Issue #56: Add support for decorators
 if not PM_FEATURES["HAVE_CLOSURES"]:
     UNIMPLEMENTED_BCODES.extend([
         "MAKE_CLOSURE",
@@ -434,8 +438,10 @@ class PmImgCreator:
         return imgstr
 
 
+    # NOTE: if the total size of the fixed-sized fields changes,
+    # be sure to change CO_IMG_FIXEDPART_SIZE above
     def co_to_str(self, co):
-        """Convert a Python code object to a PyMite image.
+        """Converts a Python code object to a PyMite image.
 
         The code image is relocatable and goes in the device's
         memory. Return string shows type in the leading byte.
@@ -444,35 +450,56 @@ class PmImgCreator:
         # filter code object elements
         consts, names, code, nativecode = self._filter_co(co)
 
-        # list of strings to build image
+        # Type and size inserted below
 
-        # set image type byte
-        objtype = OBJ_TYPE_CIM
+        # Appends various constant-sized fields to the image
+        imgstr = self._U8_to_str(co.co_argcount) + \
+                 self._U8_to_str(co.co_flags & 0xFF) + \
+                 self._U8_to_str(co.co_stacksize) + \
+                 self._U8_to_str(co.co_nlocals)
 
-        # skip co_type and size
-        # co_argcount
-        imgstr = self._U8_to_str(co.co_argcount)
-        # co_flags
-        imgstr += self._U8_to_str(co.co_flags & 0xFF)
-        # co_stacksize
-        imgstr += self._U8_to_str(co.co_stacksize)
-        # co_nlocals
-        imgstr += self._U8_to_str(co.co_nlocals)
-        # #256: Add support for closures
+        # Issue #56: Add support for closures
         if PM_FEATURES["HAVE_CLOSURES"]:
             imgstr += self._U8_to_str(len(co.co_freevars))
 
-        # variable length objects
-        # co_names
+        # Issue #103: Add debug info to exception reports
+        if PM_FEATURES["HAVE_DEBUG_INFO"]:
+            imgstr += self._U16_to_str(co.co_firstlineno)
+
+        # Variable length objects
+        # Appends names (tuple) to the image
         s = self._seq_to_str(names)
         lennames = len(s)
         imgstr += s
-        # co_consts
+
+        # Issue #103: Add debug info to exception reports
+        lenlnotab = 0
+        lenfilename = 0
+        if PM_FEATURES["HAVE_DEBUG_INFO"]:
+
+            # Appends line number table (string) to the image
+            assert len(co.co_lnotab) <= MAX_STRING_LEN
+            s = self._U8_to_str(OBJ_TYPE_STR) + \
+                self._U16_to_str(len(co.co_lnotab)) + co.co_lnotab
+            lenlnotab = len(s)
+            imgstr += s
+
+            # Appends filename (string) to the image
+            # fn = os.path.split(co.co_filename)[-1]
+            fn = co.co_filename
+            assert len(fn) <= MAX_STRING_LEN
+            s = self._U8_to_str(OBJ_TYPE_STR) + \
+                self._U16_to_str(len(fn) + 1) + fn + '\0'
+            lenfilename = len(s)
+            imgstr += s
+
+        # Appends consts tuple to the image
         s = self._seq_to_str(consts)
         lenconsts = len(s)
         imgstr += s
 
-        # #256: Add support for closures
+        # Issue #56: Add support for closures
+        # Appends cellvars tuple to the image
         if PM_FEATURES["HAVE_CLOSURES"]:
             # Lookup the index of the cellvar name in co_varnames; -1 if not in
             l = [-1,] * len(co.co_cellvars)
@@ -483,18 +510,16 @@ class PmImgCreator:
             lenconsts += len(s)
             imgstr += s
 
-        # add code (or native index) to image
+        # Appends bytecode (or native index) to image
         imgstr += code
 
-        # size = fixed part + len(names) + len(consts) + len(code)
-        size = CO_IMG_FIXEDPART_SIZE + lennames + lenconsts + \
-               len(code)
-        # insert fixed length objects (skipped earlier)
-        imgstr = self._U8_to_str(objtype) + \
+        size = CO_IMG_FIXEDPART_SIZE + lennames + lenlnotab + lenfilename + \
+               lenconsts + len(code)
+
+        # Inserts type and size (skipped earlier)
+        imgstr = self._U8_to_str(OBJ_TYPE_CIM) + \
                  self._U16_to_str(size) + \
                  imgstr
-
-        # ensure string length fits within S16 type
         assert len(imgstr) <= MAX_IMG_LEN
 
         return imgstr
@@ -551,7 +576,7 @@ class PmImgCreator:
             extract the native code from the doc string
             and clear the doc string.
             Ensure num args is less or equal to
-            NATIVE_NUM_LOCALS.
+            NATIVE_MAX_NUM_LOCALS.
 
         Names/varnames filter:
             Ensure num names is less than 256.
@@ -567,12 +592,12 @@ class PmImgCreator:
         """
 
         ## General filter
-        # ensure values fit within S8 type size
-        assert len(co.co_consts) < 128, "too many constants."
-        assert len(co.co_names) < 128, "too many names."
-        assert co.co_argcount < 128, "too many arguments."
-        assert co.co_stacksize < 128, "too large of a stack."
-        assert co.co_nlocals < 128, "too many local variables."
+        # ensure values fit within U8 type size
+        assert len(co.co_consts) < 256, "too many constants."
+        assert len(co.co_names) < 256, "too many names."
+        assert co.co_argcount < 256, "too many arguments."
+        assert co.co_stacksize < 256, "too large of a stack."
+        assert co.co_nlocals < 256, "too many local variables."
 
         # make consts a list so a single element can be modified
         consts = list(co.co_consts)
@@ -645,15 +670,15 @@ class PmImgCreator:
                 NATIVE_INDICATOR):
 
                 # ensure num args is less or equal
-                # to NATIVE_NUM_LOCALS
-                assert co.co_nlocals <= NATIVE_NUM_LOCALS
+                # to NATIVE_MAX_NUM_LOCALS
+                assert co.co_nlocals <= NATIVE_MAX_NUM_LOCALS
 
                 # extract native code and clear doc string
                 nativecode = consts[0][NATIVE_INDICATOR_LENGTH:]
                 consts[0] = None
 
                 # If this co is a module
-                # Issue #28: Module root must keep its bytecode
+                # Old #28: Module root must keep its bytecode
                 if co.co_name == MODULE_IDENTIFIER:
                     self.nativemods.append((co.co_filename, nativecode))
 

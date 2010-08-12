@@ -91,6 +91,10 @@ extern "C" {
 #define PM_REPORT_IF_ERROR(retval)   if ((retval) != PM_RET_OK) \
                                         plat_reportError(retval)
 
+/** Jumps to a label if argument is not PM_RET_OK */
+#define PM_GOTO_IF_ERROR(retval, target) if ((retval) != PM_RET_OK) \
+                                            goto target
+
 #if __DEBUG__
 /** If the boolean expression fails, return the ASSERT error code */
 #define C_ASSERT(boolexpr) \
@@ -186,6 +190,7 @@ extern volatile uint32_t pm_timerMsTicks;
 
 /* WARNING: The order of the following includes is critical */
 #include "pmfeatures.h"
+#include "pmEmptyPlatformDefs.h"
 #include "sli.h"
 #include "mem.h"
 #include "obj.h"

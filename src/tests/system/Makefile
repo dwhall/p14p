@@ -18,20 +18,20 @@ ifeq ($(DEBUG),true)
 	CDEFS += -g -ggdb -D__DEBUG__=1
 endif
 CINCS = -I../../vm -I../../platform/desktop
-CFLAGS = -Os -Wall -Wstrict-prototypes -Werror $(CDEFS) $(CINCS) 
+CFLAGS = -Os -fno-strict-aliasing -Wall -Wstrict-prototypes -Werror $(CDEFS) $(CINCS) 
 
 
 # Build an executable from the C sources
-%.out : %*_nat.c %*_img.c %.c ../../platform/$(PLATFORM)/plat.o
-	$(CC) $(CFLAGS) -o $@ $*_nat.c $*_img.c $*.c ../../platform/$(PLATFORM)/plat.o $(PM_LIB_PATH)
+%.out : %_nat.c %_img.c %.c ../../platform/$(PLATFORM)/plat.o
+	$(CC) $(CFLAGS) -lm -o $@ $*_nat.c $*_img.c $*.c ../../platform/$(PLATFORM)/plat.o $(PM_LIB_PATH)
 ifeq ($(PLATFORM), desktop)
 	$(addprefix ./,$@)
 endif
 
 # The module images and native code are generated from python source
-%*_nat.c %*_img.c : %.py
+%_nat.c %_img.c : %.py
 	$(PMIMGCREATOR) -c -u -o $*_img.c --native-file=$*_nat.c $*.py $(PMSTDLIB_SOURCES)
-%*_nat.c %*_img.c : %a.py %b.py
+%_nat.c %_img.c : %a.py %b.py
 	$(PMIMGCREATOR) -c -u -o $*_img.c --native-file=$*_nat.c $*a.py $*b.py $(PMSTDLIB_SOURCES)
 
 .PHONY: all check clean

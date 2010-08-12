@@ -38,6 +38,9 @@
 #endif
 
 
+/** The size of the temporary roots stack */
+#define HEAP_NUM_TEMP_ROOTS 24
+
 /**
  * The maximum size a live chunk can be (a live chunk is one that is in use).
  * The live chunk size is limited by the size field in the *object* descriptor.
@@ -83,7 +86,7 @@
 
 /**
  * The following is a diagram of the heap descriptor at the head of the chunk:
- *
+ * @verbatim
  *                MSb          LSb
  *                7 6 5 4 3 2 1 0
  *      pchunk-> +-+-+-+-+-+-+-+-+
@@ -100,6 +103,7 @@
  *               ...           ...
  *               | end chunk     |
  *               +---------------+
+ * @endverbatim
  */
 typedef struct PmHeapDesc_s
 {
@@ -140,6 +144,12 @@ typedef struct PmHeap_s
 
     /** Boolean to indicate if GC should run automatically */
     uint8_t auto_gc;
+
+    /* #239: Fix GC when 2+ unlinked allocs occur */
+    /** Stack of objects to be held as temporary roots */
+    pPmObj_t temp_roots[HEAP_NUM_TEMP_ROOTS];
+
+    uint8_t temp_root_index;
 #endif                          /* HAVE_GC */
 
 } PmHeap_t,
@@ -147,7 +157,7 @@ typedef struct PmHeap_s
 
 
 /** The PyMite heap */
-static PmHeap_t pmHeap;
+static PmHeap_t pmHeap PM_PLAT_HEAP_ATTR;
 
 
 #if 0
@@ -317,11 +327,17 @@ heap_init(void)
     uint16_t hs;
 #endif
 
+#if __DEBUG__
+    /* Fill the heap with a non-NULL value to bring out any heap bugs. */
+    sli_memset(pmHeap.base, 0xAA, sizeof(pmHeap.base));
+#endif
+
     /* Init heap globals */
     pmHeap.pfreelist = C_NULL;
     pmHeap.avail = 0;
 #ifdef HAVE_GC
     pmHeap.gcval = (uint8_t)0;
+    pmHeap.temp_root_index = (uint8_t)0;
     heap_gcSetAuto(C_TRUE);
 #endif /* HAVE_GC */
 
@@ -548,7 +564,11 @@ heap_gcMarkObj(pPmObj_t pobj)
     PmType_t type;
 
     /* Return if ptr is null or object is already marked */
-    if ((pobj == C_NULL) || (OBJ_GET_GCVAL(pobj) == pmHeap.gcval))
+    if (pobj == C_NULL)
+    {
+        return retval;
+    }
+    if (OBJ_GET_GCVAL(pobj) == pmHeap.gcval)
     {
         return retval;
     }
@@ -864,6 +884,7 @@ static PmReturn_t
 heap_gcMarkRoots(void)
 {
     PmReturn_t retval;
+    uint8_t i;
 
     /* Toggle the GC marking value so it differs from the last run */
     pmHeap.gcval ^= 1;
@@ -894,6 +915,13 @@ heap_gcMarkRoots(void)
 
     /* Mark the thread list */
     retval = heap_gcMarkObj((pPmObj_t)gVmGlobal.threadList);
+
+    /* Mark the temporary roots */
+    for (i = 0; i < pmHeap.temp_root_index; i++)
+    {
+        retval = heap_gcMarkObj(pmHeap.temp_roots[i]);
+        PM_RETURN_IF_ERROR(retval);
+    }
 
     return retval;
 }
@@ -1056,6 +1084,12 @@ heap_gcRun(void)
 {
     PmReturn_t retval;
 
+    /* #239: Fix GC when 2+ unlinked allocs occur */
+    /* This assertion fails when there are too many objects on the temporary
+     * root stack and a GC occurs; consider increasing PM_HEAP_NUM_TEMP_ROOTS
+     */
+    C_ASSERT(pmHeap.temp_root_index < HEAP_NUM_TEMP_ROOTS);
+
     C_DEBUG_PRINT(VERBOSITY_LOW, "heap_gcRun()\n");
     /*heap_dump();*/
 
@@ -1075,4 +1109,27 @@ heap_gcSetAuto(uint8_t auto_gc)
     pmHeap.auto_gc = auto_gc;
     return PM_RET_OK;
 }
+
+void heap_gcPushTempRoot(pPmObj_t pobj, uint8_t *r_objid)
+{
+    if (pmHeap.temp_root_index < HEAP_NUM_TEMP_ROOTS)
+    {
+        *r_objid = pmHeap.temp_root_index;
+        pmHeap.temp_roots[pmHeap.temp_root_index] = pobj;
+        pmHeap.temp_root_index++;
+    }
+    return;
+}
+
+
+void heap_gcPopTempRoot(uint8_t objid)
+{
+    pmHeap.temp_root_index = objid;
+}
+
+#else
+
+void heap_gcPushTempRoot(pPmObj_t pobj, uint8_t *r_objid) {}
+void heap_gcPopTempRoot(uint8_t objid) {}
+
 #endif /* HAVE_GC */

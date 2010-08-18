@@ -424,7 +424,6 @@ clean:
 	$(REMOVE) $(CPPSRCARM:.cpp=.d)
 	$(REMOVE) $(TARGET)_img.c
 	$(REMOVE) $(TARGET)_nat.c
-	$(REMOVE) pymite_mbed.zip
 	$(REMOVEDIR) .dep | exit 0
 
 

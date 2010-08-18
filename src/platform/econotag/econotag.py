@@ -13,7 +13,73 @@
 """__NATIVE__
 #include "mc1322x.h"
 #include "board.h"
+
+#ifndef HAVE_BYTEARRAY
+#error HAVE_BYTEARRAY must be defined for the Econotag packet implementation
+#endif
 """
+
+
+def gpio_pad_dir(lo32, hi32):
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t plo, phi;
+    uint8_t n;
+
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 2)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Raise TypeError if args are not ints */
+    plo = NATIVE_GET_LOCAL(0);
+    phi = NATIVE_GET_LOCAL(1);
+    if ((OBJ_GET_TYPE(plo) != OBJ_TYPE_INT)
+        || (OBJ_GET_TYPE(phi) != OBJ_TYPE_INT))
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    *GPIO_PAD_DIR0 = ((pPmInt_t)plo)->val;
+    *GPIO_PAD_DIR1 = ((pPmInt_t)phi)->val;
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+    """
+    pass
+
+
+def gpio_data(lo32, hi32):
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t plo, phi;
+    uint8_t n;
+
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 2)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Raise TypeError if args are not ints */
+    plo = NATIVE_GET_LOCAL(0);
+    phi = NATIVE_GET_LOCAL(1);
+    if ((OBJ_GET_TYPE(plo) != OBJ_TYPE_INT)
+        || (OBJ_GET_TYPE(phi) != OBJ_TYPE_INT))
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    *GPIO_DATA0 = ((pPmInt_t)plo)->val;
+    *GPIO_DATA1 = ((pPmInt_t)phi)->val;
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+    """
+    pass
 
 
 def set_channel(n):
@@ -192,17 +258,20 @@ def tx_packet(p):
 def rx_packet():
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
-	volatile packet_t *p;
-	pPmBytes_t pb;
-	pPmBytearray_t pba;
-	pPmInt_t pn;
+    volatile packet_t *p;
+    pPmBytes_t pb;
+    pPmBytearray_t pba;
+    pPmInt_t pn;
+    uint8_t objid, objid2;
+    pPmObj_t pbaclass;
+    pPmObj_t pcli;
 
-	p = rx_packet();
-	if (!p)
-	{
+    p = rx_packet();
+    if (!p)
+    {
         NATIVE_SET_TOS(PM_NONE);
         return retval;
-	}
+    }
 
     /* Allocate a bytearray */
     retval = int_new(p->length, &pn);
@@ -211,23 +280,44 @@ def rx_packet():
         free_packet(p);
         return retval;
     }
+
+    heap_gcPushTempRoot(pn, &objid);
     retval = bytearray_new(pn, &pba);
+    heap_gcPopTempRoot(objid);
     if (retval != PM_RET_OK)
     {
         free_packet(p);
         return retval;
     }
+    heap_freeChunk(pn);
 
     /* Copy packet payload to bytearray */
     sli_memcpy((unsigned char *)&(pba->val->val[0]),
                (unsigned char *)&(p->data[0]),
                (unsigned int)p->length);
-
     free_packet(p);
-    NATIVE_SET_TOS(pba);
+
+    /* Create an instance of bytearray to hold the bytearray struct */
+    retval = dict_getItem(PM_PBUILTINS, PM_BYTEARRAY_STR, &pbaclass);
+    PM_RETURN_IF_ERROR(retval);
+    heap_gcPushTempRoot(pba, &objid);
+    retval = class_instantiate(pbaclass, &pcli);
+    if (retval != PM_RET_OK)
+    {
+        heap_gcPopTempRoot(objid);
+        return retval;
+    }
+
+    /* Store bytearray struct in the instance's None attribute */
+    heap_gcPushTempRoot(pcli, &objid2);
+    retval = dict_setItem((pPmObj_t)((pPmInstance_t)pcli)->cli_attrs,
+                          PM_NONE,
+                          pba);
+    heap_gcPopTempRoot(objid);
+
+    NATIVE_SET_TOS(pcli);
     return retval;
     """
     pass
-
 
 # :mode=c:

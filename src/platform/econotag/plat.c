@@ -65,6 +65,9 @@ plat_init(void)
     *TMR0_CTRL    = (COUNT_MODE<<13) | (PRIME_SRC<<9) | (LEN<<5);
     *TMR_ENBL     = 1;    /* Enable Timer0 */
 
+    /* Seed the random number generator */
+    *MACA_RANDOM = 42;
+
     enable_irq(TMR);
 
     return PM_RET_OK;

@@ -293,7 +293,7 @@ def rx_packet():
 
     /* Copy packet payload to bytearray */
     sli_memcpy((unsigned char *)&(pba->val->val[0]),
-               (unsigned char *)&(p->data[0]),
+               (unsigned char *)&(p->data[p->offset]),
                (unsigned int)p->length);
     free_packet(p);
 
@@ -319,5 +319,25 @@ def rx_packet():
     return retval;
     """
     pass
+
+
+def random():
+    """__NATIVE__
+    PmReturn_t retval;
+    pPmObj_t pr = C_NULL;
+
+    /* If wrong number of args, raise TypeError */
+    if (NATIVE_GET_NUM_ARGS() != 0)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    retval = int_new(*MACA_RANDOM, &pr);
+    NATIVE_SET_TOS(pr);
+    return retval;
+    """
+    pass
+
 
 # :mode=c:

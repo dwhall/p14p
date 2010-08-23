@@ -20,6 +20,60 @@
 """
 
 
+def gpio_func_sel(gpio, mode):
+    """__NATIVE__
+    /* gpio is an int 0..63, func is an in 0..3 */
+    /* DWH Do the div,mod and mask to set the gpio's mode */
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t pgpio, pmode;
+    int32_t gpio, mode;
+    uint32_t mask;
+    uint8_t shift;
+    volatile uint32_t *func_sel_regs[] = {GPIO_FUNC_SEL0, GPIO_FUNC_SEL1,
+                                          GPIO_FUNC_SEL2, GPIO_FUNC_SEL3};
+    volatile uint32_t *func_sel_reg;
+
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 2)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Raise TypeError if args are not ints */
+    pgpio = NATIVE_GET_LOCAL(0);
+    pmode = NATIVE_GET_LOCAL(1);
+    if ((OBJ_GET_TYPE(pgpio) != OBJ_TYPE_INT)
+        || (OBJ_GET_TYPE(pmode) != OBJ_TYPE_INT))
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    /* Raise ValueError if either value is out of range */
+    gpio = ((pPmInt_t)pgpio)->val;
+    mode = ((pPmInt_t)pmode)->val;
+    if ((gpio < 0) || (gpio > 63) || (mode < 0) || (mode > 3))
+    {
+        PM_RAISE(retval, PM_RET_EX_VAL);
+        return retval;
+    }
+
+    /* Choose the register and calculate the shift needed for the gpio */
+    func_sel_reg = func_sel_regs[gpio >> 4];
+    shift = (gpio & 0x0F) << 1;
+    mask = 0x03 << shift;
+
+    /* Clear the old mode, apply the new mode */
+    *func_sel_reg &= ~mask;
+    *func_sel_reg |= (mode << shift);
+
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+    """
+    pass
+
+
 def gpio_pad_dir(lo32, hi32):
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;

@@ -71,7 +71,7 @@ import exceptions, string, sys, types, dis, os, time, getopt, struct, types
 PM_FEATURES = {
     "HAVE_PRINT": True, # This flag currently has no effect in this file
     "HAVE_GC": True, # This flag currently has no effect in this file
-    "HAVE_FLOAT": True,
+    "HAVE_FLOAT": False,
     "HAVE_DEL": True,
     "HAVE_IMPORTS": True,
     "HAVE_DEFAULTARGS": True,
@@ -82,8 +82,8 @@ PM_FEATURES = {
     "HAVE_BACKTICK": True,
     "HAVE_STRING_FORMAT": True,  # This flag currently has no effect in this file
     "HAVE_CLOSURES": True,
-    "HAVE_BYTEARRAY": False,  # This flag currently has no effect in this file
-    "HAVE_DEBUG_INFO": True,
+    "HAVE_BYTEARRAY": True,  # This flag currently has no effect in this file
+    "HAVE_DEBUG_INFO": False,
 }
 
 

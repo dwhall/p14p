@@ -77,7 +77,7 @@ index 0b0ef08..3feab22 100644
  #define UCON      (0)
  /* UCON bits */
 diff --git a/lib/printf.c b/lib/printf.c
-index 2143135..16d21b1 100644
+index 64da212..0401426 100644
 --- a/lib/printf.c
 +++ b/lib/printf.c
 @@ -70,7 +70,6 @@

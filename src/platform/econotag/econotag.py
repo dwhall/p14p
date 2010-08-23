@@ -24,7 +24,6 @@ def gpio_pad_dir(lo32, hi32):
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t plo, phi;
-    uint8_t n;
 
     /* Raise TypeError if wrong number of args */
     if (NATIVE_GET_NUM_ARGS() != 2)
@@ -55,7 +54,6 @@ def gpio_data(lo32, hi32):
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
     pPmObj_t plo, phi;
-    uint8_t n;
 
     /* Raise TypeError if wrong number of args */
     if (NATIVE_GET_NUM_ARGS() != 2)
@@ -77,6 +75,44 @@ def gpio_data(lo32, hi32):
     *GPIO_DATA0 = ((pPmInt_t)plo)->val;
     *GPIO_DATA1 = ((pPmInt_t)phi)->val;
     NATIVE_SET_TOS(PM_NONE);
+    return retval;
+    """
+    pass
+
+
+def gpio_data_get_hi():
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t pn;
+
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 0)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+	retval = int_new(*GPIO_DATA1, &pn);
+    NATIVE_SET_TOS(pn);
+    return retval;
+    """
+    pass
+
+
+def gpio_data_get_lo():
+    """__NATIVE__
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t pn;
+
+    /* Raise TypeError if wrong number of args */
+    if (NATIVE_GET_NUM_ARGS() != 0)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+	retval = int_new(*GPIO_DATA0, &pn);
+    NATIVE_SET_TOS(pn);
     return retval;
     """
     pass
@@ -259,7 +295,6 @@ def rx_packet():
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
     volatile packet_t *p;
-    pPmBytes_t pb;
     pPmBytearray_t pba;
     pPmInt_t pn;
     uint8_t objid, objid2;
@@ -274,15 +309,15 @@ def rx_packet():
     }
 
     /* Allocate a bytearray */
-    retval = int_new(p->length, &pn);
+    retval = int_new(p->length, (pPmObj_t *)&pn);
     if (retval != PM_RET_OK)
     {
         free_packet(p);
         return retval;
     }
 
-    heap_gcPushTempRoot(pn, &objid);
-    retval = bytearray_new(pn, &pba);
+    heap_gcPushTempRoot((pPmObj_t)pn, &objid);
+    retval = bytearray_new(pn, (pPmObj_t *)&pba);
     heap_gcPopTempRoot(objid);
     if (retval != PM_RET_OK)
     {
@@ -300,7 +335,7 @@ def rx_packet():
     /* Create an instance of bytearray to hold the bytearray struct */
     retval = dict_getItem(PM_PBUILTINS, PM_BYTEARRAY_STR, &pbaclass);
     PM_RETURN_IF_ERROR(retval);
-    heap_gcPushTempRoot(pba, &objid);
+    heap_gcPushTempRoot((pPmObj_t)pba, &objid);
     retval = class_instantiate(pbaclass, &pcli);
     if (retval != PM_RET_OK)
     {
@@ -312,7 +347,7 @@ def rx_packet():
     heap_gcPushTempRoot(pcli, &objid2);
     retval = dict_setItem((pPmObj_t)((pPmInstance_t)pcli)->cli_attrs,
                           PM_NONE,
-                          pba);
+                          (pPmObj_t)pba);
     heap_gcPopTempRoot(objid);
 
     NATIVE_SET_TOS(pcli);

@@ -272,12 +272,13 @@ once1:
 	git clone -n git://git.devl.org/git/malvira/libmc1322x.git
 
 once2:
-	cd libmc1322x && git checkout -q 36361e1eb0eba99c8ab7807fa2f977c80a3be05c \
+	cd libmc1322x && git checkout -q a6813372bfc38c83e61a90952f9b9301852f1c17 \
 	&& cp Makefile.include Makefile.include.bak \
 	&& sed 's/arm-linux-/$(TCHAIN)/g' Makefile.include > Makefile.include.tmp \
 	&& mv Makefile.include.tmp Makefile.include \
 	&& patch -p 1 -i ../patch_libmc1322x_types.patch
 	patch -p 0 -i patch_pmImgCreator.patch
+	patch -p 0 -i patch_bi.patch
 
 once3: libmc1322x
 

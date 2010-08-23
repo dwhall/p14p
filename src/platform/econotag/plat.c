@@ -18,12 +18,23 @@
 #include "pm.h"
 
 
-void
-tmr0_isr(void)
-{
+/* Baud rate: 115200 bps, INC=767, MOD=9999, 24Mhz 8x samp */
+#define INC 767
+#define MOD 9999
+#define SAMP UCON_SAMP_8X
+
+/* Timer setup */
+#define COUNT_MODE 1      /* Use rising edge of primary source */
+#define PRIME_SRC 0xe     /* Div-64 prescale (for 24Mhz = 375000Hz)*/
+#define LEN 1             /* Count until compare then reload with LOAD */
+
 /* TMR0 ISR is 1000 Hz == 1 ms == 1000 us) */
 #define PLAT_TIME_PER_TICK_USEC 1000
 
+
+void
+tmr0_isr(void)
+{
     pm_vmPeriodic(PLAT_TIME_PER_TICK_USEC);
 
     *TMR0_SCTRL = 0;
@@ -34,11 +45,6 @@ tmr0_isr(void)
 PmReturn_t
 plat_init(void)
 {
-/* Baud rate: 115200 bps, INC=767, MOD=9999, 24Mhz 8x samp */
-#define INC 767
-#define MOD 9999
-#define SAMP UCON_SAMP_8X
-
     trim_xtal();
     uart1_init(INC,MOD,SAMP);
     vreg_init();
@@ -50,20 +56,15 @@ plat_init(void)
     *GPIO_FUNC_SEL2 = (0x01 << ((44-16*2)*2));
     gpio_pad_dir_set( 1ULL << 44 );
 
-/* Timer setup */
-#define COUNT_MODE 1      /* Use rising edge of primary source */
-#define PRIME_SRC  0xe    /* Div-64 prescale (for 24Mhz = 375000Hz)*/
-#define LEN        1      /* Count until compare then reload with value in LOAD */
-
-    *TMR_ENBL     = 0;    /* Tmrs reset to enabled */
-    *TMR0_SCTRL   = 0;
-    *TMR0_CSCTRL  = 0x0040;
-    *TMR0_LOAD    = 0;    /* Reload to zero */
-    *TMR0_COMP_UP = 375;  /* Trigger a reload at the end */
-    *TMR0_CMPLD1  = 375;  /* Compare 1 triggered reload level */
-    *TMR0_CNTR    = 0;    /* Reset count register */
-    *TMR0_CTRL    = (COUNT_MODE<<13) | (PRIME_SRC<<9) | (LEN<<5);
-    *TMR_ENBL     = 1;    /* Enable Timer0 */
+    *TMR_ENBL = 0;          /* Tmrs reset to enabled */
+    *TMR0_SCTRL = 0;
+    *TMR0_CSCTRL = 0x0040;
+    *TMR0_LOAD = 0;         /* Reload to zero */
+    *TMR0_COMP_UP = 375;    /* Trigger a reload at the end */
+    *TMR0_CMPLD1 = 375;     /* Compare 1 triggered reload level */
+    *TMR0_CNTR = 0;         /* Reset count register */
+    *TMR0_CTRL = (COUNT_MODE<<13) | (PRIME_SRC<<9) | (LEN<<5);
+    *TMR_ENBL = 1;          /* Enable Timer0 */
 
     /* Seed the random number generator */
     *MACA_RANDOM = 42;

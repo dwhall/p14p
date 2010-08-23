@@ -1,4 +1,11 @@
 #!/usr/bin/python
+
+# This file was written by Andrew Pullin
+# This file obtained from: http://bmi.berkeley.edu/~pullin/red-bsl.py
+# No copyright or licensing is claimed
+# Permission to use this file was granted via correspondence
+
+
 import serial
 from struct import pack,unpack
 import os
@@ -10,17 +17,19 @@ parser = OptionParser()
 parser.add_option("-f", "--file", dest="filename",
                   help="binary file to program", metavar="FILE")
 parser.add_option("-t", "--target", dest="target",
-                  help="serial device to send to, default /dev/ttyUSB0", default='/dev/cu.usbserial-000030FDB',
-		  metavar="TARGET")
+                  help="serial device to send to, default /dev/tty.usbserial-000030FDB",
+                  default="/dev/tty.usbserial-000030FDB'",
+                  metavar="TARGET")
 parser.add_option("-s", "--flash", dest="flashprog", action="store_true",
-                  help="write program to flash using libmc1322x flasher", default=False,
-		  metavar="FLASHPROG")
+                  help="write program to flash using libmc1322x flasher", 
+                  default=False,
+                  metavar="FLASHPROG")
 parser.add_option("-S", "--SSL", dest="SSL_flashprog", action="store_true",
                   help="write program to flash using SSL flasher", default=False,
-		  metavar="SSLFLASHPROG")  
+                  metavar="SSLFLASHPROG")
 parser.add_option("-b", "--baudrate", dest="baudrate",
                   help="baudrate for serial device, default 115200", default=115200,
-		  metavar="BAUDRATE")
+                  metavar="BAUDRATE")
 
 (options, args) = parser.parse_args()
 
@@ -54,7 +63,7 @@ FLASH_IMAGE_HEADER = 0x8;
 def simpleCRC(bytes):
 	crc = 0;
 	return sum([ord(b) for b in bytes]) & 255;
-	
+
 def SendCommand(command):
 	ser.write(SOF)
 	ser.write((Int16AsBytes(len(command))))
@@ -64,24 +73,24 @@ def SendCommand(command):
 	#print "LEN: ",len(command)
 	#print "PAY: ",command.encode("hex")
 	#print "CRC: %x" % simpleCRC(command)
-	
-	
+
+
 def ENG_Erase(address):
 	print "Erasing address 0x%08x" % address
 	command = chr(engEraseReq) + Int32AsBytes(address)
 	SendCommand(command)
 	return WaitForConfirm()
-	
+
 def ENG_Write(address, data):
 	if len(data) > ENG_BUFFER_SIZE:
 	  return gEngInvalidReq
-	
+
 	#print "Writing ",len(data),"B to 0x%08x" % address
 	#data is a list, so list->str is required for concat
 	command = chr(engWriteReq) + Int32AsBytes(address) + Int16AsBytes(len(data)) + ''.join(data)
 	SendCommand(command)
 	return WaitForConfirm()
-	
+
 def ENG_Commit(length, secure):
 	command = chr(engCommitReq) + Int32AsBytes(length)
 	if secure:
@@ -90,8 +99,8 @@ def ENG_Commit(length, secure):
 		command += chr(engUnsecured)
 	SendCommand(command)
 	return WaitForConfirm()
-	
-	
+
+
 def WaitForConfirm():
 	recvd = ser.read(1)
 	while(recvd != SOF):
@@ -108,25 +117,25 @@ def WaitForConfirm():
 	  return gEngNoConfirm
 	else:
 	  return ord(command[1])
-	
+
 def Int32AsBytes(val):
 	#For sanity, value is wrapped to unsigned 32-bit
 	val &= 0xffffffff
 	return pack('I',val)
-	
+
 def Int16AsBytes(val):
 	#For sanity, value is wrapped to unsigned 16-bit
 	val &= 0xffff
 	return pack('H',val)
-	
+
 def EraseFlash():
 	status = ENG_Erase(0xffffffff)
 	if status != gEngSuccessOp:
 	  print "Error erasing flash: ",status
 	else:
 	  print "Flash erased..."
-	
-def DownloadBinary():	
+
+def DownloadBinary():
 	flashFile = open(options.filename)
 	filesize = os.path.getsize(options.filename)
 	print "Writing ",options.filename," to flash... (%dB)" % filesize
@@ -135,7 +144,7 @@ def DownloadBinary():
 	flashIndex = 0
 	currentWriteAddress = FLASH_IMAGE_HEADER
 	binRemainder = filesize
-	
+
 	starttime = time.time()
 
 	#Write
@@ -152,16 +161,16 @@ def DownloadBinary():
 		currentWriteAddress += sendSize;
 		flashIndex += sendSize;
 		#print ".",
-	
+
 	#Commit
 	status = ENG_Commit(filesize, False)
 	if status != gEngSuccessOp:
 		print "Error executing commit: ",status
 		sys.exit(-1)
-	
+
 	endtime = time.time()
 	print "Speed: %.2f KBps" % (filesize/(endtime-starttime)/1000)
-		
+
 #######################################
 
 
@@ -224,8 +233,8 @@ for byte in bytes:
 while 1:
 	if ser.inWaiting() == 0:
 	  break
-	 
-	
+
+
 endtime = time.time()
 
 print "Speed: %.2f KBps" % (filesize/(endtime-starttime)/1000)
@@ -270,9 +279,6 @@ elif options.flashprog:
 	print "Speed: %.2f KBps" % (filesize/(endtime-starttime)/1000)
 
 print "Done."
-
-#DWH
-print ser.read(100)
 
 ser.close()
 

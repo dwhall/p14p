@@ -154,7 +154,7 @@ int _isatty_r(struct _reent *r, int fd)
   return 1;
 }
 
-/*DWH*/
+
 void _exit(void)
 {
     for(;;);

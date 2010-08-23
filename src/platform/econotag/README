@@ -34,7 +34,7 @@ arm-none-eabi- toolchain and Newlib.
 perform each preparation step shown on that page!**
 
 Both the toolchain builder and the libmc1322x third party library require
-the use of ``git``.
+the use of git_.
 
 The tool used to load the binary of the build product is written in Python
 and requires the PySerial_ library.  The quick way to install PySerial is::
@@ -42,6 +42,7 @@ and requires the PySerial_ library.  The quick way to install PySerial is::
     $ sudo easy_install pyserial
 
 .. _Cygwin: http://www.cygwin.com/
+.. _git: http://git-scm.com/
 .. _PySerial: http://pyserial.sourceforge.net/
 
 

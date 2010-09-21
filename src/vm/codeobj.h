@@ -32,12 +32,24 @@
 #define CI_FLAGS_FIELD      4
 #define CI_STACKSIZE_FIELD  5
 #define CI_NLOCALS_FIELD    6
+
 #ifdef HAVE_CLOSURES
-#define CI_FREEVARS_FIELD   7
-#define CI_NAMES_FIELD      8
+# define CI_FREEVARS_FIELD  7
+# ifdef HAVE_DEBUG_INFO
+#  define CI_FIRST_LINE_NO  8
+#  define CI_NAMES_FIELD    10
+# else
+#  define CI_NAMES_FIELD    8
+# endif /* HAVE_DEBUG_INFO */
 #else
-#define CI_NAMES_FIELD      7
+# ifdef HAVE_DEBUG_INFO
+#  define CI_FIRST_LINE_NO  7
+#  define CI_NAMES_FIELD    9
+# else
+#  define CI_NAMES_FIELD    7
+# endif /* HAVE_DEBUG_INFO */
 #endif /* HAVE_CLOSURES */
+
 
 /** Native code image size */
 #define NATIVE_IMAGE_SIZE   4
@@ -60,30 +72,43 @@
  */
 typedef struct PmCo_s
 {
-    /** object descriptor */
+    /** Object descriptor */
     PmObjDesc_t od;
-    /** memory space selector */
-    PmMemSpace_t co_memspace:8;
-    /** address in progmem of the code image, or of code img obj in heap */
+    /** Address in progmem of the code image, or of code img obj in heap */
     uint8_t const *co_codeimgaddr;
-    /** address in RAM of names tuple */
+    /** Address in RAM of names tuple */
     pPmTuple_t co_names;
-    /** address in RAM of constants tuple */
+    /** Address in RAM of constants tuple */
     pPmTuple_t co_consts;
+    /** Address in memspace of bytecode (or native function) */
+    uint8_t const *co_codeaddr;
+
+#ifdef HAVE_DEBUG_INFO
+    /** Address in memspace of the line number table */
+    uint8_t const *co_lnotab;
+    /** Address in memspace of the filename */
+    uint8_t const *co_filename;
+    /** Line number of first source line of lnotab */
+    uint16_t co_firstlineno;
+#endif /* HAVE_DEBUG_INFO */
+
 #ifdef HAVE_CLOSURES
+    /** Address in RAM of cellvars tuple */
+    pPmTuple_t co_cellvars;
     /** Number of freevars */
     uint8_t co_nfreevars;
-    /** address in RAM of cellvars tuple */
-    pPmTuple_t co_cellvars;
-    /** Number of local variables */
-    uint16_t co_nlocals;
 #endif /* HAVE_CLOSURES */
-    /** address in memspace of bytecode (or native function) */
-    uint8_t const *co_codeaddr;
-    /** number of positional arguments the function expects */
+
+    /** Memory space selector */
+    PmMemSpace_t co_memspace:8;
+    /** Number of positional arguments the function expects */
     uint8_t co_argcount;
-    /** compiler flags */
+    /** Compiler flags */
     uint8_t co_flags;
+    /** Stack size */
+    uint8_t co_stacksize;
+    /** Number of local variables */
+    uint8_t co_nlocals;
 } PmCo_t,
  *pPmCo_t;
 
@@ -150,6 +175,17 @@ PmReturn_t
 co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco);
 
 /**
+ * Recursively sets image address of the CO and all its nested COs
+ * in its constant pool.  This is done so that an image that was
+ * received during an interactive session will persist as long as any
+ * of its COs/funcs/objects is still alive.
+ *
+ * @param   pco Pointer to root code object whose images are set
+ * @param   pimg Pointer to very top of code image (PmodeImgObj)
+ */
+void co_rSetCodeImgAddr(pPmCo_t pco, uint8_t const *pimg);
+
+/**
  * Creates a Native code object by loading a native image.
  *
  * An image is a static representation of a Python object.
@@ -173,7 +209,7 @@ co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco);
  *
  * @param   memspace memory space containing image
  * @param   paddr ptr to ptr to code img in memspace (return)
- * @param   r_pno Return by reference, new code object 
+ * @param   r_pno Return by reference, new code object
  * @return  Return status
  */
 PmReturn_t no_loadFromImg(PmMemSpace_t memspace,

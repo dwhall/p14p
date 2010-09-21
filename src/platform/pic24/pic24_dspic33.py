@@ -14,11 +14,6 @@
 #  @brief PIC24/dsPIC33-specific Python functions
 #
 
-"""__NATIVE__
-#include <pic24_all.h>
-#include "pyFuncsInC.h"
-"""
-
 ## This class provides basic digital I/O for the PIC.
 #  Configuring a given pin overrides any previous
 #  configuration (as an analog input, other digitial
@@ -51,28 +46,13 @@ class digital_io(object):
     #              some pins are 0 (neither pull-up nor pull-down
     #              resistors are available), or >=0 (only
     #              pull-up resistors are available).
-    def __init__(self, port, pin, isInput, isOpenDrain=False, pullDir=0):
-        """__NATIVE__
-        return configDigitalPinPy(ppframe);
-        """
-        pass
-
-    ## Set a pin's output to be high or low (True or False). The pin
-    #  must be configured as an output for this value to appear on the pin.
-    #  @param isHigh True to set the pin high, False to set it low.
-    def set(self, isHigh):
-        """__NATIVE__
-        return setDigitalPinPy(ppframe);
-        """
+    def __init__(self, port, pin, isInput):
         pass
 
     ## Read a pin's value. If the pin is an input, read the pin;
     #  if it's an output, read the last value written.
     def get(self):
-       """__NATIVE__
-       return readDigitalValuePy(ppframe);
-       """
-       pass
+        return True
 
     ## Read the current digital voltage (high or low / True or False) on
     #  a pin.
@@ -156,7 +136,7 @@ class pwm(object):
         pass
 
     ## Set the duty cycle for a PWM output.
-    #  @param ucounts A number of PR2/3 counts which gives the on
+    #  @param counts The number of PR2/3 counts which gives the on
     #      time of the PWM wave to generate.
     def setCounts(self, counts):
         """__NATIVE__

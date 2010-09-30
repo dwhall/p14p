@@ -574,7 +574,7 @@ def sum(s):
     }
     else if (OBJ_GET_TYPE(ps) == OBJ_TYPE_LST)
     {
-        len = ((pPmTuple_t)ps)->length;
+        len = ((pPmList_t)ps)->length;
     }
 
     /* Raise TypeError if arg is not a sequence */

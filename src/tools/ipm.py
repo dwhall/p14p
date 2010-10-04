@@ -71,7 +71,7 @@ NEED_PYSERIAL = "Install the pySerial module from http://pyserial.sourceforge.ne
 if not sys.platform.lower().startswith("win"):
     PMVM_EXE = "../platform/desktop/main.out"
 else:
-    PMVM_EXE = "../platform/windows/Debug/pymite.exe"
+    PMVM_EXE = "../platform/windows/main.exe"
 IPM_PROMPT = "ipm> "
 IPM_PROMPT2 = ".... "
 COMPILE_FN = "<ipm>"

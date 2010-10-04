@@ -23,7 +23,7 @@
 #elif defined(__DEBUG)
 #define PM_HEAP_SIZE 6900
 #else
-#define PM_HEAP_SIZE 6980
+#define PM_HEAP_SIZE 6952
 #endif
 
 #define PM_FLOAT_LITTLE_ENDIAN

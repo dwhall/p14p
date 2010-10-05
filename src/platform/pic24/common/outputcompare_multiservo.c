@@ -143,7 +143,7 @@ setServoPulseWidth(uint16_t u16_servo, uint16_t u16_pwMs)
     "Invalid servos %u.", u16_servo);
   EXCEPTION_UNLESS( (u16_pwMs >= MIN_PW) && (u16_pwMs <= MAX_PW),
     PM_RET_EX_VAL, "Invalid pulse width %u.", u16_pwMs);
-  au16_servoPWidths[u16_servo - 1] = usToU16Ticks(u16_pwMs, getTimerPrescale(T2CONbits));
+  au16_servoPWidths[u16_servo] = usToU16Ticks(u16_pwMs, getTimerPrescale(T2CONbits));
 
   return retval;
 }

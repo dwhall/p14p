@@ -174,6 +174,8 @@ class SerialConnection(Connection):
         c = None
         while c != REPLY_TERMINATOR:
             c = self.s.read(1)
+            if len(c) == 0:
+                break
             b.append(c)
         return str(b)
 

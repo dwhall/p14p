@@ -248,9 +248,9 @@ void configUART1(uint32 u32_baudRate) {
   CONFIG_RP15_AS_DIG_PIN();                //TX RP pin must be digital
   CONFIG_U1TX_TO_RP(15);                   //U1TX -> RP15
 #elif defined(MICROSTIK)
-  CONFIG_RP14_AS_DIG_PIN();                //RX RP pin must be digital
+  CONFIG_RP2_AS_DIG_PIN();                //RX RP pin must be digital
   CONFIG_U1RX_TO_RP(2);                   //U1RX <- RP2
-  CONFIG_RP15_AS_DIG_PIN();                //TX RP pin must be digital
+  CONFIG_RP3_AS_DIG_PIN();                //TX RP pin must be digital
   CONFIG_U1TX_TO_RP(3);                   //U1TX -> RP3
 #else
   // Default configuration

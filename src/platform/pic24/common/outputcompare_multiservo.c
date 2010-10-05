@@ -51,11 +51,10 @@ static void configTimer2(void) {
 }
 
 //just pick four digital outputs
-#define NUM_SERVOS 4
-#define SERVO0  _LATB2
-#define SERVO1  _LATB3
-#define SERVO2  _LATB13
-#define SERVO3  _LATB14
+#define NUM_SERVOS 3
+#define SERVO0  _LATB4
+#define SERVO1  _LATA4
+#define SERVO2  _LATB15
 
 #define MIN_PW  600            //minimum pulse width, in us
 #define MAX_PW 2400            //minimum pulse width, in us
@@ -71,10 +70,9 @@ static void initServos(void) {
   uint16 u16_initPW;
 
   u16_currentServo = 0;
-  CONFIG_RB2_AS_DIG_OUTPUT();
-  CONFIG_RB3_AS_DIG_OUTPUT();
-  CONFIG_RB13_AS_DIG_OUTPUT();
-  CONFIG_RB14_AS_DIG_OUTPUT();
+  CONFIG_RB4_AS_DIG_OUTPUT();
+  CONFIG_RA4_AS_DIG_OUTPUT();
+  CONFIG_RB15_AS_DIG_OUTPUT();
   u16_initPW = usToU16Ticks(MIN_PW + (MAX_PW-MIN_PW)/2, getTimerPrescale(T2CONbits));
 
   //config all servos for half maximum pulse width
@@ -82,11 +80,11 @@ static void initServos(void) {
   SERVO0 = 0; //all servo outputs low initially
   SERVO1 = 0;
   SERVO2 = 0;
-  SERVO3 = 0;  //outputs initially low
   u16_slotWidthTicks = usToU16Ticks(SLOT_WIDTH, getTimerPrescale(T2CONbits));
 }
 
-static void setServoOutput (uint16_t u16_servo, uint16_t u16_val) {
+static void
+setServoOutput(uint16_t u16_servo, uint16_t u16_val) {
   switch (u16_servo) {
     case 0:
       SERVO0 = u16_val;
@@ -97,15 +95,13 @@ static void setServoOutput (uint16_t u16_servo, uint16_t u16_val) {
     case 2:
       SERVO2 = u16_val;
       break;
-    case 3:
-      SERVO3 = u16_val;
-      break;
     default:
       break;
   }
 }
 
-void _ISR _OC1Interrupt(void) {
+void _ISR
+_OC1Interrupt(void) {
   _OC1IF = 0;
 //change the servo's value
   setServoOutput(u16_currentServo, u16_servoEdge);

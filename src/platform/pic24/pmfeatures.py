@@ -25,5 +25,5 @@ PM_FEATURES = {
     "HAVE_STRING_FORMAT": True,
     "HAVE_CLOSURES": True,
     "HAVE_BYTEARRAY": False,
-    "HAVE_DEBUG_INFO": False,
+    "HAVE_DEBUG_INFO": True,
 }

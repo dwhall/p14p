@@ -485,3 +485,19 @@ configMultiServoPy(pPmFrame_t *ppframe)
 
     return retval;
 }
+
+PmReturn_t
+setServoPulseWidthPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_servo;
+    uint16_t u16_pwMs;
+
+    // Get the arguments and error check them
+    CHECK_NUM_ARGS(3);
+    GET_UINT16_ARG(1, &u16_servo);
+    GET_UINT16_ARG(2, &u16_pwMs);
+    PM_CHECK_FUNCTION(setServoPulseWidth(u16_servo, u16_pwMs) );
+
+    return retval;
+}

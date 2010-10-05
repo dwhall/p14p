@@ -28,7 +28,9 @@
  */
 #include "pic24_all.h"
 #include "pyToC.h"
-void setServoPulseWidth(uint16_t u16_servo, uint16_t u16_pwMs);
+
+PmReturn_t
+setServoPulseWidth(uint16_t u16_servo, uint16_t u16_pwMs);
 
 PmReturn_t
 initMultiServo();

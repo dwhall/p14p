@@ -177,3 +177,11 @@ class multiServo(object):
         """
         pass
 
+    ## Set the pulse width for one servo.
+    #  @param servo Servo to set, from 0 to NUM_SERVOS - 1.
+    #  @param pwMs On time, in ms, for the selected servo.
+    def setServoPulseWidth(self, servo, pwMs):
+        """__NATIVE__
+        return setServoPulseWidthPy(ppframe);
+        """
+        pass

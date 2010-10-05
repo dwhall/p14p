@@ -240,13 +240,18 @@ void configUART1(uint32 u32_baudRate) {
 #if defined(EXPLORER16_100P)
 //nothing to do, pins mapped to fixed ports
 #elif (1 == 1)             //change pin mappings for your device
-#ifdef DANGEROUS_WEB
+#if defined(DANGEROUS_WEB)
   // Configure for the Dangerous Prototypes web platform.
   // See http://dangerousprototypes.com/2009/12/11/prototype-web-platform/.
   CONFIG_RP14_AS_DIG_PIN();                //RX RP pin must be digital
   CONFIG_U1RX_TO_RP(14);                   //U1RX <- RP14
   CONFIG_RP15_AS_DIG_PIN();                //TX RP pin must be digital
   CONFIG_U1TX_TO_RP(15);                   //U1TX -> RP15
+#elif defined(MICROSTIK)
+  CONFIG_RP14_AS_DIG_PIN();                //RX RP pin must be digital
+  CONFIG_U1RX_TO_RP(2);                   //U1RX <- RP2
+  CONFIG_RP15_AS_DIG_PIN();                //TX RP pin must be digital
+  CONFIG_U1TX_TO_RP(3);                   //U1TX -> RP3
 #else
   // Default configuration
   CONFIG_RP10_AS_DIG_PIN();                //RX RP pin must be digital

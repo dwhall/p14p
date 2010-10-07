@@ -28,3 +28,4 @@ $(TARGET)_nat.c $(TARGET)_img.c: $(PM_USR_SOURCES) pmfeatures.py
 
 clean :
 	$(RM) $(TARGET)_img.* $(TARGET)_nat.* pmfeatures.h
+	$(MAKE) -C ../../vm clean

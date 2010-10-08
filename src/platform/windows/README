@@ -75,7 +75,7 @@ SCons
   PMVM_EXE = "../platform/windows/main.exe"
   
 
-- Now simply type 'python ipm.py --desktop' and <Enter> and you should be able to do all the standard
+- Now simply type 'python ipm.py -f ../platform/windows/pmfeatures.py --desktop' and <Enter> and you should be able to do all the standard
   PyMite things.
   
   

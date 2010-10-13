@@ -76,9 +76,9 @@ IPM_PROMPT = "ipm> "
 IPM_PROMPT2 = ".... "
 COMPILE_FN = "<ipm>"
 COMPILE_MODE = "single"
-INIT_MESSAGE = """Python-on-a-Chip is Copyright 2003, 2006, 2007, 2009 Dean Hall and others.
+INIT_MESSAGE = """Python-on-a-Chip is Copyright 2003, 2006, 2007, 2009, 2010 Dean Hall and others.
 Python-on-a-Chip is licensed under the GNU LESSER GENERAL PUBLIC LICENSE V 2.1
-PyMite is Copyright 2003, 2006, 2007, 2009 Dean Hall.
+PyMite is Copyright 2003, 2006, 2007, 2009, 2010 Dean Hall.
 PyMite is licensed under the GNU GENERAL PUBLIC LICENSE V 2.
 This software is offered with NO WARRANTY.  See LICENSE for details.
 """

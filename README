@@ -114,6 +114,7 @@ My personal thanks go out to these people for their recent contribution to p14p:
 - Tyler Wilson: Porting and maintaining p14p on the Windows platform and making good VM improvement suggestions.
 - Thomas Fenzl: Patching and testing for 64-bit systems.
 - Alex Clausen: Reporting a build break and including a patch for 64-bit systems.
+- James Snyder: Porting and maintaining p14p on the STM32 platform.
 
 
 Target Platforms

@@ -58,18 +58,18 @@ bytecode-test: system_test/$(TARGET)_nat.c system_test/$(TARGET)_img.c pmfeature
 $(PM_LIB_PATH) : ../../vm/*.c ../../vm/*.h
 	make -C ../../vm
 
-pmfeatures.h : pmfeatures.py $(PMGENPMFEATURES)
+pmfeatures.h : pmfeatures.py $(PMGENPMFEATURES) Makefile
 	$(PMGENPMFEATURES) pmfeatures.py > $@
 
-$(TARGET).hex : $(OBJS) $(PM_LIB_PATH)
+$(TARGET).hex : $(OBJS) $(PM_LIB_PATH) Makefile
 	$(CC) $(LDFLAGS) -o $(TARGET).cof $(OBJS) $(PM_LIB_PATH)
 	$(B2H) $(TARGET).cof
 
 # Generate native code and module images from the python source
-$(TARGET)_nat.c $(TARGET)_img.c: $(PM_USR_SOURCES) $(PMIMGCREATOR) pmfeatures.py
+$(TARGET)_nat.c $(TARGET)_img.c: $(PM_USR_SOURCES) $(PMIMGCREATOR) pmfeatures.py Makefile
 	$(PMIMGCREATOR) -f pmfeatures.py -c -u -o $(TARGET)_img.c --native-file=$(TARGET)_nat.c $(PM_USR_SOURCES)
 
-system_test/$(TARGET)_nat.c system_test/$(TARGET)_img.c: $(PM_TEST_USR_SOURCES) $(PMIMGCREATOR) pmfeatures.py
+system_test/$(TARGET)_nat.c system_test/$(TARGET)_img.c: $(PM_TEST_USR_SOURCES) $(PMIMGCREATOR) pmfeatures.py Makefile
 	$(PMIMGCREATOR) -f pmfeatures.py -c -u -o system_test/$(TARGET)_img.c --native-file=system_test/$(TARGET)_nat.c $(PM_TEST_USR_SOURCES)
 
 clean :

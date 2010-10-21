@@ -5,6 +5,7 @@
 #include <pic24_all.h>
 #include "pyToC.h"
 #include "pyFuncsInC.h"
+#include "outputcompare_multiservo.h"
 #include <pps.h>
 #include <stdio.h>
 
@@ -465,6 +466,38 @@ setPwmRatioPy(pPmFrame_t *ppframe)
     GET_FLOAT_ARG(1, &f_ratio);
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
     PM_CHECK_FUNCTION(setPwmCounts((((uint32_t) u16_prn) + 1)*f_ratio, u16_oc) );
+
+    return retval;
+}
+
+PmReturn_t
+configMultiServoPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    bool_t b_isTimer2;
+    uint16_t u16_oc;
+
+    // Get the arguments and error check them
+    CHECK_NUM_ARGS(3);
+    GET_BOOL_ARG(1, &b_isTimer2);
+    GET_UINT16_ARG(2, &u16_oc);
+    PM_CHECK_FUNCTION(initMultiServo() );
+
+    return retval;
+}
+
+PmReturn_t
+setServoPulseWidthPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_servo;
+    uint16_t u16_pwMs;
+
+    // Get the arguments and error check them
+    CHECK_NUM_ARGS(3);
+    GET_UINT16_ARG(1, &u16_servo);
+    GET_UINT16_ARG(2, &u16_pwMs);
+    PM_CHECK_FUNCTION(setServoPulseWidth(u16_servo, u16_pwMs) );
 
     return retval;
 }

@@ -14,6 +14,6 @@
 #  @brief PIC24/dsPIC33 main code to run ipm.
 #
 
-import ipm
+from ipm import ipm
 print "Welcome to PIC24/dsPIC33 Python! Starting interactive mode."
-ipm.ipm()
+ipm()

@@ -3,16 +3,16 @@
 # This Makefile is not meant to be invoked directly.
 # This Makefile is meant to be invoked by a Makefile in src/platform/<plat>/
 # and requires the following environment variables to be exported by the caller:
-#   CC OBJCOPY NM CFLAGS AR IPM PM_LIB_FN
+#   CC OBJCOPY NM CFLAGS AR IPM PM_LIB_FN PLATFORM
 #
 # The primary function of this makefile is to:
 #
 #   1. Build pmstdlib_img.c and pmstdlib_nat.c from PMSTDLIB_SOURCES
-#   2. Build libpmbm.a from all *.c files
+#   2. Build libpmvm_<plat>.a from all *.c files
 #
 
 
-PLATFORM = desktop
+PLATFORM ?= desktop
 PMIMGCREATOR := ../tools/pmImgCreator.py
 PMSTDLIB_SOURCES1 = ../lib/list.py \
                    ../lib/dict.py \
@@ -62,7 +62,7 @@ bytecode : $(SOURCE_IMG) $(SOURCE_NAT) ../platform/$(PLATFORM)/pmfeatures.h
 $(PM_LIB_FN) : $(PM_LIB_FN)($(OBJECTS)) Makefile
 
 # Build the standard library into an image file and native function file
-$(SOURCE_IMG) $(SOURCE_NAT) : $(PMSTDLIB_SOURCES) $(PMIMGCREATOR) ../platform/$(PLATFORM)/pmfeatures.py Makefile
+$(SOURCE_IMG) $(SOURCE_NAT) : $(PMSTDLIB_SOURCES) $(PMIMGCREATOR) ../platform/$(PLATFORM)/pmfeatures.py
 	$(PMIMGCREATOR) -f ../platform/$(PLATFORM)/pmfeatures.py -c -s --memspace=flash -o $(SOURCE_IMG) --native-file=$(SOURCE_NAT) $(PMSTDLIB_SOURCES)
 
 size : $(PM_LIB_FN)

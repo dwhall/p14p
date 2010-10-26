@@ -6,26 +6,35 @@
 # The output C code is structs that define the code objects from the .py files
 
 
-# TODO: run COs through filter, handle native functions.
-
-
 import os, sys
 import pmConstantPool
 from pmCoFilter import co_filter_factory
 
-# filter_co = co_filter_factory(pmfeatures_filename)
+# DWH TODO: pass pmfeatures path as arg?  (wait to see if HAVE_* features go away)
+filter_co = co_filter_factory("pmfeatures.py")
 
-GLOBAL_PREFIX = "pm_global_%s"
+# String used to ID a native method
+NATIVE_INDICATOR = "__NATIVE__"
+NATIVE_INDICATOR_LENGTH = len(NATIVE_INDICATOR)
 
-# Expose these COs from the builtins module for easy access in the VM
+# Issue #51: In Python 2.5, the module identifier changed from '?' to '<module>'
+assert float(sys.version[:3]) == 2.6
+MODULE_IDENTIFIER = "<module>"
+
+# The prefix of global C variables in the VM
+GLOBAL_PREFIX = "pm_global_"
+
+# Expose these COs with the given name for easy access in the VM
 co_to_expose = {
-    "Generator": GLOBAL_PREFIX % "co_generator",
-    "Exception": GLOBAL_PREFIX % "co_exception",
+    "Generator": GLOBAL_PREFIX + "co_generator",
+    "Exception": GLOBAL_PREFIX + "co_exception",
 }
 
 
 none = type(None)
 code = type(compile("None", "None", "exec"))
+mod = ("Mod",)
+native = ("__native__",)
 typeval = {
     none: "OBJ_TYPE_NON",
     bool: "OBJ_TYPE_BOOL",
@@ -34,6 +43,7 @@ typeval = {
     str: "OBJ_TYPE_STR",
     tuple: "OBJ_TYPE_TUP",
     code: "OBJ_TYPE_COB",
+    native: "OBJ_TYPE_NOB",
 }
 ctype = {
     none: "PmNone%s_t",
@@ -43,13 +53,13 @@ ctype = {
     str: "PmString%s_t",
     tuple: "PmTuple%s_t",
     code: "PmCo%s_t",
+    native: "PmNo%s_t",
 }
 
 
 cname_kpool = pmConstantPool.pmConstantPool()
 crepr_kpool = {}
 ordered_cnames = []
-#c_file_lines = []
 string_sizes = set()
 tuple_sizes = set()
 
@@ -63,13 +73,28 @@ def gen_obj_name():
 gen_next_obj_name = gen_obj_name().next
 
 
+def wrap(s, width=75):
+    """Wraps a crepr string by inserting a newline after a comma.
+    """
+    b = bytearray(s)
+    end_b = len(b) - width - 1
+    i = 0
+    while i < end_b:
+        i = b.find(',', i + width)
+        if b[i+1] == ' ':
+            b[i+1] = os.linesep
+        else:
+            b.insert(i+1, os.linesep)
+    return str(b)
+
+
 def _byte_crepr(c):
     """Returns c as a printable ascii char surrounded by single quotes,
-    or a decimal number as string.
-    Apostrophe and backslash are excluded to avoid trouble with C char syntax.
+    or a decimal number as string.   Comma, apostrophe and backslash
+    are excluded to avoid trouble with C char syntax.
     """
     n = ord(c)
-    if n >= 32 and n < 127 and n != 39 and n != 92:
+    if n >= 32 and n < 127 and n != 39 and n != 44 and n != 92:
         return repr(c)
     else:
         return str(n)
@@ -85,6 +110,7 @@ def string_to_crepr(o, nm):
     len_o = len(o)
     string_sizes.add(len_o)
     chars = "%s," * len_o % tuple(map(_byte_crepr, o))
+    #return wrap("%s, %d, {%s}};\n" % (header(str, nm, len_o), len_o, chars))
     return "%s, %d, {%s}};\n" % (header(str, nm, len_o), len_o, chars)
 
 
@@ -95,27 +121,40 @@ def tuple_to_crepr(o, nm):
     return "%s, %d, {%s}};\n" % (header(tuple, nm, len_o), len_o, objs)
 
 
-def co_to_crepr(co, nm):
+def co_to_crepr(co, cvarnm):
+    fco = filter_co(co)
 
-    # DWH TODO:
-    # co = filter_co(co)
-    # if co_has_native(co): pass
+    # Check if the code object indicates native code
+    if co.co_consts and type(co.co_consts[0]) == str \
+       and co.co_consts[0][:NATIVE_INDICATOR_LENGTH] == NATIVE_INDICATOR:
+
+        # If the module has a native header, copy it's C code
+        # Put directly in the kpool so it appears before CO's field's objs
+        if co.co_name == MODULE_IDENTIFIER:
+            varname = "mod_" + cvarnm
+            crepr_kpool[varname] = "/* Module %s:%d */\n%s\n" \
+                % (co.co_filename, co.co_firstlineno,
+                   co.co_consts[0][NATIVE_INDICATOR_LENGTH:])
+            ordered_cnames.append(varname)
+
+        # Otherwise it's a native function
+        else:
+            native_cvarnm = "n" + cvarnm
+            return "/* %s:%d %s */\nPmReturn_t %s(pPmFrame_t *ppframe)\n" \
+                "{\n%s\n}\n\n%s, %d, %s};\n" \
+                % (co.co_filename, co.co_firstlineno, co.co_name,
+                   native_cvarnm, co.co_consts[0][NATIVE_INDICATOR_LENGTH:],
+                   header(native, cvarnm), co.co_argcount, native_cvarnm)
 
     d = {}
-    d['hdr'] = header(code, nm)
-    d['co_name'] = obj_to_cvar(co.co_name)
-    d['co_filename'] = obj_to_cvar(co.co_filename)
+    d['hdr'] = header(code, cvarnm)
+    d['co_name'] = obj_to_cvar(fco['co_name'])
+    d['co_filename'] = obj_to_cvar(fco['co_filename'])
+    d['co_names'] = obj_to_cvar(fco['co_names'])
+    d['co_consts'] = obj_to_cvar(fco['co_consts'])
+    d['co_cellvars'] = obj_to_cvar(fco['co_cellvars'])
     d['co_code'] = obj_to_cvar(co.co_code)
     d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
-    d['co_names'] = obj_to_cvar(co.co_names)
-    d['co_consts'] = obj_to_cvar(co.co_consts)
-
-    # Cellvars is changed into a tuple of indices into co_varnames
-    cellvars = [-1,] * len(co.co_cellvars)
-    for i,name in enumerate(co.co_cellvars):
-        if name in co.co_varnames:
-            cellvars[i] = co.co_varnames.index(name)
-    d['co_cellvars'] = obj_to_cvar(tuple(cellvars))
 
     crepr = bytearray(
         "%(hdr)s, "
@@ -136,6 +175,7 @@ def co_to_crepr(co, nm):
     return str(crepr)
 
 
+# Table of functions that turn a Python obj to its C struct representation
 objtype_to_crepr_func_table = {
     none: lambda o, nm: "%s, %d};\n" % (header(none, nm), 0),
     bool: lambda o, nm: "%s, %d};\n" % (header(bool, nm), int(o)),
@@ -168,7 +208,6 @@ def obj_to_cvar(o, name=None, typ=None):
     # Create the C representation of the object and store it
     _obj_to_crepr = objtype_to_crepr_func_table[vartype]
     crepr_kpool[varname] = _obj_to_crepr(o, varname)
-
     ordered_cnames.append(varname)
 
     return varname
@@ -178,37 +217,38 @@ def process_globals():
     """Adds VM globals and useful constants to the constant pool"""
     cobjs = (None, -1,0,1,2,3,4,5,6,7,8,9,True,False,
              "__bi","code","__init__","next",(),"")
-    cnames = tuple(GLOBAL_PREFIX % nm for nm in
-                   ("none", "negone", "zero", "one", "two", "three", "four",
-                    "five", "six", "seven", "eight", "nine", "true", "false",
-                    "string_bi", "string_code", "string_init", "string_next",
-                    "empty_tuple", "empty_string",))
+    cnames = map(lambda x: GLOBAL_PREFIX + x,
+                 ("none", "negone", "zero", "one", "two", "three", "four",
+                  "five", "six", "seven", "eight", "nine", "true", "false",
+                  "string_bi", "string_code", "string_init", "string_next",
+                  "empty_tuple", "empty_string",))
     map(obj_to_cvar, cobjs, cnames)
+    return cnames
 
 
-def process_modules(fns):
-    global module_table_lines
-
-    varname = GLOBAL_PREFIX % "module_table"
-    module_table_lines = [
-        "\n/* Module table */\nPmModuleEntry_t PM_PLAT_PROGMEM %s[] =\n{\n" 
-        % varname]
+def process_modules(filenames):
+    table_lines = ["\n/* Module table */\n"
+                   "pPmInt_t PM_PLAT_PROGMEM %smodule_table_len_ptr = &%s;\n"
+                   "PmModuleEntry_t PM_PLAT_PROGMEM %smodule_table[] =\n{\n" 
+                   % (GLOBAL_PREFIX, obj_to_cvar(len(filenames)),
+                      GLOBAL_PREFIX)]
 
     splitext = os.path.splitext
     basename = os.path.basename
-    for fn in fns:
+    for fn in filenames:
         modulename = splitext(basename(fn))[0]
         co = compile(open(fn).read(), fn, 'exec')
         nm = obj_to_cvar(co)
-        module_table_lines.append("    {(pPmString_t)&%s, (pPmCo_t)&%s},\n" %
+        table_lines.append("    {(pPmString_t)&%s, (pPmCo_t)&%s},\n" %
                                   (obj_to_cvar(modulename), nm))
-    module_table_lines.append("    {C_NULL, C_NULL},\n};\n")
+    table_lines.append("};\n")
+    return table_lines
 
 
-def process_and_write_modules(fns, fout=sys.stdout):
+def process_and_print(filenames, fout=sys.stdout):
     # Order of process_* is important
     process_globals()
-    process_modules(fns)
+    module_table_lines = process_modules(filenames)
 
     cfile_lines = ['#include <stdint.h>\n#include "pm.h"\n\n'
                    '/* Decls for types with various sizes */\n']
@@ -217,7 +257,7 @@ def process_and_write_modules(fns, fout=sys.stdout):
     for size in tuple_sizes:
         cfile_lines.append("PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
 
-    cfile_lines.append("\n/* Constant pool */\n")
+    cfile_lines.append("\n/* Code object constant pool */\n")
     for cname in ordered_cnames:
         cfile_lines.extend(crepr_kpool[cname])
 
@@ -228,5 +268,6 @@ def process_and_write_modules(fns, fout=sys.stdout):
 
 if __name__ == "__main__":
     filenames = sys.argv[1:]
-    process_and_write_modules(filenames)
+    assert len(filenames) > 0, "Expect list of .py files as args"
+    process_and_print(filenames)
 

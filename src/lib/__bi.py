@@ -20,11 +20,16 @@
 #
 #  The builtins are loaded by the interpreter.
 #  The user SHOULD NOT import this module directly.
+"""__NATIVE__
+/* Needed for atoi(), atof() in the int() and float() funcs */
+#include <stdlib.h>
+"""
 
 
 def abs(n):
 #    return n > 0 and n or -n
-    return (n, -n)[n < 0]
+#    return (n, -n)[n < 0]
+    return n if n >= 0 else -n
 
 
 def chr(n):
@@ -260,6 +265,56 @@ def filter(f, s):
     return [x for x in s if f(x)]
 
 
+def float(v):
+    if type(v) == type(1.0):
+        return v
+    else:
+        return _float(v)
+
+
+def _float(v):
+    """__NATIVE__
+    float n;
+    pPmObj_t pv;
+    pPmObj_t pn;
+    PmReturn_t retval = PM_RET_OK;
+
+    /* If wrong number of args, raise TypeError */
+    if (NATIVE_GET_NUM_ARGS() != 1)
+    {
+       PM_RAISE(retval, PM_RET_EX_TYPE);
+       return retval;
+    }
+
+    pv = NATIVE_GET_LOCAL(0);
+
+    /* Convert from int */
+    if (OBJ_GET_TYPE(pv) == OBJ_TYPE_INT)
+    {
+        n = (float)(((pPmInt_t)pv)->val);
+    }
+
+    /* Convert from string */
+    else if (OBJ_GET_TYPE(pv) == OBJ_TYPE_STR)
+    {
+        n = (float)atof((const char *)((pPmString_t)pv)->val);
+    }
+
+    /* Raise TypeError if arg is not correct type */
+    else
+    {
+       PM_RAISE(retval, PM_RET_EX_TYPE);
+       return retval;
+    }
+
+
+    retval = float_new(n, &pn);
+    NATIVE_SET_TOS(pn);
+    return retval;
+    """
+    pass
+
+
 def globals():
     """__NATIVE__
     pPmObj_t pr = C_NULL;
@@ -297,6 +352,56 @@ def id(o):
     retval = int_new((intptr_t)NATIVE_GET_LOCAL(0), &pr);
     NATIVE_SET_TOS(pr);
 
+    return retval;
+    """
+    pass
+
+
+def int(v):
+    if type(v) == type(0):
+        return v
+    else:
+        return _int(v)
+
+
+def _int(v):
+    """__NATIVE__
+    int32_t n;
+    pPmObj_t pv;
+    pPmObj_t pn;
+    PmReturn_t retval = PM_RET_OK;
+
+    /* If wrong number of args, raise TypeError */
+    if (NATIVE_GET_NUM_ARGS() != 1)
+    {
+       PM_RAISE(retval, PM_RET_EX_TYPE);
+       return retval;
+    }
+
+    pv = NATIVE_GET_LOCAL(0);
+
+    /* Convert from float */
+    if (OBJ_GET_TYPE(pv) == OBJ_TYPE_FLT)
+    {
+        n = (int)(((pPmFloat_t)pv)->val);
+    }
+
+    /* Convert from string */
+    else if (OBJ_GET_TYPE(pv) == OBJ_TYPE_STR)
+    {
+        n = (int)atoi((const char *)((pPmString_t)pv)->val);
+    }
+
+    /* Raise TypeError if arg is not correct type */
+    else
+    {
+       PM_RAISE(retval, PM_RET_EX_TYPE);
+       return retval;
+    }
+
+
+    retval = int_new(n, &pn);
+    NATIVE_SET_TOS(pn);
     return retval;
     """
     pass

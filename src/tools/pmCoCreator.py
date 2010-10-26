@@ -11,19 +11,21 @@
 
 import os, sys
 import pmConstantPool
-from pmCoFilter import filter_co
+from pmCoFilter import co_filter_factory
 
+# filter_co = co_filter_factory(pmfeatures_filename)
 
-# Some COs in the builtins module should be exposed for easy access
-builtin_co_to_expose = {
-    "Generator": "pm_co_global_co_generator",
-    "Exception": "pm_co_global_co_exception",
+GLOBAL_PREFIX = "pm_global_%s"
+
+# Expose these COs from the builtins module for easy access in the VM
+co_to_expose = {
+    "Generator": GLOBAL_PREFIX % "co_generator",
+    "Exception": GLOBAL_PREFIX % "co_exception",
 }
 
 
 none = type(None)
 code = type(compile("None", "None", "exec"))
-bc = ("BC",)
 typeval = {
     none: "OBJ_TYPE_NON",
     bool: "OBJ_TYPE_BOOL",
@@ -32,7 +34,6 @@ typeval = {
     str: "OBJ_TYPE_STR",
     tuple: "OBJ_TYPE_TUP",
     code: "OBJ_TYPE_COB",
-    bc: "OBJ_TYPE_STR",
 }
 ctype = {
     none: "PmNone%s_t",
@@ -42,20 +43,15 @@ ctype = {
     str: "PmString%s_t",
     tuple: "PmTuple%s_t",
     code: "PmCo%s_t",
-    bc: "PmString%s_t",
 }
 
 
-constant_pool = pmConstantPool.pmConstantPool()
-c_file_lines = []
+cname_kpool = pmConstantPool.pmConstantPool()
+crepr_kpool = {}
+ordered_cnames = []
+#c_file_lines = []
 string_sizes = set()
 tuple_sizes = set()
-
-
-def header(typ, nm, size=""):
-    ctyp = ctype[typ] % str(size)
-    return "%s PM_PLAT_PROGMEM %s = {PM_DECLARE_OD(%s, sizeof(%s))" \
-           % (ctyp, nm, typeval[typ], ctyp)
 
 
 def gen_obj_name():
@@ -66,85 +62,51 @@ def gen_obj_name():
         obj_count += 1
 gen_next_obj_name = gen_obj_name().next
 
-# obj_to_cvar() gets or puts object in constant_pool dict
-# The other *_to_cvar() funcs put formatted C code in c_file_lines
 
-def none_to_cvar(o, nm):
-    c_file_lines.append("%s, %d};\n" % (header(none, nm), 0))
-    return nm
-
-
-def bool_to_cvar(o, nm):
-    c_file_lines.append("%s, %d};\n" % (header(bool, nm), (0,1)[o]))
-    return nm
-
-
-def int_to_cvar(o, nm):
-    c_file_lines.append("%s, %d};\n" % (header(int, nm), o))
-    return nm
-
-
-def float_to_cvar(o, nm):
-    c_file_lines.append("%s, %f};\n" % (header(float, nm), n))
-    return nm
-
-
-def _c_repr(n):
-    """Returns n as a printable ascii char surrounded by single quotes,
+def _byte_crepr(c):
+    """Returns c as a printable ascii char surrounded by single quotes,
     or a decimal number as string.
     Apostrophe and backslash are excluded to avoid trouble with C char syntax.
     """
+    n = ord(c)
     if n >= 32 and n < 127 and n != 39 and n != 92:
-        return repr(chr(n))
+        return repr(c)
     else:
         return str(n)
 
 
-# C strings have null-terminator, but length field must keep Python length val
-def string_to_cvar(o, nm):
-    len_o = len(o)
-    string_sizes.add(len_o + 1)
-    chars = "%s," * len_o % tuple(_c_repr(ord(c)) for c in o) + r"'\0'"
-    c_file_lines.append("%s, %d, {%s}};\n"
-                        % (header(str, nm, len_o + 1), len_o, chars))
-    return nm
+def header(typ, nm, size=""):
+    ctyp = ctype[typ] % str(size)
+    return "%s PM_PLAT_PROGMEM %s = {PM_DECLARE_OD(%s, sizeof(%s))" \
+           % (ctyp, nm, typeval[typ], ctyp)
 
 
-# Bytecode is very similar to a string, but its bytes are printed numerically
-# and there is no null terminator.
-def bc_to_cvar(o, nm):
+def string_to_crepr(o, nm):
     len_o = len(o)
     string_sizes.add(len_o)
-    bcode = "%d," * len_o % tuple(map(ord, o))
-    c_file_lines.append("%s, %d, {%s}};\n"
-                        % (header(bc, nm, len_o), len_o, bcode))
-    return nm
+    chars = "%s," * len_o % tuple(map(_byte_crepr, o))
+    return "%s, %d, {%s}};\n" % (header(str, nm, len_o), len_o, chars)
 
 
-def tuple_to_cvar(o, nm):
+def tuple_to_crepr(o, nm):
     len_o = len(o)
     tuple_sizes.add(len_o)
     objs = "(pPmObj_t)&%s," * len_o % tuple(map(obj_to_cvar, o))
-    c_file_lines.append("%s, %d, {%s}};\n"
-                        % (header(tuple, nm, len_o), len_o, objs))
-    return nm
+    return "%s, %d, {%s}};\n" % (header(tuple, nm, len_o), len_o, objs)
 
 
-def co_to_cvar(co, nm):
+def co_to_crepr(co, nm):
 
-    if co.co_name in builtin_co_to_expose:
-        nm = builtin_co_to_expose[co.co_name]
-        
-    # DWH
-    # filter co, extract native
-    #filter_co(co)
+    # DWH TODO:
+    # co = filter_co(co)
+    # if co_has_native(co): pass
 
     d = {}
     d['hdr'] = header(code, nm)
     d['co_name'] = obj_to_cvar(co.co_name)
     d['co_filename'] = obj_to_cvar(co.co_filename)
-    d['co_code'] = obj_to_cvar(co.co_code, None, bc)
-    d['co_lnotab'] = obj_to_cvar(co.co_lnotab, None, bc)
+    d['co_code'] = obj_to_cvar(co.co_code)
+    d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
     d['co_names'] = obj_to_cvar(co.co_names)
     d['co_consts'] = obj_to_cvar(co.co_consts)
 
@@ -155,7 +117,7 @@ def co_to_cvar(co, nm):
             cellvars[i] = co.co_varnames.index(name)
     d['co_cellvars'] = obj_to_cvar(tuple(cellvars))
 
-    c_file_lines.append(
+    crepr = bytearray(
         "%(hdr)s, "
         "(pPmString_t)&%(co_name)s, "
         "(pPmString_t)&%(co_filename)s, "
@@ -164,115 +126,107 @@ def co_to_cvar(co, nm):
         "(pPmTuple_t)&%(co_names)s, "
         "(pPmTuple_t)&%(co_consts)s, "
         "(pPmTuple_t)&%(co_cellvars)s, " % d)
-    c_file_lines.append("%d, %d, %d, %d, %d, %d};\n" %
+    crepr.extend("%d, %d, %d, %d, %d, %d};\n" %
         (co.co_firstlineno,
          co.co_argcount,
          co.co_flags & 0xFF,
          co.co_stacksize,
          co.co_nlocals,
          len(co.co_freevars)))
-    return nm
+    return str(crepr)
 
 
-obj_type_to_cvar_func_lookup = {
-    none: none_to_cvar,
-    bool: bool_to_cvar,
-    int: int_to_cvar,
-    float: float_to_cvar,
-    str: string_to_cvar,
-    tuple: tuple_to_cvar,
-    code: co_to_cvar,
-    bc: bc_to_cvar,
+objtype_to_crepr_func_table = {
+    none: lambda o, nm: "%s, %d};\n" % (header(none, nm), 0),
+    bool: lambda o, nm: "%s, %d};\n" % (header(bool, nm), int(o)),
+    int: lambda o, nm: "%s, %d};\n" % (header(int, nm), o),
+    float: lambda o, nm: "%s, %f};\n" % (header(float, nm), o),
+    str: string_to_crepr,
+    tuple: tuple_to_crepr,
+    code: co_to_crepr,
 }
 
 
-def obj_to_cvar(o, nm=None, typ=None):
-    """Returns varname of o; either fetched from the constant pool or created"""
+def obj_to_cvar(o, name=None, typ=None):
+    """Returns varname of o; either fetched from the constant pool or created.
+    Puts the C variable name in the constant pool and the C representation
+    in a table (keyed by C variable name).
+    """
 
-    if o in constant_pool:
-        return constant_pool[o]
+    if o in cname_kpool:
+        return cname_kpool[o]
 
-    # Otherwise create the object and put it in the constant pool
-    varnm = nm or gen_next_obj_name()
+    # If object is a code-object that needs to be exposed, use its special name
     vartype = typ or type(o)
-    cvar_func = obj_type_to_cvar_func_lookup[vartype]
-    varnm = cvar_func(o, varnm)
-    constant_pool[o] = varnm
-    return varnm
+    if vartype == code and o.co_name in co_to_expose:
+        name = co_to_expose[o.co_name]
+
+    # Otherwise use the given name or generate one
+    varname = name or gen_next_obj_name()
+    cname_kpool[o] = varname
+
+    # Create the C representation of the object and store it
+    _obj_to_crepr = objtype_to_crepr_func_table[vartype]
+    crepr_kpool[varname] = _obj_to_crepr(o, varname)
+
+    ordered_cnames.append(varname)
+
+    return varname
 
 
-def gen_globals():
-    """Adds designated globals to the constant pool"""
-    c_file_lines.append('\n/* Globals */\n')
-    obj_to_cvar(None, "pm_co_global_none")
-    obj_to_cvar(-1, "pm_co_global_negone")
-    obj_to_cvar(0, "pm_co_global_zero")
-    obj_to_cvar(1, "pm_co_global_one")
-    obj_to_cvar(2, "pm_co_global_two")
-    obj_to_cvar(3, "pm_co_global_three")
-    obj_to_cvar(4, "pm_co_global_four")
-    obj_to_cvar(5, "pm_co_global_five")
-    obj_to_cvar(6, "pm_co_global_six")
-    obj_to_cvar(7, "pm_co_global_seven")
-    obj_to_cvar(8, "pm_co_global_eight")
-    obj_to_cvar(9, "pm_co_global_nine")
-    obj_to_cvar(True, "pm_co_global_true")
-    obj_to_cvar(False, "pm_co_global_false")
-
-    # Generator and Exception strings not needed, only their COs
-    obj_to_cvar("__bi", "pm_co_global_string_bi")
-    obj_to_cvar("code", "pm_co_global_string_code")
-    obj_to_cvar("__init__", "pm_co_global_string_init")
-    obj_to_cvar("next", "pm_co_global_string_next")
-
-    # Other useful objects
-    obj_to_cvar((), "pm_co_global_empty_tuple")
+def process_globals():
+    """Adds VM globals and useful constants to the constant pool"""
+    cobjs = (None, -1,0,1,2,3,4,5,6,7,8,9,True,False,
+             "__bi","code","__init__","next",(),"")
+    cnames = tuple(GLOBAL_PREFIX % nm for nm in
+                   ("none", "negone", "zero", "one", "two", "three", "four",
+                    "five", "six", "seven", "eight", "nine", "true", "false",
+                    "string_bi", "string_code", "string_init", "string_next",
+                    "empty_tuple", "empty_string",))
+    map(obj_to_cvar, cobjs, cnames)
 
 
-def gen_module_table(mods):
-    """Generates a lookup table of a module name to its code-object"""
+def process_modules(fns):
+    global module_table_lines
 
-    c_file_lines.append("\n/* Previously undeclared module names */\n")
-    map(obj_to_cvar, mods)
+    varname = GLOBAL_PREFIX % "module_table"
+    module_table_lines = [
+        "\n/* Module table */\nPmModuleEntry_t PM_PLAT_PROGMEM %s[] =\n{\n" 
+        % varname]
 
-    c_file_lines.append("\nPmModuleEntry_t PM_PLAT_PROGMEM module_table[] =\n{\n")
-    for mod, varnm in mods.iteritems():
-        c_file_lines.append("    {(pPmString_t)&%s, (pPmCo_t)&%s},\n" %
-                            (obj_to_cvar(mod), varnm))
-    c_file_lines.append("    {C_NULL, C_NULL},\n};\n")
-
-
-def _compile_file(fn):
-    return compile(open(fn).read(), fn, 'exec')
-
-
-def gen_modules(fns):
-    """Creates table of filename, code-object-varname pairs"""
-    mods = {}
     splitext = os.path.splitext
     basename = os.path.basename
     for fn in fns:
-        c_file_lines.append("\n/* File: %s */\n" % fn)
         modulename = splitext(basename(fn))[0]
-        co = _compile_file(fn)
-        mods[modulename] = obj_to_cvar(co)
+        co = compile(open(fn).read(), fn, 'exec')
+        nm = obj_to_cvar(co)
+        module_table_lines.append("    {(pPmString_t)&%s, (pPmCo_t)&%s},\n" %
+                                  (obj_to_cvar(modulename), nm))
+    module_table_lines.append("    {C_NULL, C_NULL},\n};\n")
 
-    gen_module_table(mods)
 
+def process_and_write_modules(fns, fout=sys.stdout):
+    # Order of process_* is important
+    process_globals()
+    process_modules(fns)
 
-def gen_dyn_lens():
-    """Puts tuple and string type declarations at the top of the file."""
+    cfile_lines = ['#include <stdint.h>\n#include "pm.h"\n\n'
+                   '/* Decls for types with various sizes */\n']
     for size in string_sizes:
-        c_file_lines.insert(0, "PM_DECLARE_STRING_TYPE(%d);\n" % size)
+        cfile_lines.append("PM_DECLARE_STRING_TYPE(%d);\n" % size)
     for size in tuple_sizes:
-        c_file_lines.insert(0, "PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
+        cfile_lines.append("PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
+
+    cfile_lines.append("\n/* Constant pool */\n")
+    for cname in ordered_cnames:
+        cfile_lines.extend(crepr_kpool[cname])
+
+    cfile_lines.extend(module_table_lines)
+
+    fout.write("".join(cfile_lines))
 
 
 if __name__ == "__main__":
     filenames = sys.argv[1:]
+    process_and_write_modules(filenames)
 
-    gen_globals()
-    gen_modules(filenames)
-    gen_dyn_lens()
-    c_file_lines.insert(0, '#include <stdint.h>\n#include "pm.h"\n\n')
-    print "".join(c_file_lines)

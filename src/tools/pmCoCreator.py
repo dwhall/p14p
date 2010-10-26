@@ -6,7 +6,7 @@
 # The output C code is structs that define the code objects from the .py files
 
 
-import sys
+import pprint, sys
 
 
 none = type(None)
@@ -25,8 +25,6 @@ def gen_obj_name():
     obj_count = 0
     while True:
         yield "o%d" % obj_count
-# Hex var names:
-#        yield "o%s" % hex(obj_count).upper()[-2:]
         obj_count += 1
 gen_next_obj_name = gen_obj_name().next
 
@@ -62,24 +60,13 @@ def float_to_cvar(n):
     return d['nm']
 
 
-def c_repr(n):
-    """Returns n as a printable ascii char surrounded by single quotes,
-    or a decimal number as string.
-    Apostrophe and backslash are excluded to avoid trouble with C char syntax.
-    """
-    if n >= 32 and n < 127 and n != 39 and n != 92:
-        return repr(chr(n))
-    else:
-        return str(n)
-
-
 def string_to_cvar(s):
     len_s = len(s)
     d = {}
     d['hdr'] = header()
     d['len'] = len_s
-    cs = map(c_repr, map(ord, s))
-    d['val'] = r"%s," * len_s % tuple(cs) + r"'\0'"
+    tuple_s = tuple(s)
+    d['val'] = r"'%s'," * len_s % tuple_s + r"'\0'"
     d['nm'] = gen_next_obj_name()
     c_file_lines.append(
         "PmString_t const %(nm)s = {%(hdr)s, %(len)d, {%(val)s}};\n" % d)
@@ -143,7 +130,7 @@ obj_to_cvar_func = {
 
 def obj_to_cvar(o):
     """Returns varname of o.  o's obj is fetched from const pool or created."""
-
+    
     # Use the object if it is in the constant pool
     if o in constant_pool.keys():
         c_file_lines.append("/* re-using %s from constant pool */\n" % constant_pool[o])
@@ -155,11 +142,9 @@ def obj_to_cvar(o):
     return nm
 
 
-def compile_file(fn):
-    return compile(open(fn).read(), fn, 'exec')
-
-
 def main():
+    def compile_file(fn):
+        return compile(open(fn).read(), fn, 'exec')
     fns = sys.argv[1:]
     cos = map(compile_file, fns)
     d = {}
@@ -168,6 +153,7 @@ def main():
         c_file_lines.append("/* File: %s */\n" % fn)
         d[fn] = co_to_cvar(co)
     print "".join(c_file_lines)
+#    pprint.pprint(d)
 
 
 if __name__ == "__main__":

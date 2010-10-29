@@ -37,36 +37,37 @@ volatile uint32_t u32_ms = 0;
 /** Interrupt Service Routine for Timer2.
  *  Receives one interrupts per \ref ISR_PERIOD milliseconds.
  */
-void _ISR _T2Interrupt (void) {
+void _ISR
+_T1Interrupt (void) {
     PmReturn_t retval;
 
     u32_ms++;
-    _T2IF = 0;                 //clear the timer interrupt bit
+    _T1IF = 0;                 //clear the timer interrupt bit
     retval = pm_vmPeriodic(ISR_PERIOD * 1000);
     PM_REPORT_IF_ERROR(retval);
 }
 
 /** Configure timer 2 to produce interrupts every \ref ISR_PERIOD ms. */
-void  configTimer2(void) {
+static void
+configTimer1(void) {
   // Configure the timer
-  T2CON = T2_OFF | T2_IDLE_CON | T2_GATE_OFF
-          | T2_32BIT_MODE_OFF
-          | T2_SOURCE_INT
-          | T2_PS_1_1;
+  T1CON = T1_OFF | T1_IDLE_CON | T1_GATE_OFF
+          | T1_SOURCE_INT
+          | T1_PS_1_1;
   // Subtract 1 from ticks value assigned to PR2 because period is PRx + 1
-  PR2 = msToU16Ticks(ISR_PERIOD, getTimerPrescale(T2CONbits)) - 1;
-  TMR2  = 0;                       //clear timer2 value
-  _T2IF = 0;                       //clear interrupt flag
-  _T2IP = 1;                       //choose a priority
-  _T2IE = 1;                       //enable the interrupt
-  T2CONbits.TON = 1;               //turn on the timer
+  PR1 = msToU16Ticks(ISR_PERIOD, getTimerPrescale(T1CONbits)) - 1;
+  TMR1  = 0;                       //clear timer2 value
+  _T1IF = 0;                       //clear interrupt flag
+  _T1IP = 1;                       //choose a priority
+  _T1IE = 1;                       //enable the interrupt
+  T1CONbits.TON = 1;               //turn on the timer
 }
 
 
 PmReturn_t plat_init(void)
 {
   configBasic(HELLO_MSG);
-  configTimer2();
+  configTimer1();
   
   return PM_RET_OK;
 }
@@ -76,7 +77,7 @@ PmReturn_t
 plat_deinit(void)
 {
     // Disable timer interrupts
-    _T2IE = 0;
+    _T1IE = 0;
 
     return PM_RET_OK;
 }

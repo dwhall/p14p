@@ -164,3 +164,24 @@ class pwm(object):
         """
         pass
 
+
+## This class provides multi-servo control for the PIC.
+class multiServo(object):
+    ## Create the class instance for a multi-servo output.
+    #  @param isTimer2 True to use timer2, false to use timer3 for
+    #      PWM.
+    #  @param oc Output compare module to use.
+    def __init__(self, isTimer2, oc):
+        """__NATIVE__
+        return configMultiServoPy(ppframe);
+        """
+        pass
+
+    ## Set the pulse width for one servo.
+    #  @param servo Servo to set, from 0 to NUM_SERVOS - 1.
+    #  @param pwMs On time, in ms, for the selected servo.
+    def set(self, servo, pwMs):
+        """__NATIVE__
+        return setServoPulseWidthPy(ppframe);
+        """
+        pass

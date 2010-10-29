@@ -37,7 +37,7 @@ int main(void)
     //retval = pm_run((uint8_t *)"sample_lib");
 
     printf("\n\nPython finished, return of 0x%02x.\nResetting...\n\n", retval);
-    // Wait a bit, so reset so flash by too fast.
+    // Wait a bit, so reset won't flash by too fast.
     DELAY_MS(1000);
     asm("reset");
 

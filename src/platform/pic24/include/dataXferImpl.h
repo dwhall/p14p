@@ -294,7 +294,7 @@ typedef struct {
 
 /// Number of transfer variables supported. Must be less than
 /// the \ref MAX_NUM_XFER_VARS.
-#define NUM_XFER_VARS 62
+#define NUM_XFER_VARS 8
 #if NUM_XFER_VARS > MAX_NUM_XFER_VARS
 #error Too many transfer variables; there must be MAX_NUM_XFER_VARS or fewer.
 #endif

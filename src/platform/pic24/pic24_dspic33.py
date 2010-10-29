@@ -17,6 +17,7 @@
 """__NATIVE__
 #include <pic24_all.h>
 #include "pyFuncsInC.h"
+#include "dataXfer.h"
 """
 
 ## This class provides basic digital I/O for the PIC.
@@ -183,5 +184,40 @@ class multiServo(object):
     def set(self, servo, pwMs):
         """__NATIVE__
         return setServoPulseWidthPy(ppframe);
+        """
+        pass
+
+## This class enables the transfer of ints and floats between a PC
+#  running the \ref dataXfer "uC comm protocol" and the PIC. This
+#  class emulates a list of size \ref NUM_XFER_VARS, whose contents
+#  may be either ints or floats. Setting a value sends to the the PC,
+#  while getting a value reads the last value written (either by sending
+#  it to the PC or by the PC sending it to the PIC). For example:
+#  <code>
+#  dx = dataXfer()
+#  dx[0] = 54;
+#  foo = dx[1]
+#  </code>
+#  The code sequence causes the PC's dx[0] value to be 54, while foo
+#  now contains what the PC last assigned to its dx[1].
+class dataXfer(object):
+    ## Initialize the data transfer protocol. Up to \ref NUM_XFER_VARS
+    #  variables can be sent or received. UART 1 is used.
+    def __init__(self):
+        self.__list = [0]*8   # Assume NUM_XFER_VARS == 8
+        """__NATIVE__
+        initDataXfer();
+        return PM_RET_OK;
+        """
+        pass
+
+    ## Send a value from the PIC to the PC.
+    #  @param index Index (from 0 to \ref NUM_XFER_VARS) of variable to send.
+    #  @param value Value of the variable to send 
+    def __setitem__(self, index, value):
+        self.checkType(value)
+        """__NATIVE__
+        initDataXfer();
+        return PM_RET_OK;
         """
         pass

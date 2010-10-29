@@ -30,6 +30,10 @@
 #include "pyToC.h"
 #include <stdio.h>
 
+#undef __FILE_ID__
+#define __FILE_ID__ 0x72
+
+
 /** \file
 Demonstrates pulse width modulation using four digital outputs
 and the OC1 module to create four PWM outputs for hobby servos.

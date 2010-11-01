@@ -114,6 +114,7 @@ file_086=.
 file_087=.
 file_088=.
 file_089=.
+file_090=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -205,6 +206,7 @@ file_086=no
 file_087=no
 file_088=no
 file_089=no
+file_090=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -296,6 +298,7 @@ file_086=yes
 file_087=yes
 file_088=yes
 file_089=yes
+file_090=yes
 [FILE_INFO]
 file_000=..\common\pic24_clockfreq.c
 file_001=..\common\pic24_configbits.c
@@ -387,6 +390,7 @@ file_086=main.py
 file_087=..\Makefile
 file_088=..\pic24_dspic33.py
 file_089=..\pmfeatures.py
+file_090=..\..\..\lib\__bi.py
 [SUITE_INFO]
 suite_guid={479DDE59-4D56-455E-855E-FFF59A3DB57E}
 suite_state=

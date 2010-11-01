@@ -228,9 +228,26 @@ class dataXfer(object):
         pass
 
     ## Receive any information sent from the PC to the PIC.
-    #  @return The index of a variable received or a character received.
-    def receive(self):
+    #  @param isBlocking True to wait for either a character or a data transfer packet to
+    #    arrive; false to process any data already received then return
+    #    immediately.
+    #  @return The index of a variable received, a character received, or None
+    #    if neither was received.
+    def receive(self, isBlocking = True):
         """__NATIVE__
         return receiveDataXferPy(ppframe);
         """
         pass
+
+    ## Receive all available data packets until either no data is
+    #  available from the serial port or a character 
+    #  @return A character (if it's received) or None when no more data is
+    #    available.
+    def receiveAllData(self):
+        # Repeatedly receive data without blocking. Emulate a do-while.
+        c = self.receive(False)
+#        while (isinstance(c, int)):   # Can't use -- isinstance not implemented?
+        while (c != None):  # Hack -- throws away chars!
+            c = self.receive(False)
+        # Either there was no more data or a char was read. Return that.
+        return c

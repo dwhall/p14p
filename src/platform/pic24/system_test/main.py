@@ -166,5 +166,9 @@ dx = pic.dataXfer()
 assert(dx.get(0) == None)
 assert(dx.get(7) == None)
 dx.set(0, 42)
+print dx.receive(False)
+print dx.receiveAllData()
 
 print "All tests passed.\n"
+while True:
+    pass

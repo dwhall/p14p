@@ -120,6 +120,8 @@ configDigitalPinPy(pPmFrame_t *ppframe)
     EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 4, PM_RET_EX_TYPE,
       "Expected at least 4 arguments, but received %u.",
       (uint16_t) NATIVE_GET_NUM_ARGS());
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 6, PM_RET_EX_TYPE,
+      "Too many arguments");
     GET_UINT16_ARG(1, &u16_port);
     GET_UINT16_ARG(2, &u16_pin);
     GET_BOOL_ARG(3, &b_isInput);
@@ -134,8 +136,8 @@ configDigitalPinPy(pPmFrame_t *ppframe)
 
     PM_CHECK_FUNCTION( configDigitalPin(u16_port, u16_pin, b_isInput, 
       b_isOpenDrain, i16_pullDir) );
-    NATIVE_SET_TOS(PM_NONE);
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -262,8 +264,8 @@ configAnalogPinPy(pPmFrame_t *ppframe)
     PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_analogPin) );
 
     PM_CHECK_FUNCTION( configAnalogPin(u16_analogPin) );
-    NATIVE_SET_TOS(PM_NONE);
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -299,6 +301,7 @@ readAnalogCodePy(pPmFrame_t *ppframe)
     uint16_t u16_analogCode;
     pPmObj_t ppo_analogCode;
         
+    CHECK_NUM_ARGS(1);
     PM_CHECK_FUNCTION( readAnalogCode(ppframe, &u16_analogCode) );
     PM_CHECK_FUNCTION( int_new(u16_analogCode, &ppo_analogCode) );
     NATIVE_SET_TOS(ppo_analogCode);
@@ -312,6 +315,7 @@ readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale)
     uint16_t u16_analogCode;
     pPmObj_t ppo_analogCode;
         
+    CHECK_NUM_ARGS(1);
     PM_CHECK_FUNCTION( readAnalogCode(ppframe, &u16_analogCode) );
     PM_CHECK_FUNCTION( float_new(f_scale*u16_analogCode, &ppo_analogCode) );
     NATIVE_SET_TOS(ppo_analogCode);
@@ -435,6 +439,7 @@ configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc,
         T3CONbits.TON = 1;
     }
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -473,6 +478,7 @@ setPwmCountsPy(pPmFrame_t *ppframe)
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
     PM_CHECK_FUNCTION(setPwmCounts(u16_counts, u16_oc) );
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -500,6 +506,7 @@ setPwmRatioPy(pPmFrame_t *ppframe)
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
     PM_CHECK_FUNCTION(setPwmCounts((((uint32_t) u16_prn) + 1)*f_ratio, u16_oc) );
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -516,6 +523,7 @@ configMultiServoPy(pPmFrame_t *ppframe)
     GET_UINT16_ARG(2, &u16_oc);
     PM_CHECK_FUNCTION(initMultiServo() );
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -532,6 +540,7 @@ setServoPulseWidthPy(pPmFrame_t *ppframe)
     GET_UINT16_ARG(2, &u16_pwMs);
     PM_CHECK_FUNCTION(setServoPulseWidth(u16_servo, u16_pwMs) );
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -592,6 +601,73 @@ initDataXferPy(pPmFrame_t *ppframe)
 }
 
 PmReturn_t
+receiveDataXferPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    bool_t b_isBlocking = C_TRUE;
+    RECEIVE_STATE re;
+    uint8_t au8_c[2];
+    uint16_t u16_index;
+    pPmObj_t ppo_list;
+    pPmObj_t ppo_int;
+    pPmObj_t ppo_str;
+
+
+    // Extract and validate args
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 2, PM_RET_EX_TYPE,
+      "Too many arguments");
+    PM_CHECK_FUNCTION( getPyClassList(ppframe, &ppo_list) );
+    if (NATIVE_GET_NUM_ARGS() >= 2)
+    {
+        GET_BOOL_ARG(1, &b_isBlocking);
+    }
+
+    // Block if requested
+    if (b_isBlocking) {
+        while (!isCharReady1()) doHeartbeat();
+    }
+
+    // Feed state machine if characters are ready or if we're in the middle
+    // of receiving data.
+    while (isCharReady1() || (b_isBlocking && (re != STATE_RECV_START)) )
+    {
+        // Receive a char
+        PM_CHECK_FUNCTION( plat_getByte(au8_c) );
+        // Step state machine, no timeout
+        // TODO: Add a timeout
+        re = stepReceiveMachine(au8_c[0], C_FALSE);
+        // Transform any errors to exceptions
+        EXCEPTION_UNLESS(re == ERR_NONE, PM_RET_EX_VAL,
+          "Data transfer error: %s", getReceiveErrorString());
+        // Process any data received
+        if (isReceiveMachineData(&u16_index))
+        {
+            // Wrap the value in an int
+            PM_CHECK_FUNCTION( int_new(i32_xferReceiveInt, &ppo_int) );
+            // Place it in the list
+            PM_CHECK_FUNCTION( list_setItem(ppo_list, u16_index, ppo_int) );
+            // Return it
+            PM_CHECK_FUNCTION( int_new(u16_index, &ppo_int) );
+            NATIVE_SET_TOS(ppo_int);
+            return retval;
+        }
+        // Process any characters received
+        if (isReceiveMachineChar((char*) au8_c))
+        {
+            // Convert the char to a string
+            au8_c[1] = 0;
+            PM_CHECK_FUNCTION( string_new(au8_c, &ppo_str) );
+            NATIVE_SET_TOS(ppo_str);
+            return retval;
+        }
+    }
+
+    // Nothing to return -- no data or characters received.
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+PmReturn_t
 readDataXferPy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -636,27 +712,3 @@ writeDataXferPy(pPmFrame_t *ppframe)
     NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
-
-PmReturn_t
-receiveDataXferPy(pPmFrame_t *ppframe)
-{
-    PmReturn_t retval = PM_RET_OK;
-    uint16_t u16_index;
-
-    // Make sure we were passed self, index, val
-    CHECK_NUM_ARGS(3);
-
-    // Extract and validate args
-    GET_UINT16_ARG(1, &u16_index);
-    EXCEPTION_UNLESS(u16_index < NUM_XFER_VARS, PM_RET_EX_VAL,
-      "Index exceeds list size");
-    GET_INT32_ARG(2, &i32_xferReceiveInt);
-
-    // Send the data
-    sendVar(u16_index);
-
-    // Nothing to return
-    NATIVE_SET_TOS(PM_NONE);
-    return retval;
-}
-

@@ -187,37 +187,50 @@ class multiServo(object):
         """
         pass
 
-## This class enables the transfer of ints and floats between a PC
-#  running the \ref dataXfer "uC comm protocol" and the PIC. This
-#  class emulates a list of size \ref NUM_XFER_VARS, whose contents
-#  may be either ints or floats. Setting a value sends to the the PC,
-#  while getting a value reads the last value written (either by sending
-#  it to the PC or by the PC sending it to the PIC). For example:
+## This class enables the transfer of ints and between a PC
+#  and the PIC via the \ref dataXfer "uC comm protocol". To do so,
+#  this class (along with companion code running on the PC) creates two
+#  list-like instances. Writes to the list cause one processor to transfer data to
+#  the other, placing it in their list; reads of the other processor's list then
+#  return this data written. For example:
 #  <code>
 #  dx = dataXfer()
-#  dx[0] = 54;
-#  foo = dx[1]
+#  dx[0] = 154   # On the PC, dx[0] is now 154.
+#  foo = dx[0]   # Returns NOT 154, but the value the PC last assigned
+#                #  to its dx[0] 
 #  </code>
-#  The code sequence causes the PC's dx[0] value to be 54, while foo
-#  now contains what the PC last assigned to its dx[1].
 class dataXfer(object):
     ## Initialize the data transfer protocol. Up to \ref NUM_XFER_VARS
     #  variables can be sent or received. UART 1 is used.
     def __init__(self):
-        self.__list = [0]*8   # Assume NUM_XFER_VARS == 8
         """__NATIVE__
-        initDataXfer();
-        return PM_RET_OK;
+        return initDataXferPy(ppframe);
         """
         pass
 
     ## Send a value from the PIC to the PC.
     #  @param index Index (from 0 to \ref NUM_XFER_VARS) of variable to send.
-    #  @param value Value of the variable to send 
-    def __setitem__(self, index, value):
-        self.checkType(value)
+    #  @param value Value of the variable to send. Must be an int or float.
+    def set(self, index, value):
         """__NATIVE__
-        initDataXfer();
-        return PM_RET_OK;
+        return writeDataXferPy(ppframe);
+        """
+        pass
+
+    ## Read the list, returning the last value written to the given
+    #  element by the PC.
+    #  @param index Index (from 0 to \ref NUM_XFER_VARS) of variable to send.
+    #  @return Value of the variable received. Always be an int or float.
+    def get(self, index):
+        """__NATIVE__
+        return readDataXferPy(ppframe);
+        """
+        pass
+
+    ## Receive any information sent from the PC to the PIC.
+    #  @return The index of a variable received or a character received.
+    def receive(self):
+        """__NATIVE__
+        return receiveDataXferPy(ppframe);
         """
         pass

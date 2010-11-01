@@ -21,9 +21,9 @@
 #ifdef UNIT_TEST
 #define PM_HEAP_SIZE 100
 #elif defined(__DEBUG)
-#define PM_HEAP_SIZE (7088 - 80)
+#define PM_HEAP_SIZE (6988 - 80)
 #else
-#define PM_HEAP_SIZE 7088
+#define PM_HEAP_SIZE 6988
 #endif
 
 #define PM_FLOAT_LITTLE_ENDIAN

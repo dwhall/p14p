@@ -116,6 +116,42 @@ setPwmCounts(uint16_t u16_counts, uint16_t u16_oc);
 PmReturn_t
 setPwmRatioPy(pPmFrame_t *ppframe);
 
+/** Implements the Python \ref pic24_dspic33::multiServo::__init__ function.
+ *  @param ppframe Python stack frame containing arguments to the function.
+ */
+PmReturn_t
+configMultiServoPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref pic24_dspic33::multiServo::setServoPulseWidth function.
+ *  @param ppframe Python stack frame containing arguments to the function.
+ */
+PmReturn_t
+setServoPulseWidthPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref pic24_dspic33::dataXfer::__init__ function.
+ *  @param ppframe Python stack frame containing arguments to the function.
+ */
+PmReturn_t
+initDataXferPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref pic24_dspic33::dataXfer::get function.
+ *  @param ppframe Python stack frame containing arguments to the function.
+ */
+PmReturn_t
+readDataXferPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref pic24_dspic33::dataXfer::set function.
+ *  @param ppframe Python stack frame containing arguments to the function.
+ */
+PmReturn_t
+writeDataXferPy(pPmFrame_t *ppframe);
+
+/** Implements the Python \ref pic24_dspic33::dataXfer::receive function.
+ *  @param ppframe Python stack frame containing arguments to the function.
+ */
+PmReturn_t
+receiveDataXferPy(pPmFrame_t *ppframe);
+
 /** Determine the number of Output Compare modules available on
  *  this processor.
  */

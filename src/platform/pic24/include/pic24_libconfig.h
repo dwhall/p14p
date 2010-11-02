@@ -204,6 +204,9 @@
     /** Define a config function for the heartbeat pin. */
     #define CONFIG_HB_LED() CONFIG_RA8_AS_DIG_OUTPUT()
   #elif defined(MICROSTIK)
+    // Don't use the heartbeat; it's used as a servo instead.
+    #undef USE_HEARTBEAT
+    #define USE_HEARTBEAT 0
     #define HB_LED _LATB15
     #define CONFIG_HB_LED() CONFIG_RB15_AS_DIG_OUTPUT()
   #else

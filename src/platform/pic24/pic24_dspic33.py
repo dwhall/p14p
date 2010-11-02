@@ -17,6 +17,7 @@
 """__NATIVE__
 #include <pic24_all.h>
 #include "pyFuncsInC.h"
+#include "dataXfer.h"
 """
 
 ## This class provides basic digital I/O for the PIC.
@@ -164,3 +165,89 @@ class pwm(object):
         """
         pass
 
+
+## This class provides multi-servo control for the PIC.
+class multiServo(object):
+    ## Create the class instance for a multi-servo output.
+    #  @param isTimer2 True to use timer2, false to use timer3 for
+    #      PWM.
+    #  @param oc Output compare module to use.
+    def __init__(self, isTimer2, oc):
+        """__NATIVE__
+        return configMultiServoPy(ppframe);
+        """
+        pass
+
+    ## Set the pulse width for one servo.
+    #  @param servo Servo to set, from 0 to NUM_SERVOS - 1.
+    #  @param pwMs On time, in ms, for the selected servo.
+    def set(self, servo, pwMs):
+        """__NATIVE__
+        return setServoPulseWidthPy(ppframe);
+        """
+        pass
+
+## This class enables the transfer of ints and between a PC
+#  and the PIC via the \ref dataXfer "uC comm protocol". To do so,
+#  this class (along with companion code running on the PC) creates two
+#  list-like instances. Writes to the list cause one processor to transfer data to
+#  the other, placing it in their list; reads of the other processor's list then
+#  return this data written. For example:
+#  <code>
+#  dx = dataXfer()
+#  dx[0] = 154   # On the PC, dx[0] is now 154.
+#  foo = dx[0]   # Returns NOT 154, but the value the PC last assigned
+#                #  to its dx[0] 
+#  </code>
+class dataXfer(object):
+    ## Initialize the data transfer protocol. Up to \ref NUM_XFER_VARS
+    #  variables can be sent or received. UART 1 is used.
+    def __init__(self):
+        """__NATIVE__
+        return initDataXferPy(ppframe);
+        """
+        pass
+
+    ## Send a value from the PIC to the PC.
+    #  @param index Index (from 0 to \ref NUM_XFER_VARS) of variable to send.
+    #  @param value Value of the variable to send. Must be an int or float.
+    def set(self, index, value):
+        """__NATIVE__
+        return writeDataXferPy(ppframe);
+        """
+        pass
+
+    ## Read the list, returning the last value written to the given
+    #  element by the PC.
+    #  @param index Index (from 0 to \ref NUM_XFER_VARS) of variable to send.
+    #  @return Value of the variable received. Always be an int or float.
+    def get(self, index):
+        """__NATIVE__
+        return readDataXferPy(ppframe);
+        """
+        pass
+
+    ## Receive any information sent from the PC to the PIC.
+    #  @param isBlocking True to wait for either a character or a data transfer packet to
+    #    arrive; false to process any data already received then return
+    #    immediately.
+    #  @return The index of a variable received, a character received, or None
+    #    if neither was received.
+    def receive(self, isBlocking = True):
+        """__NATIVE__
+        return receiveDataXferPy(ppframe);
+        """
+        pass
+
+    ## Receive all available data packets until either no data is
+    #  available from the serial port or a character 
+    #  @return A character (if it's received) or None when no more data is
+    #    available.
+    def receiveAllData(self):
+        # Repeatedly receive data without blocking. Emulate a do-while.
+        c = self.receive(False)
+#        while (isinstance(c, int)):   # Can't use -- isinstance not implemented?
+        while (c != None):  # Hack -- throws away chars!
+            c = self.receive(False)
+        # Either there was no more data or a char was read. Return that.
+        return c

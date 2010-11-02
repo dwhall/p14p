@@ -161,7 +161,7 @@ uint receiveVar(char* c) {
       outString(getReceiveErrorString());
       outChar('\n');
     }
-  } while (!isReceiveMachineChar(c) && !isReceiveMachineData(&u_index));
+  } while (!isReceiveMachineChar((char*) &c) && !isReceiveMachineData(&u_index));
 
   return getReceiveMachineIndex();
 }

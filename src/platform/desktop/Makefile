@@ -19,7 +19,8 @@ ifeq ($(DEBUG),true)
 endif
 CINCS = -I$(abspath .)
 CFLAGS = -Os -Wall -gstabs -fno-strict-aliasing -Wstrict-prototypes \
-         -Wdeclaration-after-statement -Werror -I../../vm $(CDEFS) $(CINCS)
+         -Wdeclaration-after-statement -Wno-format-zero-length -Werror \
+         -I../../vm $(CDEFS) $(CINCS)
 
 export CFLAGS IPM PM_LIB_FN
 

@@ -69,16 +69,23 @@ extern "C" {
  * be used after an assignment such as "retval = " or a return statement
  */
 #if __DEBUG__
-#define PM_RAISE(retexn, exn) \
-        do \
-        { \
-            retexn = (exn); \
-            gVmGlobal.errFileId = __FILE_ID__; \
-            gVmGlobal.errLineNum = (uint16_t)__LINE__; \
-        } while (0)
+#define EXCEPTION_MESSAGE_SIZE 80
+#define PM_RAISE(retexn, exn, ...) \
+   do \
+   { \
+       retexn = (exn); \
+       gVmGlobal.errFileId = __FILE_ID__; \
+       gVmGlobal.errLineNum = (uint16_t)__LINE__; \
+       snprintf((char *)gVmGlobal.errExnMsg, EXCEPTION_MESSAGE_SIZE, ## __VA_ARGS__); \
+   } while (0)
 #else
-#define PM_RAISE(retexn, exn) \
-        retexn = (exn)
+#define PM_RAISE(retexn, exn, ...) \
+   do \
+   { \
+       retexn = (exn); \
+       gVmGlobal.errFileId = __FILE_ID__; \
+       gVmGlobal.errLineNum = (uint16_t)__LINE__; \
+   } while (0)
 #endif
 
 /** if retval is not OK, break from the block */

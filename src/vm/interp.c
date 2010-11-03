@@ -1231,7 +1231,9 @@ interpret(const uint8_t returnOnNoThreads)
                         if (retval == PM_RET_EX_KEY)
                         {
                             /* Name not defined, raise NameError */
-                            PM_RAISE(retval, PM_RET_EX_NAME);
+                            PM_RAISE(retval, PM_RET_EX_NAME,
+                                     "Name %s not defined.\n",
+                                     ((pPmString_t)pobj1)->val);
                             break;
                         }
                     }

@@ -115,6 +115,11 @@ typedef struct PmVmGlobal_s
     /** Line number for when an error occurs */
     uint16_t errLineNum;
 
+#ifdef __DEBUG__
+    /** Holds the error message when an exception is raised via PM_RAISE */
+    uint8_t errExnMsg[EXCEPTION_MESSAGE_SIZE];
+#endif /* __DEBUG__ */
+
     /** Thread list */
     pPmList_t threadList;
 

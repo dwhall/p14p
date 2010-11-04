@@ -15,7 +15,7 @@
 #ifndef _HEAPSIZE_H_
 #define _HEAPSIZE_H_
 
-#define HS 7052
+#define HS 6952
 // Make room for the debugger if necessary
 #ifdef __DEBUG
 #define HEAP_SIZE (HS - 80)

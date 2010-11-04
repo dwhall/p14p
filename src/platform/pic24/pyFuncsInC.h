@@ -122,7 +122,7 @@ setPwmRatioPy(pPmFrame_t *ppframe);
 PmReturn_t
 configMultiServoPy(pPmFrame_t *ppframe);
 
-/** Implements the Python \ref pic24_dspic33::multiServo::setServoPulseWidth function.
+/** Implements the Python \ref pic24_dspic33::multiServo::set function.
  *  @param ppframe Python stack frame containing arguments to the function.
  */
 PmReturn_t

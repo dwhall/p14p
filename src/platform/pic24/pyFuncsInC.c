@@ -592,7 +592,7 @@ initDataXferPy(pPmFrame_t *ppframe)
     for (u16_index = 0; u16_index < NUM_XFER_VARS; u16_index++)
     {
         specifyVar(u16_index, &i32_xferReceiveInt, 
-          sizeof(i32_xferReceiveInt), C_TRUE, "", "", "");
+          sizeof(i32_xferReceiveInt), C_TRUE, "%d", "", "");
     }
 
     // Return nothing
@@ -622,10 +622,8 @@ receiveDataXferPy(pPmFrame_t *ppframe)
         GET_BOOL_ARG(1, &b_isBlocking);
     }
 
-    // Block if requested
-    if (b_isBlocking) {
-        while (!isCharReady1()) doHeartbeat();
-    }
+    // Block if requested by forcing control to enter the while loop below
+	re = b_isBlocking ? STATE_RECV_CMD_WAIT : STATE_RECV_START;
 
     // Feed state machine if characters are ready or if we're in the middle
     // of receiving data.

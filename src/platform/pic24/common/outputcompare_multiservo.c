@@ -152,8 +152,8 @@ setServoPulseWidth(uint16_t u16_servo, uint16_t u16_pwMs)
   return retval;
 }
 
-/** Configure an output compare module for servo operation.
- *  @param b_isTimer2 True to use timer2, false to use timer3 for
+/** Configure an output compare module for servo operation. */
+/*  @param b_isTimer2 True to use timer2, false to use timer3 for
  *      PWM.
  *  @param u16_oc Output compare module to use.
  */

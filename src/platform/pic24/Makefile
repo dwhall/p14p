@@ -37,7 +37,8 @@ endif
 # recognized by pic30-gcc. The use of cygpath solves this; thanks to Tyler 
 # Wilson for this fix.
 CINCS = -I$(shell cygpath -m $(abspath .)) -I$(shell cygpath -m $(abspath include))
-CFLAGS = -mcpu=$(CPU) -Wall -O1 -Wdeclaration-after-statement -I../../vm $(CDEFS) $(CINCS)
+CFLAGS = -mcpu=$(CPU) -Wall -O1 -Wdeclaration-after-statement \
+         -Wno-format-zero-length -I../../vm $(CDEFS) $(CINCS)
 # A generous stack -- too small will cause stack overflows.
 # A bit of heap, in case user C code wants to malloc (can't imagine why, though).
 LDFLAGS = -Wl,--script="p$(CPU).gld",--stack=400,--heap=50,--report-mem

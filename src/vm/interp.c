@@ -1232,7 +1232,7 @@ interpret(const uint8_t returnOnNoThreads)
                         {
                             /* Name not defined, raise NameError */
                             PM_RAISE(retval, PM_RET_EX_NAME,
-                                     "Name %s not defined.\n",
+                                     "Name '%s' is not defined\n",
                                      ((pPmString_t)pobj1)->val);
                             break;
                         }

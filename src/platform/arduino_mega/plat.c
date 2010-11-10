@@ -414,6 +414,7 @@ plat_reportError(PmReturn_t result)
         printf_P(PSTR("FileId 0x%02X line "), gVmGlobal.errFileId);
     }
     printf_P(PSTR("%d\n"), gVmGlobal.errLineNum);
+    printf_P(PSTR("%s\n"), gVmGlobal.errExnMsg);
 
 #else /* HAVE_DEBUG_INFO */
 

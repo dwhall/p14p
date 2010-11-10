@@ -32,6 +32,8 @@ extern "C" {
 #include <stdint.h>
 #include <stdio.h>
 
+#include "pmfeatures.h"
+
 
 /**
  * Value indicating the release of PyMite
@@ -63,12 +65,10 @@ extern "C" {
 
 
 /**
- * Returns an exception error code and stores debug data
- *
- * This macro must be used as an rval statement.  That is, it must
- * be used after an assignment such as "retval = " or a return statement
+ * Sets exception information in the global struct
+ * and exception code in the return value (retexn) of the caller
  */
-#if __DEBUG__
+#ifdef HAVE_DEBUG_INFO
 #define EXCEPTION_MESSAGE_SIZE 80
 #define PM_RAISE(retexn, exn, ...) \
    do \
@@ -76,7 +76,8 @@ extern "C" {
        retexn = (exn); \
        gVmGlobal.errFileId = __FILE_ID__; \
        gVmGlobal.errLineNum = (uint16_t)__LINE__; \
-       snprintf((char *)gVmGlobal.errExnMsg, EXCEPTION_MESSAGE_SIZE, ## __VA_ARGS__); \
+       snprintf((char *)gVmGlobal.errExnMsg, EXCEPTION_MESSAGE_SIZE, \
+                "" __VA_ARGS__); \
    } while (0)
 #else
 #define PM_RAISE(retexn, exn, ...) \
@@ -198,7 +199,6 @@ extern volatile uint32_t pm_timerMsTicks;
 
 /* WARNING: The order of the following includes is critical */
 #include "plat.h"
-#include "pmfeatures.h"
 #include "pmEmptyPlatformDefs.h"
 #include "sli.h"
 #include "mem.h"

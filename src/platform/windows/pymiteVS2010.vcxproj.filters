@@ -16,9 +16,6 @@
     <Filter Include="platform">
       <UniqueIdentifier>{f9903a0d-0db2-4252-a9cc-1585479f59b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Main">
-      <UniqueIdentifier>{2ae51803-9194-4384-9ce3-072460a11266}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Generated C Sources">
       <UniqueIdentifier>{df02afd4-5f87-4457-9f3e-c109d3c011a6}</UniqueIdentifier>
     </Filter>
@@ -93,9 +90,6 @@
     <ClCompile Include="plat.c">
       <Filter>platform</Filter>
     </ClCompile>
-    <ClCompile Include="main.c">
-      <Filter>Main</Filter>
-    </ClCompile>
     <ClCompile Include="main_img.c">
       <Filter>Generated C Sources</Filter>
     </ClCompile>
@@ -108,19 +102,103 @@
     <ClCompile Include="..\..\vm\pmstdlib_nat.c">
       <Filter>Generated C Sources</Filter>
     </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="pmfeatures.h">
+      <Filter>Generated C Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\bytearray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\class.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\codeobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\dict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\float.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\func.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\heap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\img.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\interp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\mem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\module.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\obj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\plat_interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\pmEmptyPlatformDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\pmFeatureDependencies.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\seglist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\seq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\sli.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\strobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vm\tuple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\vm\pm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pmfeatures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdint.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="plat.h">
+      <Filter>platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+    <None Include="main.py" />
+    <None Include="pmfeatures.py" />
+    <None Include="py2c.bat">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="SConscript" />
   </ItemGroup>
 </Project>

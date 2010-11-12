@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -43,6 +43,8 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">main</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">main</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -61,7 +63,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <OutputFile>main$(TargetExt)</OutputFile>
     </Link>
     <PreBuildEvent>
       <Command>python ../../tools/pmGenPmFeatures.py pmfeatures.py &gt; pmfeatures.h
@@ -88,7 +89,6 @@ python ../../tools/pmImgCreator.py -c -u -f pmfeatures.py -o main_img.c --native
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <OutputFile>main$(TargetExt)</OutputFile>
     </Link>
     <PreBuildEvent>
       <Command>python ../../tools/pmGenPmFeatures.py pmfeatures.py &gt; pmfeatures.h
@@ -127,12 +127,41 @@ python ../../tools/pmImgCreator.py -c -u -f pmfeatures.py -o main_img.c --native
     <ClCompile Include="..\..\vm\pmstdlib_nat.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\vm\bytearray.h" />
+    <ClInclude Include="..\..\vm\class.h" />
+    <ClInclude Include="..\..\vm\codeobj.h" />
+    <ClInclude Include="..\..\vm\dict.h" />
+    <ClInclude Include="..\..\vm\float.h" />
+    <ClInclude Include="..\..\vm\frame.h" />
+    <ClInclude Include="..\..\vm\func.h" />
+    <ClInclude Include="..\..\vm\global.h" />
+    <ClInclude Include="..\..\vm\heap.h" />
+    <ClInclude Include="..\..\vm\img.h" />
+    <ClInclude Include="..\..\vm\int.h" />
+    <ClInclude Include="..\..\vm\interp.h" />
+    <ClInclude Include="..\..\vm\list.h" />
+    <ClInclude Include="..\..\vm\mem.h" />
+    <ClInclude Include="..\..\vm\module.h" />
+    <ClInclude Include="..\..\vm\obj.h" />
+    <ClInclude Include="..\..\vm\plat_interface.h" />
     <ClInclude Include="..\..\vm\pm.h" />
+    <ClInclude Include="..\..\vm\pmEmptyPlatformDefs.h" />
+    <ClInclude Include="..\..\vm\pmFeatureDependencies.h" />
+    <ClInclude Include="..\..\vm\seglist.h" />
+    <ClInclude Include="..\..\vm\seq.h" />
+    <ClInclude Include="..\..\vm\sli.h" />
+    <ClInclude Include="..\..\vm\strobj.h" />
+    <ClInclude Include="..\..\vm\thread.h" />
+    <ClInclude Include="..\..\vm\tuple.h" />
+    <ClInclude Include="plat.h" />
     <ClInclude Include="pmfeatures.h" />
-    <ClInclude Include="stdint.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="main.py" />
+    <None Include="pmfeatures.py" />
+    <None Include="py2c.bat" />
     <None Include="README" />
+    <None Include="SConscript" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

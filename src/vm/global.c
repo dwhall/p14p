@@ -29,7 +29,7 @@
 #include "pm.h"
 
 
-extern unsigned char const *stdlib_img;
+extern unsigned char const stdlib_img[];
 
 static uint8_t const *bistr = (uint8_t const *)"__bi";
 

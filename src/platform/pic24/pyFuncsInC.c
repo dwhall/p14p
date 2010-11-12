@@ -605,7 +605,7 @@ receiveDataXferPy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
     bool_t b_isBlocking = C_TRUE;
-    RECEIVE_STATE re;
+    RECEIVE_ERROR re;
     uint8_t au8_c[2];
     uint16_t u16_index;
     pPmObj_t ppo_list;
@@ -622,18 +622,15 @@ receiveDataXferPy(pPmFrame_t *ppframe)
         GET_BOOL_ARG(1, &b_isBlocking);
     }
 
-    // Block if requested by forcing control to enter the while loop below
-	re = b_isBlocking ? STATE_RECV_CMD_WAIT : STATE_RECV_START;
-
     // Feed state machine if characters are ready or if we're in the middle
     // of receiving data.
-    while (isCharReady1() || (b_isBlocking && (re != STATE_RECV_START)) )
+    while (isCharReady1() || b_isBlocking)
     {
         // Receive a char
         PM_CHECK_FUNCTION( plat_getByte(au8_c) );
         // Step state machine, no timeout
         // TODO: Add a timeout
-        re = stepReceiveMachine(au8_c[0], C_FALSE);
+        re = stepReceiveMachine(au8_c[0]);
         // Transform any errors to exceptions
         EXCEPTION_UNLESS(re == ERR_NONE, PM_RET_EX_VAL,
           "Data transfer error: %s", getReceiveErrorString());

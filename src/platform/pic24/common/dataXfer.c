@@ -6,7 +6,8 @@
  *  \brief Implementation of the \ref index "uC data transfer protocol".
  */
 
-void initDataXfer() {
+void
+initDataXfer() {
   resetReceiveMachine();
   clearReceiveStruct();
 }
@@ -15,16 +16,18 @@ void initDataXfer() {
 /// \name Send functions
 //@{
 
-void xferOutChar(char c) {
+void
+outCharXfer(char c) {
   // If we're sending a character that needs escaping, then escape it.
   OUT_CHAR(c);
   if (c == CMD_TOKEN)
     OUT_CHAR(ESCAPED_CMD);
 }
 
-void specifyVar(uint u_varIndex, void* pv_data, uint u_size, 
-                BOOL b_isWriteable, char* psz_format, char* psz_name,
-                char* psz_desc) {
+void
+specifyVar(uint u_varIndex, void* pv_data, uint u_size,
+           BOOL b_isWriteable, char* psz_format, char* psz_name,
+           char* psz_desc) {
   uint u_len;
 
   // Make sure this variable exists
@@ -43,34 +46,35 @@ void specifyVar(uint u_varIndex, void* pv_data, uint u_size,
   OUT_CHAR(CMD_TOKEN);
 
   // Send a specification: The spec code, index, then length
-  xferOutChar(b_isWriteable ? CMD_SEND_RECEIVE_VAR : CMD_SEND_ONLY);
-  xferOutChar(u_varIndex);
+  outCharXfer(b_isWriteable ? CMD_SEND_RECEIVE_VAR : CMD_SEND_ONLY);
+  outCharXfer(u_varIndex);
   // Include the space taken by the three NULL characters, minus one since a
   // length of 1 is sent as 0, plus one for the variable size byte.
   u_len = strlen(psz_format) + strlen(psz_name) + strlen(psz_desc) + 3 - 1 + 1;
   // Allow a maximum string length of 255.
-  xferOutChar(u_len <= 255 ? u_len : 255);
+  outCharXfer(u_len <= 255 ? u_len : 255);
 
   // Send the size of this variable, minus 1 since a size of 1 is sent as a 0.
-  xferOutChar(u_size - 1);
+  outCharXfer(u_size - 1);
 
   // Send the strings
   u_len = 1;
   do {
     if (u_len++ > 256) return;
-    xferOutChar(*psz_format);
+    outCharXfer(*psz_format);
   } while (*psz_format++);
   do {
     if (u_len++ > 256) return;
-    xferOutChar(*psz_name);
+    outCharXfer(*psz_name);
   } while (*psz_name++);
   do {
     if (u_len++ > 256) return;
-    xferOutChar(*psz_desc);
+    outCharXfer(*psz_desc);
   } while (*psz_desc++);
 }
 
-void sendVar(uint u_varIndex) {
+void
+sendVar(uint u_varIndex) {
   XFER_VAR* pXferVar;
   uint8 u8_size;
   uint8* pu8_data;
@@ -95,25 +99,26 @@ void sendVar(uint u_varIndex) {
   u8_size = pXferVar->u8_size;
   if ((u8_size + 1) > SHORT_VAR_MAX_LEN) {
     // Send a long var: The long var code, index, then length
-    xferOutChar(CMD_LONG_VAR);
-    xferOutChar(u_varIndex);
-    xferOutChar(u8_size);
+    outCharXfer(CMD_LONG_VAR);
+    outCharXfer(u_varIndex);
+    outCharXfer(u8_size);
   } else {
     // Send a short var
-    xferOutChar((u_varIndex << VAR_SIZE_BITS) | u8_size);
+    outCharXfer((u_varIndex << VAR_SIZE_BITS) | u8_size);
   }
 
   // Send data
   pu8_data = pXferVar->pu8_data;
   do {
-    xferOutChar(*pu8_data++);
+    outCharXfer(*pu8_data++);
   } while (u8_size--);
 }
 
 //@}
 
 #ifndef __PIC__
-int formatVar(uint u_varIndex, char* psz_buf) {
+int
+formatVar(uint u_varIndex, char* psz_buf) {
   XFER_VAR* pXferVar;
   uint8 u8_size;
   unsigned long long ull_buf = 0;  // The biggest data type available
@@ -137,15 +142,13 @@ int formatVar(uint u_varIndex, char* psz_buf) {
 #endif
 
 #ifdef __PIC__
-uint receiveVar(char* c) {
-    uint u_index;
-
+uint
+receiveVar(char* p_c) {
   // Receive the data by stepping the machine until it outputs
   // something
   do {
     // While there's no data, run the timeout counter
     RECEIVE_ERROR re;
-    char c;
     uint32 u32_count = 0;
     while (!isCharReady()) {
       if (u32_count < RECEIVE_TIMEOUT)
@@ -154,19 +157,24 @@ uint receiveVar(char* c) {
     }
 
     // Step the machine
-    c = inChar();
-    re = stepReceiveMachine(c, u32_count >= RECEIVE_TIMEOUT);
+    *p_c = inChar();
+    if (u32_count >= RECEIVE_TIMEOUT)
+      notifyOfTimeout();
+    re = stepReceiveMachine(*p_c);
     if (re != ERR_NONE) {
       outString("Data receive error: ");
       outString(getReceiveErrorString());
       outChar('\n');
     }
-  } while (!isReceiveMachineChar((char*) &c) && !isReceiveMachineData(&u_index));
+  } while (!isReceiveMachineChar() && !isReceiveMachineData());
 
+  // Note that p_c already contains the received character, since it's
+  // always the last thing received from inChar().
   return getReceiveMachineIndex();
 }
 
-char inCharXfer() {
+char
+inCharXfer() {
   char c;
   while (receiveVar(&c) != CHAR_RECEIVED_INDEX);
   return c;

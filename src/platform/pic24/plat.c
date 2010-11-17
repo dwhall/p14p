@@ -129,6 +129,13 @@ plat_getByte(uint8_t *b)
 {
   PmReturn_t retval = PM_RET_OK;
 
+#ifdef UART1_RX_INTERRUPT
+  // Read the char from the ISR's buffer. No error checking is available.
+  *b = inChar1();
+  return retval;
+
+#else
+
   /* Wait for character */
   while (!isCharReady1()) doHeartbeat();
 
@@ -140,6 +147,8 @@ plat_getByte(uint8_t *b)
   *b = U1RXREG;
 
   return retval;
+
+#endif
 }
 
 

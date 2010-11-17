@@ -75,21 +75,6 @@ class digital_io(object):
        """
        pass
 
-    ## Read the current digital voltage (high or low / True or False) on
-    #  a pin.
-    def getPin(self):
-       """__NATIVE__
-       return readDigitalPinPy(ppframe);
-       """
-       pass
-
-    ## Read the last value written to this pin (that is, the value stored
-    #  in the pin's latch).
-    def getLatch(self):
-       """__NATIVE__
-       return readDigitalLatchPy(ppframe);
-       """
-       pass
 
 
 ## This class provides basic analog input for the PIC.
@@ -114,21 +99,6 @@ class analog_input(object):
         """
         pass
 
-    ## Read the voltage produced by the ADC, resulting in a
-    #  returned value between 0 and 3.3V.
-    def getVoltage(self):
-        """__NATIVE__
-        return readAnalogFloatPy(ppframe, 3.3/4096.0);
-        """
-        pass
-
-    ## Read the voltage produced by the ADC, resulting in a
-    #  normalized value ranging from 0 to 1.
-    def getNorm(self):
-        """__NATIVE__
-        return readAnalogFloatPy(ppframe, 1.0/4096.0);
-        """
-        pass
 
 ## This class provides basic control of the pulse-width
 #  modulation peripheral for the PIC.
@@ -144,15 +114,6 @@ class pwm(object):
     def __init__(self, freq, isTimer2, oc, ocPin=-1):
         """__NATIVE__
         return configPwmPy(ppframe);
-        """
-        pass
-
-    ## Set the duty cycle for a PWM output.
-    #  @param ratio The desired duty cycle, ranging from 0 (off
-    #      completely) to 1 (maximum, 100% duty cycle).
-    def set(self, ratio):
-        """__NATIVE__
-        return setPwmRatioPy(ppframe);
         """
         pass
 

@@ -628,6 +628,7 @@ receiveDataXferPy(pPmFrame_t *ppframe)
     {
         // Receive a char
         PM_CHECK_FUNCTION( plat_getByte(au8_c) );
+        printf("%x ", au8_c[0]);
         // Step state machine, no timeout
         // TODO: Add a timeout
         re = stepReceiveMachine(au8_c[0]);
@@ -635,11 +636,12 @@ receiveDataXferPy(pPmFrame_t *ppframe)
         EXCEPTION_UNLESS(re == ERR_NONE, PM_RET_EX_VAL,
           "Data transfer error: %s", getReceiveErrorString());
         // Process any data received
-        if (isReceiveMachineData(&u16_index))
+        if (isReceiveMachineData())
         {
             // Wrap the value in an int
             PM_CHECK_FUNCTION( int_new(i32_xferReceiveInt, &ppo_int) );
             // Place it in the list
+            u16_index = getReceiveMachineIndex();
             PM_CHECK_FUNCTION( list_setItem(ppo_list, u16_index, ppo_int) );
             // Return it
             PM_CHECK_FUNCTION( int_new(u16_index, &ppo_int) );
@@ -647,7 +649,7 @@ receiveDataXferPy(pPmFrame_t *ppframe)
             return retval;
         }
         // Process any characters received
-        if (isReceiveMachineChar((char*) au8_c))
+        if (isReceiveMachineChar())
         {
             // Convert the char to a string
             au8_c[1] = 0;

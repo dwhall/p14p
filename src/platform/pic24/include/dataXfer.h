@@ -54,7 +54,7 @@ outCharXfer(char c);
 /// A system-dependent macro to output one character.
 #ifndef OUT_CHAR
   void outChar(uint8 c);
-  #define OUT_CHAR(c) outChar(c)
+  #define OUT_CHAR(c) outChar1(c)
 #else
 // Hack: a command line of -DOUT_CHAR(c)=testOutChar(c) doesn't work. Just -DOUT_CHAR then
 // redefine it here.

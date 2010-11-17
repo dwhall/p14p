@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <pic24_all.h>
+#include "dataXferImpl.h"
 #include "pm.h"
 
 /** Number of milliseconds since the system
@@ -148,9 +149,13 @@ plat_getByte(uint8_t *b)
  * This is because the interactive interface uses binary transfers.
  */
 PmReturn_t
-plat_putByte(uint8_t b)
+plat_putByte(uint8_t u8_b)
 {
-  outChar1(b);
+  outChar1(u8_b);
+  // For the data transfer protocol, automatically escape outgoing
+  // chars.
+  if (u8_b == ((uint8_t) CMD_TOKEN))
+    outChar1(ESCAPED_CMD);
   return PM_RET_OK;
 }
 

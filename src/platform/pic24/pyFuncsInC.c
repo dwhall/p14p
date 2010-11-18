@@ -612,7 +612,6 @@ receiveDataXferPy(pPmFrame_t *ppframe)
     pPmObj_t ppo_int;
     pPmObj_t ppo_str;
 
-
     // Extract and validate args
     EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 2, PM_RET_EX_TYPE,
       "Too many arguments");
@@ -628,7 +627,6 @@ receiveDataXferPy(pPmFrame_t *ppframe)
     {
         // Receive a char
         PM_CHECK_FUNCTION( plat_getByte(au8_c) );
-        printf("%x ", au8_c[0]);
         // Step state machine, no timeout
         // TODO: Add a timeout
         re = stepReceiveMachine(au8_c[0]);

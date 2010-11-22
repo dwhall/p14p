@@ -94,21 +94,22 @@ PmReturn_t
 configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc, 
   int16_t i16_ocPin);
 
-/** Implements the Python \ref pic24_dspic33::pwm::setCounts function.
- *  The \ref setPwmCounts function does the work.
+/** Implements the Python \ref pic24_dspic33::pwm::setTime function.
+ *  The \ref setPwmTime function does the work.
  *  @param ppframe Python stack frame containing arguments to the function.
  */
 PmReturn_t
-setPwmCountsPy(pPmFrame_t *ppframe);
+setPwmTimePy(pPmFrame_t *ppframe);
 
 /** Set the duty cycle of the PWM peripheral.
- *  @param u16_counts A number of PR2/3 counts which gives the on
- *      time of the PWM wave to generate. Must be less than the
- *      PR2/3 value.
+ *  @param u16_timeUs The on time in us
+ *      of the PWM wave to generate. Must be less than the
+ *      PR2/3 time.
  *  @param u16_oc Output compare module to use.
+ *  @param u16_prn The PR2/3 timer used by u16_oc.
  */
 PmReturn_t
-setPwmCounts(uint16_t u16_counts, uint16_t u16_oc);
+setPwmTime(uint16_t u16_timeUs, uint16_t u16_oc, uint16_t u16_prn);
 
 /** Implements the Python \ref pic24_dspic33::pwm::set function.
  *  @param ppframe Python stack frame containing arguments to the function.

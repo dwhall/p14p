@@ -139,15 +139,15 @@ static void configOutputCapture1(void) {
 
 
 PmReturn_t
-setServoPulseWidth(uint16_t u16_servo, uint16_t u16_pwMs)
+setServoPulseWidth(uint16_t u16_servo, uint16_t u16_pwUs)
 {
   PmReturn_t retval = PM_RET_OK;
 
   EXCEPTION_UNLESS(u16_servo < NUM_SERVOS, PM_RET_EX_VAL,
-    "Invalid servos %u.", u16_servo);
-  EXCEPTION_UNLESS( (u16_pwMs >= MIN_PW) && (u16_pwMs <= MAX_PW),
-    PM_RET_EX_VAL, "Invalid pulse width %u.", u16_pwMs);
-  au16_servoPWidths[u16_servo] = usToU16Ticks(u16_pwMs, getTimerPrescale(T2CONbits));
+    "Invalid servo %u.", u16_servo);
+  EXCEPTION_UNLESS( (u16_pwUs >= MIN_PW) && (u16_pwUs <= MAX_PW),
+    PM_RET_EX_VAL, "Invalid pulse width %u.", u16_pwUs);
+  au16_servoPWidths[u16_servo] = usToU16Ticks(u16_pwUs, getTimerPrescale(T2CONbits));
 
   return retval;
 }

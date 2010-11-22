@@ -466,28 +466,37 @@ getPyOcPrn(pPmFrame_t *ppframe, uint16_t* pu16_oc, uint16_t* pu16_prn)
 }
 
 PmReturn_t
-setPwmCountsPy(pPmFrame_t *ppframe)
+setPwmTimePy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
-    uint16_t u16_counts;
+    uint16_t u16_timeUs;
     uint16_t u16_oc;
     uint16_t u16_prn;
 
     CHECK_NUM_ARGS(2);
-    GET_UINT16_ARG(1, &u16_counts);
+    GET_UINT16_ARG(1, &u16_timeUs);
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
-    PM_CHECK_FUNCTION(setPwmCounts(u16_counts, u16_oc) );
+    PM_CHECK_FUNCTION(setPwmTime(u16_timeUs, u16_oc, u16_prn) );
 
     NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
 PmReturn_t
-setPwmCounts(uint16_t u16_counts, uint16_t u16_oc)
+setPwmTime(uint16_t u16_timeUs, uint16_t u16_oc, uint16_t u16_prn)
 {
     PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_counts;
+    uint16_t u16_pre;
 
     ASSERT(u16_oc <= NUM_OC_MODS);
+    // Determine which timer is in use in order to convert time to ticks
+    u16_pre = (u16_prn == PR2) ? getTimerPrescale(T2CONbits) : 
+      getTimerPrescale(T3CONbits);
+    u16_counts = usToU16Ticks(u16_timeUs, u16_pre);
+    // Make sure this doesn't exceed the PR value.
+    EXCEPTION_UNLESS(u16_counts <= u16_prn, PM_RET_EX_VAL, "Time exceeds PRx time.");
+    // Update PWM
     OC_REG(OC1RS, u16_oc) = u16_counts;
 
     return retval;
@@ -504,7 +513,10 @@ setPwmRatioPy(pPmFrame_t *ppframe)
     CHECK_NUM_ARGS(2);
     GET_FLOAT_ARG(1, &f_ratio);
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
-    PM_CHECK_FUNCTION(setPwmCounts((((uint32_t) u16_prn) + 1)*f_ratio, u16_oc) );
+    EXCEPTION_UNLESS( (f_ratio <= 1.0) && (f_ratio >= 0.0), PM_RET_EX_VAL,
+      "Invalid ratio.");
+    // Update PWM
+    OC_REG(OC1RS, u16_oc) = (((uint32_t) u16_prn) + 1)*f_ratio;
 
     NATIVE_SET_TOS(PM_NONE);
     return retval;
@@ -532,13 +544,13 @@ setServoPulseWidthPy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
     uint16_t u16_servo;
-    uint16_t u16_pwMs;
+    uint16_t u16_pwUs;
 
     // Get the arguments and error check them
     CHECK_NUM_ARGS(3);
     GET_UINT16_ARG(1, &u16_servo);
-    GET_UINT16_ARG(2, &u16_pwMs);
-    PM_CHECK_FUNCTION(setServoPulseWidth(u16_servo, u16_pwMs) );
+    GET_UINT16_ARG(2, &u16_pwUs);
+    PM_CHECK_FUNCTION(setServoPulseWidth(u16_servo, u16_pwUs) );
 
     NATIVE_SET_TOS(PM_NONE);
     return retval;
@@ -569,19 +581,37 @@ initDataXferPy(pPmFrame_t *ppframe)
     uint16_t u16_index;
 
     // Make sure we were passed self
-    CHECK_NUM_ARGS(1);
-    // Create a list of size NUM_XFER_VARS for the class.
-    // --------------------------------------------------
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 1, PM_RET_EX_TYPE,
+      "Expected at least 1 argument, but received %u.",
+      (uint16_t) NATIVE_GET_NUM_ARGS());
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 2, PM_RET_EX_TYPE,
+      "Expected at most 2 arguments, but received %u.",
+      (uint16_t) NATIVE_GET_NUM_ARGS());
+
     // Argument 0 is a pointer to the object.
     // Raise TypeError if address isn't an object
     ppo_self = NATIVE_GET_LOCAL(0);
     EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
       "Argument 0 must be an class instance");
+    
+    // Create a list of size NUM_XFER_VARS for the class or use the given list
+    // Argument 1 (optional) is a list
+    if (NATIVE_GET_NUM_ARGS() >= 2)
+    {
+        ppo_list = NATIVE_GET_LOCAL(1);
+        EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_list) == OBJ_TYPE_LST, PM_RET_EX_TYPE, 
+          "Argument 1 must be a list");
+    } else {
+        PM_CHECK_FUNCTION( list_new(&ppo_list) );
+    }
+
+    // Save the list in the object's private data
     ppo_attrs = (pPmObj_t)((pPmInstance_t)ppo_self)->cli_attrs;
-    PM_CHECK_FUNCTION( list_new(&ppo_list) );
     PM_CHECK_FUNCTION( dict_setItem(ppo_attrs, PM_NONE, ppo_list) );
-    // Fill the list with PM_NONEs.
-    for (u16_index = 0; u16_index < NUM_XFER_VARS; u16_index++)
+
+    // Fill the list with PM_NONEs until it's at least NUM_XFER_VARS in size
+    for (u16_index = ((pPmList_t) ppo_list)->length; 
+      u16_index < NUM_XFER_VARS; u16_index++)
     {
         PM_CHECK_FUNCTION( list_append(ppo_list, PM_NONE) );
     }

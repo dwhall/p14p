@@ -118,11 +118,11 @@ class pwm(object):
         pass
 
     ## Set the duty cycle for a PWM output.
-    #  @param counts The number of PR2/3 counts which gives the on
-    #      time of the PWM wave to generate.
-    def setCounts(self, counts):
+    #  @param timeUs The on time of the PWM wave to generate. Must be
+    #    less than the PR2/3 time.
+    def setTime(self, timeUs):
         """__NATIVE__
-        return setPwmCountsPy(ppframe);
+        return setPwmTimePy(ppframe);
         """
         pass
 
@@ -141,8 +141,8 @@ class multiServo(object):
 
     ## Set the pulse width for one servo.
     #  @param servo Servo to set, from 0 to NUM_SERVOS - 1.
-    #  @param pwMs On time, in ms, for the selected servo.
-    def set(self, servo, pwMs):
+    #  @param pwUs On time, in us, for the selected servo.
+    def set(self, servo, pwUs):
         """__NATIVE__
         return setServoPulseWidthPy(ppframe);
         """
@@ -163,7 +163,9 @@ class multiServo(object):
 class dataXfer(object):
     ## Initialize the data transfer protocol. Up to \ref NUM_XFER_VARS
     #  variables can be sent or received. UART 1 is used.
-    def __init__(self):
+    #  @param defaultGetList - Populate the list which the get methods
+    #    uses when returning data with default values.
+    def __init__(self, defaultGetList):
         """__NATIVE__
         return initDataXferPy(ppframe);
         """

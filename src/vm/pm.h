@@ -223,6 +223,28 @@ typedef PmReturn_t (* pPmNativeFxn_t)(pPmFrame_t *);
 extern pPmNativeFxn_t const std_nat_fxn_table[];
 extern pPmNativeFxn_t const usr_nat_fxn_table[];
 
+/** Object descriptor declaration macro (used by output of pmCoCreator.py) */
+#define PM_DECLARE_OD(type, size) \
+    ((((type) & OD_TYPE_MASK) << OD_TYPE_SHIFT) | ((size) & OD_SIZE_MASK))
+
+/** String object declaration macro (used by output of pmCoCreator.py) */
+#define PM_DECLARE_STRING_TYPE(n) \
+    typedef struct PmString ## n ## _s \
+    { \
+        int16_t header; \
+        int16_t length; \
+        uint8_t val[n]; \
+    } PmString ## n ## _t
+
+/** Tuple object declaration macro (used by output of pmCoCreator.py) */
+#define PM_DECLARE_TUPLE_TYPE(n) \
+    typedef struct PmTuple ## n ## _s \
+    { \
+        int16_t header; \
+        int16_t length; \
+        pPmObj_t val[n]; \
+    } PmTuple ## n ## _t
+
 
 /**
  * Initializes the PyMite virtual machine and indexes the user's application

@@ -21,8 +21,6 @@ import os, sys
 import pmConstantPool
 from pmCoFilter import co_filter_factory
 
-# DWH TODO: pass pmfeatures path as arg?  (wait to see if HAVE_* features go away)
-filter_co = co_filter_factory("../platform/desktop/pmfeatures.py")
 
 # String used to ID a native method
 NATIVE_INDICATOR = "__NATIVE__"
@@ -278,7 +276,9 @@ def process_and_print(filenames, fout=sys.stdout):
 
 
 if __name__ == "__main__":
-    filenames = sys.argv[1:]
+    # DWH TODO: pass pmfeatures path as arg?  (wait to see if HAVE_* features go away)
+    filter_co = co_filter_factory(sys.argv[1])
+    filenames = sys.argv[2:]
     assert len(filenames) > 0, "Expect list of .py files as args"
     process_and_print(filenames)
 

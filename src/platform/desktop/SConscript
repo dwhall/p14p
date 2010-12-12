@@ -1,21 +1,32 @@
+import sys
+
+
 Import("vars")
 
-vars.Add("IPM", "Add the interactive library to the standard lib", True)
+platform_sources = ["main.c", "plat.c"]
+py_sources = Split("""main.py
+    #src/lib/__bi.py 
+    #src/lib/sys.py 
+    #src/lib/ipm.py
+    #src/lib/string.py
+    #src/lib/list.py 
+    #src/lib/dict.py 
+    """)
 
-CFLAGS = "-Os -Wall -gstabs -Wstrict-prototypes -Werror"
-if "DEBUG" in vars.args.keys():
-    CFLAGS = "-g -ggdb -D__DEBUG__=1 " + CFLAGS
-SOURCES = ["main.c", "plat.c"]
-PY_SOURCES = ["main.py"]
-PM_LIB_ROOT = ["pmvm_%s" % vars.args["PLATFORM"]]
+cflags = "-g -ggdb -D__DEBUG__=1 -Os -Wall -gstabs -Wstrict-prototypes -Werror"
 
 env = Environment(variables = vars,
-                  CPPPATH = ["#src/vm", "#src/platform/desktop"],
-                  CCFLAGS = CFLAGS)
+    CPPPATH = [".", "#src/vm", "#src/platform/desktop/build"],
+    CCFLAGS = cflags,)
+if not sys.platform.startswith("win"):
+    env['ARFLAGS'] = "rcs"
 
-vmlib = SConscript(["../../vm/SConscript"], ["env", "vars"])
-img_sources = Command(["main_img.c", "main_nat.c"], [PY_SOURCES],
-    "src/tools/pmImgCreator.py -c -u -o src/platform/desktop/main_img.c" \
-    " --native-file=src/platform/desktop/main_nat.c $SOURCES")
-main = env.Program("main.out", SOURCES + img_sources,
-                   LIBS = PM_LIB_ROOT, LIBPATH = ["../../vm"])
+pmfeatures = Command("pmfeatures.h", "pmfeatures.py",
+    "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
+pmvm_lib = SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+pyco_sources = Command("pyco_sources.c", py_sources,
+    "src/tools/pmCoCreator.py ../pmfeatures.py $SOURCES > $TARGET")
+main = env.Program("main", platform_sources + pmvm_lib + pyco_sources)
+Return("main")
+
+#:mode=python:

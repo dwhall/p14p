@@ -1,6 +1,17 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
-# Copyright 2010 Dean Hall.  All rights reserved.
+# This file is Copyright 2010 Dean Hall.
+#
+# This file is part of the Python-on-a-Chip program.
+# Python-on-a-Chip is free software: you can redistribute it and/or modify
+# it under the terms of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
+#
+# Python-on-a-Chip is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# A copy of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
+# is seen in the file COPYING up one directory from this.
+
 
 # Generates a C source file from one or more .py source files.
 # The output C code is structs that define the code objects from the .py files
@@ -11,7 +22,7 @@ import pmConstantPool
 from pmCoFilter import co_filter_factory
 
 # DWH TODO: pass pmfeatures path as arg?  (wait to see if HAVE_* features go away)
-filter_co = co_filter_factory("pmfeatures.py")
+filter_co = co_filter_factory("../platform/desktop/pmfeatures.py")
 
 # String used to ID a native method
 NATIVE_INDICATOR = "__NATIVE__"

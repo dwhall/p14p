@@ -1,32 +1,36 @@
+# BEGIN PLATFORM BUILD CONFIGURATION
+platform_c_sources = ["main.c", "plat.c"]
+platform_py_sources = ["main.py"]
+pmlib_py_sources = [
+    "#src/lib/__bi.py",
+    "#src/lib/sys.py",
+    "#src/lib/ipm.py",
+    "#src/lib/string.py",
+    "#src/lib/list.py",
+    "#src/lib/dict.py",]
+HAVE_FLOAT = "little endien"
+HAVE_DEBUG_INFO = True
+# END PLATFORM BUILD CONFIGURATION
+
+
+# Initialize Scons' construction environment
 import sys
-
-
-Import("vars")
-
-platform_sources = ["main.c", "plat.c"]
-py_sources = Split("""main.py
-    #src/lib/__bi.py 
-    #src/lib/sys.py 
-    #src/lib/ipm.py
-    #src/lib/string.py
-    #src/lib/list.py 
-    #src/lib/dict.py 
-    """)
-
 cflags = "-g -ggdb -D__DEBUG__=1 -Os -Wall -gstabs -Wstrict-prototypes -Werror"
-
+Import("vars")
 env = Environment(variables = vars,
     CPPPATH = [".", "#src/vm", "#src/platform/desktop/build"],
     CCFLAGS = cflags,)
 if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
 
-pmfeatures = Command("pmfeatures.h", "pmfeatures.py",
+# Generate pmfeatures.h and codeobjs then build pmvm library and the executable
+pmfeatures_h = Command("pmfeatures.h", "pmfeatures.py",
     "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
-pmvm_lib = SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
-pyco_sources = Command("pyco_sources.c", py_sources,
+pm_generated_codeobjs = Command("pm_generated_codeobjs.c",
+    platform_py_sources + pmlib_py_sources,
     "src/tools/pmCoCreator.py ../pmfeatures.py $SOURCES > $TARGET")
-main = env.Program("main", platform_sources + pmvm_lib + pyco_sources)
+pmvm_lib = SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+main = env.Program("main", platform_c_sources + pmvm_lib + pm_generated_codeobjs)
 Return("main")
 
 #:mode=python:

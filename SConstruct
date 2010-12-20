@@ -32,11 +32,6 @@ if "tags" in COMMAND_LINE_TARGETS or "TAGS" in COMMAND_LINE_TARGETS:
     Alias('TAGS', tags)
 
 
-# Not yet working
-#elif "check" in COMMAND_LINE_TARGETS or "test" in COMMAND_LINE_TARGETS:
-#    test = SConscript(["src/tests/unit/SConscript", "src/tests/system/SConscript"])
-
-
 elif "docs" in COMMAND_LINE_TARGETS or "html" in COMMAND_LINE_TARGETS:
     srcpath = os.path.join("docs", "src")
     rstfiles = Glob(os.path.join(srcpath, "*.txt"))
@@ -58,6 +53,16 @@ elif "dist" in COMMAND_LINE_TARGETS:
     Alias("dist", dist)
 
 
+# Not yet working
+elif "check" in COMMAND_LINE_TARGETS:
+    platform_path = "src/platform/desktop"
+    sconscript_path = os.path.join(platform_path, "SConscript")
+    build_path = os.path.join(platform_path, "build")
+    check_main = SConscript(sconscript_path, "vars", variant_dir=build_path)
+#    check_unit = SConscript("src/tests/unit/SConscript")
+    check_system = SConscript("src/tests/system/SConscript"])
+
+
 # Default: build a platform; desktop by default
 else:
     if len(vars.args) == 0:
@@ -72,3 +77,5 @@ else:
     build_path = os.path.join(platform_path, "build")
     main = SConscript(sconscript_path, "vars", variant_dir=build_path)
     Clean(main, build_path)
+
+#:mode=python:

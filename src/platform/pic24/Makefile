@@ -18,6 +18,8 @@ CPU = 24HJ128GP502
 # Per docs, the PIC$(CPU) define should already exist. Not sure why this is necessary.
 # If running in simulation, include the -DSIM below; otherwise, remove it.
 CDEFS = -D__PIC$(CPU)__ # -DSIM
+# Configure a default port for ipm
+PORT ?= com14
 
 TARGET = main
 PIC24_LIB_SOURCES = common/pic24_clockfreq.c \
@@ -71,6 +73,9 @@ $(TARGET)_nat.c $(TARGET)_img.c: $(PM_USR_SOURCES) $(PMIMGCREATOR) pmfeatures.py
 
 system_test/$(TARGET)_nat.c system_test/$(TARGET)_img.c: $(PM_TEST_USR_SOURCES) $(PMIMGCREATOR) pmfeatures.py Makefile
 	$(PMIMGCREATOR) -f pmfeatures.py -c -u -o system_test/$(TARGET)_img.c --native-file=system_test/$(TARGET)_nat.c $(PM_TEST_USR_SOURCES)
+
+ipm :
+	../../tools/ipm.py -f pmfeatures.py -s $(PORT) -b 230400
 
 clean :
 	$(MAKE) -C ../../vm clean

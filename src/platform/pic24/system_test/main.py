@@ -94,12 +94,18 @@ def testConfigPwm():
 def testPwmSetCounts():
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
-    EXCEPTION_ASSERT(OC2RS == 600);
+#if (FCY == 1000000L)
+    // At a PWM frequeny of 1000 Hz, PR2 = 999. At a
+    // time of 500 us, OC2 = 500.
+    EXCEPTION_ASSERT(OC2RS == 500);
+#else
+#warning Cannot test PWM frequency!
+#endif
     return retval;
     """
     pass
 
-## Check results of PWM setCounts method
+## Check results of PWM set method
 def testPwmSet():
     """__NATIVE__
     PmReturn_t retval = PM_RET_OK;
@@ -107,6 +113,8 @@ def testPwmSet():
     // At a PWM frequeny of 1000 Hz, PR2 = 999, so
     // half of (PR2 + 1) is 500.
     EXCEPTION_ASSERT(OC2RS == 500);
+#else
+#warning Cannot test PWM frequency!
 #endif
     return retval;
     """
@@ -155,7 +163,7 @@ assert(ain.getCode() == 0x1A4)
 #              freq  isTimer2 oc ocPin
 pwm1 = pic.pwm(1000, True,    2, 0)
 testConfigPwm()
-pwm1.setCounts(600)
+pwm1.setTime(500)
 testPwmSetCounts()
 pwm1.set(0.5)
 testPwmSet()

@@ -167,6 +167,12 @@ class pwm(object):
 
 
 ## This class provides multi-servo control for the PIC.
+#  WARNING: this is alpha code, with many missing features. In particular:
+#  - The constructor ignores isTimer2 and oc arguments and always uses
+#    Timer 2 and OC 1.
+#  - It only operates three servos, on RB4, RA4, and RB15.
+#  To change this, edit outputcompare_multiservo.c. In the future,
+#  these will hopefully be configurable.
 class multiServo(object):
     ## Create the class instance for a multi-servo output.
     #  @param isTimer2 True to use timer2, false to use timer3 for

@@ -7,7 +7,9 @@
 #include "pyFuncsInC.h"
 #include "outputcompare_multiservo.h"
 #include "dataXfer.h"
+#ifdef HAS_REMAPPABLE_PINS
 #include <pps.h>
+#endif
 #include <stdio.h>
 
 #undef __FILE_ID__

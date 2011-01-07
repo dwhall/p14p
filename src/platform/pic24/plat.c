@@ -385,3 +385,32 @@ plat_reportError(PmReturn_t result)
     }
 #endif /* HAVE_DEBUG_INFO */
 }
+
+
+/** Very scary: v3.25 has some erroneous implementations in sprintf. To get the project to
+ *  compile, I put the functions below in. A bit more info is at:
+ *  http://www.microchip.com/forums/m535514.aspx
+ *  Error messages which occur without this:
+ *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x1c):fake: undefined reference to `assert' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x20):fake: undefined reference to `alloc' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x1c):fake: undefined reference to `assert' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x20):fake: undefined reference to `alloc'
+ *  As I understand it, this means these functions expect to call assert()
+ *  (which is now a macro in the new library of 3.25) and alloc() (whatever that is) (!!!).
+ *  Very scary. In the debugger, I can see that alloc is called; however, ASSERT(0) isn't called.
+ *  Junk strings get printed.
+ *
+ *  Conclusion: snprintf is broken in 3.25 beyond my ability to fix it.
+ */
+#if __C30_VERSION__ == 325
+void
+assert(int i_expr)
+{
+   ASSERT(i_expr);
+}
+
+#include <stdlib.h>
+void*
+alloc(size_t s)
+{
+   return malloc(s);
+}
+#error The v3.25 C30 compiler does not work with this program. Please use v3.24 instead.
+#endif

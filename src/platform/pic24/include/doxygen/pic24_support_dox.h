@@ -41,7 +41,7 @@
  * implementation details and information on adding support for
  * PIC24 processors not currently supported by this library.
  * Following these three sections is
- * a \ref libraryFunctionSummary "library function summary", 
+ * a \ref libraryFunctionSummary "library function summary",
  * listing all functions available in the library.
  *
  * A simple example which echos characters via the UART:
@@ -110,7 +110,7 @@ int main(void) {
  *
  * \subsection delayRoutines Delay routines
  * The file pic24_delay.h defines:
- * - \ref DEBOUNCE_DLY, DELAY_MS(ms), DELAY_US(us), \ref CYCLES_PER_MS, 
+ * - \ref DEBOUNCE_DLY, DELAY_MS(ms), DELAY_US(us), \ref CYCLES_PER_MS,
  *   \ref CYCLES_PER_US, \ref delayAndUpdateHeartbeatCount(uint32 u32_cyc)
  *
  * \subsection dataTypes Generic data types
@@ -124,14 +124,14 @@ int main(void) {
  * - High-level port configuration: CONFIG_Rxy_AS_DIG_OUTPUT(),
  *   CONFIG_Rxy_AS_DIG_OD_OUTPUT(), CONFIG_Rxy_AS_DIG_INPUT(),
  *   CONFIG_ANx_AS_ANALOG()
- * - Low-level port configuration: ENABLE_Rxy_ANALOG(), 
+ * - Low-level port configuration: ENABLE_Rxy_ANALOG(),
  *   DISABLE_Rxy_ANALOG(), CONFIG_RPy_AS_DIG_PIN(), ENABLE_Rxy_OPENDRAIN(),
  *   DISABLE_Rxy_OPENDRAIN(), ENABLE_Rxy_PULLUP(), DISABLE_Rxy_PULLUP(),
  *   ENABLE_Rxy_CN_INTERRUPT(), DISABLE_Rxy_CN_INTERRUPT()
  * - <a href="pic24_ports.h#remappableInputs">Remappable peripheral input support</a>
  * - <a href="#remappableOutputs">Remappable peripheral output support</a>
  * \todo The relative anchor links above don't work across files.
- * 
+ *
  * \subsection utils Miscellaneous utility functions
  * The file pic24_utils.h includes files which define:
  * - The number of various peripherals on the chip: \ref NUM_UART_MODS,

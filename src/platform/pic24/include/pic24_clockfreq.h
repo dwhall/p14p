@@ -42,7 +42,7 @@
  *  (the internal FRC+ PLL configured for FCY = 40 MHz). Some of the examples
  *  in Chapter 12 expect an external 8 MHz crystal, and use the PRIPLL_8MHzCrystal_40MHzFCY option
  *  (external 8 MHz crystal + PLL confgured for FCY = 40 MHz). If \ref CLOCK_CONFIG is not
- *  defined, the default choice for PIC24H processors is FRCPLL_FCY40MHz, while for PIC24F 
+ *  defined, the default choice for PIC24H processors is FRCPLL_FCY40MHz, while for PIC24F
  *  processors the default is FRCPLL_FCY16MHz (internal FRC+ PLL configured for FCY = 16 MHz).
  *
  *  This file provides several useful defines as a result of the
@@ -96,6 +96,33 @@
 #ifndef CLOCK_CONFIG
 #define CLOCK_CONFIG SIM_CLOCK
 #endif
+
+// Verify that the current processor is supported by the clock
+// configuration chosen.
+// 1. Set up some #defines as booleans which tell which processor
+//    is selected for this compile.
+/// \cond nodoxygen
+#ifdef __PIC24F__
+#define PIC24F_DEFINED 1
+#else
+#define PIC24F_DEFINED 0
+#endif
+#ifdef __PIC24H__
+#define PIC24H_DEFINED 1
+#else
+#define PIC24H_DEFINED 0
+#endif
+#ifdef __dsPIC33F__
+#define dsPIC33F_DEFINED 1
+#else
+#define dsPIC33F_DEFINED 0
+#endif
+#ifdef __PIC24FK__
+#define PIC24FK_DEFINED 1
+#else
+#define PIC24FK_DEFINED 0
+#endif
+
 
 ///@{ \name #defines for CLOCK_CONFIG
 /** Create a table of vales for CLOCK_CONFIG.
@@ -202,32 +229,6 @@
 #define POSCMD_SEL              GET_POSCMD_SEL(CLOCK_CONFIG)
 #define POSC_FREQ               GET_POSC_FREQ(CLOCK_CONFIG)
 #define CONFIG_DEFAULT_CLOCK()  GET_CONFIG_DEFAULT_CLOCK(CLOCK_CONFIG)()
-
-// Verify that the current processor is supported by the clock
-// configuration chosen.
-// 1. Set up some #defines as booleans which tell which processor
-//    is selected for this compile.
-/// \cond nodoxygen
-#ifdef __PIC24F__
-#define PIC24F_DEFINED 1
-#else
-#define PIC24F_DEFINED 0
-#endif
-#ifdef __PIC24H__
-#define PIC24H_DEFINED 1
-#else
-#define PIC24H_DEFINED 0
-#endif
-#ifdef __dsPIC33F__
-#define dsPIC33F_DEFINED 1
-#else
-#define dsPIC33F_DEFINED 0
-#endif
-#ifdef __PIC24FK__
-#define PIC24FK_DEFINED 1
-#else
-#define PIC24FK_DEFINED 0
-#endif
 
 // 2. Check to see if this clock configuration supports that processor.
 #if !GET_IS_SUPPORTED(CLOCK_CONFIG)
@@ -345,7 +346,7 @@
 /// \cond nodoxygen
 #if defined(__PIC24H__) || defined (__PIC24FK__) || defined(__dsPIC33F__) || defined(__DOXYGEN__)
 #define _GET_OSC_SEL_BITS(bits) ((bits >> 0) & 0x07)
-#elif defined (__PIC24F__) 
+#elif defined (__PIC24F__)
 #define _GET_OSC_SEL_BITS(bits) ((bits >> 8) & 0x07)
 #else
 #error Unknown processor

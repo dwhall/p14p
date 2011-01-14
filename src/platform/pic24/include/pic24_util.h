@@ -60,7 +60,7 @@
  *  at \ref DEV_ID_LOCATION.
  */
 #define DEV_ID 0x00080a
-/** A string to identify this chip, printed by 
+/** A string to identify this chip, printed by
  *  checkDeviceAndRevision().
  */
 #define DEV_ID_STR "PIC24HJ12GP201"
@@ -69,7 +69,7 @@
  *  can be defined as EXPECTED_REVISIONn, where n = 1..5.
  */
 #define EXPECTED_REVISION1 0x003001
-/** A string to accompany this revision, printed by 
+/** A string to accompany this revision, printed by
  *  checkDeviceAndRevision(). Additional revision strings
  *  can be defined as EXPECTED_REVISIONn, where n = 1..5.
  */
@@ -328,11 +328,11 @@
 #define EXPECTED_REVISION1_STR "A2"
 #define EXPECTED_REVISION2 0x003003
 #define EXPECTED_REVISION2_STR "A3"
-#define EXPECTED_REVISION3 0x003007  
+#define EXPECTED_REVISION3 0x003007
 #define EXPECTED_REVISION3_STR "A4"
-#define EXPECTED_REVISION4 0x003043  
+#define EXPECTED_REVISION4 0x003043
 #define EXPECTED_REVISION4_STR "C1"
-#define EXPECTED_REVISION5 0x003044  
+#define EXPECTED_REVISION5 0x003044
 #define EXPECTED_REVISION5_STR "C2"
 #endif
 
@@ -358,7 +358,7 @@
 
 
 #if (defined(__PIC24FJ32GA102__) || defined(__PIC24FJ32GA104__)\
-|| defined(__PIC24FJ64GA102__) || defined(__PIC24FJ64GA104__)) 
+|| defined(__PIC24FJ64GA102__) || defined(__PIC24FJ64GA104__))
 #define EXPECTED_REVISION1 0x000002
 #define EXPECTED_REVISION1_STR "A2"
 #endif

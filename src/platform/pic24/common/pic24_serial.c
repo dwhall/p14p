@@ -87,8 +87,8 @@ void outString(const char* psz_s) {
   while (*psz_s) {
 
 #if (SERIAL_EOL_DEFAULT==SERIAL_EOL_CR_LF)
-	if (*psz_s == '\n') outChar(0x0D);
-    outChar(*psz_s);    
+    if (*psz_s == '\n') outChar(0x0D);
+    outChar(*psz_s);
 #endif
 #if (SERIAL_EOL_DEFAULT==SERIAL_EOL_CR)
     if (*psz_s == '\n') outChar(0x0D);
@@ -201,8 +201,8 @@ Output u8_x as decimal value.
 \param u8_x value to output.
 */
 void outUint8Decimal( uint8 u8_x ) {
-  const static uint8  u8_d[]={50, 30, 20, 10, 5, 3, 2, 1 };
-  const static uint8  u8_f[]={5, 3, 2, 1, 5, 3, 2, 1 };
+  static const uint8  u8_d[]= {50, 30, 20, 10, 5, 3, 2, 1 };
+  static const uint8  u8_f[]= {5, 3, 2, 1, 5, 3, 2, 1 };
 
   char      psz_out[5];
   uint8     u8_i, u8_destroy;
@@ -236,10 +236,10 @@ Output u16_x as decimal value.
 \param u16_x value to output.
 */
 void outUint16Decimal( uint16 u16_x ) {
-  const static uint16  u16_d[]={50000, 30000, 20000, 10000, 5000, 3000, 2000, 1000, \
-                          500, 300, 200, 100, 50, 30, 20, 10, 5, 3, 2, 1
-                         };
-  const static uint8   u8_f[]={5, 3, 2, 1 };
+  static const uint16  u16_d[]= {50000, 30000, 20000, 10000, 5000, 3000, 2000, 1000, \
+                           500, 300, 200, 100, 50, 30, 20, 10, 5, 3, 2, 1
+                          };
+  static const uint8   u8_f[]= {5, 3, 2, 1 };
 
   uint8     u8_i;
   uint16    u16_destroy;

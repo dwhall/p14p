@@ -210,44 +210,44 @@
 #define ECAN_USE_FIFO   0xF
 
 //CiTRmnCON  TXRX buffer control
-#define ECAN_RX_BUFF 0   
+#define ECAN_RX_BUFF 0
 #define ECAN_TX_BUFF 1
 
- 
+
 //Data structure for ECAN Data Frame
 typedef struct _ECANW0 {
-    unsigned IDE: 1;
-    unsigned SRR:1;
-    unsigned SID:11;
-}ECANW0;
+  unsigned IDE: 1;
+  unsigned SRR:1;
+  unsigned SID:11;
+} ECANW0;
 typedef struct _ECANW1 {
-    unsigned EID17_6: 12;
-}ECANW1;
+  unsigned EID17_6: 12;
+} ECANW1;
 
 typedef struct _ECANW2 {
-    unsigned DLC:4;
-    unsigned RB0:1;
-    unsigned :3;
-    unsigned RB1:1;
-    unsigned RTR:1;
-    unsigned EID5_0:6;
-}ECANW2;
+  unsigned DLC:4;
+  unsigned RB0:1;
+  unsigned :3;
+  unsigned RB1:1;
+  unsigned RTR:1;
+  unsigned EID5_0:6;
+} ECANW2;
 
 typedef struct _ECANW7 {
-    unsigned :8;
-    unsigned FILHIT:5;
-    unsigned :3;
-}ECANW7;
+  unsigned :8;
+  unsigned FILHIT:5;
+  unsigned :3;
+} ECANW7;
 
 
 
 typedef struct _ECANMSG {
-   ECANW0 w0;
-   ECANW1 w1;
-   ECANW2 w2;
-   union64 data;
-   ECANW7  w7;
-}ECANMSG;
+  ECANW0 w0;
+  ECANW1 w1;
+  ECANW2 w2;
+  union64 data;
+  ECANW7  w7;
+} ECANMSG;
 
 
 void formatStandardDataFrameECAN (ECANMSG* p_ecanmsg, uint16 u16_id, uint8 u8_len);
@@ -264,12 +264,12 @@ uint32 getIdExtendedDataFrameECAN (ECANMSG* p_ecanmsg);
 /** Waits until all characters placed in the UART have been sent. */
 inline static void CHANGE_MODE_ECAN1(mode) {
   C1CTRL1bits.REQOP = mode;
-  while(C1CTRL1bits.OPMODE != mode); 
+  while(C1CTRL1bits.OPMODE != mode);
 }
 
 /** Return the number (0-31) of the next ECAN FIFO read buffer
  */
-#define GET_FIFO_READBUFFER_ECAN1() (C1FIFO & 0x1F)   
+#define GET_FIFO_READBUFFER_ECAN1() (C1FIFO & 0x1F)
 
 void clrRxFullFlagECAN1(uint8 u8_bufNum);
 uint8 getRxFullFlagECAN1(uint8 u8_bufNum);
@@ -282,7 +282,7 @@ uint8 getTxInProgressECAN1(uint8 u8_bufNum);
 
 #endif
 
- 
+
 #endif // #if (NUM_ECAN_MODS >= 1)
 #endif // #define _PIC24_ECAN1_H_
 
@@ -500,44 +500,44 @@ uint8 getTxInProgressECAN1(uint8 u8_bufNum);
 #define ECAN_USE_FIFO   0xF
 
 //CiTRmnCON  TXRX buffer control
-#define ECAN_RX_BUFF 0   
+#define ECAN_RX_BUFF 0
 #define ECAN_TX_BUFF 1
 
- 
+
 //Data structure for ECAN Data Frame
 typedef struct _ECANW0 {
-    unsigned IDE: 1;
-    unsigned SRR:1;
-    unsigned SID:11;
-}ECANW0;
+  unsigned IDE: 1;
+  unsigned SRR:1;
+  unsigned SID:11;
+} ECANW0;
 typedef struct _ECANW1 {
-    unsigned EID17_6: 12;
-}ECANW1;
+  unsigned EID17_6: 12;
+} ECANW1;
 
 typedef struct _ECANW2 {
-    unsigned DLC:4;
-    unsigned RB0:1;
-    unsigned :3;
-    unsigned RB1:1;
-    unsigned RTR:1;
-    unsigned EID5_0:6;
-}ECANW2;
+  unsigned DLC:4;
+  unsigned RB0:1;
+  unsigned :3;
+  unsigned RB1:1;
+  unsigned RTR:1;
+  unsigned EID5_0:6;
+} ECANW2;
 
 typedef struct _ECANW7 {
-    unsigned :8;
-    unsigned FILHIT:5;
-    unsigned :3;
-}ECANW7;
+  unsigned :8;
+  unsigned FILHIT:5;
+  unsigned :3;
+} ECANW7;
 
 
 
 typedef struct _ECANMSG {
-   ECANW0 w0;
-   ECANW1 w1;
-   ECANW2 w2;
-   union64 data;
-   ECANW7  w7;
-}ECANMSG;
+  ECANW0 w0;
+  ECANW1 w1;
+  ECANW2 w2;
+  union64 data;
+  ECANW7  w7;
+} ECANMSG;
 
 
 void formatStandardDataFrameECAN (ECANMSG* p_ecanmsg, uint16 u16_id, uint8 u8_len);
@@ -554,12 +554,12 @@ uint32 getIdExtendedDataFrameECAN (ECANMSG* p_ecanmsg);
 /** Waits until all characters placed in the UART have been sent. */
 inline static void CHANGE_MODE_ECAN2(mode) {
   C2CTRL1bits.REQOP = mode;
-  while(C2CTRL1bits.OPMODE != mode); 
+  while(C2CTRL1bits.OPMODE != mode);
 }
 
 /** Return the number (0-31) of the next ECAN FIFO read buffer
  */
-#define GET_FIFO_READBUFFER_ECAN2() (C2FIFO & 0x1F)   
+#define GET_FIFO_READBUFFER_ECAN2() (C2FIFO & 0x1F)
 
 void clrRxFullFlagECAN2(uint8 u8_bufNum);
 uint8 getRxFullFlagECAN2(uint8 u8_bufNum);
@@ -572,7 +572,7 @@ uint8 getTxInProgressECAN2(uint8 u8_bufNum);
 
 #endif
 
- 
+
 #endif // #if (NUM_ECAN_MODS >= 2)
 #endif // #define _PIC24_ECAN2_H_
 

@@ -129,26 +129,58 @@ plat_getByte(uint8_t *b)
 {
   PmReturn_t retval = PM_RET_OK;
 
-#ifdef UART1_RX_INTERRUPT
-  // Read the char from the ISR's buffer. No error checking is available.
-  *b = inChar1();
-  return retval;
-
-#else
-
-  /* Wait for character */
-  while (!isCharReady1()) doHeartbeat();
-
-  /* Return errors for Framing error or Overrun */
-  if (U1STAbits.PERR || U1STAbits.FERR || U1STAbits.OERR) {
-    PM_RAISE(retval, PM_RET_EX_IO);
-    return retval;
-  }
-  *b = U1RXREG;
-
-  return retval;
-
+  // Check for interrupt-driven receive and if so, read from the
+  // appropriate buffer.
+  switch (__C30_UART) {
+#if (NUM_UART_MODS >= 1) && (UART1_RX_INTERRUPT)
+    case 1 :
+        *b = inChar1();
+        return retval;
 #endif
+#if (NUM_UART_MODS >= 2) && (UART2_RX_INTERRUPT)
+    case 1 :
+        *b = inChar2();
+        return retval;
+#endif
+#if (NUM_UART_MODS >= 3) && (UART3_RX_INTERRUPT)
+    case 1 :
+        *b = inChar3();
+        return retval;
+#endif
+#if (NUM_UART_MODS >= 4) && (UART4_RX_INTERRUPT)
+    case 1 :
+        *b = inChar4();
+        return retval;
+#endif
+    }
+
+/*  This values gives the number of words between UART SFR registers.
+ *  For example, &U1MODE = 0x0220 and &U2MODE = 0x230, a difference of
+ *  eight words. Per comments on \ref IO_PORT_CONTROL_OFFSET, this
+ *  can't be defined as a static value, requiring a hand look-up.
+ */
+#define UART_SFR_SPACING 8
+
+    // If we got here, then there's no interrupt-driven receive
+    // for the selected port, or the port is invalid.
+    C_ASSERT(__C30_UART <= NUM_UART_MODS);
+
+    // Get a pointer to the desired UART status and receive registers
+    volatile UxSTABITS* pUxSTABits = (UxSTABITS*) (&U1STA + (__C30_UART - 1)*UART_SFR_SPACING);
+    volatile uint16_t* pUxRXREG = &U1RXREG + (__C30_UART - 1)*UART_SFR_SPACING;
+
+    /* Wait for a character to be ready (URXDA, UART receive data available). */
+    while (!pUxSTABits->URXDA)
+        doHeartbeat();
+
+    /* Return errors for parity error, framing error or overrun */
+    if (pUxSTABits->PERR || pUxSTABits->FERR || pUxSTABits->OERR) {
+        PM_RAISE(retval, PM_RET_EX_IO);
+        return retval;
+    }
+    *b = *pUxRXREG;
+
+    return retval;
 }
 
 
@@ -160,11 +192,11 @@ plat_getByte(uint8_t *b)
 PmReturn_t
 plat_putByte(uint8_t u8_b)
 {
-  outChar1(u8_b);
+  outChar(u8_b);
   // For the data transfer protocol, automatically escape outgoing
   // chars.
   if (u8_b == ((uint8_t) CMD_TOKEN))
-    outChar1(ESCAPED_CMD);
+    outChar(ESCAPED_CMD);
   return PM_RET_OK;
 }
 

@@ -1753,6 +1753,7 @@ digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 // Note: I can't make this a const, since only the linker knows these values.
 // E.g. the statement below produces a compile error:
 // static const u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
+// Instead, look it up in the stat sheet and statically define it.
 #define IO_PORT_CONTROL_OFFSET 4
 
 PmReturn_t

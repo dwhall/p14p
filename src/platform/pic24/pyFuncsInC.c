@@ -5,7 +5,11 @@
 #include <pic24_all.h>
 #include "pyToC.h"
 #include "pyFuncsInC.h"
+#include "outputcompare_multiservo.h"
+#include "dataXfer.h"
+#ifdef HAS_REMAPPABLE_PINS
 #include <pps.h>
+#endif
 #include <stdio.h>
 
 #undef __FILE_ID__
@@ -30,6 +34,8 @@ putPyClassInt(pPmFrame_t *ppframe, int32_t i32_val)
     // Argument 0 is a pointer to the object.
     // Store port and pin in it.
     // Raise TypeError if address isn't an object
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() > 1, PM_RET_EX_TYPE,
+      "Expected at least 1 argument.");
     ppo_self = NATIVE_GET_LOCAL(0);
     EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
       "Argument 0 must be an class instance");
@@ -56,12 +62,42 @@ getPyClassInt(pPmFrame_t *ppframe, int32_t* pi32_val)
     // Argument 0 is a pointer to the object.
     // Store port and pin in it.
     // Raise TypeError if address isn't an object
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 1, PM_RET_EX_TYPE,
+      "Expected at least 1 argument.");
     ppo_self = NATIVE_GET_LOCAL(0);
     EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
       "Argument 0 must be an class instance");
     ppo_attrs = (pPmObj_t) ((pPmInstance_t) ppo_self)->cli_attrs;
     PM_CHECK_FUNCTION( dict_getItem(ppo_attrs, PM_NONE, &ppo_int) );
     PM_CHECK_FUNCTION( getInt32(ppo_int, pi32_val) );
+
+    return retval;
+}
+
+/** Get a list of private data from a Python class.
+ *  @param ppframe Stack frame containing Python arguments.
+ *                 Argument 0 should be the object.
+ *  @param pppo_list The list stored in the class is returned here.
+ */
+static PmReturn_t
+getPyClassList(pPmFrame_t *ppframe, pPmObj_t* pppo_list)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t ppo_self;
+    pPmObj_t ppo_attrs;
+
+    // Argument 0 is a pointer to the object.
+    // Store port and pin in it.
+    // Raise TypeError if address isn't an object
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 1, PM_RET_EX_TYPE,
+      "Expected at least 1 argument.");
+    ppo_self = NATIVE_GET_LOCAL(0);
+    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
+      "Argument 0 must be an class instance");
+    ppo_attrs = (pPmObj_t) ((pPmInstance_t) ppo_self)->cli_attrs;
+    PM_CHECK_FUNCTION( dict_getItem(ppo_attrs, PM_NONE, pppo_list) );
+    EXCEPTION_UNLESS(OBJ_GET_TYPE(*pppo_list) == OBJ_TYPE_LST, PM_RET_EX_TYPE,
+      "Private class object not a list");
 
     return retval;
 }
@@ -86,6 +122,8 @@ configDigitalPinPy(pPmFrame_t *ppframe)
     EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 4, PM_RET_EX_TYPE,
       "Expected at least 4 arguments, but received %u.",
       (uint16_t) NATIVE_GET_NUM_ARGS());
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 6, PM_RET_EX_TYPE,
+      "Too many arguments");
     GET_UINT16_ARG(1, &u16_port);
     GET_UINT16_ARG(2, &u16_pin);
     GET_BOOL_ARG(3, &b_isInput);
@@ -100,8 +138,8 @@ configDigitalPinPy(pPmFrame_t *ppframe)
 
     PM_CHECK_FUNCTION( configDigitalPin(u16_port, u16_pin, b_isInput, 
       b_isOpenDrain, i16_pullDir) );
-    NATIVE_SET_TOS(PM_NONE);
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -228,8 +266,8 @@ configAnalogPinPy(pPmFrame_t *ppframe)
     PM_CHECK_FUNCTION( putPyClassInt(ppframe, u16_analogPin) );
 
     PM_CHECK_FUNCTION( configAnalogPin(u16_analogPin) );
-    NATIVE_SET_TOS(PM_NONE);
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -265,6 +303,7 @@ readAnalogCodePy(pPmFrame_t *ppframe)
     uint16_t u16_analogCode;
     pPmObj_t ppo_analogCode;
         
+    CHECK_NUM_ARGS(1);
     PM_CHECK_FUNCTION( readAnalogCode(ppframe, &u16_analogCode) );
     PM_CHECK_FUNCTION( int_new(u16_analogCode, &ppo_analogCode) );
     NATIVE_SET_TOS(ppo_analogCode);
@@ -278,6 +317,7 @@ readAnalogFloatPy(pPmFrame_t *ppframe, float f_scale)
     uint16_t u16_analogCode;
     pPmObj_t ppo_analogCode;
         
+    CHECK_NUM_ARGS(1);
     PM_CHECK_FUNCTION( readAnalogCode(ppframe, &u16_analogCode) );
     PM_CHECK_FUNCTION( float_new(f_scale*u16_analogCode, &ppo_analogCode) );
     NATIVE_SET_TOS(ppo_analogCode);
@@ -401,6 +441,7 @@ configPwm(uint32_t u32_freq, bool_t b_isTimer2, uint16_t u16_oc,
         T3CONbits.TON = 1;
     }
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
@@ -427,27 +468,37 @@ getPyOcPrn(pPmFrame_t *ppframe, uint16_t* pu16_oc, uint16_t* pu16_prn)
 }
 
 PmReturn_t
-setPwmCountsPy(pPmFrame_t *ppframe)
+setPwmTimePy(pPmFrame_t *ppframe)
 {
     PmReturn_t retval = PM_RET_OK;
-    uint16_t u16_counts;
+    uint16_t u16_timeUs;
     uint16_t u16_oc;
     uint16_t u16_prn;
 
     CHECK_NUM_ARGS(2);
-    GET_UINT16_ARG(1, &u16_counts);
+    GET_UINT16_ARG(1, &u16_timeUs);
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
-    PM_CHECK_FUNCTION(setPwmCounts(u16_counts, u16_oc) );
+    PM_CHECK_FUNCTION(setPwmTime(u16_timeUs, u16_oc, u16_prn) );
 
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }
 
 PmReturn_t
-setPwmCounts(uint16_t u16_counts, uint16_t u16_oc)
+setPwmTime(uint16_t u16_timeUs, uint16_t u16_oc, uint16_t u16_prn)
 {
     PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_counts;
+    uint16_t u16_pre;
 
     ASSERT(u16_oc <= NUM_OC_MODS);
+    // Determine which timer is in use in order to convert time to ticks
+    u16_pre = (u16_prn == PR2) ? getTimerPrescale(T2CONbits) : 
+      getTimerPrescale(T3CONbits);
+    u16_counts = usToU16Ticks(u16_timeUs, u16_pre);
+    // Make sure this doesn't exceed the PR value.
+    EXCEPTION_UNLESS(u16_counts <= u16_prn, PM_RET_EX_VAL, "Time exceeds PRx time.");
+    // Update PWM
     OC_REG(OC1RS, u16_oc) = u16_counts;
 
     return retval;
@@ -464,7 +515,227 @@ setPwmRatioPy(pPmFrame_t *ppframe)
     CHECK_NUM_ARGS(2);
     GET_FLOAT_ARG(1, &f_ratio);
     PM_CHECK_FUNCTION(getPyOcPrn(ppframe, &u16_oc, &u16_prn) );
-    PM_CHECK_FUNCTION(setPwmCounts((((uint32_t) u16_prn) + 1)*f_ratio, u16_oc) );
+    EXCEPTION_UNLESS( (f_ratio <= 1.0) && (f_ratio >= 0.0), PM_RET_EX_VAL,
+      "Invalid ratio.");
+    // Update PWM
+    OC_REG(OC1RS, u16_oc) = (((uint32_t) u16_prn) + 1)*f_ratio;
 
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+PmReturn_t
+configMultiServoPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    bool_t b_isTimer2;
+    uint16_t u16_oc;
+
+    // Get the arguments and error check them
+    CHECK_NUM_ARGS(3);
+    GET_BOOL_ARG(1, &b_isTimer2);
+    GET_UINT16_ARG(2, &u16_oc);
+    PM_CHECK_FUNCTION(initMultiServo() );
+
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+PmReturn_t
+setServoPulseWidthPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_servo;
+    uint16_t u16_pwUs;
+
+    // Get the arguments and error check them
+    CHECK_NUM_ARGS(3);
+    GET_UINT16_ARG(1, &u16_servo);
+    GET_UINT16_ARG(2, &u16_pwUs);
+    PM_CHECK_FUNCTION(setServoPulseWidth(u16_servo, u16_pwUs) );
+
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+/*  Data transfer implementation notes:
+ *  - Use a single, 4-byte buffer to hold send and receive data.
+ *    Eventually, modify the code so it doesn't need a pointer to
+ *    the data to send/receive. Sends should accept a pointer to the
+ *    data to send; receives should make use of a single receive buffer.
+ *  - On a receive, wrap the value into a Python int then place it at
+ *    the appropriate index in the list.
+ *  - Provide a non-blocking receiveAll function to receive everything
+ *    until the receive buffer is empty. Provide a blocking version too.  
+ */
+
+/** A buffer for all reads and writes between Python and the dataXfer
+ *  code. */
+static int32_t i32_xferReceiveInt;
+
+PmReturn_t
+initDataXferPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t ppo_self;
+    pPmObj_t ppo_attrs;
+    pPmObj_t ppo_list;
+    uint16_t u16_index;
+
+    // Make sure we were passed self
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() >= 1, PM_RET_EX_TYPE,
+      "Expected at least 1 argument, but received %u.",
+      (uint16_t) NATIVE_GET_NUM_ARGS());
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 2, PM_RET_EX_TYPE,
+      "Expected at most 2 arguments, but received %u.",
+      (uint16_t) NATIVE_GET_NUM_ARGS());
+
+    // Argument 0 is a pointer to the object.
+    // Raise TypeError if address isn't an object
+    ppo_self = NATIVE_GET_LOCAL(0);
+    EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_self) == OBJ_TYPE_CLI, PM_RET_EX_TYPE, 
+      "Argument 0 must be an class instance");
+    
+    // Create a list of size NUM_XFER_VARS for the class or use the given list
+    // Argument 1 (optional) is a list
+    if (NATIVE_GET_NUM_ARGS() >= 2)
+    {
+        ppo_list = NATIVE_GET_LOCAL(1);
+        EXCEPTION_UNLESS(OBJ_GET_TYPE(ppo_list) == OBJ_TYPE_LST, PM_RET_EX_TYPE, 
+          "Argument 1 must be a list");
+    } else {
+        PM_CHECK_FUNCTION( list_new(&ppo_list) );
+    }
+
+    // Save the list in the object's private data
+    ppo_attrs = (pPmObj_t)((pPmInstance_t)ppo_self)->cli_attrs;
+    PM_CHECK_FUNCTION( dict_setItem(ppo_attrs, PM_NONE, ppo_list) );
+
+    // Fill the list with PM_NONEs until it's at least NUM_XFER_VARS in size
+    for (u16_index = ((pPmList_t) ppo_list)->length; 
+      u16_index < NUM_XFER_VARS; u16_index++)
+    {
+        PM_CHECK_FUNCTION( list_append(ppo_list, PM_NONE) );
+    }
+
+    // Configure all vars to receive data into the i32_xferReceiveInt
+    // buffer.
+    initDataXfer();
+    for (u16_index = 0; u16_index < NUM_XFER_VARS; u16_index++)
+    {
+        specifyVar(u16_index, &i32_xferReceiveInt, 
+          sizeof(i32_xferReceiveInt), C_TRUE, "%d", "", "");
+    }
+
+    // Return nothing
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+PmReturn_t
+receiveDataXferPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    bool_t b_isBlocking = C_TRUE;
+    RECEIVE_ERROR re;
+    uint8_t au8_c[2];
+    uint16_t u16_index;
+    pPmObj_t ppo_list;
+    pPmObj_t ppo_int;
+    pPmObj_t ppo_str;
+
+    // Extract and validate args
+    EXCEPTION_UNLESS(NATIVE_GET_NUM_ARGS() <= 2, PM_RET_EX_TYPE,
+      "Too many arguments");
+    PM_CHECK_FUNCTION( getPyClassList(ppframe, &ppo_list) );
+    if (NATIVE_GET_NUM_ARGS() >= 2)
+    {
+        GET_BOOL_ARG(1, &b_isBlocking);
+    }
+
+    // Feed state machine if characters are ready or if we're in the middle
+    // of receiving data.
+    while (isCharReady1() || b_isBlocking)
+    {
+        // Receive a char
+        PM_CHECK_FUNCTION( plat_getByte(au8_c) );
+        // Step state machine, no timeout
+        // TODO: Add a timeout
+        re = stepReceiveMachine(au8_c[0]);
+        // Transform any errors to exceptions
+        EXCEPTION_UNLESS(re == ERR_NONE, PM_RET_EX_VAL,
+          "Data transfer error: %s", getReceiveErrorString());
+        // Process any data received
+        if (isReceiveMachineData())
+        {
+            // Wrap the value in an int
+            PM_CHECK_FUNCTION( int_new(i32_xferReceiveInt, &ppo_int) );
+            // Place it in the list
+            u16_index = getReceiveMachineIndex();
+            PM_CHECK_FUNCTION( list_setItem(ppo_list, u16_index, ppo_int) );
+            // Return it
+            PM_CHECK_FUNCTION( int_new(u16_index, &ppo_int) );
+            NATIVE_SET_TOS(ppo_int);
+            return retval;
+        }
+        // Process any characters received
+        if (isReceiveMachineChar())
+        {
+            // Convert the char to a string
+            au8_c[1] = 0;
+            PM_CHECK_FUNCTION( string_new(au8_c, &ppo_str) );
+            NATIVE_SET_TOS(ppo_str);
+            return retval;
+        }
+    }
+
+    // Nothing to return -- no data or characters received.
+    NATIVE_SET_TOS(PM_NONE);
+    return retval;
+}
+
+PmReturn_t
+readDataXferPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t ppo_list;
+    pPmObj_t ppo_listItem;
+    uint16_t u16_index;
+
+    // Make sure we were passed self and index
+    CHECK_NUM_ARGS(2);
+
+    // Extract and validate args
+    PM_CHECK_FUNCTION( getPyClassList(ppframe, &ppo_list) );
+    GET_UINT16_ARG(1, &u16_index);
+    EXCEPTION_UNLESS(u16_index < NUM_XFER_VARS, PM_RET_EX_VAL,
+      "Index exceeds list size");
+
+    // Return requested list item
+    PM_CHECK_FUNCTION( list_getItem(ppo_list, u16_index, &ppo_listItem) );
+    NATIVE_SET_TOS(ppo_listItem);
+    return retval;
+}
+
+PmReturn_t
+writeDataXferPy(pPmFrame_t *ppframe)
+{
+    PmReturn_t retval = PM_RET_OK;
+    uint16_t u16_index;
+
+    // Make sure we were passed self, index, val
+    CHECK_NUM_ARGS(3);
+
+    // Extract and validate args
+    GET_UINT16_ARG(1, &u16_index);
+    EXCEPTION_UNLESS(u16_index < NUM_XFER_VARS, PM_RET_EX_VAL,
+      "Index exceeds list size");
+    GET_INT32_ARG(2, &i32_xferReceiveInt);
+
+    // Send the data
+    sendVar(u16_index);
+
+    // Nothing to return
+    NATIVE_SET_TOS(PM_NONE);
     return retval;
 }

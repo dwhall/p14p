@@ -38,7 +38,9 @@
 #include "pic24_all.h"
 #include "pyFuncsInC.h"
 #include "pyToC.h"
+#ifdef HAS_REMAPPABLE_PINS
 #include <pps.h>
+#endif
 
 #undef __FILE_ID__
 #define __FILE_ID__ 0x70
@@ -1751,6 +1753,7 @@ digitalOpenDrainPinExists(uint16_t u16_port, uint16_t u16_pin)
 // Note: I can't make this a const, since only the linker knows these values.
 // E.g. the statement below produces a compile error:
 // static const u16_ioPortControlOffset = (uint16_t) (&TRISB - &TRISA);
+// Instead, look it up in the data sheet and statically define it.
 #define IO_PORT_CONTROL_OFFSET 4
 
 PmReturn_t
@@ -1797,7 +1800,11 @@ setPinIsDigital(uint16_t u16_port, uint16_t u16_pin,
     u8_anPin = anCnMap[u16_port*16 + u16_pin].u8_anPin;
     if (u8_anPin != UNDEF_AN_PIN) {
         // Enable/disable analog input mode on this pin.
-        // Each ADC handles 32 channels; some PIC24F / dsPIC33 parts have
+        // PIC24F devices call is AD1PCFG, so work around that.
+#if defined(__PIC24F__) || defined(__PIC24FK__)
+    #define AD1PCFGL AD1PCFG
+#endif
+        // Each ADC handles 32 channels; some dsPIC33 parts have
         // two converters. If so, need to clear the corresponding bit on both.
         SET_EXTENDED_BIT(&AD1PCFGL, u8_anPin, b_isDigital);
 #ifdef _AD2IF
@@ -1830,13 +1837,6 @@ setPinIsOpenDrain(uint16_t u16_port, uint16_t u16_pin, bool_t b_isOpenDrain)
     // does not have open-drain | throw exception    | do nothing (already normal)
     if (digitalOpenDrainPinExists(u16_port, u16_pin)) {
         // Set the pin per the OD boolean.
-        // PIC24F names this differently, so define around it.
-        #if defined (_ODA0)  || defined (_ODA1)  || defined (_ODA2)  || defined (_ODA3)  || \
-            defined (_ODA4)  || defined (_ODA5)  || defined (_ODA6)  || defined (_ODA7)  || \
-            defined (_ODA8)  || defined (_ODA9)  || defined (_ODA10) || defined (_ODA11) || \
-            defined (_ODA12) || defined (_ODA12) || defined (_ODA14) || defined (_ODA15)
-        #define ODCA ODA
-        #endif
         setBit((&ODCA) + u16_port*IO_PORT_CONTROL_OFFSET, u16_pin, b_isOpenDrain);
     } else {
         // If open-drain is enabled on a pin without OD ability,

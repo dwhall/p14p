@@ -86,7 +86,10 @@ typedef unsigned int uint_t;
 /** A datatype for Boolean values. Choose speed, rather than size. */
 typedef uint_t bool_t;
 
-/* Apparently, this is actually in the library but simply not prototyped. */
+/* Apparently, this is actually in the library but simply not prototyped. 
+  Update: v3.25 of the compiler now has it. */
+#if __C30_VERSION__ < 325
 int snprintf( char *buffer, int buff_size, const char *format, ... );
+#endif
 
 #endif

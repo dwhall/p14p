@@ -138,17 +138,17 @@ plat_getByte(uint8_t *b)
         return retval;
 #endif
 #if (NUM_UART_MODS >= 2) && (UART2_RX_INTERRUPT)
-    case 1 :
+    case 2 :
         *b = inChar2();
         return retval;
 #endif
 #if (NUM_UART_MODS >= 3) && (UART3_RX_INTERRUPT)
-    case 1 :
+    case 3 :
         *b = inChar3();
         return retval;
 #endif
 #if (NUM_UART_MODS >= 4) && (UART4_RX_INTERRUPT)
-    case 1 :
+    case 4 :
         *b = inChar4();
         return retval;
 #endif
@@ -163,7 +163,7 @@ plat_getByte(uint8_t *b)
 
     // If we got here, then there's no interrupt-driven receive
     // for the selected port, or the port is invalid.
-    C_ASSERT(__C30_UART <= NUM_UART_MODS);
+    C_ASSERT( (__C30_UART <= NUM_UART_MODS) && (__C30_UART > 0) );
 
     // Get a pointer to the desired UART status and receive registers
     volatile UxSTABITS* pUxSTABits = (UxSTABITS*) (&U1STA + (__C30_UART - 1)*UART_SFR_SPACING);

@@ -54,7 +54,8 @@
 /** pushes an obj on the stack */
 #define PM_PUSH(pobj)   (*(PM_SP++) = (pobj))
 /** gets the argument (S16) from the instruction stream */
-#define GET_ARG()       mem_getWord(PM_FP->fo_memspace, &PM_IP)
+/*#define GET_ARG()       mem_getWord(PM_FP->fo_memspace, &PM_IP)*/
+#define GET_ARG()       (*PM_IP++ | ((*PM_IP++) << 8))
 
 /** pushes an obj in the only stack slot of the native frame */
 #define NATIVE_SET_TOS(pobj) (gVmGlobal.nativeframe.nf_stack = \

@@ -156,7 +156,7 @@ plat_reportError(PmReturn_t result)
     pPmFrame_t pframe;
     pPmObj_t pstr;
     PmReturn_t retval;
-    uint8_t bcindex;
+    uint16_t bcindex;
     uint16_t bcsum;
     uint16_t linesum;
     uint16_t len_lnotab;
@@ -255,8 +255,8 @@ plat_reportError(PmReturn_t result)
          * Get the line number of the current bytecode. Algorithm comes from:
          * http://svn.python.org/view/python/trunk/Objects/lnotab_notes.txt?view=markup
          */
-        bcindex = pframe->fo_ip - pframe->fo_func->f_co->co_codeaddr;
-        plnotab = pframe->fo_func->f_co->co_lnotab;
+        bcindex = 0;/*DWH pframe->fo_ip - pframe->fo_func->f_co->co_codeaddr;*/
+        plnotab = pframe->fo_func->f_co->co_lnotab->val;
         len_lnotab = mem_getWord(MEMSPACE_PROG, &plnotab);
         bcsum = 0;
         linesum = pframe->fo_func->f_co->co_firstlineno;
@@ -267,7 +267,7 @@ plat_reportError(PmReturn_t result)
             linesum += mem_getByte(MEMSPACE_PROG, &plnotab);
         }
         printf("  File \"%s\", line %d, in %s\n",
-               ((pPmFrame_t)pframe)->fo_func->f_co->co_filename,
+               ((pPmFrame_t)pframe)->fo_func->f_co->co_filename->val,
                linesum,
                ((pPmString_t)pstr)->val);
     }

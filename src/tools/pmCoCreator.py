@@ -56,7 +56,7 @@ typeval = {
 }
 ctype = {
     none: "PmNone%s_t",
-    bool: "PmBool%s_t",
+    bool: "PmBoolean%s_t",
     int: "PmInt%s_t",
     float: "PmFloat%s_t",
     str: "PmString%s_t",
@@ -187,7 +187,7 @@ def co_to_crepr(co, cvarnm):
 
 # Table of functions that turn a Python obj to its C struct representation
 objtype_to_crepr_func_table = {
-    none: lambda o, nm: "%s, %d};\n" % (header(none, nm), 0),
+    none: lambda o, nm: "%s};\n" % (header(none, nm)),
     bool: lambda o, nm: "%s, %d};\n" % (header(bool, nm), int(o)),
     int: lambda o, nm: "%s, %d};\n" % (header(int, nm), o),
     float: lambda o, nm: "%s, %f};\n" % (header(float, nm), o),
@@ -238,7 +238,7 @@ def process_globals():
 
 def process_modules(filenames):
     table_lines = ["\n/* Module table */\n"
-                   "pPmInt_t PM_PLAT_PROGMEM %smodule_table_len_ptr = &%s;\n"
+                   "PmInt_t PM_PLAT_PROGMEM * const %smodule_table_len_ptr = &%s;\n"
                    "PmModuleEntry_t PM_PLAT_PROGMEM %smodule_table[] =\n{\n" 
                    % (GLOBAL_PREFIX, obj_to_cvar(len(filenames)),
                       GLOBAL_PREFIX)]
@@ -261,6 +261,7 @@ def process_and_print(filenames, fout=sys.stdout):
     module_table_lines = process_modules(filenames)
 
     cfile_lines = ['#include <stdint.h>\n#include "pm.h"\n\n'
+                   '#define __FILE_ID__ 0x1A\n\n'
                    '/* Decls for types with various sizes */\n']
     for size in string_sizes:
         cfile_lines.append("PM_DECLARE_STRING_TYPE(%d);\n" % size)

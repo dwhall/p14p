@@ -188,7 +188,6 @@ typedef enum PmReturn_e
 
 extern volatile uint32_t pm_timerMsTicks;
 
-
 /* WARNING: The order of the following includes is critical */
 #include "plat.h"
 #include "pmfeatures.h"
@@ -209,7 +208,6 @@ extern volatile uint32_t pm_timerMsTicks;
 #include "module.h"
 #include "frame.h"
 #include "interp.h"
-#include "img.h"
 #include "global.h"
 #include "class.h"
 #include "thread.h"
@@ -220,8 +218,37 @@ extern volatile uint32_t pm_timerMsTicks;
 
 /** Pointer to a native function used for lookup tables in interp.c */
 typedef PmReturn_t (* pPmNativeFxn_t)(pPmFrame_t *);
-extern pPmNativeFxn_t const std_nat_fxn_table[];
-extern pPmNativeFxn_t const usr_nat_fxn_table[];
+
+/**
+ * Native Code Object
+ *
+ * A Code Object that executes a native C function instead of bytecode.
+ * This struct holds the number of arguments the function expects on the
+ * argument stack and a pointer to the C function to execute.
+ */
+typedef struct PmNo_s
+{
+    PmObjDesc_t const od;
+    int8_t no_argcount;
+    pPmNativeFxn_t no_func;
+} PmNo_t, *pPmNo_t;
+
+
+/**
+ * A Module Entry holds the module's name and a pointer to its code object.
+ * The array of module entries that lists the modules built in to the VM
+ * is initialized in pm_generated_codeobjs.c
+ */
+typedef struct PmModuleEntry_s
+{
+    pPmString_t pnm;
+    pPmCo_t pco;
+} PmModuleEntry_t, *pPmModuleEntry;
+
+
+extern PmInt_t PM_PLAT_PROGMEM * const pm_global_module_table_len_ptr;
+extern PmModuleEntry_t PM_PLAT_PROGMEM pm_global_module_table[];
+
 
 /** Object descriptor declaration macro (used by output of pmCoCreator.py) */
 #define PM_DECLARE_OD(type, size) \
@@ -258,8 +285,8 @@ extern pPmNativeFxn_t const usr_nat_fxn_table[];
  * @param pusrimg       Address of the user image in the memory space
  * @return Return status
  */
-PmReturn_t pm_init(uint8_t *heap_base, uint32_t heap_size,
-                   PmMemSpace_t memspace, uint8_t const * const pusrimg);
+PmReturn_t pm_init(uint8_t *heap_base, uint32_t heap_size
+                   /*DWHPmMemSpace_t memspace, uint8_t const * const pusrimg*/);
 
 /**
  * Executes the named module

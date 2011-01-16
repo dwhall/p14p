@@ -98,9 +98,6 @@ typedef struct PmFrame_s
     /** Ptr to fxn obj */
     pPmFunc_t fo_func;
 
-    /** Mem space where func's CO comes from */
-    PmMemSpace_t fo_memspace:8;
-
     /** Instrxn ptr (pts into memspace) */
     uint8_t const *fo_ip;
 

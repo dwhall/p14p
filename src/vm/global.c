@@ -165,11 +165,6 @@ global_init(void)
     retval = list_new(&pobj);
     gVmGlobal.threadList = (pPmList_t)pobj;
 
-    /* Init the PmImgPaths with std image info */
-    gVmGlobal.imgPaths.memspace[0] = MEMSPACE_PROG;
-    gVmGlobal.imgPaths.pimg[0] = (uint8_t *)&stdlib_img;
-    gVmGlobal.imgPaths.pathcount = 1;
-
 #ifdef HAVE_PRINT
     gVmGlobal.needSoftSpace = C_FALSE;
     gVmGlobal.somethingPrinted = C_FALSE;

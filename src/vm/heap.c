@@ -690,12 +690,14 @@ heap_gcMarkObj(pPmObj_t pobj)
             PM_RETURN_IF_ERROR(retval);
 
             /* #122: Mark the code image if it is in RAM */
+/*DWH
             if (((pPmCo_t)pobj)->co_memspace == MEMSPACE_RAM)
             {
                 retval = heap_gcMarkObj((pPmObj_t)
                                         (((pPmCo_t)pobj)->co_codeimgaddr));
                 PM_RETURN_IF_ERROR(retval);
             }
+*/
 
 #ifdef HAVE_CLOSURES
             /* #256: Add support for closures */

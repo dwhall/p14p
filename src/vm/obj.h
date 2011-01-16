@@ -228,6 +228,13 @@ typedef struct PmObj_s
     PmObjDesc_t od;
 } PmObj_t, *pPmObj_t;
 
+/** None object */
+typedef struct PmNone_s
+{
+    /** Object descriptor */
+    PmObjDesc_t od;
+} PmNone_t, *pPmNone_t;
+
 /** Boolean object */
 typedef struct PmBoolean_s
 {

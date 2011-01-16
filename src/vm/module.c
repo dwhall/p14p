@@ -76,12 +76,9 @@ mod_new(pPmObj_t pco, pPmObj_t *pmod)
 PmReturn_t
 mod_import(pPmObj_t pstr, pPmObj_t *pmod)
 {
-    PmMemSpace_t memspace;
-    uint8_t const *imgaddr = C_NULL;
     pPmCo_t pco = C_NULL;
-    PmReturn_t retval = PM_RET_OK;
-    pPmObj_t pobj;
-    uint8_t objid;
+    PmReturn_t retval = PM_RET_NO;
+    uint8_t i;
 
     /* If it's not a string obj, raise SyntaxError */
     if (OBJ_GET_TYPE(pstr) != OBJ_TYPE_STR)
@@ -90,24 +87,24 @@ mod_import(pPmObj_t pstr, pPmObj_t *pmod)
         return retval;
     }
 
-    /* Try to find the image in the paths */
-    retval = img_findInPaths(pstr, &memspace, &imgaddr);
+    /* Try to find the module in the table */
+    for (i = 0; i < pm_global_module_table_len_ptr->val; i++)
+    {
+        if (string_compare(pm_global_module_table[i].pnm, (pPmString_t)pstr) == C_SAME)
+        {
+            pco = pm_global_module_table[i].pco;
+            break;
+        }
+    }
 
     /* If img was not found, raise ImportError */
-    if (retval == PM_RET_NO)
+    if (pco == C_NULL)
     {
         PM_RAISE(retval, PM_RET_EX_IMPRT);
         return retval;
     }
 
-    /* Load img into code obj */
-    retval = obj_loadFromImg(memspace, &imgaddr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    pco = (pPmCo_t)pobj;
-
-    heap_gcPushTempRoot(pobj, &objid);
     retval = mod_new((pPmObj_t)pco, pmod);
-    heap_gcPopTempRoot(objid);
 
     return retval;
 }

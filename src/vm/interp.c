@@ -72,7 +72,8 @@ interpret(const uint8_t returnOnNoThreads)
         }
 
         /* Get byte; the func post-incrs PM_IP */
-        bc = mem_getByte(PM_FP->fo_memspace, &PM_IP);
+/*DWH        bc = mem_getByte(PM_FP->fo_memspace, &PM_IP);*/
+        bc = *PM_IP++;
         switch (bc)
         {
             case POP_TOP:
@@ -1563,7 +1564,7 @@ interpret(const uint8_t returnOnNoThreads)
                 t16 = GET_ARG();
 
                 /* Jump to base_ip + arg */
-                PM_IP = PM_FP->fo_func->f_co->co_codeaddr + t16;
+                PM_IP = PM_FP->fo_func->f_co->co_code->val + t16;
                 continue;
 
             case LOAD_GLOBAL:
@@ -1975,28 +1976,14 @@ CALL_FUNC_FOR_ITER:
                     /* Pop the function object */
                     PM_SP--;
 
-                    /* Get native function index */
-                    pobj2 = (pPmObj_t)((pPmFunc_t)pobj1)->f_co;
-                    t16 = ((pPmNo_t)pobj2)->no_funcindx;
-
                     /* Set flag, so the GC knows a native session is active */
                     gVmGlobal.nativeframe.nf_active = C_TRUE;
 
                     /*
                      * CALL NATIVE FXN: pass caller's frame and numargs
                      */
-                    /* Positive index is a stdlib func */
-                    if (t16 >= 0)
-                    {
-                        retval = std_nat_fxn_table[t16] (&PM_FP);
-                    }
-
-                    /* Negative index is a usrlib func */
-                    else
-                    {
-                        retval = usr_nat_fxn_table[-t16] (&PM_FP);
-                    }
-
+                    pobj2 = (pPmObj_t)((pPmFunc_t)pobj1)->f_co;
+                    retval = ((pPmNo_t)pobj2)->no_func(&PM_FP);
                     /*
                      * RETURN FROM NATIVE FXN
                      */

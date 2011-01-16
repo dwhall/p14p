@@ -6,6 +6,7 @@
 #   scons PLATFORM=<platform>
 #
 
+EnsurePythonVersion(2, 6)
 
 import os, string
 

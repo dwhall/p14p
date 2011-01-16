@@ -16,7 +16,8 @@ HAVE_DEBUG_INFO = True
 
 # Initialize Scons' construction environment
 import sys
-cflags = "-g -ggdb -D__DEBUG__=1 -Os -Wall -gstabs -Wstrict-prototypes -Werror"
+cflags = "-g -ggdb -D__DEBUG__=1 -Os -Wall -gstabs " \
+         "-Wstrict-prototypes -Werror "
 Import("vars")
 env = Environment(variables = vars,
     CPPPATH = ["#src/vm", "#src/platform/desktop/build"],

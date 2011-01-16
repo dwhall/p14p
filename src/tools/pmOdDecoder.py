@@ -84,7 +84,7 @@ def to_int(s):
 
 
 def print_od(od):
-    print("%(val)d (0x%(val)04x): %(type)s[%(size)d], f=%(free)d, m=%(mark)d"
+    print("%(val)d (0x%(val)04x): %(type)s[%(size)d], f=%(free)d, m=%(mark)d, size=%(size)d"
           % od)
 
 

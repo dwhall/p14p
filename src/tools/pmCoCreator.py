@@ -120,7 +120,7 @@ def string_to_crepr(o, nm):
     string_sizes.add(len_o)
     chars = "%s," * len_o % tuple(map(_byte_crepr, o))
     #return wrap("%s, %d, {%s}};\n" % (header(str, nm, len_o), len_o, chars))
-    return "%s, %d, {%s}};\n" % (header(str, nm, len_o), len_o, chars)
+    return "%s, %d, %s, {%s}};\n" % (header(str, nm, len_o), len_o, "C_NULL", chars)
 
 
 def tuple_to_crepr(o, nm):

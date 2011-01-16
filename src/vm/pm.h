@@ -250,24 +250,36 @@ extern PmInt_t PM_PLAT_PROGMEM * const pm_global_module_table_len_ptr;
 extern PmModuleEntry_t PM_PLAT_PROGMEM pm_global_module_table[];
 
 
-/** Object descriptor declaration macro (used by output of pmCoCreator.py) */
+/** Object descriptor declaration macro (used in output of pmCoCreator.py) */
 #define PM_DECLARE_OD(type, size) \
-    ((((type) & OD_TYPE_MASK) << OD_TYPE_SHIFT) | ((size) & OD_SIZE_MASK))
+    ((((type) << OD_TYPE_SHIFT) & OD_TYPE_MASK) \
+     | (((size) << OD_SIZE_SHIFT) & OD_SIZE_MASK))
 
 /** String object declaration macro (used by output of pmCoCreator.py) */
+#if USE_STRING_CACHE
 #define PM_DECLARE_STRING_TYPE(n) \
     typedef struct PmString ## n ## _s \
     { \
-        int16_t header; \
+        PmObjDesc_t od; \
+        int16_t length; \
+        struct PmString_s *next; \
+        uint8_t val[n]; \
+    } PmString ## n ## _t
+#else
+#define PM_DECLARE_STRING_TYPE(n) \
+    typedef struct PmString ## n ## _s \
+    { \
+        PmObjDesc_t od; \
         int16_t length; \
         uint8_t val[n]; \
     } PmString ## n ## _t
+#endif                          /* USE_STRING_CACHE */
 
 /** Tuple object declaration macro (used by output of pmCoCreator.py) */
 #define PM_DECLARE_TUPLE_TYPE(n) \
     typedef struct PmTuple ## n ## _s \
     { \
-        int16_t header; \
+        PmObjDesc_t od; \
         int16_t length; \
         pPmObj_t val[n]; \
     } PmTuple ## n ## _t

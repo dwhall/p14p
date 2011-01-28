@@ -29,50 +29,53 @@
 #define PM_PBUILTINS    (pPmObj_t)(gVmGlobal.builtins)
 
 /** The global None object */
-#define PM_NONE         (pPmObj_t)(gVmGlobal.pnone)
+#define PM_NONE         (pPmObj_t)&pm_global_none
 
 /** The global False object */
-#define PM_FALSE        (pPmObj_t)(gVmGlobal.pfalse)
+#define PM_FALSE        (pPmObj_t)&pm_global_false
 
 /** The global True object */
-#define PM_TRUE         (pPmObj_t)(gVmGlobal.ptrue)
+#define PM_TRUE         (pPmObj_t)&pm_global_true
 
 /** The global integer 0 object */
-#define PM_ZERO         (pPmObj_t)(gVmGlobal.pzero)
+#define PM_ZERO         (pPmObj_t)&pm_global_zero
 
 /** The global integer 1 object */
-#define PM_ONE          (pPmObj_t)(gVmGlobal.pone)
+#define PM_ONE          (pPmObj_t)&pm_global_one
 
 /** The global integer -1 object */
-#define PM_NEGONE       (pPmObj_t)(gVmGlobal.pnegone)
+#define PM_NEGONE       (pPmObj_t)&pm_global_negone
 
 /** The global string "code" */
-#define PM_CODE_STR     (pPmObj_t)(gVmGlobal.pcodeStr)
+#define PM_CODE_STR     (pPmObj_t)&pm_global_string_code
 
 #ifdef HAVE_CLASSES
 /** The global string "__init__" */
-#define PM_INIT_STR     (pPmObj_t)(gVmGlobal.pinitStr)
+#define PM_INIT_STR     (pPmObj_t)&pm_global_string_init
 #endif /* HAVE_CLASSES */
 
 #ifdef HAVE_GENERATORS
 /** The global string "Generator" */
-#define PM_GENERATOR_STR (pPmObj_t)(gVmGlobal.pgenStr)
+#define PM_GENERATOR_STR (pPmObj_t)&pm_global_string_generator
 /** The global string "next" */
-#define PM_NEXT_STR (pPmObj_t)(gVmGlobal.pnextStr)
+#define PM_NEXT_STR (pPmObj_t)&pm_global_string_next
 #endif /* HAVE_GENERATORS */
 
 #ifdef HAVE_ASSERT
 /** The global string "Exception" */
-#define PM_EXCEPTION_STR (pPmObj_t)(gVmGlobal.pexnStr)
+#define PM_EXCEPTION_STR (pPmObj_t)&pm_global_string_exception
 #endif /* HAVE_ASSERT */
 
 #ifdef HAVE_BYTEARRAY
 /** The global string "bytearray" */
-#define PM_BYTEARRAY_STR (pPmObj_t)(gVmGlobal.pbaStr)
+#define PM_BYTEARRAY_STR (pPmObj_t)&pm_global_string_bytearray
 #endif /* HAVE_BYTEARRAY */
 
 /** The global string "__md" */
-#define PM_MD_STR (pPmObj_t)(gVmGlobal.pmdStr)
+#define PM_MD_STR (pPmObj_t)&pm_global_string_md
+
+/** The global string "__bi" */
+#define PM_BI_STR (pPmObj_t)&pm_global_string_bi
 
 
 /**
@@ -80,27 +83,6 @@
  */
 typedef struct PmVmGlobal_s
 {
-    /** Global none obj (none) */
-    pPmObj_t pnone;
-
-    /** Global integer 0 obj */
-    pPmInt_t pzero;
-
-    /** Global integer 1 obj */
-    pPmInt_t pone;
-
-    /** Global integer -1 obj */
-    pPmInt_t pnegone;
-
-    /** Global boolean False obj */
-    pPmInt_t pfalse;
-
-    /** Global boolean True obj */
-    pPmInt_t ptrue;
-
-    /** The string "code", used in interp.c RAISE_VARARGS */
-    pPmString_t pcodeStr;
-
     /** Dict for builtins */
     pPmDict_t builtins;
 
@@ -121,32 +103,6 @@ typedef struct PmVmGlobal_s
 
     /** Ptr to current thread */
     pPmThread_t pthread;
-
-#ifdef HAVE_CLASSES
-    /* NOTE: placing this field before the nativeframe field causes errors */
-    /** The string "__init__", used in interp.c CALL_FUNCTION */
-    pPmString_t pinitStr;
-#endif /* HAVE_CLASSES */
-
-#ifdef HAVE_GENERATORS
-    /** The string "Generator", used in interp.c CALL_FUNCTION */
-    pPmString_t pgenStr;
-    /** The string "next", used in interp.c FOR_ITER */
-    pPmString_t pnextStr;
-#endif /* HAVE_GENERATORS */
-
-#ifdef HAVE_ASSERT
-    /** The string "Exception", used in RAISE_VARARGS */
-    pPmString_t pexnStr;
-#endif /* HAVE_ASSERT */
-
-#ifdef HAVE_BYTEARRAY
-    /** The global string "bytearray" */
-    pPmString_t pbaStr;
-#endif /* HAVE_BYTEARRAY */
-
-    /** The global string "__md" */
-    pPmString_t pmdStr;
 
 #ifdef HAVE_PRINT
     /** Remembers when a space is needed before printing the next object */

@@ -72,8 +72,8 @@ interpret(const uint8_t returnOnNoThreads)
         }
 
         /* Get byte; the func post-incrs PM_IP */
-/*DWH        bc = mem_getByte(PM_FP->fo_memspace, &PM_IP);*/
         bc = *PM_IP++;
+        C_DEBUG_PRINT(VERBOSITY_HIGH, "bytecode = %d (0x%x)\n", bc, bc);
         switch (bc)
         {
             case POP_TOP:

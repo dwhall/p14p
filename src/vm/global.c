@@ -42,119 +42,13 @@ PmReturn_t
 global_init(void)
 {
     PmReturn_t retval;
-    uint8_t *codestr = (uint8_t *)"code";
-    uint8_t *pchunk;
     pPmObj_t pobj;
-#ifdef HAVE_CLASSES
-    uint8_t const *initstr = (uint8_t const *)"__init__"; 
-#endif /* HAVE_CLASSES */
-#ifdef HAVE_GENERATORS
-    uint8_t const *genstr = (uint8_t const *)"Generator";
-    uint8_t const *nextstr = (uint8_t const *)"next";
-#endif /* HAVE_GENERATORS */
-#ifdef HAVE_ASSERT
-    uint8_t const *exnstr = (uint8_t const *)"Exception";
-#endif /* HAVE_ASSERT */
-#ifdef HAVE_BYTEARRAY
-    uint8_t const *pbastr = (uint8_t const *)"bytearray";
-#endif /* HAVE_BYTEARRAY */
-    uint8_t const *pmdstr = (uint8_t const *)"__md";
 
     /* Clear the global struct */
     sli_memset((uint8_t *)&gVmGlobal, '\0', sizeof(PmVmGlobal_t));
 
     /* Set the PyMite release num (for debug and post mortem) */
     gVmGlobal.errVmRelease = PM_RELEASE;
-
-    /* Init zero */
-    retval = heap_getChunk(sizeof(PmInt_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pobj = (pPmObj_t)pchunk;
-    OBJ_SET_TYPE(pobj, OBJ_TYPE_INT);
-    ((pPmInt_t)pobj)->val = (int32_t)0;
-    gVmGlobal.pzero = (pPmInt_t)pobj;
-
-    /* Init one */
-    retval = heap_getChunk(sizeof(PmInt_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pobj = (pPmObj_t)pchunk;
-    OBJ_SET_TYPE(pobj, OBJ_TYPE_INT);
-    ((pPmInt_t)pobj)->val = (int32_t)1;
-    gVmGlobal.pone = (pPmInt_t)pobj;
-
-    /* Init negone */
-    retval = heap_getChunk(sizeof(PmInt_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pobj = (pPmObj_t)pchunk;
-    OBJ_SET_TYPE(pobj, OBJ_TYPE_INT);
-    ((pPmInt_t)pobj)->val = (int32_t)-1;
-    gVmGlobal.pnegone = (pPmInt_t)pobj;
-
-    /* Init False */
-    retval = heap_getChunk(sizeof(PmBoolean_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pobj = (pPmObj_t)pchunk;
-    OBJ_SET_TYPE(pobj, OBJ_TYPE_BOOL);
-    ((pPmBoolean_t) pobj)->val = (int32_t)C_FALSE;
-    gVmGlobal.pfalse = (pPmInt_t)pobj;
-
-    /* Init True */
-    retval = heap_getChunk(sizeof(PmBoolean_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pobj = (pPmObj_t)pchunk;
-    OBJ_SET_TYPE(pobj, OBJ_TYPE_BOOL);
-    ((pPmBoolean_t) pobj)->val = (int32_t)C_TRUE;
-    gVmGlobal.ptrue = (pPmInt_t)pobj;
-
-    /* Init None */
-    retval = heap_getChunk(sizeof(PmObj_t), &pchunk);
-    PM_RETURN_IF_ERROR(retval);
-    pobj = (pPmObj_t)pchunk;
-    OBJ_SET_TYPE(pobj, OBJ_TYPE_NON);
-    gVmGlobal.pnone = pobj;
-
-    /* Init "code" string obj */
-    retval = string_new((uint8_t const **)&codestr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pcodeStr = (pPmString_t)pobj;
-
-#ifdef HAVE_CLASSES
-    /* Init "__init__" string obj */
-    retval = string_new((uint8_t const **)&initstr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pinitStr = (pPmString_t)pobj;
-#endif /* HAVE_CLASSES */
-
-#ifdef HAVE_GENERATORS
-    /* Init "Generator" string obj */
-    retval = string_new((uint8_t const **)&genstr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pgenStr = (pPmString_t)pobj;
-    
-    /* Init "next" string obj */
-    retval = string_new((uint8_t const **)&nextstr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pnextStr = (pPmString_t)pobj;
-#endif /* HAVE_GENERATORS */
-
-#ifdef HAVE_ASSERT
-    /* Init "Exception" string obj */
-    retval = string_new((uint8_t const **)&exnstr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pexnStr = (pPmString_t)pobj;
-#endif /* HAVE_ASSERT */
-
-#ifdef HAVE_BYTEARRAY
-    /* Init "bytearray" string obj */
-    retval = string_new((uint8_t const **)&pbastr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pbaStr = (pPmString_t)pobj;
-#endif /* HAVE_BYTEARRAY */
-
-    /* Init "__md" string obj */
-    retval = string_new((uint8_t const **)&pmdstr, &pobj);
-    PM_RETURN_IF_ERROR(retval);
-    gVmGlobal.pmdStr = (pPmString_t)pobj;
 
     /* Init empty builtins */
     gVmGlobal.builtins = C_NULL;
@@ -221,7 +115,7 @@ global_loadBuiltins(void)
     /* Import the builtins */
     retval = string_new(&pbistr, &pstr);
     PM_RETURN_IF_ERROR(retval);
-    retval = mod_import(pstr, &pbimod);
+    retval = mod_import(PM_BI_STR, &pbimod);
     PM_RETURN_IF_ERROR(retval);
 
     /* Must interpret builtins' root code to set the attrs */

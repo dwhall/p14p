@@ -12,9 +12,12 @@
 # A copy of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
 # is seen in the file COPYING up one directory from this.
 
-
-# Generates a C source file from one or more .py source files.
-# The output C code is structs that define the code objects from the .py files
+"""
+Generates a C source and header file from one or more .py source files.
+The output C code is structs that define the code objects from the .py files
+The output C header is types that are used in the VM and
+extern declarations of some global objects.
+"""
 
 
 import os, sys
@@ -22,7 +25,9 @@ import pmConstantPool
 from pmCoFilter import co_filter_factory
 
 
-# String used to ID a native method
+PM_GENERATED_OBJS_FN = "pm_generated_objs.c"
+PM_GENERATED_TYPES_FN = "pm_generated_types.h"
+
 NATIVE_INDICATOR = "__NATIVE__"
 NATIVE_INDICATOR_LENGTH = len(NATIVE_INDICATOR)
 
@@ -226,14 +231,15 @@ def obj_to_cvar(o, name=None, typ=None):
 def process_globals():
     """Adds VM globals and useful constants to the constant pool"""
     cobjs = (None, -1,0,1,2,3,4,5,6,7,8,9,True,False,
-             "__bi","code","__init__","next",(),"")
+             "__bi","__md","code","__init__","next",(),"",
+             "Generator", "Exception", "bytearray")
     cnames = map(lambda x: GLOBAL_PREFIX + x,
                  ("none", "negone", "zero", "one", "two", "three", "four",
                   "five", "six", "seven", "eight", "nine", "true", "false",
-                  "string_bi", "string_code", "string_init", "string_next",
-                  "empty_tuple", "empty_string",))
+                  "string_bi", "string_md", "string_code", "string_init",
+                  "string_next", "empty_tuple", "empty_string",
+                  "string_generator", "string_exception", "string_bytearray"))
     map(obj_to_cvar, cobjs, cnames)
-    return cnames
 
 
 def process_modules(filenames):
@@ -255,32 +261,39 @@ def process_modules(filenames):
     return table_lines
 
 
-def process_and_print(filenames, fout=sys.stdout):
+def process_and_print(filenames, output_path):
     # Order of process_* is important
     process_globals()
     module_table_lines = process_modules(filenames)
 
+    # Now put all the lines of output into order
     cfile_lines = ['#include <stdint.h>\n#include "pm.h"\n\n'
                    '#define __FILE_ID__ 0x1A\n\n'
-                   '/* Decls for types with various sizes */\n']
-    for size in string_sizes:
-        cfile_lines.append("PM_DECLARE_STRING_TYPE(%d);\n" % size)
-    for size in tuple_sizes:
-        cfile_lines.append("PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
-
-    cfile_lines.append("\n/* Code object constant pool */\n")
+                   '/* Code object constant pool */\n']
     for cname in ordered_cnames:
         cfile_lines.extend(crepr_kpool[cname])
-
     cfile_lines.extend(module_table_lines)
 
-    fout.write("".join(cfile_lines))
+    # Write the generated objects
+    f = open(os.path.join(output_path, PM_GENERATED_OBJS_FN), 'w')
+    f.writelines(cfile_lines)
+    f.close()
 
+    # Write the generated types files
+    f = open(os.path.join(output_path, PM_GENERATED_TYPES_FN), 'w')
+    for size in string_sizes:
+        f.write("PM_DECLARE_STRING_TYPE(%d);\n" % size)
+    for size in tuple_sizes:
+        f.write("PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
+    f.close()
+    
 
 if __name__ == "__main__":
-    # DWH TODO: pass pmfeatures path as arg?  (wait to see if HAVE_* features go away)
+    # DWH TODO: REMOVE pmfeatures arg if HAVE_* features go away
     filter_co = co_filter_factory(sys.argv[1])
-    filenames = sys.argv[2:]
+    output_path = sys.argv[2]
+    assert os.path.isdir(output_path), "Expect an output path directory"
+    filenames = sys.argv[3:]
     assert len(filenames) > 0, "Expect list of .py files as args"
-    process_and_print(filenames)
+    process_and_print(filenames, output_path)
 

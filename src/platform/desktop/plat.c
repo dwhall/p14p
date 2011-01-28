@@ -255,7 +255,7 @@ plat_reportError(PmReturn_t result)
          * Get the line number of the current bytecode. Algorithm comes from:
          * http://svn.python.org/view/python/trunk/Objects/lnotab_notes.txt?view=markup
          */
-        bcindex = 0;/*DWH pframe->fo_ip - pframe->fo_func->f_co->co_codeaddr;*/
+        bcindex = pframe->fo_ip - pframe->fo_func->f_co->co_code->val;
         plnotab = pframe->fo_func->f_co->co_lnotab->val;
         len_lnotab = mem_getWord(MEMSPACE_PROG, &plnotab);
         bcsum = 0;

@@ -1,3 +1,6 @@
+import os
+
+
 # BEGIN PLATFORM BUILD CONFIGURATION
 platform_c_sources = ["main.c", "plat.c"]
 platform_py_sources = ["main.py"]
@@ -16,23 +19,45 @@ HAVE_DEBUG_INFO = True
 
 # Initialize Scons' construction environment
 import sys
-cflags = "-g -ggdb -D__DEBUG__=1 -Os -Wall -gstabs " \
-         "-Wstrict-prototypes -Werror "
+cflags = "-Wall -Wstrict-prototypes -Werror "
+cflags_dbg = "-g -ggdb -D__DEBUG__=1 -gstabs "
+cflags_opt = "-Os "
 Import("vars")
-env = Environment(variables = vars,
+env_dbg = Environment(variables = vars,
     CPPPATH = ["#src/vm", "#src/platform/desktop/build"],
-    CCFLAGS = cflags)
+    CCFLAGS = cflags + cflags_dbg)
+env = env_dbg
 if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
 
-# Generate pmfeatures.h and codeobjs then build pmvm library and the executable
-pmfeatures_h = Command("pmfeatures.h", "pmfeatures.py",
+# Generate pmfeatures.h
+pmfeatures_py = File("#src/platform/desktop/pmfeatures.py")
+pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
     "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
-pm_generated_codeobjs = Command("pm_generated_codeobjs.c",
+
+# Generate code objs and types
+generated_objs = [File("#src/platform/desktop/build/pm_generated_objs.c"),
+                  File("#src/platform/desktop/build/pm_generated_types.h")]
+# FIXME:
+# If the previous line is added to generated_objs, the generated objsa and
+# pmvm_lib build, but main.out does not because it tries to compile the .h file
+# If the previous line is commented out, main tries to build and errs
+pm_generated_codeobjs = env.Command(generated_objs,
     platform_py_sources + pmlib_py_sources,
-    "src/tools/pmCoCreator.py ../pmfeatures.py $SOURCES > $TARGET")
-pmvm_lib = SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+    "src/tools/pmCoCreator.py %s src/platform/desktop/build $SOURCES" % pmfeatures_py)
+Depends(pm_generated_codeobjs, pmfeatures_py)
+
+# Build pmvm library
+pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+Depends(pmvm_lib, pmfeatures_py)
+Depends(pmvm_lib, pm_generated_codeobjs)
+
+# Build the executable
 main = env.Program("main", platform_c_sources + pmvm_lib + pm_generated_codeobjs)
+# Depends don't seem to force a build
+#Depends(main, pmfeatures_py)
+#Depends(main, pmvm_lib)
+#Depends(main, pm_generated_codeobjs)
 Return("main")
 
 #:mode=python:

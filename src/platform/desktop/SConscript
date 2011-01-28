@@ -38,26 +38,15 @@ pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
 # Generate code objs and types
 generated_objs = [File("#src/platform/desktop/build/pm_generated_objs.c"),
                   File("#src/platform/desktop/build/pm_generated_types.h")]
-# FIXME:
-# If the previous line is added to generated_objs, the generated objsa and
-# pmvm_lib build, but main.out does not because it tries to compile the .h file
-# If the previous line is commented out, main tries to build and errs
 pm_generated_codeobjs = env.Command(generated_objs,
     platform_py_sources + pmlib_py_sources,
     "src/tools/pmCoCreator.py %s src/platform/desktop/build $SOURCES" % pmfeatures_py)
 Depends(pm_generated_codeobjs, pmfeatures_py)
 
-# Build pmvm library
+# Build pmvm library and the executable
 pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
-Depends(pmvm_lib, pmfeatures_py)
-Depends(pmvm_lib, pm_generated_codeobjs)
-
-# Build the executable
-main = env.Program("main", platform_c_sources + pmvm_lib + pm_generated_codeobjs)
-# Depends don't seem to force a build
-#Depends(main, pmfeatures_py)
-#Depends(main, pmvm_lib)
-#Depends(main, pm_generated_codeobjs)
+main = env.Program("main", [platform_c_sources + pmvm_lib,
+                           "#src/platform/desktop/build/pm_generated_objs.c"])
 Return("main")
 
 #:mode=python:

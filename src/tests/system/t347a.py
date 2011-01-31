@@ -19,9 +19,9 @@ from sys import gc
 from t347b import *
 
 
-print _bar()
-print bar()
+print bar1()
+print bar2()
 gc()
 print 'did gc'
-print _bar()
-print bar()
+print bar1()
+print bar2()

@@ -1,4 +1,4 @@
-# This file is Copyright 2003, 2006, 2007, 2009 Dean Hall.
+# This file is Copyright 2010 Dean Hall.
 #
 # This file is part of the Python-on-a-Chip program.
 # Python-on-a-Chip is free software: you can redistribute it and/or modify
@@ -11,26 +11,23 @@
 # is seen in the file COPYING up one directory from this.
 
 #
-# Test for Issue #104: Design and implement garbage collection
+# System Test 376
+# Regression will show "TypeError detected by seq.c:254"
+# because it's trying to iterate over a dict.
 #
-# Run code that will cause a GC and then run more code to see that things
-# still work.
-#
 
-import sys
 
-print "Heap =", sys.heap()
+d = {0:None, 1:"one", 2:"two"}
 
-# Make this value smaller as available heap decreases.
-i = 140
-r = range(i)
-print "r = range(", i, ")"
+for i in d:
+    assert i in d
 
-print "Heap =", sys.heap()
+k1,k2,k3 = d
+assert k1 in d and k2 in d and k3 in d
 
-while i > 0:
-    i -= 1
-    r[i] += 10
-print "r[i] += 10; for all i"
-print "Heap =", sys.heap()
-print "Done."
+s = sum(d)
+assert s == 3
+
+# Requires HAVE_BYTEARRAY
+#b = bytearray(range(10))
+#assert sum(b) == 45

@@ -1,4 +1,4 @@
-# This file is Copyright 2003, 2006, 2007, 2009 Dean Hall.
+# This file is Copyright 2010 Dean Hall.
 #
 # This file is part of the Python-on-a-Chip program.
 # Python-on-a-Chip is free software: you can redistribute it and/or modify
@@ -11,26 +11,17 @@
 # is seen in the file COPYING up one directory from this.
 
 #
-# Test for Issue #104: Design and implement garbage collection
-#
-# Run code that will cause a GC and then run more code to see that things
-# still work.
+# System Test 377
 #
 
-import sys
+import dict
 
-print "Heap =", sys.heap()
 
-# Make this value smaller as available heap decreases.
-i = 140
-r = range(i)
-print "r = range(", i, ")"
+d = {0:None}
 
-print "Heap =", sys.heap()
+r1 = dict.has_key(d, 0)
+r2 = dict.has_key(d, None)
 
-while i > 0:
-    i -= 1
-    r[i] += 10
-print "r[i] += 10; for all i"
-print "Heap =", sys.heap()
-print "Done."
+# Must use "is" because 0 == False and 1 == True
+assert r1 is True
+assert r2 is False

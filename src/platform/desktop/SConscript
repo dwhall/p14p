@@ -27,7 +27,7 @@ Import("vars")
 env_dbg = Environment(variables = vars,
     CPPPATH = ["#src/vm", "#src/platform/desktop/build"],
     CCFLAGS = cflags + cflags_dbg,
-    LINKFLAGS = "-Wl,-map main.map")
+    LINKFLAGS = "-Wl,-map $main_map")
 env = env_dbg
 if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
@@ -45,9 +45,10 @@ pm_generated_codeobjs = env.Command(generated_objs,
     "src/tools/pmCoCreator.py %s src/platform/desktop/build $SOURCES" % pmfeatures_py)
 Depends(pm_generated_codeobjs, pmfeatures_py)
 
-# Build pmvm library and the executable
+# Build pmvm library, a linker map and the executable
+main_map = env.Command("#src/platform/desktop/build/main.map", "", Touch("$TARGET"))
 pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
-main = env.Program("main", [platform_c_sources + pmvm_lib,
+main = env.Program("main", [main_map, platform_c_sources + pmvm_lib,
                            "#src/platform/desktop/build/pm_generated_objs.c"])
 Return("main")
 

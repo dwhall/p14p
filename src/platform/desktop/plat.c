@@ -40,8 +40,10 @@ plat_init(void)
      * #67 Using sigaction complicates the use of getchar (below),
      * so signal() is used instead.
      */
+#ifndef __DEBUG__
     signal(SIGALRM, plat_sigalrm_handler);
     ualarm(1000, 1000);
+#endif
 
     return PM_RET_OK;
 }
@@ -273,17 +275,6 @@ plat_reportError(PmReturn_t result)
     }
 
     /* Print error */
-    res = (uint8_t)result;
-    if ((res > 0) && ((res - PM_RET_EX) < LEN_EXNLOOKUP))
-    {
-        printf("%s", exnlookup[res - PM_RET_EX]);
-    }
-    else
-    {
-        printf("Error code 0x%02X", result);
-    }
-    printf(" detected by ");
-
     if ((gVmGlobal.errFileId > 0) && (gVmGlobal.errFileId < LEN_FNLOOKUP))
     {
         printf("%s:", fnlookup[gVmGlobal.errFileId]);
@@ -292,7 +283,18 @@ plat_reportError(PmReturn_t result)
     {
         printf("FileId 0x%02X line ", gVmGlobal.errFileId);
     }
-    printf("%d\n", gVmGlobal.errLineNum);
+    printf("%d detects a ", gVmGlobal.errLineNum);
+
+    res = (uint8_t)result;
+    if ((res > 0) && ((res - PM_RET_EX) < LEN_EXNLOOKUP))
+    {
+        printf("%s\n", exnlookup[res - PM_RET_EX]);
+    }
+    else
+    {
+        printf("Error code 0x%02X\n", result);
+    }
+
 
 #else /* HAVE_DEBUG_INFO */
 

@@ -15,5 +15,6 @@
 #
 
 
-import ipm
-ipm.ipm()
+print "Hello world."
+#import ipm
+#ipm.ipm()

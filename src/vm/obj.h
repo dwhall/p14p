@@ -68,6 +68,15 @@
 /** Gets the size in bytes of the object. */
 #define PM_OBJ_GET_SIZE(pobj) (((pPmObj_t)pobj)->od & OD_SIZE_MASK)
 
+/** Sets the size in bytes of the object */
+#define OBJ_SET_SIZE(pobj, size) \
+    do \
+    { \
+        ((pPmObj_t)pobj)->od &= ~OD_SIZE_MASK; \
+        ((pPmObj_t)pobj)->od |= ((size) & OD_SIZE_MASK); \
+    } \
+    while (0)
+
 /**
  * Gets the type of the object
  * This MUST NOT be called on objects that are free.

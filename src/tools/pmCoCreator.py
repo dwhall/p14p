@@ -157,24 +157,27 @@ def co_to_crepr(co, cvarnm):
             return '/* %s:%d %s */\nPmReturn_t %s(pPmFrame_t *ppframe)\n' \
                 '{\n#line %d "%s"\n%s\n}\n\n%s, %d, %s};\n' \
                 % (co.co_filename, co.co_firstlineno, co.co_name,
-                   native_cvarnm, co.co_firstlineno, co.co_filename, 
+                   native_cvarnm, co.co_firstlineno, co.co_filename,
                    co.co_consts[0][NATIVE_INDICATOR_LENGTH:],
                    header(native, cvarnm), co.co_argcount, native_cvarnm)
 
+    # HACK: append co_filename and co_name to the co_consts tuple to reduce
+    # the size of the code object structure by two pointers.
+    # co_filename and co_name are extracted via the co API in codeobj.c
+    k = list(fco['co_consts'])
+    k.extend([fco['co_filename'], fco['co_name']])
+    fco['co_consts'] = tuple(k)
+
     d = {}
     d['hdr'] = header(code, cvarnm)
-    d['co_name'] = obj_to_cvar(fco['co_name'])
-    d['co_filename'] = obj_to_cvar(fco['co_filename'])
+    d['co_code'] = obj_to_cvar(co.co_code)
+    d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
     d['co_names'] = obj_to_cvar(fco['co_names'])
     d['co_consts'] = obj_to_cvar(fco['co_consts'])
     d['co_cellvars'] = obj_to_cvar(fco['co_cellvars'])
-    d['co_code'] = obj_to_cvar(co.co_code)
-    d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
 
     crepr = bytearray(
         "%(hdr)s, "
-        "(pPmString_t)&%(co_name)s, "
-        "(pPmString_t)&%(co_filename)s, "
         "(pPmString_t)&%(co_code)s, "
         "(pPmString_t)&%(co_lnotab)s, "
         "(pPmTuple_t)&%(co_names)s, "
@@ -245,7 +248,7 @@ def process_globals():
 def process_modules(filenames):
     table_lines = ["\n/* Module table */\n"
                    "PmInt_t PM_PLAT_PROGMEM * const %smodule_table_len_ptr = &%s;\n"
-                   "PmModuleEntry_t PM_PLAT_PROGMEM %smodule_table[] =\n{\n" 
+                   "PmModuleEntry_t PM_PLAT_PROGMEM %smodule_table[] =\n{\n"
                    % (GLOBAL_PREFIX, obj_to_cvar(len(filenames)),
                       GLOBAL_PREFIX)]
 
@@ -286,7 +289,7 @@ def process_and_print(filenames, output_path):
     for size in tuple_sizes:
         f.write("PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
     f.close()
-    
+
 
 if __name__ == "__main__":
     # DWH TODO: REMOVE pmfeatures arg if HAVE_* features go away

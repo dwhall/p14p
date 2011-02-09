@@ -73,8 +73,8 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
     pframe->fo_back = C_NULL;
     pframe->fo_func = (pPmFunc_t)pfunc;
 
-    /* Init instruction pointer and block stack */
-    pframe->fo_ip = pco->co_code->val;
+    /* Init instruction pointer (offset) and block stack */
+    pframe->fo_ip = 0;
     pframe->fo_blockstack = C_NULL;
 
     /* Get globals and attrs from the function object */

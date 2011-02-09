@@ -60,8 +60,8 @@
 #define PUT_BC_ARG_INTO(a) \
     do \
     { \
-        a = *PM_IP++; \
-        a |= (*PM_IP++) << 8; \
+        co_getBcodeArgAtOffset((pPmObj_t)PM_FP->fo_func->f_co, PM_IP, &(a)); \
+        PM_IP += 2; \
     } while (0)
 
 /** pushes an obj in the only stack slot of the native frame */

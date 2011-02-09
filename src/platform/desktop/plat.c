@@ -157,6 +157,7 @@ plat_reportError(PmReturn_t result)
     uint8_t res;
     pPmFrame_t pframe;
     pPmObj_t pstr;
+    pPmObj_t pfnstr;
     PmReturn_t retval;
     uint16_t bcindex;
     uint16_t bcsum;
@@ -226,10 +227,8 @@ plat_reportError(PmReturn_t result)
     /* If it's the native frame, print the native function name */
     if (pframe == (pPmFrame_t)&(gVmGlobal.nativeframe))
     {
-
-        /* The last name in the names tuple of the code obj is the name */
-        retval = tuple_getItem((pPmObj_t)gVmGlobal.nativeframe.nf_func->
-                               f_co->co_names, -1, &pstr);
+        /* Get the native func's name */
+        retval = co_getName((pPmObj_t)gVmGlobal.nativeframe.nf_func->f_co, &pstr);
         if ((retval) != PM_RET_OK)
         {
             printf("  Unable to get native func name.\n");
@@ -257,7 +256,7 @@ plat_reportError(PmReturn_t result)
          * Get the line number of the current bytecode. Algorithm comes from:
          * http://svn.python.org/view/python/trunk/Objects/lnotab_notes.txt?view=markup
          */
-        bcindex = pframe->fo_ip - pframe->fo_func->f_co->co_code->val;
+        bcindex = pframe->fo_ip;
         plnotab = pframe->fo_func->f_co->co_lnotab->val;
         len_lnotab = mem_getWord(MEMSPACE_PROG, &plnotab);
         bcsum = 0;
@@ -268,8 +267,9 @@ plat_reportError(PmReturn_t result)
             if (bcsum > bcindex) break;
             linesum += mem_getByte(MEMSPACE_PROG, &plnotab);
         }
+        co_getFileName((pPmObj_t)((pPmFrame_t)pframe)->fo_func->f_co, &pfnstr);
         printf("  File \"%s\", line %d, in %s\n",
-               ((pPmFrame_t)pframe)->fo_func->f_co->co_filename->val,
+               ((pPmString_t)pfnstr)->val,
                linesum,
                ((pPmString_t)pstr)->val);
     }
@@ -341,10 +341,9 @@ plat_reportError(PmReturn_t result)
              pframe != C_NULL;
              pframe = (pPmObj_t)((pPmFrame_t)pframe)->fo_back)
         {
-            /* The last name in the names tuple of the code obj is the name */
-            retval = tuple_getItem((pPmObj_t)((pPmFrame_t)pframe)->
-                                   fo_func->f_co->co_names, -1, &pstr);
-            if ((retval) != PM_RET_OK) break;
+            /* Get the func's name */
+            retval = co_getName((pPmObj_t)((pPmFrame_t)pframe)->fo_func->f_co, &pstr);
+            PM_BREAK_IF_ERROR(retval);
 
             printf("  %s()\n", ((pPmString_t)pstr)->val);
         }

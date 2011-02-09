@@ -72,8 +72,7 @@ interpret(const uint8_t returnOnNoThreads)
             PM_BREAK_IF_ERROR(retval);
         }
 
-        /* Get byte; the func post-incrs PM_IP */
-        bc = *PM_IP++;
+        co_getBcodeAtOffset((pPmObj_t)PM_FP->fo_func->f_co, PM_IP++, &bc);
         C_DEBUG_PRINT(VERBOSITY_HIGH, "bytecode = %d (0x%x)\n", bc, bc);
         switch (bc)
         {
@@ -937,11 +936,10 @@ interpret(const uint8_t returnOnNoThreads)
              **************************************************/
 
             case STORE_NAME:
-                /* Get name index */
-                PUT_BC_ARG_INTO(t16);
-
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Set key=val in current frame's attrs dict */
                 retval = dict_setItem((pPmObj_t)PM_FP->fo_attrs, pobj2, TOS);
@@ -951,11 +949,10 @@ interpret(const uint8_t returnOnNoThreads)
 
 #ifdef HAVE_DEL
             case DELETE_NAME:
-                /* Get name index */
-                PUT_BC_ARG_INTO(t16);
-
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Remove key,val pair from current frame's attrs dict */
                 retval = dict_delItem((pPmObj_t)PM_FP->fo_attrs, pobj2);
@@ -1095,7 +1092,8 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 
                 /* Get name/key obj */
-                pobj3 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj3);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Set key=val in obj's dict */
                 retval = dict_setItem(pobj2, pobj3, TOS1);
@@ -1146,7 +1144,8 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 
                 /* Get name/key obj */
-                pobj3 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj3);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Remove key,val from obj's dict */
                 retval = dict_delItem(pobj2, pobj3);
@@ -1167,7 +1166,8 @@ interpret(const uint8_t returnOnNoThreads)
                 PUT_BC_ARG_INTO(t16);
 
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Set key=val in global dict */
                 retval = dict_setItem((pPmObj_t)PM_FP->fo_globals, pobj2, TOS);
@@ -1181,7 +1181,8 @@ interpret(const uint8_t returnOnNoThreads)
                 PUT_BC_ARG_INTO(t16);
 
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Remove key,val from globals */
                 retval = dict_delItem((pPmObj_t)PM_FP->fo_globals, pobj2);
@@ -1208,8 +1209,12 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Get const's index in CO */
                 PUT_BC_ARG_INTO(t16);
 
+                /* Get const */
+                retval = co_getConst((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
+
                 /* Push const on stack */
-                PM_PUSH(PM_FP->fo_func->f_co->co_consts->val[t16]);
+                PM_PUSH(pobj1);
                 continue;
 
             case LOAD_NAME:
@@ -1217,7 +1222,8 @@ interpret(const uint8_t returnOnNoThreads)
                 PUT_BC_ARG_INTO(t16);
 
                 /* Get name from names tuple */
-                pobj1 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Get value from frame's attrs dict */
                 retval = dict_getItem((pPmObj_t)PM_FP->fo_attrs, pobj1, &pobj2);
@@ -1327,7 +1333,8 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 
                 /* Get name */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Get attr with given name */
                 retval = dict_getItem(pobj1, pobj2, &pobj3);
@@ -1473,7 +1480,8 @@ interpret(const uint8_t returnOnNoThreads)
                 PUT_BC_ARG_INTO(t16);
 
                 /* Get name String obj */
-                pobj1 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Pop unused None object */
                 PM_SP--;
@@ -1539,7 +1547,8 @@ interpret(const uint8_t returnOnNoThreads)
 
                 /* Get the name of the object to import */
                 PUT_BC_ARG_INTO(t16);
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Get the object from the module's attributes */
                 retval = dict_getItem((pPmObj_t)((pPmFunc_t)pobj1)->f_attrs,
@@ -1578,13 +1587,14 @@ interpret(const uint8_t returnOnNoThreads)
                 PUT_BC_ARG_INTO(t16);
 
                 /* Jump to base_ip + arg */
-                PM_IP = PM_FP->fo_func->f_co->co_code->val + t16;
+                PM_IP = t16;
                 continue;
 
             case LOAD_GLOBAL:
                 /* Get name */
                 PUT_BC_ARG_INTO(t16);
-                pobj1 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Try globals first */
                 retval = dict_getItem((pPmObj_t)PM_FP->fo_globals,
@@ -2116,7 +2126,9 @@ CALL_FUNC_CLEANUP:
             case LOAD_DEREF:
                 /* Loads the i'th cell of free variable storage onto TOS */
                 PUT_BC_ARG_INTO(t16);
-                pobj1 = PM_FP->fo_locals[PM_FP->fo_func->f_co->co_nlocals + t16];
+                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, &t8);
+                PM_BREAK_IF_ERROR(retval);
+                pobj1 = PM_FP->fo_locals[t8 + t16];
                 if (pobj1 == C_NULL)
                 {
                     PM_RAISE(retval, PM_RET_EX_SYS);
@@ -2128,7 +2140,9 @@ CALL_FUNC_CLEANUP:
             case STORE_DEREF:
                 /* Stores TOS into the i'th cell of free variable storage */
                 PUT_BC_ARG_INTO(t16);
-                PM_FP->fo_locals[PM_FP->fo_func->f_co->co_nlocals + t16] = PM_POP();
+                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, &t8);
+                PM_BREAK_IF_ERROR(retval);
+                PM_FP->fo_locals[t8 + t16] = PM_POP();
                 continue;
 #endif /* HAVE_CLOSURES */
 

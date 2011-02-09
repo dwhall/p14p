@@ -45,8 +45,6 @@
 typedef struct PmCo_s
 {
     PmObjDesc_t const od;
-    PmString_t const * const co_name;
-    PmString_t const * const co_filename;
     PmString_t const * const co_code;
     PmString_t const * const co_lnotab;
     PmTuple_t const * const co_names;
@@ -61,5 +59,15 @@ typedef struct PmCo_s
 } PmCo_t,
  *pPmCo_t;
 
+
+PmReturn_t co_getFromNames(pPmObj_t pco, uint16_t n, pPmObj_t *r_pname);
+PmReturn_t co_getConst(pPmObj_t pco, uint16_t n, pPmObj_t *r_pconst);
+PmReturn_t co_getName(pPmObj_t pco, pPmObj_t *r_pname);
+PmReturn_t co_getFileName(pPmObj_t pco, pPmObj_t *r_pname);
+PmReturn_t co_getCellVar(pPmObj_t pco, uint16_t n, pPmObj_t *r_pcvar);
+PmReturn_t co_getBcodeAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_pbc);
+PmReturn_t co_getBcodeArgAtOffset(pPmObj_t pco, uint16_t n, int16_t *r_parg);
+PmReturn_t co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_tbd);
+PmReturn_t co_getNlocals(pPmObj_t pco, int8_t *r_pn);
 
 #endif /* __CODEOBJ_H__ */

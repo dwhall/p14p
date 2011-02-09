@@ -232,9 +232,9 @@
 #endif
 
 
-#ifdef __PIC24HJ128GP506__
+#if defined(__PIC24HJ128GP506__) || defined(__PIC24HJ128GP506A__)
 #define DEV_ID 0x000061
-#define DEV_ID_STR "PIC24HJ128GP506"
+#define DEV_ID_STR "PIC24HJ128GP506/506A"
 #endif
 
 #ifdef __PIC24HJ128GP510__
@@ -271,6 +271,12 @@
 #define EXPECTED_REVISION3_STR "A4"
 #endif
 
+#if defined(__PIC24HJ128GP506A__)
+#define EXPECTED_REVISION1 0x003009
+#define EXPECTED_REVISION1_STR "A3"
+#define EXPECTED_REVISION2 0x00300A
+#define EXPECTED_REVISION2_STR "A4"
+#endif
 
 //24F Family
 

@@ -870,7 +870,7 @@ static const uint16_t u16_digitalPinOpenDrainPresent[NUM_DIGITAL_PORTS] = {
 
 #include "devices/pic24hj128gp504_pyports.h"
 
-#elif defined(__PIC24HJ128GP506__)
+#elif defined(__PIC24HJ128GP506__) || defined(__PIC24HJ128GP506A__)
 
 #include "devices/pic24hj128gp506_pyports.h"
 

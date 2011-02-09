@@ -702,7 +702,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 
 #include "devices/pic24hj64gp504_ports.h"
 
-#elif defined(__PIC24HJ64GP506__)
+#elif defined(__PIC24HJ64GP506__) || defined(__PIC24HJ128GP506A__)
 
 #include "devices/pic24hj64gp506_ports.h"
 

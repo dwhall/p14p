@@ -159,11 +159,11 @@ plat_reportError(PmReturn_t result)
     pPmObj_t pstr;
     pPmObj_t pfnstr;
     PmReturn_t retval;
-    uint16_t bcindex;
-    uint16_t bcsum;
-    uint16_t linesum;
+    uint16_t bcaddr;
+    uint16_t lineno;
     uint16_t len_lnotab;
-    uint8_t const *plnotab;
+    uint16_t lnotab_index;
+    uint8_t b1, b2;
     uint16_t i;
 
     /* This table should match src/vm/fileid.txt */
@@ -247,30 +247,33 @@ plat_reportError(PmReturn_t result)
     for (; pframe != C_NULL; pframe = pframe->fo_back)
     {
         /* The last name in the names tuple of the code obj is the name */
-        retval = tuple_getItem((pPmObj_t)pframe->fo_func->f_co->co_names,
-                               -1,
-                               &pstr);
+        retval = co_getName((pPmObj_t)pframe->fo_func->f_co, &pstr);
         if ((retval) != PM_RET_OK) break;
 
         /*
          * Get the line number of the current bytecode. Algorithm comes from:
          * http://svn.python.org/view/python/trunk/Objects/lnotab_notes.txt?view=markup
          */
-        bcindex = pframe->fo_ip;
-        plnotab = pframe->fo_func->f_co->co_lnotab->val;
-        len_lnotab = mem_getWord(MEMSPACE_PROG, &plnotab);
-        bcsum = 0;
-        linesum = pframe->fo_func->f_co->co_firstlineno;
+        lnotab_index = 0;
+        bcaddr = 0;
+        co_getLnotabLen((pPmObj_t)pframe->fo_func->f_co, &len_lnotab);
+        co_getFirstlineno((pPmObj_t)pframe->fo_func->f_co, &lineno);
         for (i = 0; i < len_lnotab; i += 2)
         {
-            bcsum += mem_getByte(MEMSPACE_PROG, &plnotab);
-            if (bcsum > bcindex) break;
-            linesum += mem_getByte(MEMSPACE_PROG, &plnotab);
+            co_getLnotabAtOffset((pPmObj_t)pframe->fo_func->f_co,
+                                 lnotab_index++, &b1);
+            bcaddr += b1;
+            if (bcaddr > pframe->fo_ip) break;
+
+            co_getLnotabAtOffset((pPmObj_t)pframe->fo_func->f_co,
+                                 lnotab_index++, &b2);
+            lineno += b2;
         }
+
         co_getFileName((pPmObj_t)((pPmFrame_t)pframe)->fo_func->f_co, &pfnstr);
         printf("  File \"%s\", line %d, in %s\n",
                ((pPmString_t)pfnstr)->val,
-               linesum,
+               lineno,
                ((pPmString_t)pstr)->val);
     }
 

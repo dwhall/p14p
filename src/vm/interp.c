@@ -2126,7 +2126,7 @@ CALL_FUNC_CLEANUP:
             case LOAD_DEREF:
                 /* Loads the i'th cell of free variable storage onto TOS */
                 PUT_BC_ARG_INTO(t16);
-                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, &t8);
+                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, (uint8_t*)&t8);
                 PM_BREAK_IF_ERROR(retval);
                 pobj1 = PM_FP->fo_locals[t8 + t16];
                 if (pobj1 == C_NULL)
@@ -2140,7 +2140,7 @@ CALL_FUNC_CLEANUP:
             case STORE_DEREF:
                 /* Stores TOS into the i'th cell of free variable storage */
                 PUT_BC_ARG_INTO(t16);
-                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, &t8);
+                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, (uint8_t*)&t8);
                 PM_BREAK_IF_ERROR(retval);
                 PM_FP->fo_locals[t8 + t16] = PM_POP();
                 continue;

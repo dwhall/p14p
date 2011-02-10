@@ -85,15 +85,32 @@ co_getBcodeArgAtOffset(pPmObj_t pco, uint16_t n, int16_t *r_parg)
 
 
 PmReturn_t
-co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_tbd)
+co_getLnotabLen(pPmObj_t pco, uint16_t *r_len)
 {
-    return PM_RET_STUB;
+    *r_len = ((pPmCo_t)pco)->co_lnotab->length;
+    return PM_RET_OK;
+}
+
+
+PmReturn_t
+co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_pbyte)
+{
+    *r_pbyte = ((pPmCo_t)pco)->co_lnotab->val[n];
+    return PM_RET_OK;
 }
 
 
 PmReturn_t 
-co_getNlocals(pPmObj_t pco, int8_t *r_pn)
+co_getNlocals(pPmObj_t pco, uint8_t *r_pn)
 {
     *r_pn = ((pPmCo_t)pco)->co_nlocals;
+    return PM_RET_OK;
+}
+
+
+PmReturn_t 
+co_getFirstlineno(pPmObj_t pco, uint16_t *r_plineno)
+{
+    *r_plineno = ((pPmCo_t)pco)->co_firstlineno;
     return PM_RET_OK;
 }

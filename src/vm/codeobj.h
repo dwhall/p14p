@@ -67,7 +67,9 @@ PmReturn_t co_getFileName(pPmObj_t pco, pPmObj_t *r_pname);
 PmReturn_t co_getCellVar(pPmObj_t pco, uint16_t n, pPmObj_t *r_pcvar);
 PmReturn_t co_getBcodeAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_pbc);
 PmReturn_t co_getBcodeArgAtOffset(pPmObj_t pco, uint16_t n, int16_t *r_parg);
-PmReturn_t co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_tbd);
-PmReturn_t co_getNlocals(pPmObj_t pco, int8_t *r_pn);
+PmReturn_t co_getLnotabLen(pPmObj_t pco, uint16_t *r_len);
+PmReturn_t co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_pbyte);
+PmReturn_t co_getNlocals(pPmObj_t pco, uint8_t *r_pn);
+PmReturn_t co_getFirstlineno(pPmObj_t pco, uint16_t *r_plineno);
 
 #endif /* __CODEOBJ_H__ */

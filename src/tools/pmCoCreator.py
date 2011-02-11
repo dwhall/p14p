@@ -168,21 +168,30 @@ def co_to_crepr(co, cvarnm):
     k.extend([fco['co_filename'], fco['co_name']])
     fco['co_consts'] = tuple(k)
 
+    # Prep data to fill into the CO structure definition
     d = {}
     d['hdr'] = header(code, cvarnm)
     d['co_code'] = obj_to_cvar(co.co_code)
-    d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
     d['co_names'] = obj_to_cvar(fco['co_names'])
     d['co_consts'] = obj_to_cvar(fco['co_consts'])
     d['co_cellvars'] = obj_to_cvar(fco['co_cellvars'])
 
+    if PM_FEATURES['HAVE_DEBUG_INFO']:
+        d['lnotab_prefix'] = "(pPmString_t)&"
+        d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
+    else:
+        d['lnotab_prefix'] = ""
+        d['co_lnotab'] = "C_NULL"
+
+    # Format the CO structure definition
     crepr = bytearray(
         "%(hdr)s, "
         "(pPmString_t)&%(co_code)s, "
-        "(pPmString_t)&%(co_lnotab)s, "
+        "%(lnotab_prefix)s%(co_lnotab)s, "
         "(pPmTuple_t)&%(co_names)s, "
         "(pPmTuple_t)&%(co_consts)s, "
-        "(pPmTuple_t)&%(co_cellvars)s, " % d)
+        "(pPmTuple_t)&%(co_cellvars)s, "
+        % d)
     crepr.extend("%d, %d, %d, %d, %d, %d};\n" %
         (co.co_firstlineno,
          co.co_argcount,
@@ -271,7 +280,7 @@ def process_and_print(filenames, output_path):
 
     # Now put all the lines of output into order
     cfile_lines = ['#include <stdint.h>\n#include "pm.h"\n\n'
-                   '#define __FILE_ID__ 0x1A\n\n'
+                   '#define __FILE_ID__ 0x0A\n\n'
                    '/* Code object constant pool */\n']
     for cname in ordered_cnames:
         cfile_lines.extend(crepr_kpool[cname])
@@ -293,7 +302,14 @@ def process_and_print(filenames, output_path):
 
 if __name__ == "__main__":
     # DWH TODO: REMOVE pmfeatures arg if HAVE_* features go away
-    filter_co = co_filter_factory(sys.argv[1])
+    pmfeatures_fn = sys.argv[1]
+    locs = {}
+    execfile(pmfeatures_fn, {}, locs)
+    global PM_FEATURES
+    PM_FEATURES = locs['PM_FEATURES']
+    assert type(PM_FEATURES) == dict
+
+    filter_co = co_filter_factory(pmfeatures_fn)
     output_path = sys.argv[2]
     assert os.path.isdir(output_path), "Expect an output path directory"
     filenames = sys.argv[3:]

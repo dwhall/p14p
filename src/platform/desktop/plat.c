@@ -178,7 +178,7 @@ plat_reportError(PmReturn_t result)
         "img.c",
         "int.c",
         "interp.c",
-        "pmstdlib_nat.c",
+        "pm_generated_objs.c",
         "list.c",
         "main.c",
         "mem.c",

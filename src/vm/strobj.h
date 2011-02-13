@@ -30,17 +30,6 @@
 
 
 /**
- * Loads a string from image
- *
- * @param ms memoryspace paddr points to
- * @param paddr address in memoryspace of source string
- * @param r_pstring Return by reference; a new string object
- * @return Return status
- */
-#define string_loadFromImg(ms, paddr, r_pstring) \
-    string_create((ms), (paddr), (int16_t)-1, (int16_t)1, (r_pstring))
-
-/**
  * Creates String object from character array in RAM
  *
  * @param paddr pointer to address of source string

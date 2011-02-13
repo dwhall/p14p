@@ -58,14 +58,8 @@ string_create(PmMemSpace_t memspace, uint8_t const **paddr, int16_t len,
 #endif /* USE_STRING_CACHE */
     uint8_t *pchunk;
 
-    /* If loading from an image, get length from the image */
-    if (len < 0)
-    {
-        len = mem_getWord(memspace, paddr);
-    }
-
     /* If loading from a C string, get its strlen (first null) */
-    else if (len == 0)
+    if (len == 0)
     {
         len = sli_strlen((char const *)*paddr);
     }

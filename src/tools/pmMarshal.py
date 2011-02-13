@@ -49,7 +49,7 @@ def _gen_co_field(s):
     """
     assert s[0] == 'C'
     i = 1
-    for n in xrange(7):
+    for n in xrange(5):
         o = loads(s[i:])
         yield o
         i += len(dumps(o))
@@ -70,9 +70,14 @@ def translate_co(s):
     """Translates a serialized code object from pmMarshal's format to Python's.
     """
     # Get the fields from the pmMarshal format
-    (co_name, co_filename, co_code, co_lnotab, co_names, co_consts, co_cellvars,
+    (co_code, co_lnotab, co_names, co_consts, co_cellvars,
      co_firstlineno, co_argcount, co_flags, co_stacksize, co_nlocals,
      co_nfreevars) = tuple(_gen_co_field(s))
+
+    # Get name and filename from end of the consts tuple and trim consts
+    co_name = co_consts[-1]
+    co_filename = co_consts[-2]
+    co_consts = co_consts[:-2]
 
     # Create fields
     co_varnames = tuple(_gen_names("nm", co_nlocals))
@@ -212,13 +217,15 @@ def dumps(o):
         return str(buff)
 
     elif type_o == code_t:
+        co_consts_plus = list(o.co_consts)
+        co_consts_plus.extend((o.co_filename, o.co_name))
+        co_consts_plus = tuple(co_consts_plus)
+
         buff = bytearray("C")
-        buff.extend(dumps(o.co_name))
-        buff.extend(dumps(o.co_filename))
         buff.extend(dumps(o.co_code))
         buff.extend(dumps(o.co_lnotab))
         buff.extend(dumps(o.co_names))
-        buff.extend(dumps(o.co_consts))
+        buff.extend(dumps(co_consts_plus))
         buff.extend(dumps(o.co_cellvars))
         buff.extend(struct.pack("<H", o.co_firstlineno))
         buff.append(o.co_argcount)

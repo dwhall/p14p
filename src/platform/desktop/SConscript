@@ -1,21 +1,55 @@
+import os
+
+
+# BEGIN PLATFORM BUILD CONFIGURATION
+platform_c_sources = ["main.c", "plat.c"]
+platform_py_sources = ["main.py"]
+pmlib_py_sources = [
+    "#src/lib/__bi.py",
+    "#src/lib/sys.py",
+#    "#src/lib/ipm.py",
+    "#src/lib/string.py",
+    "#src/lib/list.py",
+    "#src/lib/dict.py",
+    ]
+HAVE_FLOAT = "little endien"
+HAVE_DEBUG_INFO = True
+# END PLATFORM BUILD CONFIGURATION
+
+
+# Initialize Scons' construction environment
+import sys
+cflags = "-Wall -Wstrict-prototypes -Werror "
+#cflags_dbg = "-g -ggdb -D__DEBUG__=1 -gstabs "
+cflags_dbg = "-ggdb -D__DEBUG__=1 "
+cflags_opt = "-Os "
 Import("vars")
+env_dbg = Environment(variables = vars,
+    CPPPATH = ["#src/vm", "#src/platform/desktop/build"],
+    CCFLAGS = cflags + cflags_dbg,
+    LINKFLAGS = "-Wl,-map $main_map")
+env = env_dbg
+if not sys.platform.startswith("win"):
+    env['ARFLAGS'] = "rcs"
 
-vars.Add("IPM", "Add the interactive library to the standard lib", True)
+# Generate pmfeatures.h
+pmfeatures_py = File("#src/platform/desktop/pmfeatures.py")
+pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
+    "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
 
-CFLAGS = "-Os -Wall -gstabs -Wstrict-prototypes -Werror"
-if "DEBUG" in vars.args.keys():
-    CFLAGS = "-g -ggdb -D__DEBUG__=1 " + CFLAGS
-SOURCES = ["main.c", "plat.c"]
-PY_SOURCES = ["main.py"]
-PM_LIB_ROOT = ["pmvm_%s" % vars.args["PLATFORM"]]
+# Generate code objs and types
+generated_objs = [File("#src/platform/desktop/build/pm_generated_objs.c"),
+                  File("#src/platform/desktop/build/pm_generated_types.h")]
+pm_generated_codeobjs = env.Command(generated_objs,
+    platform_py_sources + pmlib_py_sources,
+    "src/tools/pmCoCreator.py %s src/platform/desktop/build $SOURCES" % pmfeatures_py)
+Depends(pm_generated_codeobjs, pmfeatures_py)
 
-env = Environment(variables = vars,
-                  CPPPATH = ["#src/vm", "#src/platform/desktop"],
-                  CCFLAGS = CFLAGS)
+# Build pmvm library, a linker map and the executable
+main_map = env.Command("#src/platform/desktop/build/main.map", "", Touch("$TARGET"))
+pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+main = env.Program("main", [main_map, platform_c_sources + pmvm_lib,
+                           "#src/platform/desktop/build/pm_generated_objs.c"])
+Return("main")
 
-vmlib = SConscript(["../../vm/SConscript"], ["env", "vars"])
-img_sources = Command(["main_img.c", "main_nat.c"], [PY_SOURCES],
-    "src/tools/pmImgCreator.py -c -u -o src/platform/desktop/main_img.c" \
-    " --native-file=src/platform/desktop/main_nat.c $SOURCES")
-main = env.Program("main.out", SOURCES + img_sources,
-                   LIBS = PM_LIB_ROOT, LIBPATH = ["../../vm"])
+#:mode=python:

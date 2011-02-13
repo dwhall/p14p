@@ -17,15 +17,13 @@
 
 #define HEAP_SIZE 0x2000
 
-extern unsigned char usrlib_img[];
-
 
 int main(void)
 {
     uint8_t heap[HEAP_SIZE];
     PmReturn_t retval;
 
-    retval = pm_init(heap, HEAP_SIZE, MEMSPACE_PROG, usrlib_img);
+    retval = pm_init(heap, HEAP_SIZE);
     PM_RETURN_IF_ERROR(retval);
 
     retval = pm_run((uint8_t *)"main");

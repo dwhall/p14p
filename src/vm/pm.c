@@ -40,8 +40,8 @@ volatile uint32_t pm_lastRescheduleTimestamp = 0;
 
 
 PmReturn_t
-pm_init(uint8_t *heap_base, uint32_t heap_size,
-        PmMemSpace_t memspace, uint8_t const * const pusrimg)
+pm_init(uint8_t *heap_base, uint32_t heap_size
+        /*DWH PmMemSpace_t memspace, uint8_t const * const pusrimg*/)
 {
     PmReturn_t retval;
 
@@ -57,10 +57,12 @@ pm_init(uint8_t *heap_base, uint32_t heap_size,
     PM_RETURN_IF_ERROR(retval);
 
     /* Load usr image info if given */
+/*DWH
     if (pusrimg != C_NULL)
     {
         retval = img_appendToPath(memspace, pusrimg);
     }
+*/
 
     return retval;
 }

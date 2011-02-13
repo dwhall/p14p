@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 # This file is Copyright 2010 Dean Hall.
 #

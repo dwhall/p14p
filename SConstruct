@@ -6,33 +6,31 @@
 #   scons PLATFORM=<platform>
 #
 
+EnsurePythonVersion(2, 6)
 
 import os, string
 
+DEFAULT_PLATFORM = "desktop"
 
 supported_platforms = Glob("src/platform/*")
 allowed_platforms = [os.path.split(x)[1] for x in map(str, supported_platforms)]
-
+allowed_platforms.remove("_unmaintained")
+allowed_platforms.remove("COPYING")
 
 vars = Variables()
 
 
 # BUILD TARGETS
 if "tags" in COMMAND_LINE_TARGETS or "TAGS" in COMMAND_LINE_TARGETS:
-    vmfiles = Glob("src/vm/*")
-    ctags = Command('tags', vmfiles, "/opt/local/bin/ctags -R *")
-    cscope = Command('cscope.out', vmfiles, "cscope -b -c -R")
+    vmfiles = Glob("src/vm/*.c") + Glob("src/vm/*.h")
+    ctags = Command('tags', vmfiles, "ctags -R *")
+    cscope = Command('cscope.out', vmfiles, "cscope -b -c -R $SOURCES")
     pyc_tools = Command('src/tools/cscope.out', Glob("src/tools/*.py"),
                         "src/tools/pycscope.py -f $TARGET $SOURCE")
     pyc_lib = Command('src/lib/cscope.out', Glob("src/lib/*.py"),
                       "src/tools/pycscope.py -f $TARGET $SOURCE")
     tags = Alias('tags', [ctags, cscope, pyc_tools, pyc_lib])
     Alias('TAGS', tags)
-
-
-# Not yet working
-#elif "check" in COMMAND_LINE_TARGETS or "test" in COMMAND_LINE_TARGETS:
-#    test = SConscript(["src/tests/unit/SConscript", "src/tests/system/SConscript"])
 
 
 elif "docs" in COMMAND_LINE_TARGETS or "html" in COMMAND_LINE_TARGETS:
@@ -56,14 +54,29 @@ elif "dist" in COMMAND_LINE_TARGETS:
     Alias("dist", dist)
 
 
+# Not yet working
+elif "check" in COMMAND_LINE_TARGETS:
+    platform_path = "src/platform/desktop"
+    sconscript_path = os.path.join(platform_path, "SConscript")
+    build_path = os.path.join(platform_path, "build")
+    check_main = SConscript(sconscript_path, "vars", variant_dir=build_path)
+#    check_unit = SConscript("src/tests/unit/SConscript")
+    check_system = SConscript("src/tests/system/SConscript")
+
+
 # Default: build a platform; desktop by default
 else:
     if len(vars.args) == 0:
-        vars.args["PLATFORM"] = "desktop"
+        vars.args["PLATFORM"] = DEFAULT_PLATFORM
     else:
         if vars.args["PLATFORM"] not in allowed_platforms:
             print "Error: must define PLATFORM=<plat> where <plat> is from %s" \
                 % str(allowed_platforms)
             Exit(1)
-    platform_path = "src/platform/%s/SConscript" % vars.args["PLATFORM"]
-    SConscript([platform_path], "vars")
+    platform_path = os.path.join("src", "platform", vars.args["PLATFORM"])
+    sconscript_path = os.path.join(platform_path, "SConscript")
+    build_path = os.path.join(platform_path, "build")
+    main = SConscript(sconscript_path, "vars", variant_dir=build_path)
+    Clean(main, build_path)
+
+#:mode=python:

@@ -111,8 +111,7 @@ def rdismantle(co, parent = None):
     print " co_firstlineno:\t", co.co_firstlineno
     print " co_flags:      \t0x%04x"  % co.co_flags
     print " co_stacksize:  \t", co.co_stacksize
-    print " co_lnotab[%3d]:\t%s" % \
-          (len(co.co_lnotab), repr(co.co_lnotab[:8]))
+    print " co_lnotab[%3d]:\t%s" % (len(co.co_lnotab), repr(co.co_lnotab[:8]))
     print " co_argcount:   \t", co.co_argcount
     print " co_nlocals:    \t", co.co_nlocals
     print " co_freevars:   \t", co.co_freevars

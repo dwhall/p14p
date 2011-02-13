@@ -53,8 +53,16 @@
 #define PM_POP()        (*(--PM_SP))
 /** pushes an obj on the stack */
 #define PM_PUSH(pobj)   (*(PM_SP++) = (pobj))
-/** gets the argument (S16) from the instruction stream */
-#define GET_ARG()       mem_getWord(PM_FP->fo_memspace, &PM_IP)
+/** 
+ * Copies the bytecode argument (S16) from the instruction stream
+ * into the given var 
+ */
+#define PUT_BC_ARG_INTO(a) \
+    do \
+    { \
+        co_getBcodeArgAtOffset((pPmObj_t)PM_FP->fo_func->f_co, PM_IP, &(a)); \
+        PM_IP += 2; \
+    } while (0)
 
 /** pushes an obj in the only stack slot of the native frame */
 #define NATIVE_SET_TOS(pobj) (gVmGlobal.nativeframe.nf_stack = \

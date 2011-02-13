@@ -86,14 +86,6 @@
     } \
     while (0)
 
-#define OBJ_SET_SIZE(pobj, size) \
-    do \
-    { \
-        ((pPmObj_t)pobj)->od &= ~OD_SIZE_MASK; \
-        ((pPmObj_t)pobj)->od |= ((size) & OD_SIZE_MASK); \
-    } \
-    while (0)
-
 
 /**
  * The following is a diagram of the heap descriptor at the head of the chunk:
@@ -698,12 +690,14 @@ heap_gcMarkObj(pPmObj_t pobj)
             PM_RETURN_IF_ERROR(retval);
 
             /* #122: Mark the code image if it is in RAM */
+/*DWH
             if (((pPmCo_t)pobj)->co_memspace == MEMSPACE_RAM)
             {
                 retval = heap_gcMarkObj((pPmObj_t)
                                         (((pPmCo_t)pobj)->co_codeimgaddr));
                 PM_RETURN_IF_ERROR(retval);
             }
+*/
 
 #ifdef HAVE_CLOSURES
             /* #256: Add support for closures */

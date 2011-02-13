@@ -36,6 +36,7 @@ interpret(const uint8_t returnOnNoThreads)
     pPmObj_t pobj2 = C_NULL;
     pPmObj_t pobj3 = C_NULL;
     int16_t t16 = 0;
+    int16_t t16b = 0;
     int8_t t8 = 0;
     uint8_t bc;
     uint8_t objid, objid2;
@@ -71,8 +72,8 @@ interpret(const uint8_t returnOnNoThreads)
             PM_BREAK_IF_ERROR(retval);
         }
 
-        /* Get byte; the func post-incrs PM_IP */
-        bc = mem_getByte(PM_FP->fo_memspace, &PM_IP);
+        co_getBcodeAtOffset((pPmObj_t)PM_FP->fo_func->f_co, PM_IP++, &bc);
+        C_DEBUG_PRINT(VERBOSITY_HIGH, "bytecode = %d (0x%x)\n", bc, bc);
         switch (bc)
         {
             case POP_TOP:
@@ -931,15 +932,14 @@ interpret(const uint8_t returnOnNoThreads)
 
             /***************************************************
              * All bytecodes after 90 (0x5A) have a 2-byte arg
-             * that needs to be swallowed using GET_ARG().
+             * that needs to be swallowed using PUT_BC_ARG_INTO().
              **************************************************/
 
             case STORE_NAME:
-                /* Get name index */
-                t16 = GET_ARG();
-
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Set key=val in current frame's attrs dict */
                 retval = dict_setItem((pPmObj_t)PM_FP->fo_attrs, pobj2, TOS);
@@ -949,11 +949,10 @@ interpret(const uint8_t returnOnNoThreads)
 
 #ifdef HAVE_DEL
             case DELETE_NAME:
-                /* Get name index */
-                t16 = GET_ARG();
-
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Remove key,val pair from current frame's attrs dict */
                 retval = dict_delItem((pPmObj_t)PM_FP->fo_attrs, pobj2);
@@ -983,15 +982,16 @@ interpret(const uint8_t returnOnNoThreads)
                  *
                  * #59: Unpacking to a Dict shall not be supported
                  */
-                retval = seq_getLength(pobj1, (uint16_t *)&t16);
+                retval = seq_getLength(pobj1, (uint16_t *)&t16b);
                 if (retval != PM_RET_OK)
                 {
-                    GET_ARG();
+                    PM_IP += 2;
                     break;
                 }
 
                 /* Raise ValueError if seq length does not match num args */
-                if (t16 != GET_ARG())
+                PUT_BC_ARG_INTO(t16);
+                if (t16 != t16b)
                 {
                     PM_RAISE(retval, PM_RET_EX_VAL);
                     break;
@@ -1010,7 +1010,7 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
             case FOR_ITER:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
 #ifdef HAVE_GENERATORS
                 /* If TOS is an instance, call next method */
@@ -1053,7 +1053,7 @@ interpret(const uint8_t returnOnNoThreads)
             case STORE_ATTR:
                 /* TOS.name = TOS1 */
                 /* Get names index */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get attrs dict from obj */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FXN)
@@ -1092,7 +1092,8 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 
                 /* Get name/key obj */
-                pobj3 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj3);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Set key=val in obj's dict */
                 retval = dict_setItem(pobj2, pobj3, TOS1);
@@ -1104,7 +1105,7 @@ interpret(const uint8_t returnOnNoThreads)
             case DELETE_ATTR:
                 /* del TOS.name */
                 /* Get names index */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get attrs dict from obj */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FXN)
@@ -1143,7 +1144,8 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 
                 /* Get name/key obj */
-                pobj3 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj3);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Remove key,val from obj's dict */
                 retval = dict_delItem(pobj2, pobj3);
@@ -1161,10 +1163,11 @@ interpret(const uint8_t returnOnNoThreads)
 
             case STORE_GLOBAL:
                 /* Get name index */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Set key=val in global dict */
                 retval = dict_setItem((pPmObj_t)PM_FP->fo_globals, pobj2, TOS);
@@ -1175,10 +1178,11 @@ interpret(const uint8_t returnOnNoThreads)
 #ifdef HAVE_DEL
             case DELETE_GLOBAL:
                 /* Get name index */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get key */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Remove key,val from globals */
                 retval = dict_delItem((pPmObj_t)PM_FP->fo_globals, pobj2);
@@ -1187,7 +1191,7 @@ interpret(const uint8_t returnOnNoThreads)
 #endif /* HAVE_DEL */
 
             case DUP_TOPX:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 C_ASSERT(t16 <= 3);
 
                 pobj1 = TOS;
@@ -1203,18 +1207,23 @@ interpret(const uint8_t returnOnNoThreads)
 
             case LOAD_CONST:
                 /* Get const's index in CO */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
+
+                /* Get const */
+                retval = co_getConst((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Push const on stack */
-                PM_PUSH(PM_FP->fo_func->f_co->co_consts->val[t16]);
+                PM_PUSH(pobj1);
                 continue;
 
             case LOAD_NAME:
                 /* Get name index */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get name from names tuple */
-                pobj1 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Get value from frame's attrs dict */
                 retval = dict_getItem((pPmObj_t)PM_FP->fo_attrs, pobj1, &pobj2);
@@ -1243,7 +1252,7 @@ interpret(const uint8_t returnOnNoThreads)
 
             case BUILD_TUPLE:
                 /* Get num items */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 retval = tuple_new(t16, &pobj1);
                 PM_BREAK_IF_ERROR(retval);
 
@@ -1256,7 +1265,7 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
             case BUILD_LIST:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 retval = list_new(&pobj1);
                 PM_BREAK_IF_ERROR(retval);
                 for (; --t16 >= 0;)
@@ -1277,7 +1286,7 @@ interpret(const uint8_t returnOnNoThreads)
 
             case BUILD_MAP:
                 /* Argument is ignored */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 retval = dict_new(&pobj1);
                 PM_BREAK_IF_ERROR(retval);
                 PM_PUSH(pobj1);
@@ -1285,7 +1294,7 @@ interpret(const uint8_t returnOnNoThreads)
 
             case LOAD_ATTR:
                 /* Implements TOS.attr */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get attrs dict from obj */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FXN) ||
@@ -1324,7 +1333,8 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 
                 /* Get name */
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Get attr with given name */
                 retval = dict_getItem(pobj1, pobj2, &pobj3);
@@ -1366,7 +1376,7 @@ interpret(const uint8_t returnOnNoThreads)
 
             case COMPARE_OP:
                 retval = PM_RET_OK;
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
 #ifdef HAVE_FLOAT
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
@@ -1467,10 +1477,11 @@ interpret(const uint8_t returnOnNoThreads)
 
             case IMPORT_NAME:
                 /* Get name index */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Get name String obj */
-                pobj1 = PM_FP->fo_func->f_co->co_names->val[t16];
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Pop unused None object */
                 PM_SP--;
@@ -1535,8 +1546,9 @@ interpret(const uint8_t returnOnNoThreads)
                 pobj1 = TOS;
 
                 /* Get the name of the object to import */
-                t16 = GET_ARG();
-                pobj2 = PM_FP->fo_func->f_co->co_names->val[t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj2);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Get the object from the module's attributes */
                 retval = dict_getItem((pPmObj_t)((pPmFunc_t)pobj1)->f_attrs,
@@ -1549,12 +1561,12 @@ interpret(const uint8_t returnOnNoThreads)
 #endif /* HAVE_IMPORTS */
 
             case JUMP_FORWARD:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 PM_IP += t16;
                 continue;
 
             case JUMP_IF_FALSE:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 if (obj_isFalse(TOS))
                 {
                     PM_IP += t16;
@@ -1562,7 +1574,7 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
             case JUMP_IF_TRUE:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 if (!obj_isFalse(TOS))
                 {
                     PM_IP += t16;
@@ -1572,16 +1584,17 @@ interpret(const uint8_t returnOnNoThreads)
             case JUMP_ABSOLUTE:
             case CONTINUE_LOOP:
                 /* Get target offset (bytes) */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Jump to base_ip + arg */
-                PM_IP = PM_FP->fo_func->f_co->co_codeaddr + t16;
+                PM_IP = t16;
                 continue;
 
             case LOAD_GLOBAL:
                 /* Get name */
-                t16 = GET_ARG();
-                pobj1 = PM_FP->fo_func->f_co->co_names->val[t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getFromNames((pPmObj_t)PM_FP->fo_func->f_co, t16, &pobj1);
+                PM_BREAK_IF_ERROR(retval);
 
                 /* Try globals first */
                 retval = dict_getItem((pPmObj_t)PM_FP->fo_globals,
@@ -1608,7 +1621,7 @@ interpret(const uint8_t returnOnNoThreads)
                 uint8_t *pchunk;
 
                 /* Get block span (bytes) */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Create block */
                 retval = heap_getChunk(sizeof(PmBlock_t), &pchunk);
@@ -1630,25 +1643,25 @@ interpret(const uint8_t returnOnNoThreads)
             }
 
             case LOAD_FAST:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 PM_PUSH(PM_FP->fo_locals[t16]);
                 continue;
 
             case STORE_FAST:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 PM_FP->fo_locals[t16] = PM_POP();
                 continue;
 
 #ifdef HAVE_DEL
             case DELETE_FAST:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 PM_FP->fo_locals[t16] = PM_NONE;
                 continue;
 #endif /* HAVE_DEL */
 
 #ifdef HAVE_ASSERT
             case RAISE_VARARGS:
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Only supports taking 1 arg for now */
                 if (t16 != 1)
@@ -1691,7 +1704,7 @@ interpret(const uint8_t returnOnNoThreads)
 
             case CALL_FUNCTION:
                 /* Get num args */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /* Ensure no keyword args */
                 if ((t16 & (uint16_t)0xFF00) != 0)
@@ -1987,28 +2000,14 @@ CALL_FUNC_FOR_ITER:
                     /* Pop the function object */
                     PM_SP--;
 
-                    /* Get native function index */
-                    pobj2 = (pPmObj_t)((pPmFunc_t)pobj1)->f_co;
-                    t16 = ((pPmNo_t)pobj2)->no_funcindx;
-
                     /* Set flag, so the GC knows a native session is active */
                     gVmGlobal.nativeframe.nf_active = C_TRUE;
 
                     /*
                      * CALL NATIVE FXN: pass caller's frame and numargs
                      */
-                    /* Positive index is a stdlib func */
-                    if (t16 >= 0)
-                    {
-                        retval = std_nat_fxn_table[t16] (&PM_FP);
-                    }
-
-                    /* Negative index is a usrlib func */
-                    else
-                    {
-                        retval = usr_nat_fxn_table[-t16] (&PM_FP);
-                    }
-
+                    pobj2 = (pPmObj_t)((pPmFunc_t)pobj1)->f_co;
+                    retval = ((pPmNo_t)pobj2)->no_func(&PM_FP);
                     /*
                      * RETURN FROM NATIVE FXN
                      */
@@ -2050,7 +2049,7 @@ CALL_FUNC_CLEANUP:
 
             case MAKE_FUNCTION:
                 /* Get num default args to fxn */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
 
                 /*
                  * The current frame's globals become the function object's
@@ -2096,7 +2095,7 @@ CALL_FUNC_CLEANUP:
 #ifdef HAVE_CLOSURES
             case MAKE_CLOSURE:
                 /* Get number of default args */
-                t16 = GET_ARG();
+                PUT_BC_ARG_INTO(t16);
                 retval = func_new(TOS, (pPmObj_t)PM_FP->fo_globals, &pobj2);
                 PM_BREAK_IF_ERROR(retval);
 
@@ -2126,8 +2125,10 @@ CALL_FUNC_CLEANUP:
             case LOAD_CLOSURE:
             case LOAD_DEREF:
                 /* Loads the i'th cell of free variable storage onto TOS */
-                t16 = GET_ARG();
-                pobj1 = PM_FP->fo_locals[PM_FP->fo_func->f_co->co_nlocals + t16];
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, (uint8_t*)&t8);
+                PM_BREAK_IF_ERROR(retval);
+                pobj1 = PM_FP->fo_locals[t8 + t16];
                 if (pobj1 == C_NULL)
                 {
                     PM_RAISE(retval, PM_RET_EX_SYS);
@@ -2138,8 +2139,10 @@ CALL_FUNC_CLEANUP:
 
             case STORE_DEREF:
                 /* Stores TOS into the i'th cell of free variable storage */
-                t16 = GET_ARG();
-                PM_FP->fo_locals[PM_FP->fo_func->f_co->co_nlocals + t16] = PM_POP();
+                PUT_BC_ARG_INTO(t16);
+                retval = co_getNlocals((pPmObj_t)PM_FP->fo_func->f_co, (uint8_t*)&t8);
+                PM_BREAK_IF_ERROR(retval);
+                PM_FP->fo_locals[t8 + t16] = PM_POP();
                 continue;
 #endif /* HAVE_CLOSURES */
 

@@ -14,6 +14,10 @@
 # Runs the interactive interpreter
 #
 
+print "Hello world."
 
-import ipm
-ipm.ipm()
+a=0
+b=4/a
+
+#import ipm
+#ipm.ipm()

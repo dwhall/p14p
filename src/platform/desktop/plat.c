@@ -40,8 +40,10 @@ plat_init(void)
      * #67 Using sigaction complicates the use of getchar (below),
      * so signal() is used instead.
      */
+#ifndef __DEBUG__
     signal(SIGALRM, plat_sigalrm_handler);
     ualarm(1000, 1000);
+#endif
 
     return PM_RET_OK;
 }
@@ -155,12 +157,13 @@ plat_reportError(PmReturn_t result)
     uint8_t res;
     pPmFrame_t pframe;
     pPmObj_t pstr;
+    pPmObj_t pfnstr;
     PmReturn_t retval;
-    uint8_t bcindex;
-    uint16_t bcsum;
-    uint16_t linesum;
+    uint16_t bcaddr;
+    uint16_t lineno;
     uint16_t len_lnotab;
-    uint8_t const *plnotab;
+    uint16_t lnotab_index;
+    uint8_t b1, b2;
     uint16_t i;
 
     /* This table should match src/vm/fileid.txt */
@@ -175,7 +178,7 @@ plat_reportError(PmReturn_t result)
         "img.c",
         "int.c",
         "interp.c",
-        "pmstdlib_nat.c",
+        "pm_generated_objs.c",
         "list.c",
         "main.c",
         "mem.c",
@@ -224,10 +227,8 @@ plat_reportError(PmReturn_t result)
     /* If it's the native frame, print the native function name */
     if (pframe == (pPmFrame_t)&(gVmGlobal.nativeframe))
     {
-
-        /* The last name in the names tuple of the code obj is the name */
-        retval = tuple_getItem((pPmObj_t)gVmGlobal.nativeframe.nf_func->
-                               f_co->co_names, -1, &pstr);
+        /* Get the native func's name */
+        retval = co_getName((pPmObj_t)gVmGlobal.nativeframe.nf_func->f_co, &pstr);
         if ((retval) != PM_RET_OK)
         {
             printf("  Unable to get native func name.\n");
@@ -246,44 +247,37 @@ plat_reportError(PmReturn_t result)
     for (; pframe != C_NULL; pframe = pframe->fo_back)
     {
         /* The last name in the names tuple of the code obj is the name */
-        retval = tuple_getItem((pPmObj_t)pframe->fo_func->f_co->co_names,
-                               -1,
-                               &pstr);
+        retval = co_getName((pPmObj_t)pframe->fo_func->f_co, &pstr);
         if ((retval) != PM_RET_OK) break;
 
         /*
          * Get the line number of the current bytecode. Algorithm comes from:
          * http://svn.python.org/view/python/trunk/Objects/lnotab_notes.txt?view=markup
          */
-        bcindex = pframe->fo_ip - pframe->fo_func->f_co->co_codeaddr;
-        plnotab = pframe->fo_func->f_co->co_lnotab;
-        len_lnotab = mem_getWord(MEMSPACE_PROG, &plnotab);
-        bcsum = 0;
-        linesum = pframe->fo_func->f_co->co_firstlineno;
+        lnotab_index = 0;
+        bcaddr = 0;
+        co_getLnotabLen((pPmObj_t)pframe->fo_func->f_co, &len_lnotab);
+        co_getFirstlineno((pPmObj_t)pframe->fo_func->f_co, &lineno);
         for (i = 0; i < len_lnotab; i += 2)
         {
-            bcsum += mem_getByte(MEMSPACE_PROG, &plnotab);
-            if (bcsum > bcindex) break;
-            linesum += mem_getByte(MEMSPACE_PROG, &plnotab);
+            co_getLnotabAtOffset((pPmObj_t)pframe->fo_func->f_co,
+                                 lnotab_index++, &b1);
+            bcaddr += b1;
+            if (bcaddr > pframe->fo_ip) break;
+
+            co_getLnotabAtOffset((pPmObj_t)pframe->fo_func->f_co,
+                                 lnotab_index++, &b2);
+            lineno += b2;
         }
+
+        co_getFileName((pPmObj_t)((pPmFrame_t)pframe)->fo_func->f_co, &pfnstr);
         printf("  File \"%s\", line %d, in %s\n",
-               ((pPmFrame_t)pframe)->fo_func->f_co->co_filename,
-               linesum,
+               ((pPmString_t)pfnstr)->val,
+               lineno,
                ((pPmString_t)pstr)->val);
     }
 
     /* Print error */
-    res = (uint8_t)result;
-    if ((res > 0) && ((res - PM_RET_EX) < LEN_EXNLOOKUP))
-    {
-        printf("%s", exnlookup[res - PM_RET_EX]);
-    }
-    else
-    {
-        printf("Error code 0x%02X", result);
-    }
-    printf(" detected by ");
-
     if ((gVmGlobal.errFileId > 0) && (gVmGlobal.errFileId < LEN_FNLOOKUP))
     {
         printf("%s:", fnlookup[gVmGlobal.errFileId]);
@@ -292,7 +286,18 @@ plat_reportError(PmReturn_t result)
     {
         printf("FileId 0x%02X line ", gVmGlobal.errFileId);
     }
-    printf("%d\n", gVmGlobal.errLineNum);
+    printf("%d detects a ", gVmGlobal.errLineNum);
+
+    res = (uint8_t)result;
+    if ((res > 0) && ((res - PM_RET_EX) < LEN_EXNLOOKUP))
+    {
+        printf("%s\n", exnlookup[res - PM_RET_EX]);
+    }
+    else
+    {
+        printf("Error code 0x%02X\n", result);
+    }
+
 
 #else /* HAVE_DEBUG_INFO */
 
@@ -339,10 +344,9 @@ plat_reportError(PmReturn_t result)
              pframe != C_NULL;
              pframe = (pPmObj_t)((pPmFrame_t)pframe)->fo_back)
         {
-            /* The last name in the names tuple of the code obj is the name */
-            retval = tuple_getItem((pPmObj_t)((pPmFrame_t)pframe)->
-                                   fo_func->f_co->co_names, -1, &pstr);
-            if ((retval) != PM_RET_OK) break;
+            /* Get the func's name */
+            retval = co_getName((pPmObj_t)((pPmFrame_t)pframe)->fo_func->f_co, &pstr);
+            PM_BREAK_IF_ERROR(retval);
 
             printf("  %s()\n", ((pPmString_t)pstr)->val);
         }

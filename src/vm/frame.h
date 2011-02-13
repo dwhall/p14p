@@ -65,8 +65,8 @@ typedef struct PmBlock_s
     /** Ptr to backup stack ptr */
     pPmObj_t *b_sp;
 
-    /** Handler fxn obj */
-    uint8_t const *b_handler;
+    /** Offset to handler fxn obj */
+    uint32_t b_handler;
 
     /** Block type */
     PmBlockType_t b_type:8;
@@ -98,11 +98,8 @@ typedef struct PmFrame_s
     /** Ptr to fxn obj */
     pPmFunc_t fo_func;
 
-    /** Mem space where func's CO comes from */
-    PmMemSpace_t fo_memspace:8;
-
-    /** Instrxn ptr (pts into memspace) */
-    uint8_t const *fo_ip;
+    /** Instrxn ptr (offset from &co_code->val[0]) */
+    uint32_t  fo_ip;
 
     /** Linked list of blocks */
     pPmBlock_t fo_blockstack;

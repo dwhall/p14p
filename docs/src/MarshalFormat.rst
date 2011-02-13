@@ -1,0 +1,121 @@
+===================
+P14p Marshal Format
+===================
+
+:Author: Dean Hall
+
+
+History
+-------
+
+The PyMite virtual machine used a proprietary code image format that was
+suitable for embedding a Python program as byte-wise data in the source code
+of the VM as well as to use as the serial data format during interactive
+sessions between host PC and the embedded target.
+
+One limitation of the code image format is that the embedded target did not
+have the capability to write the image format back out its communication
+port(s).
+
+A well-defined code and data marshalling format will permit future P14p products
+to better communicate over data networks.  This format will be used for
+interactive sessions, remote procedure call (RPC) invocations as well as
+formatted data transmissions.
+
+This document explains the data format used to marshal and unmarshal data and
+code objects.
+
+
+Marshalable Objects
+-------------------
+
+The following types of objects are used in a Python code image and must be
+supported for remote interactive sessions:
+
+- None
+- Integer
+- Float
+- String
+- Tuple
+- CodeObject
+
+The Dict type is not used in code images, they are always built
+dynamically during execution.  However, having a serializable Dict type would
+greatly assist transferring structured and named data.  For this reason, the
+Dict type shall be marshalable.
+
+The List type is not used in code images.
+However, the List type is very common and shall be marshalable.
+
+The Bool type is not used in code images.  However, the only two instances
+of this type (True and False) are common constants and shall be marshalable.
+
+No other data types are considered for marshal format in order to guard the
+simplicity of the code needed to implement marshal and unmarshal on the
+emedded targets.
+
+
+Marshal Format
+--------------
+
+The following types have single-byte marshal formats:
+
+======= ==================  =================
+Type    Representation(s)   Byte Values
+======= ==================  =================
+None    N                   0x4E
+Bool    T, F                0x54, 0x46
+Int     0 ... 9             0x30 ... 0x39
+======= ==================  =================
+
+Integers having a value 0-9 use a single-byte representation that is the
+ASCII character representing that number (zero == 0x30, one == 0x31, etc.).
+
+Integers having a value -128 - 127 use a two-byte representation.
+Integers having a value -32768 - 32767 use a three-byte representation.
+Integers with a larger absolute value have a five-byte representation.
+
+All remaining types use a multi-byte representation:
+
+======= ==================  ====================================================
+Type    Representation(s)   Byte Values
+======= ==================  ====================================================
+Int     I####               0x4C, LSB0, LSB1, LSB2, MSB
+Int     H##                 0x57, LSB, MSB
+Int     B#                  0x42, LSB
+Float   R####               0x52, <32b float in struct.pack("<f", f) format>
+String  S##<N chars>        0x53, N.LSB, N.MSB, <N bytes>
+String  s#<N chars>         0x73, N, <N bytes>
+Tuple   )##<N objects>      0x29, N.LSB, N.MSB, <N marshaled objs>
+Tuple   (#<N objects>       0x28, N, <N marshaled objs>
+List    ]##<N objects>      0x5D, LSB, MSB, <N marshaled objs>
+List    [#<N objects>       0x5B, LSB, MSB, <N marshaled objs>
+Dict    }##<N k,v pairs>    0x7D, N.LSB, N.MSB, <N marshaled k,v pairs>
+Dict    {#<N k,v pairs>     0x7B, N, <N marshaled k,v pairs>
+Code    C...                0x43, ... Explained below
+======= ==================  ====================================================
+
+The code object format has a complex representation that matches
+its C structure closely:
+
+==============  ============
+PmCo_t Field    Type/<Repr>
+==============  ============
+co              "C"/<0x43>
+co_name         String
+co_filename     String
+co_code         String
+co_lnotab       String
+co_names        Tuple
+co_consts       Tuple
+co_cellvars     Tuple
+co_firstlineno  <LSB,MSB>
+co_argcount     <Byte>
+co_flags        <Byte>
+co_stacksize    <Byte>
+co_nlocals      <Byte>
+co_nfreevars    <Byte>
+==============  ============
+
+
+.. :mode=rest:

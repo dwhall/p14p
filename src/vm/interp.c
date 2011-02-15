@@ -206,7 +206,6 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
             case GET_ITER:
-#ifdef HAVE_GENERATORS
                 /* Raise TypeError if TOS is an instance, but not iterable */
                 if (OBJ_GET_TYPE(TOS) == OBJ_TYPE_CLI)
                 {
@@ -218,7 +217,6 @@ interpret(const uint8_t returnOnNoThreads)
                     }
                 }
                 else
-#endif /* HAVE_GENERATORS */
                 {
                     /* Convert sequence to sequence-iterator */
                     retval = seqiter_new(TOS, &pobj1);
@@ -825,7 +823,6 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Otherwise return to previous frame */
                 PM_FP = PM_FP->fo_back;
 
-#ifdef HAVE_GENERATORS
                 /* If returning function was a generator */
                 if (((pPmFrame_t)pobj1)->fo_func->f_co->co_flags & CO_GENERATOR)
                 {
@@ -833,9 +830,7 @@ interpret(const uint8_t returnOnNoThreads)
                     PM_RAISE(retval, PM_RET_EX_STOP);
                     break;
                 }
-#endif /* HAVE_GENERATORS */
 
-#ifdef HAVE_CLASSES
                 /*
                  * If returning function was class initializer
                  * do not push a return object
@@ -850,7 +845,6 @@ interpret(const uint8_t returnOnNoThreads)
                     }
                 }
                 else
-#endif /* HAVE_CLASSES */
 
                 /*
                  * Push frame's return val, except if the expiring frame
@@ -880,7 +874,6 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 #endif /* HAVE_IMPORTS */
 
-#ifdef HAVE_GENERATORS
             case YIELD_VALUE:
                 /* #207: Add support for the yield keyword */
                 /* Get expiring frame's TOS */
@@ -900,7 +893,6 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Push yield value onto caller's TOS */
                 PM_PUSH(pobj1);
                 continue;
-#endif /* HAVE_GENERATORS */
 
             case POP_BLOCK:
                 /* Get ptr to top block */
@@ -919,7 +911,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_BREAK_IF_ERROR(heap_freeChunk(pobj1));
                 continue;
 
-#ifdef HAVE_CLASSES
             case BUILD_CLASS:
                 /* Create and push new class */
                 retval = class_new(TOS, TOS1, TOS2, &pobj2);
@@ -927,7 +918,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_SP -= 2;
                 TOS = pobj2;
                 continue;
-#endif /* HAVE_CLASSES */
 
 
             /***************************************************
@@ -1012,7 +1002,6 @@ interpret(const uint8_t returnOnNoThreads)
             case FOR_ITER:
                 PUT_BC_ARG_INTO(t16);
 
-#ifdef HAVE_GENERATORS
                 /* If TOS is an instance, call next method */
                 if (OBJ_GET_TYPE(TOS) == OBJ_TYPE_CLI)
                 {
@@ -1030,7 +1019,6 @@ interpret(const uint8_t returnOnNoThreads)
                     goto CALL_FUNC_FOR_ITER;
                 }
                 else
-#endif /* HAVE_GENERATORS */
                 {
                     /* Get the next item in the sequence iterator */
                     retval = seqiter_getNext(TOS, &pobj2);
@@ -1061,8 +1049,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     pobj2 = (pPmObj_t)((pPmFunc_t)TOS)->f_attrs;
                 }
-
-#ifdef HAVE_CLASSES
                 else if (OBJ_GET_TYPE(TOS) == OBJ_TYPE_CLO)
                 {
                     pobj2 = (pPmObj_t)((pPmClass_t)TOS)->cl_attrs;
@@ -1075,7 +1061,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     pobj2 = (pPmObj_t)((pPmMethod_t)TOS)->m_attrs;
                 }
-#endif /* HAVE_CLASSES */
 
                 /* Other types result in an AttributeError */
                 else
@@ -1113,8 +1098,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     pobj2 = (pPmObj_t)((pPmFunc_t)TOS)->f_attrs;
                 }
-
-#ifdef HAVE_CLASSES
                 else if (OBJ_GET_TYPE(TOS) == OBJ_TYPE_CLO)
                 {
                     pobj2 = (pPmObj_t)((pPmClass_t)TOS)->cl_attrs;
@@ -1127,7 +1110,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     pobj2 = (pPmObj_t)((pPmMethod_t)TOS)->m_attrs;
                 }
-#endif /* HAVE_CLASSES */
 
                 /* Other types result in an AttributeError */
                 else
@@ -1302,8 +1284,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     pobj1 = (pPmObj_t)((pPmFunc_t)TOS)->f_attrs;
                 }
-
-#ifdef HAVE_CLASSES
                 else if (OBJ_GET_TYPE(TOS) == OBJ_TYPE_CLO)
                 {
                     pobj1 = (pPmObj_t)((pPmClass_t)TOS)->cl_attrs;
@@ -1316,7 +1296,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     pobj1 = (pPmObj_t)((pPmMethod_t)TOS)->m_attrs;
                 }
-#endif /* HAVE_CLASSES */
 
                 /* Other types result in an AttributeError */
                 else
@@ -1339,7 +1318,6 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Get attr with given name */
                 retval = dict_getItem(pobj1, pobj2, &pobj3);
 
-#ifdef HAVE_CLASSES
                 /*
                  * If attr is not found and object is a class or instance,
                  * try to get the attribute from the class attrs or parent(s)
@@ -1350,7 +1328,6 @@ interpret(const uint8_t returnOnNoThreads)
                 {
                     retval = class_getAttr(TOS, pobj2, &pobj3);
                 }
-#endif /* HAVE_CLASSES */
 
                 /* Raise an AttributeError if key is not found */
                 if (retval == PM_RET_EX_KEY)
@@ -1359,7 +1336,6 @@ interpret(const uint8_t returnOnNoThreads)
                 }
                 PM_BREAK_IF_ERROR(retval);
 
-#ifdef HAVE_CLASSES
                 /* If obj is an instance and attr is a func, create method */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_CLI) &&
                     (OBJ_GET_TYPE(pobj3) == OBJ_TYPE_FXN))
@@ -1368,7 +1344,6 @@ interpret(const uint8_t returnOnNoThreads)
                     retval = class_method(TOS, pobj2, &pobj3);
                     PM_BREAK_IF_ERROR(retval);
                 }
-#endif /* HAVE_CLASSES */
 
                 /* Put attr on the stack */
                 TOS = pobj3;
@@ -1723,13 +1698,11 @@ interpret(const uint8_t returnOnNoThreads)
                     "interpret(), CALL_FUNCTION on <obj type=%d @ %p>\n",
                     OBJ_GET_TYPE(pobj1), pobj1);
 
-#ifdef HAVE_GENERATORS
                 /* If the callable is a generator function (can't be native) */
                 if ((OBJ_GET_TYPE(pobj1) == OBJ_TYPE_FXN)
                     && (OBJ_GET_TYPE(((pPmFunc_t)pobj1)->f_co) == OBJ_TYPE_COB)
                     && (((pPmFunc_t)pobj1)->f_co->co_flags & CO_GENERATOR))
                 {
-#ifdef HAVE_DEFAULTARGS
                     /* Num required args := argcount - num default args */
                     t8 = ((pPmFunc_t)pobj1)->f_co->co_argcount;
                     if (((pPmFunc_t)pobj1)->f_defaultargs != C_NULL)
@@ -1745,10 +1718,6 @@ interpret(const uint8_t returnOnNoThreads)
                     if (((t16 & ((uint8_t)0xFF))
                          > ((pPmFunc_t)pobj1)->f_co->co_argcount)
                         || ((t16 & ((uint8_t)0xFF)) < t8))
-#else
-                    if ((t16 & ((uint8_t)0xFF)) !=
-                        ((pPmFunc_t)pobj1)->f_co->co_argcount)
-#endif /* HAVE_DEFAULTARGS */
                     {
                         PM_RAISE(retval, PM_RET_EX_TYPE);
                         break;
@@ -1773,9 +1742,7 @@ interpret(const uint8_t returnOnNoThreads)
                     C_ASSERT(retval == PM_RET_OK);
                     STACK(t16) = pobj1;
                 }
-#endif /* HAVE_GENERATORS */
 
-#ifdef HAVE_CLASSES
                 /* If the callable is a class, create an instance of it */
                 if (OBJ_GET_TYPE(pobj1) == OBJ_TYPE_CLO)
                 {
@@ -1841,11 +1808,8 @@ interpret(const uint8_t returnOnNoThreads)
                     /* Refresh the callable */
                     pobj1 = (pPmObj_t)((pPmMethod_t)pobj1)->m_func;
                 }
-#endif /* HAVE_CLASSES */
 
-#ifdef HAVE_GENERATORS
 CALL_FUNC_FOR_ITER:
-#endif /* HAVE_GENERATORS */
                 /* Raise a TypeError if object is not callable */
                 if (OBJ_GET_TYPE(pobj1) != OBJ_TYPE_FXN)
                 {
@@ -1861,7 +1825,6 @@ CALL_FUNC_FOR_ITER:
                      * code object's expected argcount
                      */
 
-#ifdef HAVE_DEFAULTARGS
                     /* Num required args := argcount - num default args */
                     t8 = ((pPmFunc_t)pobj1)->f_co->co_argcount;
                     if (((pPmFunc_t)pobj1)->f_defaultargs != C_NULL)
@@ -1877,10 +1840,6 @@ CALL_FUNC_FOR_ITER:
                     if (((t16 & ((uint8_t)0xFF))
                          > ((pPmFunc_t)pobj1)->f_co->co_argcount)
                         || ((t16 & ((uint8_t)0xFF)) < t8))
-#else
-                    if ((t16 & ((uint8_t)0xFF)) !=
-                        ((pPmFunc_t)pobj1)->f_co->co_argcount)
-#endif /* HAVE_DEFAULTARGS */
                     {
                         PM_RAISE(retval, PM_RET_EX_TYPE);
                         break;
@@ -1891,7 +1850,6 @@ CALL_FUNC_FOR_ITER:
                     heap_gcPushTempRoot(pobj2, &objid2);
                     PM_GOTO_IF_ERROR(retval, CALL_FUNC_CLEANUP);
 
-#ifdef HAVE_CLASSES
                     /*
                      * If the original callable was a class, indicate that
                      * the frame is running the initializer so that
@@ -1901,9 +1859,7 @@ CALL_FUNC_FOR_ITER:
                     {
                         ((pPmFrame_t)pobj2)->fo_isInit = C_TRUE;
                     }
-#endif /* HAVE_CLASSES */
 
-#ifdef HAVE_DEFAULTARGS
                     /* If this func has default arguments, put them in place */
                     if (((pPmFunc_t)pobj1)->f_defaultargs != C_NULL)
                     {
@@ -1918,7 +1874,6 @@ CALL_FUNC_FOR_ITER:
                                  f_defaultargs)->val[i++];
                         }
                     }
-#endif /* HAVE_DEFAULTARGS */
 
                     /* Pass args to new frame */
                     while (--t16 >= 0)
@@ -2015,7 +1970,6 @@ CALL_FUNC_FOR_ITER:
                     /* Clear flag, so frame will not be marked by the GC */
                     gVmGlobal.nativeframe.nf_active = C_FALSE;
 
-#ifdef HAVE_CLASSES
                     /* If class's __init__ called, do not push a return obj */
                     if (bc == 0)
                     {
@@ -2028,7 +1982,6 @@ CALL_FUNC_FOR_ITER:
                         }
                     }
                     else
-#endif /* HAVE_CLASSES */
 
                     /* If the frame pointer was switched, do nothing to TOS */
                     if (retval == PM_RET_FRAME_SWITCH)
@@ -2062,8 +2015,6 @@ CALL_FUNC_CLEANUP:
                 /* Put any default args in a tuple */
                 if (t16 > 0)
                 {
-
-#ifdef HAVE_DEFAULTARGS
                     heap_gcPushTempRoot(pobj2, &objid);
                     retval = tuple_new(t16, &pobj3);
                     heap_gcPopTempRoot(objid);
@@ -2076,12 +2027,6 @@ CALL_FUNC_CLEANUP:
 
                     /* Set func's default args */
                     ((pPmFunc_t)pobj2)->f_defaultargs = (pPmTuple_t)pobj3;
-#else
-                    /* Default arguments not configured in pmfeatures.h */
-                    PM_RAISE(retval, PM_RET_EX_SYS);
-                    break;
-#endif /* HAVE_DEFAULTARGS */
-
                 }
                 else
                 {
@@ -2153,7 +2098,6 @@ CALL_FUNC_CLEANUP:
                 break;
         }
 
-#ifdef HAVE_GENERATORS
         /* If got a StopIteration exception, check for a B_LOOP block */
         if (retval == PM_RET_EX_STOP)
         {
@@ -2185,7 +2129,6 @@ CALL_FUNC_CLEANUP:
                 continue;
             }
         }
-#endif /* HAVE_GENERATORS */
 
         /*
          * If execution reaches this point, it is because

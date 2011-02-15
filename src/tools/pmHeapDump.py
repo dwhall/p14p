@@ -229,12 +229,10 @@ def PmObjectClass(dumpversion, features):
                        "val:B:len"),
             PmTypeInfo("TUP", "len:H,items:P:len"),
             PmTypeInfo("COB", "codeimg:P,names:P,consts:P,code:P"),
-            PmTypeInfo("MOD", "co:P,attrs:P,globals:P," +
-                       (features.HAVE_DEFAULTARGS and "defaultargs:P," or "") +
+            PmTypeInfo("MOD", "co:P,attrs:P,globals:P,defaultargs:P," +
                        (features.HAVE_CLOSURES and "closure:P," or "")),
             PmTypeInfo("CLO", "attrs:P,bases:P"),
-            PmTypeInfo("FXN", "co:P,attrs:P,globals:P," +
-                       (features.HAVE_DEFAULTARGS and "defaultargs:P," or "") +
+            PmTypeInfo("FXN", "co:P,attrs:P,globals:P,defaultargs:P," +
                        (features.HAVE_CLOSURES and "closure:P" or "")),
             PmTypeInfo("CLI", "class:P,attrs:P"),
             PmTypeInfo("CIM", "data:B:*"),
@@ -253,9 +251,8 @@ def PmObjectClass(dumpversion, features):
             PmTypeInfo("x", ""),
             PmTypeInfo("x", ""),
             PmTypeInfo("FRM", "back:P,func:P,memspace:B,ip:P,blockstack:P,"
-                              "attrs:P,globals:P,sp:P,isImport:.," +
-                       (features.HAVE_CLASSES and "isInit:.," or "") +
-                       "locals:P:<sp"),
+                              "attrs:P,globals:P,sp:P,isImport:.,isInit:.,"
+                              "locals:P:<sp"),
             PmTypeInfo("BLK", "sp:P,handler:P,type:B,next:P"),
             PmTypeInfo("SEG", "items:P:8,next:P"),
             PmTypeInfo("SGL", "rootseg:P,lastseg:P,length:H"),
@@ -542,8 +539,7 @@ class PmHeap(UserDict.UserDict):
     """A model of the heap.
     """
 
-    FEATURES = ['USE_STRING_CACHE', 'HAVE_DEFAULTARGS', 'HAVE_CLOSURES',
-                'HAVE_CLASSES']
+    FEATURES = ['USE_STRING_CACHE', 'HAVE_CLOSURES',]
 
 
     def __init__(self, fp):

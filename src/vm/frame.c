@@ -47,15 +47,8 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
         return retval;
     }
 
-#ifdef HAVE_GENERATORS
     /* #207: Initializing a Generator using CALL_FUNC needs extra stack slot */
     fsize = sizeof(PmFrame_t) + (pco->co_stacksize + pco->co_nlocals + 2) * sizeof(pPmObj_t);
-#elif defined(HAVE_CLASSES)
-    /* #230: Calling a class's __init__() takes two extra spaces on the stack */
-    fsize = sizeof(PmFrame_t) + (pco->co_stacksize + pco->co_nlocals + 1) * sizeof(pPmObj_t);
-#else
-    fsize = sizeof(PmFrame_t) + (pco->co_stacksize + pco->co_nlocals - 1) * sizeof(pPmObj_t);
-#endif /* HAVE_CLASSES */
 
 #ifdef HAVE_CLOSURES
     /* #256: Add support for closures */
@@ -92,9 +85,7 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
 
     /* By default, this is a normal frame, not an import or __init__ one */
     pframe->fo_isImport = 0;
-#ifdef HAVE_CLASSES
     pframe->fo_isInit = 0;
-#endif
 
     /* Clear the stack */
     sli_memset((unsigned char *)&(pframe->fo_locals), (char const)0,

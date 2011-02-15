@@ -213,15 +213,11 @@ heap_dump(void)
 #ifdef USE_STRING_CACHE
     s |= 1<<0;
 #endif
-#ifdef HAVE_DEFAULTARGS
     s |= 1<<1;
-#endif
 #ifdef HAVE_CLOSURES
     s |= 1<<2;
 #endif
-#ifdef HAVE_CLASSES
     s |= 1<<3;
-#endif
     fwrite(&s, sizeof(uint16_t), 1, fp);
 
     /* Size of heap */
@@ -729,11 +725,9 @@ heap_gcMarkObj(pPmObj_t pobj)
             retval = heap_gcMarkObj((pPmObj_t)((pPmFunc_t)pobj)->f_globals);
             PM_RETURN_IF_ERROR(retval);
 
-#ifdef HAVE_DEFAULTARGS
             /* Mark the default args tuple */
             retval = heap_gcMarkObj((pPmObj_t)((pPmFunc_t)pobj)->f_defaultargs);
             PM_RETURN_IF_ERROR(retval);
-#endif /* HAVE_DEFAULTARGS */
 
 #ifdef HAVE_CLOSURES
             /* #256: Mark the closure tuple */
@@ -741,7 +735,6 @@ heap_gcMarkObj(pPmObj_t pobj)
 #endif /* HAVE_CLOSURES */
             break;
 
-#ifdef HAVE_CLASSES
         case OBJ_TYPE_CLI:
             /* Mark the obj head */
             OBJ_SET_GCVAL(pobj, pmHeap.gcval);
@@ -781,7 +774,6 @@ heap_gcMarkObj(pPmObj_t pobj)
             /* Mark the base tuple */
             retval = heap_gcMarkObj((pPmObj_t)((pPmClass_t)pobj)->cl_bases);
             break;
-#endif /* HAVE_CLASSES */
 
             /*
              * An obj in ram should not be of these types.

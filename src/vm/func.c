@@ -51,11 +51,7 @@ func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc)
     pfunc->f_co = (pPmCo_t)pco;
     pfunc->f_globals = C_NULL;
     pfunc->f_attrs = C_NULL;
-
-#ifdef HAVE_DEFAULTARGS
-    /* Clear default args (will be set later, if at all) */
     pfunc->f_defaultargs = C_NULL;
-#endif /* HAVE_DEFAULTARGS */
 
 #ifdef HAVE_CLOSURES
     /* Clear field for closure tuple */

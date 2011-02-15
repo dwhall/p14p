@@ -67,9 +67,9 @@ def co_filter_factory(pmfeatures_filename):
 
     Flags filter:
         Check co_flags for flags that indicate an unsupported feature
-        Supported flags: CO_NOFREE, CO_OPTIMIZED, CO_NEWLOCALS, CO_NESTED,
+        Supported flags: CO_NOFREE, CO_OPTIMIZED, CO_NEWLOCALS, CO_NESTED, 
+            CO_GENERATOR
         Unsupported flags: CO_VARARGS, CO_VARKEYWORDS
-        Conditionally supported flags: CO_GENERATOR if HAVE_GENERATORS
 
     Native code filter:
         If this function has a native indicator,
@@ -120,17 +120,6 @@ def co_filter_factory(pmfeatures_filename):
             "RAISE_VARARGS",
             ])
 
-    if not PM_FEATURES["HAVE_CLASSES"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "BUILD_CLASS",
-            ])
-
-    # Issue #7: Add support for the yield keyword
-    if not PM_FEATURES["HAVE_GENERATORS"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "YIELD_VALUE",
-            ])
-
     # Issue #44: Add support for the backtick operation (UNARY_CONVERT)
     if not PM_FEATURES["HAVE_BACKTICK"]:
         UNIMPLEMENTED_BCODES.extend([
@@ -178,9 +167,6 @@ def co_filter_factory(pmfeatures_filename):
         # Check co_flags
         assert co.co_flags & CO_VARARGS == 0, "varargs not supported."
         assert co.co_flags & CO_VARKEYWORDS == 0, "keyword args not supported."
-        if not PM_FEATURES["HAVE_GENERATORS"]:
-            assert co.co_flags & CO_GENERATOR == 0, \
-                   "generator/yield not supported."
 
         ## Bcode filter
         # Iterate through the bytecodes
@@ -198,15 +184,6 @@ def co_filter_factory(pmfeatures_filename):
             # Go to next bytecode (skip 2 extra bytes if there is an argument)
             i += 1
             if c >= dis.HAVE_ARGUMENT:
-
-                # Ensure there are no default args if they are not configured
-                if not PM_FEATURES["HAVE_DEFAULTARGS"] \
-                    and c == dis.opmap["MAKE_FUNCTION"]:
-                        assert self._str_to_U16(s[i+1:i+3]) == 0, \
-                        "Bytecode (%d/%s/%s) not configured " \
-                        "to support default arguments; " \
-                        "comes at offset %d in file %s." \
-                        % (c, hex(c), dis.opname[c], i, co.co_filename)
                 i += 2
 
         # Get trimmed src file name and module name

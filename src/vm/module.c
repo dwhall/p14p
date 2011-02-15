@@ -51,11 +51,7 @@ mod_new(pPmObj_t pco, pPmObj_t *pmod)
     ((pPmFunc_t)*pmod)->f_co = (pPmCo_t)pco;
     ((pPmFunc_t)*pmod)->f_attrs = C_NULL;
     ((pPmFunc_t)*pmod)->f_globals = C_NULL;
-
-#ifdef HAVE_DEFAULTARGS
-    /* Clear the default args (only used by funcs) */
     ((pPmFunc_t)*pmod)->f_defaultargs = C_NULL;
-#endif /* HAVE_DEFAULTARGS */
 
 #ifdef HAVE_CLOSURES
     /* Clear field for closure tuple */

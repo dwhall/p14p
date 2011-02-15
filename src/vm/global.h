@@ -49,17 +49,13 @@
 /** The global string "code" */
 #define PM_CODE_STR     (pPmObj_t)&pm_global_string_code
 
-#ifdef HAVE_CLASSES
 /** The global string "__init__" */
 #define PM_INIT_STR     (pPmObj_t)&pm_global_string_init
-#endif /* HAVE_CLASSES */
 
-#ifdef HAVE_GENERATORS
 /** The global string "Generator" */
 #define PM_GENERATOR_STR (pPmObj_t)&pm_global_string_generator
 /** The global string "next" */
 #define PM_NEXT_STR (pPmObj_t)&pm_global_string_next
-#endif /* HAVE_GENERATORS */
 
 #ifdef HAVE_ASSERT
 /** The global string "Exception" */

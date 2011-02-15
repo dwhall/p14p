@@ -17,7 +17,8 @@
 import sys
 
 print "heap=", sys.heap()
-print "sys.gc()", sys.gc()
+print "sys.gc()"
+sys.gc()
 print "heap=", sys.heap()
 
 print "Hello world."

@@ -92,8 +92,6 @@ def dir(o):
         {
             po = (pPmObj_t)((pPmFunc_t)po)->f_attrs;
         }
-
-#ifdef HAVE_CLASSES
         else if (OBJ_GET_TYPE(po) == OBJ_TYPE_CLO)
         {
             po = (pPmObj_t)((pPmClass_t)po)->cl_attrs;
@@ -106,8 +104,6 @@ def dir(o):
         {
             po = (pPmObj_t)((pPmMethod_t)po)->m_attrs;
         }
-#endif /* HAVE_CLASSES */
-
         else
         {
             po = C_NULL;
@@ -301,10 +297,9 @@ def id(o):
     pass
 
 
-# Yields every (i)tem in the (s)equence; requires HAVE_GENERATORS
-#def iter(s):
-#    for i in s:
-#        yield i
+def iter(s):
+    for i in s:
+        yield i
 
 
 def len(s):

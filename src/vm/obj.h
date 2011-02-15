@@ -257,48 +257,6 @@ PmBoolean_t, *pPmBoolean_t;
 
 
 /**
- * Loads an object from an image in memory.
- * Return pointer to object.
- * Leave add pointing one byte past end of obj.
- *
- * The following lists the simple object types
- * and their image structures:
- * -None:
- *      -type:      int8_t - OBJ_TYPE_NON
- *
- * -Int:
- *      -type:      int8_t - OBJ_TYPE_INT
- *      -value:     int32_t - signed integer value
- *
- * -Float:
- *      -type:      int8_t - OBJ_TYPE_FLOAT
- *      -value:     float32_t - 32-bit floating point value
- *
- * -Slice (is this allowed in img?):
- *      -type:      int8_t - OBJ_TYPE_SLICE
- *      -index1:    int16_t - first index.
- *      -index2:    int16_t - second index.
- *
- * @param   memspace memory space/type
- * @param   paddr ptr to ptr to obj
- *          return by reference: paddr pts to
- *          first byte after obj
- * @param   r_pobj Return arg, the loaded object.
- * @return  Return status
- */
-PmReturn_t obj_loadFromImg(PmMemSpace_t memspace,
-                           uint8_t const **paddr, pPmObj_t *r_pobj);
-
-/**
- * Loads a code object from a code image object
- *
- * @param pimg Ptr to a code image object
- * @param r_pobj Return arg, the loaded object
- * @return  Returns status
- */
-PmReturn_t obj_loadFromImgObj(pPmObj_t pimg, pPmObj_t *r_pobj);
-
-/**
  * Finds the boolean value of the given object.
  *
  * @param   pobj Ptr to object to test.

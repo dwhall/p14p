@@ -156,8 +156,8 @@ def co_to_crepr(co, cvarnm):
             native_cvarnm = "n" + cvarnm
             return '/* %s:%d %s */\nPmReturn_t %s(pPmFrame_t *ppframe)\n' \
                 '{\n#line %d "%s"\n%s\n}\n\n%s, %d, %s};\n' \
-                % (co.co_filename, co.co_firstlineno, co.co_name,
-                   native_cvarnm, co.co_firstlineno, co.co_filename,
+                % (co.co_filename, co.co_firstlineno + 1, co.co_name,
+                   native_cvarnm, co.co_firstlineno + 1, co.co_filename,
                    co.co_consts[0][NATIVE_INDICATOR_LENGTH:],
                    header(native, cvarnm), co.co_argcount, native_cvarnm)
 

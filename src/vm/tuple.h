@@ -52,27 +52,6 @@ typedef struct PmTuple_s
 
 
 /**
- * Creates a Tuple by loading a tuple image from memory.
- *
- * Obtain space for tuple from the heap.
- * Load all objs within the tuple img.
- * Leave contents of paddr pointing one byte past end of
- * last obj in tuple.
- *
- * The tuple image has the following structure:
- *      -type:      S8 - OBJ_TYPE_TUPLE
- *      -length     U8 - N number of objects in the tuple.
- *                  N objects follow in the stream.
- *
- * @param   memspace Memory space.
- * @param   paddr Ptr to ptr to tuple in memspace
- * @param   r_ptuple Return by reference; new filled tuple
- * @return  Return status
- */
-PmReturn_t tuple_loadFromImg(PmMemSpace_t memspace,
-                             uint8_t const **paddr, pPmObj_t *r_ptuple);
-
-/**
  * Allocates space for a new Tuple.  Returns a pointer to the tuple.
  *
  * @param   n the number of elements the tuple will contain

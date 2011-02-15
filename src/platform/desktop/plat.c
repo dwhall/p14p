@@ -70,35 +70,6 @@ plat_sigalrm_handler(int signal)
 }
 
 
-/*
- * Gets a byte from the address in the designated memory space
- * Post-increments *paddr.
- */
-uint8_t
-plat_memGetByte(PmMemSpace_t memspace, uint8_t const **paddr)
-{
-    uint8_t b = 0;
-
-    switch (memspace)
-    {
-        case MEMSPACE_RAM:
-        case MEMSPACE_PROG:
-            b = **paddr;
-            *paddr += 1;
-            return b;
-
-        case MEMSPACE_EEPROM:
-        case MEMSPACE_SEEPROM:
-        case MEMSPACE_OTHER0:
-        case MEMSPACE_OTHER1:
-        case MEMSPACE_OTHER2:
-        case MEMSPACE_OTHER3:
-        default:
-            return 0;
-    }
-}
-
-
 /* Desktop target shall use stdio for I/O routines */
 PmReturn_t
 plat_getByte(uint8_t *b)

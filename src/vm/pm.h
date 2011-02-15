@@ -187,7 +187,6 @@ extern volatile uint32_t pm_timerMsTicks;
 #include "pmfeatures.h"
 #include "pmEmptyPlatformDefs.h"
 #include "sli.h"
-#include "mem.h"
 #include "obj.h"
 #include "seq.h"
 #include "tuple.h"

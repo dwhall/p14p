@@ -38,7 +38,7 @@
  * If the compiler has string.h, set HAVE_STRING to 1;
  * otherwise, leave it 0 and the sli functions will be used.
  */
-#define HAVE_STRING_H 0
+#define HAVE_STRING_H 1
 
 
 /*

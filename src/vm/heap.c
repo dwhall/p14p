@@ -610,20 +610,25 @@ heap_gcMarkObj(pPmObj_t pobj)
     int16_t n;
     PmType_t type;
 
-    /* Return if ptr is null or object is already marked */
+    /* Return if ptr is null  */
     if (pobj == C_NULL)
     {
         return retval;
     }
-    if (OBJ_GET_GCVAL(pobj) == pmHeap.gcval)
+
+    /* Return if object is outside the heap (native frame is special case) */
+    if ((((uint8_t *)pobj < &pmHeap.base[0])
+         || ((uint8_t *)pobj > &pmHeap.base[pmHeap.size]))
+        && ((uint8_t *)pobj != (uint8_t *)&gVmGlobal.nativeframe))
     {
         return retval;
     }
 
-    /* The pointer must be within the heap (native frame is special case) */
-    C_ASSERT((((uint8_t *)pobj >= &pmHeap.base[0])
-              && ((uint8_t *)pobj <= &pmHeap.base[pmHeap.size]))
-             || ((uint8_t *)pobj == (uint8_t *)&gVmGlobal.nativeframe));
+    /* Return if object is already marked */
+    if (OBJ_GET_GCVAL(pobj) == pmHeap.gcval)
+    {
+        return retval;
+    }
 
     /* The object must not already be free */
     C_ASSERT(OBJ_GET_FREE(pobj) == 0);
@@ -955,27 +960,11 @@ heap_gcMarkRoots(void)
     /* Toggle the GC marking value so it differs from the last run */
     pmHeap.gcval ^= 1;
 
-    /* Mark the constant objects */
-    retval = heap_gcMarkObj(PM_NONE);
-    PM_RETURN_IF_ERROR(retval);
-    retval = heap_gcMarkObj(PM_FALSE);
-    PM_RETURN_IF_ERROR(retval);
-    retval = heap_gcMarkObj(PM_TRUE);
-    PM_RETURN_IF_ERROR(retval);
-    retval = heap_gcMarkObj(PM_ZERO);
-    PM_RETURN_IF_ERROR(retval);
-    retval = heap_gcMarkObj(PM_ONE);
-    PM_RETURN_IF_ERROR(retval);
-    retval = heap_gcMarkObj(PM_NEGONE);
-    PM_RETURN_IF_ERROR(retval);
-    retval = heap_gcMarkObj(PM_CODE_STR);
-    PM_RETURN_IF_ERROR(retval);
-
     /* Mark the builtins dict */
     retval = heap_gcMarkObj(PM_PBUILTINS);
     PM_RETURN_IF_ERROR(retval);
 
-    /* Mark the native frame if it is active */
+    /* Mark the native frame */
     retval = heap_gcMarkObj((pPmObj_t)&gVmGlobal.nativeframe);
     PM_RETURN_IF_ERROR(retval);
 

@@ -36,7 +36,7 @@
  * @param r_pstring Return arg; addr of ptr to string
  */
 #define string_new(paddr, r_pstring) \
-    string_create(MEMSPACE_RAM, (uint8_t const **)(paddr), 0, (int16_t)1, (r_pstring))
+    string_create((uint8_t const **)(paddr), 0, (int16_t)1, (r_pstring))
 
 /**
  * Creates String object from character array in RAM which may contain
@@ -47,7 +47,7 @@
  * @param r_pstring Return arg; addr of ptr to string
  */
 #define string_newWithLen(paddr, len, r_pstring) \
-    string_create(MEMSPACE_RAM, (uint8_t const **)(paddr), (len), (int16_t)1, \
+    string_create((uint8_t const **)(paddr), (len), (int16_t)1, \
                   (r_pstring))
 
 /**
@@ -58,7 +58,7 @@
  * @param r_pstring Return arg; addr of ptr to string
  */
 #define string_replicate(paddr, n, r_pstring) \
-    string_create(MEMSPACE_RAM, (paddr), (uint8_t)0, (n), (r_pstring))
+    string_create((paddr), (uint8_t)0, (n), (r_pstring))
 
 /***************************************************************
  * Types
@@ -117,7 +117,6 @@ typedef struct PmString_s
  * Instead, use one of the two macros string_loadFromImg()
  * or string_new().
  *
- * @param   memspace memory space where *paddr points
  * @param   paddr ptr to ptr to null term character array or image.
  * @param   len length of the C character array
  *          (use -1 for string images, 0 for C strings)
@@ -125,7 +124,7 @@ typedef struct PmString_s
  * @param   r_pstring Return by reference; ptr to String obj
  * @return  Return status
  */
-PmReturn_t string_create(PmMemSpace_t memspace, uint8_t const **paddr,
+PmReturn_t string_create(uint8_t const **paddr,
                          int16_t len, int16_t n, pPmObj_t *r_pstring);
 
 /**

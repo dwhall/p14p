@@ -29,54 +29,23 @@
 #include "pm.h"
 
 
-/** use Duff's Device or simple for-loop for memcpy. */
-#define USE_DUFFS_DEVICE    0
-
-
 #if !HAVE_STRING_H
 
 void *
-sli_memcpy(unsigned char *to, unsigned char const *from, unsigned int n)
+sli_memcpy(unsigned char const *to, unsigned char const *from, unsigned int n)
 {
-    unsigned char *tobak;
+    unsigned char *to_copy;
 
     /* Store init value of to */
-    tobak = to;
+    to_copy = to;
 
-#if USE_DUFFS_DEVICE
-    if (n > 0)
-    {
-        switch (n & 0x7)
-            do
-            {
-            case 0:
-                *to++ = *from++;
-            case 7:
-                *to++ = *from++;
-            case 6:
-                *to++ = *from++;
-            case 5:
-                *to++ = *from++;
-            case 4:
-                *to++ = *from++;
-            case 3:
-                *to++ = *from++;
-            case 2:
-                *to++ = *from++;
-            case 1:
-                *to++ = *from++;
-            }
-            while ((n -= 8) > 0);
-    }
-#else
     for (; n > 0; n--)
     {
-        *to = *from;
+        *to_copy = *from;
         from++;
-        to++;
+        to_copy++;
     }
-#endif /* USE_DUFFS_DEVICE */
-    return tobak;
+    return to;
 }
 
 

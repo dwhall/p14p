@@ -45,7 +45,7 @@ static pPmString_t pstrcache = C_NULL;
  * into the cache.
  */
 PmReturn_t
-string_create(PmMemSpace_t memspace, uint8_t const **paddr, int16_t len,
+string_create(uint8_t const **paddr, int16_t len,
               int16_t n, pPmObj_t *r_pstring)
 {
     PmReturn_t retval = PM_RET_OK;
@@ -78,7 +78,9 @@ string_create(PmMemSpace_t memspace, uint8_t const **paddr, int16_t len,
     while (--n >= 0)
     {
         psrc = *paddr;
-        mem_copy(memspace, &pdst, &psrc, len);
+        sli_memcpy(pdst, psrc, len);
+        psrc += len;
+        pdst += len;
     }
 
     /* Be sure paddr points to one byte past the end of the source string */
@@ -281,7 +283,7 @@ string_concat(pPmString_t pstr1, pPmString_t pstr2, pPmObj_t *r_pstring)
 
     /* Create the String obj */
     len = pstr1->length + pstr2->length;
-    retval = heap_getChunk(sizeof(PmString_t) + len, &pchunk);
+    retval = heap_getChunk(sizeof(PmString_t) + len + 1, &pchunk);
     PM_RETURN_IF_ERROR(retval);
     pstr = (pPmString_t)pchunk;
     OBJ_SET_TYPE(pstr, OBJ_TYPE_STR);
@@ -290,10 +292,13 @@ string_concat(pPmString_t pstr1, pPmString_t pstr2, pPmObj_t *r_pstring)
     /* Concatenate C-strings into String obj and apply null terminator */
     pdst = (uint8_t *)&(pstr->val);
     psrc = (uint8_t const *)&(pstr1->val);
-    mem_copy(MEMSPACE_RAM, &pdst, &psrc, pstr1->length);
+    sli_memcpy(pdst, psrc, pstr1->length);
+    pdst += pstr1->length;
     psrc = (uint8_t const *)&(pstr2->val);
-    mem_copy(MEMSPACE_RAM, &pdst, &psrc, pstr2->length);
+    sli_memcpy(pdst, psrc, pstr2->length);
+    pdst += pstr2->length;
     *pdst = '\0';
+    psrc += pstr2->length;
 
 #if USE_STRING_CACHE
     /* Check for twin string in cache */

@@ -56,12 +56,13 @@ elif "dist" in COMMAND_LINE_TARGETS:
 
 # Not yet working
 elif "check" in COMMAND_LINE_TARGETS:
-    platform_path = "src/platform/desktop"
+    platform_path = os.path.join("src", "tests", "system")
     sconscript_path = os.path.join(platform_path, "SConscript")
     build_path = os.path.join(platform_path, "build")
-    check_main = SConscript(sconscript_path, "vars", variant_dir=build_path)
-#    check_unit = SConscript("src/tests/unit/SConscript")
-    check_system = SConscript("src/tests/system/SConscript")
+    run_tests = SConscript(sconscript_path, "vars", variant_dir=build_path)
+#    nada = Default(None)
+    Alias("check", run_tests)
+    Clean(run_tests, build_path)
 
 
 # Default: build a platform; desktop by default

@@ -1,6 +1,3 @@
-import os
-
-
 # BEGIN PLATFORM BUILD CONFIGURATION
 platform_c_sources = ["main.c", "plat.c"]
 platform_py_sources = ["main.py"]
@@ -20,7 +17,6 @@ HAVE_DEBUG_INFO = True
 # Initialize Scons' construction environment
 import sys
 cflags = "-Wall -Wstrict-prototypes -Werror "
-#cflags_dbg = "-g -ggdb -D__DEBUG__=1 -gstabs "
 cflags_dbg = "-ggdb -D__DEBUG__=1 "
 cflags_opt = "-Os "
 Import("vars")

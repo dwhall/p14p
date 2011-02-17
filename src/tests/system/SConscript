@@ -1,42 +1,74 @@
-#
-# NOTICE: This does not work yet.
-#
+# BEGIN PLATFORM BUILD CONFIGURATION
+platform_c_sources = ["runtests.c", "plat.c"]
+platform_py_sources = Glob("t*.py")
+pmlib_py_sources = [
+    "#src/lib/__bi.py",
+    "#src/lib/sys.py",
+#    "#src/lib/ipm.py",
+    "#src/lib/string.py",
+    "#src/lib/list.py",
+    "#src/lib/dict.py",
+    ]
+HAVE_FLOAT = "little endien"
+HAVE_DEBUG_INFO = True
+# END PLATFORM BUILD CONFIGURATION
 
 
-import os
+# Initialize Scons' construction environment
+import sys
+cflags = "-Wall -Wstrict-prototypes -Werror "
+cflags_dbg = "-ggdb -D__DEBUG__=1 "
+cflags_opt = "-Os "
+Import("vars")
+env_dbg = Environment(variables = vars,
+    CPPPATH = ["#src/vm", "#src/tests/system/build"],
+    CCFLAGS = cflags + cflags_opt,
+    LINKFLAGS = "-Wl,-map $runtests_map")
+env = env_dbg
+if not sys.platform.startswith("win"):
+    env['ARFLAGS'] = "rcs"
 
-vars = Variables()
-vars.args["PLATFORM"] = "desktop"
-vars.Add("IPM", "Add the interactive library to the standard lib", True)
+# Generate pmfeatures.h
+pmfeatures_py = File("#src/platform/desktop/pmfeatures.py")
+pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
+    "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
 
-CFLAGS = "-g -ggdb -D__DEBUG__=1 " \
-         "-Os -Wall -gstabs -Wstrict-prototypes -Werror"
-#PY_SOURCES = ["main.py"]
-PM_LIB_ROOT = ["pmvm_%s" % vars.args["PLATFORM"]]
+# Copy desktop plat source files
+plat_h = env.Command("#src/tests/system/build/plat.h",
+                     "#src/platform/desktop/plat.h",
+                     Copy("$TARGET", "$SOURCE"))
+plat_c = env.Command("#src/tests/system/build/plat.c",
+                     "#src/platform/desktop/plat.c",
+                     Copy("$TARGET", "$SOURCE"))
 
-env = Environment(variables = vars,
-                  CPPPATH = ["#src/vm", "#src/platform/%s/" % (vars.args["PLATFORM"])],
-                  CCFLAGS = CFLAGS)
+# Generate code objs and types
+generated_objs = [File("#src/tests/system/build/pm_generated_objs.c"),
+                  File("#src/tests/system/build/pm_generated_types.h")]
+pm_generated_codeobjs = env.Command(generated_objs,
+    platform_py_sources + pmlib_py_sources,
+    "src/tools/pmCoCreator.py %s src/tests/system/build $SOURCES" % pmfeatures_py)
+Depends(pm_generated_codeobjs, pmfeatures_py)#[pmfeatures_py, plat_h, plat_c])
 
-vmlib = SConscript(["../../vm/SConscript"], ["env", "vars"])
+# Build pmvm library, a linker map and the executable
+runtests_map = env.Command("#src/tests/system/build/runtests.map", "", Touch("$TARGET"))
+pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+runtests = env.Program("runtests", [runtests_map, platform_c_sources + pmvm_lib,
+                           "#src/tests/system/build/pm_generated_objs.c"])
 
-check = []
-testfiles = map(str, Glob("t???.c"))
-testfiles.remove("t075.c") # this test has t075a.py and t075b.py
-testfiles.sort()
-for fn in testfiles:
-    fn = str(fn)
-    fnroot = os.path.splitext(fn)[0]
-    img_sources = Command([fnroot+"_img.c", fnroot+"_nat.c"], [fnroot+".py"],
-        "src/tools/pmImgCreator.py -c -u -o src/tests/system/%s_img.c" \
-        " --native-file=src/tests/system/%s_nat.c $SOURCES" % (fnroot, fnroot))
-    check.append(env.Program(fnroot+".out",
-                             [fn, "../../platform/%s/plat.o" % vars.args["PLATFORM"]] + img_sources,
-                             LIBS = PM_LIB_ROOT, LIBPATH = ["../../vm"]))
+# DWH: TODO: run the binary
+# import time
+# 
+# def action(target, source, env):
+    # os.system('echo here I am running other build')
+    # dmy_fh = open('dmy_file','w')
+    # dmy_fh.write( 'Dummy dependency file created at %4d.%02d.%02d %02dh%02dm%02ds\n'%time.localtime()[0:6])
+    # dmy_fh.close()
+# 
+# bldr = Builder(action=action)
+# env.Append( BUILDERS = {'SubBuild' : bldr } )
+# 
+# env.SubBuild(srcs,tgts)
 
-    # Execute the test
-    exe= Builder(action=fnroot+".out")
-    env.Append(BUILDERS = {'Exe' : exe})
-    env.Exe(fnroot+".exe", fnroot+".out")
+Return("runtests")
 
-Alias("check", check)
+#:mode=python:

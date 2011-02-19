@@ -124,8 +124,8 @@ def string_to_crepr(o, nm):
     len_o = len(o)
     string_sizes.add(len_o)
     chars = "%s," * len_o % tuple(map(_byte_crepr, o))
-    #return wrap("%s, %d, {%s}};\n" % (header(str, nm, len_o), len_o, chars))
-    return "%s, %d, %s, {%s}};\n" % (header(str, nm, len_o), len_o, "C_NULL", chars)
+    return "%s, %d, %s, {%s'\\0'}};\n" \
+           % (header(str, nm, len_o), len_o, "C_NULL", chars)
 
 
 def tuple_to_crepr(o, nm):
@@ -207,7 +207,7 @@ objtype_to_crepr_func_table = {
     none: lambda o, nm: "%s};\n" % (header(none, nm)),
     bool: lambda o, nm: "%s, %d};\n" % (header(bool, nm), int(o)),
     int: lambda o, nm: "%s, %d};\n" % (header(int, nm), o),
-    float: lambda o, nm: "%s, %f};\n" % (header(float, nm), o),
+    float: lambda o, nm: "%s, %s};\n" % (header(float, nm), repr(o)),
     str: string_to_crepr,
     tuple: tuple_to_crepr,
     code: co_to_crepr,

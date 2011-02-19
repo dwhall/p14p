@@ -418,9 +418,9 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
                     PM_RAISE(retval, PM_RET_EX_TYPE);
                     return retval;
                 }
-                smallfmtcstr[j] = '\0';
-                snprintretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
-                    (char *)smallfmtcstr, ((pPmString_t)pobj)->val);
+
+                /* Skip using snprintf(), just use length of string arg */
+                snprintretval = ((pPmString_t)pobj)->length;
                 break;
             }
         }

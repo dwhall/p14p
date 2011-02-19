@@ -252,7 +252,7 @@ typedef struct PmModuleEntry_s
         PmObjDesc_t od; \
         int16_t length; \
         struct PmString_s *next; \
-        uint8_t val[n]; \
+        uint8_t val[n+1]; \
     } PmString ## n ## _t
 #else
 #define PM_DECLARE_STRING_TYPE(n) \

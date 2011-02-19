@@ -21,6 +21,7 @@ class pmConstantPool(dict):
     def __init__(self, d={}):
         dict.__init__(self)
         self.data = d
+        self.float_data = {}
         self.trueValue = None
         self.falseValue = None
 
@@ -28,19 +29,22 @@ class pmConstantPool(dict):
     def __contains__(self, o):
         if o is True: return self.trueValue != None
         if o is False: return self.falseValue != None
+        if type(o) is float: return o in self.float_data.keys()
         return o in self.data.keys()
 
 
     def __setitem__(self, k, v):
         if k is True: self.trueValue = v; return v
         if k is False: self.falseValue = v; return v
-        self.data[k] = v
+        if type(k) is float: self.float_data[k] = v
+        else: self.data[k] = v
         return v
 
 
     def __getitem__(self, k):
         if k is True: return self.trueValue
         if k is False: return self.falseValue
+        if type(k) is float: return self.float_data[k]
         return self.data[k]
 
 
@@ -50,6 +54,7 @@ class pmConstantPool(dict):
             d[self.trueValue] = True
         if self.falseValue:
             d[self.falseValue] = False
+        d.update(dict((v,k) for k,v in self.float_data.iteritems()))
         return d
 
 

@@ -23,7 +23,7 @@ vars = Variables()
 # BUILD TARGETS
 if "tags" in COMMAND_LINE_TARGETS or "TAGS" in COMMAND_LINE_TARGETS:
     vmfiles = Glob("src/vm/*.c") + Glob("src/vm/*.h")
-    ctags = Command('tags', vmfiles, "ctags -R *")
+    ctags = Command('tags', vmfiles, "ctags $SOURCES")
     cscope = Command('cscope.out', vmfiles, "cscope -b -c -R $SOURCES")
     pyc_tools = Command('src/tools/cscope.out', Glob("src/tools/*.py"),
                         "src/tools/pycscope.py -f $TARGET $SOURCE")
@@ -54,15 +54,12 @@ elif "dist" in COMMAND_LINE_TARGETS:
     Alias("dist", dist)
 
 
-# Not yet working
 elif "check" in COMMAND_LINE_TARGETS:
     platform_path = os.path.join("src", "tests", "system")
     sconscript_path = os.path.join(platform_path, "SConscript")
     build_path = os.path.join(platform_path, "build")
     run_tests = SConscript(sconscript_path, "vars", variant_dir=build_path)
-#    nada = Default(None)
-    Alias("check", run_tests)
-    Clean(run_tests, build_path)
+    Clean("check", build_path)
 
 
 # Default: build a platform; desktop by default

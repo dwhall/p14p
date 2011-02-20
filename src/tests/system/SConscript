@@ -53,22 +53,11 @@ Depends(pm_generated_codeobjs, pmfeatures_py)#[pmfeatures_py, plat_h, plat_c])
 runtests_map = env.Command("#src/tests/system/build/runtests.map", "", Touch("$TARGET"))
 pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
 runtests = env.Program("runtests", [runtests_map, platform_c_sources + pmvm_lib,
-                           "#src/tests/system/build/pm_generated_objs.c"])
+                       "#src/tests/system/build/pm_generated_objs.c"])
 
-# DWH: TODO: run the binary
-# import time
-# 
-# def action(target, source, env):
-    # os.system('echo here I am running other build')
-    # dmy_fh = open('dmy_file','w')
-    # dmy_fh.write( 'Dummy dependency file created at %4d.%02d.%02d %02dh%02dm%02ds\n'%time.localtime()[0:6])
-    # dmy_fh.close()
-# 
-# bldr = Builder(action=action)
-# env.Append( BUILDERS = {'SubBuild' : bldr } )
-# 
-# env.SubBuild(srcs,tgts)
+env.AlwaysBuild(env.Alias("check", [], runtests[0].abspath))
+env.Depends("check", runtests[0].abspath)
+Clean("check", "zem") # File "zem" created by t230.py
 
-Return("runtests")
 
 #:mode=python:

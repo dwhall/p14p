@@ -27,7 +27,7 @@ typedef struct atypical_settings_s
 } atypical_settings_t;
 
 
-/* Tests that use HEAP_SIZE and should return PM_RET_OK */
+/* Typical tests use HEAP_SIZE and return PM_RET_OK */
 char * typical_tests[] = {
     "t002", "t003", "t009", "t010", "t013",
     "t017", "t020", "t026", "t047", "t049",
@@ -47,7 +47,7 @@ char * typical_tests[] = {
 uint16_t num_typical_tests = sizeof(typical_tests) / sizeof(int8_t *);
 
 
-/* Tests that require a different heap size or raises an exception */
+/* Atypical tests may use a different heap size or raise an exception */
 atypical_settings_t atypical_tests[] = {
     {HEAP_SIZE, PM_RET_EX_ATTR, "t114"},
     {HEAP_SIZE, PM_RET_EX_ZDIV, "t119"},
@@ -153,7 +153,7 @@ int main(void)
         }
     }
 
-    /* TODO Run the bizarre tests */
+    /* Run the bizarre tests */
     retval = t075();
     PM_RETURN_IF_ERROR(retval);
 

@@ -1975,6 +1975,9 @@ CALL_FUNC_FOR_ITER:
                         gVmGlobal.nativeframe.nf_locals[t16] = PM_POP();
                     }
 
+                    /* Set flag, so the GC knows a native session is active */
+                    gVmGlobal.nativeframe.nf_active = C_TRUE;
+
 #ifdef HAVE_GC
                     /* If the heap is low on memory, run the GC */
                     if (heap_getAvail() < HEAP_GC_NF_THRESHOLD)
@@ -1990,9 +1993,6 @@ CALL_FUNC_FOR_ITER:
                     /* Get native function index */
                     pobj2 = (pPmObj_t)((pPmFunc_t)pobj1)->f_co;
                     t16 = ((pPmNo_t)pobj2)->no_funcindx;
-
-                    /* Set flag, so the GC knows a native session is active */
-                    gVmGlobal.nativeframe.nf_active = C_TRUE;
 
                     /*
                      * CALL NATIVE FXN: pass caller's frame and numargs

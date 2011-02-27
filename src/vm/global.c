@@ -64,11 +64,8 @@ global_init(void)
     /* Create empty threadList */
     retval = list_new(&pobj);
     gVmGlobal.threadList = (pPmList_t)pobj;
-
-#ifdef HAVE_PRINT
     gVmGlobal.needSoftSpace = C_FALSE;
     gVmGlobal.somethingPrinted = C_FALSE;
-#endif /* HAVE_PRINT */
 
     return retval;
 }

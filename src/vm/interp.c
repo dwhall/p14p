@@ -151,14 +151,12 @@ interpret(const uint8_t returnOnNoThreads)
                 }
                 continue;
 
-#ifdef HAVE_BACKTICK
             /* #244 Add support for the backtick operation (UNARY_CONVERT) */
             case UNARY_CONVERT:
                 retval = obj_repr(TOS, &pobj3);
                 PM_BREAK_IF_ERROR(retval);
                 TOS = pobj3;
                 continue;
-#endif /* HAVE_BACKTICK */
 
             case UNARY_INVERT:
                 /* Raise TypeError if it's not an int */
@@ -253,7 +251,6 @@ interpret(const uint8_t returnOnNoThreads)
                 }
 #endif /* HAVE_FLOAT */
 
-#ifdef HAVE_REPLICATION
                 /* If it's a list replication operation */
                 else if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_INT)
                          && (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_LST))
@@ -307,7 +304,6 @@ interpret(const uint8_t returnOnNoThreads)
                     TOS = pobj3;
                     continue;
                 }
-#endif /* HAVE_REPLICATION */
 
                 /* Otherwise raise a TypeError */
                 PM_RAISE(retval, PM_RET_EX_TYPE);
@@ -340,7 +336,6 @@ interpret(const uint8_t returnOnNoThreads)
             case BINARY_MODULO:
             case INPLACE_MODULO:
 
-#ifdef HAVE_STRING_FORMAT
                 /* If it's a string, perform string format */
                 if (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_STR)
                 {
@@ -350,7 +345,6 @@ interpret(const uint8_t returnOnNoThreads)
                     TOS = pobj3;
                     continue;
                 }
-#endif /* HAVE_STRING_FORMAT */
 
 #ifdef HAVE_FLOAT
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FLT)
@@ -472,7 +466,7 @@ interpret(const uint8_t returnOnNoThreads)
                     }
 
                     pobj1 = TOS1;
-#ifdef HAVE_BYTEARRAY
+
                     /* If object is an instance, get the thing it contains */
                     if (OBJ_GET_TYPE(pobj1) == OBJ_TYPE_CLI)
                     {
@@ -482,7 +476,6 @@ interpret(const uint8_t returnOnNoThreads)
                         PM_RETURN_IF_ERROR(retval);
                         pobj1 = pobj2;
                     }
-#endif /* HAVE_BYTEARRAY */
 
                     /* Ensure the index doesn't overflow */
                     C_ASSERT(((pPmInt_t)TOS)->val <= 0x0000FFFF);
@@ -564,7 +557,6 @@ interpret(const uint8_t returnOnNoThreads)
                     continue;
                 }
 
-#ifdef HAVE_BYTEARRAY
                 /* If object is an instance, get the thing it contains */
                 if (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_CLI)
                 {
@@ -596,13 +588,11 @@ interpret(const uint8_t returnOnNoThreads)
                     PM_SP -= 3;
                     continue;
                 }
-#endif /* HAVE_BYTEARRAY */
 
                 /* TypeError for all else */
                 PM_RAISE(retval, PM_RET_EX_TYPE);
                 break;
 
-#ifdef HAVE_DEL
             case DELETE_SUBSCR:
 
                 if ((OBJ_GET_TYPE(TOS1) == OBJ_TYPE_LST)
@@ -627,7 +617,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_BREAK_IF_ERROR(retval);
                 PM_SP -= 2;
                 continue;
-#endif /* HAVE_DEL */
 
             case BINARY_LSHIFT:
             case INPLACE_LSHIFT:
@@ -719,7 +708,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_RAISE(retval, PM_RET_EX_TYPE);
                 break;
 
-#ifdef HAVE_PRINT
             case PRINT_EXPR:
                 /* Print interactive expression */
                 /* Fallthrough */
@@ -751,7 +739,6 @@ interpret(const uint8_t returnOnNoThreads)
                 }
                 PM_BREAK_IF_ERROR(retval);
                 continue;
-#endif /* HAVE_PRINT */
 
             case BREAK_LOOP:
             {
@@ -859,7 +846,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_BREAK_IF_ERROR(heap_freeChunk(pobj1));
                 continue;
 
-#ifdef HAVE_IMPORTS
             case IMPORT_STAR:
                 /* #102: Implement the remaining IMPORT_ bytecodes */
                 /* Expect a module on the top of the stack */
@@ -872,7 +858,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_BREAK_IF_ERROR(retval);
                 PM_SP--;
                 continue;
-#endif /* HAVE_IMPORTS */
 
             case YIELD_VALUE:
                 /* #207: Add support for the yield keyword */
@@ -937,7 +922,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_SP--;
                 continue;
 
-#ifdef HAVE_DEL
             case DELETE_NAME:
                 /* Get key */
                 PUT_BC_ARG_INTO(t16);
@@ -948,13 +932,11 @@ interpret(const uint8_t returnOnNoThreads)
                 retval = dict_delItem((pPmObj_t)PM_FP->fo_attrs, pobj2);
                 PM_BREAK_IF_ERROR(retval);
                 continue;
-#endif /* HAVE_DEL */
 
             case UNPACK_SEQUENCE:
                 /* Get ptr to sequence */
                 pobj1 = PM_POP();
 
-#ifdef HAVE_BYTEARRAY
                 /* If object is an instance, get the thing it contains */
                 if (OBJ_GET_TYPE(pobj1) == OBJ_TYPE_CLI)
                 {
@@ -964,7 +946,6 @@ interpret(const uint8_t returnOnNoThreads)
                     PM_RETURN_IF_ERROR(retval);
                     pobj1 = pobj2;
                 }
-#endif /* HAVE_BYTEARRAY */
 
                 /*
                  * Get the length of the sequence; this will
@@ -1086,7 +1067,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_SP -= 2;
                 continue;
 
-#ifdef HAVE_DEL
             case DELETE_ATTR:
                 /* del TOS.name */
                 /* Get names index */
@@ -1141,7 +1121,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_BREAK_IF_ERROR(retval);
                 PM_SP--;
                 continue;
-#endif /* HAVE_DEL */
 
             case STORE_GLOBAL:
                 /* Get name index */
@@ -1157,7 +1136,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_SP--;
                 continue;
 
-#ifdef HAVE_DEL
             case DELETE_GLOBAL:
                 /* Get name index */
                 PUT_BC_ARG_INTO(t16);
@@ -1170,7 +1148,6 @@ interpret(const uint8_t returnOnNoThreads)
                 retval = dict_delItem((pPmObj_t)PM_FP->fo_globals, pobj2);
                 PM_BREAK_IF_ERROR(retval);
                 continue;
-#endif /* HAVE_DEL */
 
             case DUP_TOPX:
                 PUT_BC_ARG_INTO(t16);
@@ -1513,7 +1490,6 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_FP = (pPmFrame_t)pobj3;
                 continue;
 
-#ifdef HAVE_IMPORTS
             case IMPORT_FROM:
                 /* #102: Implement the remaining IMPORT_ bytecodes */
                 /* Expect the module on the top of the stack */
@@ -1533,7 +1509,6 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Push the object onto the top of the stack */
                 PM_PUSH(pobj3);
                 continue;
-#endif /* HAVE_IMPORTS */
 
             case JUMP_FORWARD:
                 PUT_BC_ARG_INTO(t16);
@@ -1627,14 +1602,11 @@ interpret(const uint8_t returnOnNoThreads)
                 PM_FP->fo_locals[t16] = PM_POP();
                 continue;
 
-#ifdef HAVE_DEL
             case DELETE_FAST:
                 PUT_BC_ARG_INTO(t16);
                 PM_FP->fo_locals[t16] = PM_NONE;
                 continue;
-#endif /* HAVE_DEL */
 
-#ifdef HAVE_ASSERT
             case RAISE_VARARGS:
                 PUT_BC_ARG_INTO(t16);
 
@@ -1675,7 +1647,6 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Raise exception by breaking with retval set to code */
                 PM_RAISE(retval, (PmReturn_t)(((pPmInt_t)pobj2)->val & 0xFF));
                 break;
-#endif /* HAVE_ASSERT */
 
             case CALL_FUNCTION:
                 /* Get num args */
@@ -1885,7 +1856,6 @@ CALL_FUNC_FOR_ITER:
                         ((pPmFrame_t)pobj2)->fo_locals[t16] = PM_POP();
                     }
 
-#ifdef HAVE_CLOSURES
                     /* #256: Add support for closures */
                     /* Copy arguments that become cellvars */
                     if (((pPmFunc_t)pobj1)->f_co->co_cellvars != C_NULL)
@@ -1918,7 +1888,6 @@ CALL_FUNC_FOR_ITER:
                             + ((((pPmFunc_t)pobj1)->f_co->co_cellvars == C_NULL) ? 0 : ((pPmFunc_t)pobj1)->f_co->co_cellvars->length)
                             + t8] = ((pPmFunc_t)pobj1)->f_closure->val[t8];
                     }
-#endif /* HAVE_CLOSURES */
 
                     /* Pop func obj */
                     pobj3 = PM_POP();
@@ -1943,14 +1912,12 @@ CALL_FUNC_FOR_ITER:
                         gVmGlobal.nativeframe.nf_locals[t16] = PM_POP();
                     }
 
-#ifdef HAVE_GC
                     /* If the heap is low on memory, run the GC */
                     if (heap_getAvail() < HEAP_GC_NF_THRESHOLD)
                     {
                         retval = heap_gcRun();
                         PM_GOTO_IF_ERROR(retval, CALL_FUNC_CLEANUP);
                     }
-#endif /* HAVE_GC */
 
                     /* Pop the function object */
                     PM_SP--;
@@ -2037,7 +2004,6 @@ CALL_FUNC_CLEANUP:
                 PM_PUSH(pobj2);
                 continue;
 
-#ifdef HAVE_CLOSURES
             case MAKE_CLOSURE:
                 /* Get number of default args */
                 PUT_BC_ARG_INTO(t16);
@@ -2089,7 +2055,6 @@ CALL_FUNC_CLEANUP:
                 PM_BREAK_IF_ERROR(retval);
                 PM_FP->fo_locals[t8 + t16] = PM_POP();
                 continue;
-#endif /* HAVE_CLOSURES */
 
 
             default:

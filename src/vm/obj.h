@@ -171,18 +171,14 @@ typedef enum PmType_e
     /** Dictionary (hash table) */
     OBJ_TYPE_DIC = 0x13,
 
-#ifdef HAVE_BYTEARRAY
     /** Bytearray (mutable) */
     OBJ_TYPE_BYA = 0x14,
-#endif /* HAVE_BYTEARRAY */
 
     /* All types after this are not accessible to the user */
     OBJ_TYPE_ACCESSIBLE_MAX = 0x18,
 
-#ifdef HAVE_BYTEARRAY
     /** Bytes (mutable container for Bytearray type) */
     OBJ_TYPE_BYS = 0x18,
-#endif /* HAVE_BYTEARRAY */
 
     /** Frame type */
     OBJ_TYPE_FRM = 0x19,
@@ -298,7 +294,6 @@ int8_t obj_compare(pPmObj_t pobj1, pPmObj_t pobj2);
  */
 PmReturn_t obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested);
 
-#ifdef HAVE_BACKTICK
 /**
  * Returns by reference a string object that is the human-readable
  * representation of the object. Used by the backtick operation (UNARY_CONVERT).
@@ -308,6 +303,5 @@ PmReturn_t obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested);
  * @return Return status
  */
 PmReturn_t obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr);
-#endif /* HAVE_BACKTICK */
 
 #endif /* __OBJ_H__ */

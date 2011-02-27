@@ -52,11 +52,7 @@ func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc)
     pfunc->f_globals = C_NULL;
     pfunc->f_attrs = C_NULL;
     pfunc->f_defaultargs = C_NULL;
-
-#ifdef HAVE_CLOSURES
-    /* Clear field for closure tuple */
     pfunc->f_closure = C_NULL;
-#endif /* HAVE_CLOSURES */
 
     /* Create attrs dict for regular func (not native) */
     if (OBJ_GET_TYPE(pco) == OBJ_TYPE_COB)

@@ -45,7 +45,6 @@ float_new(float f, pPmObj_t *r_pf)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 float_print(pPmObj_t pf)
 {
@@ -85,8 +84,6 @@ float_negative(pPmObj_t pf, pPmObj_t *r_pf)
     /* Create new int obj */
     return float_new(-((pPmFloat_t) pf)->val, r_pf);
 }
-
-#endif /* HAVE_PRINT */
 
 
 PmReturn_t

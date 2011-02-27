@@ -85,7 +85,6 @@ PmReturn_t float_op(pPmObj_t px, pPmObj_t py, pPmObj_t *r_pn, int8_t op);
 PmReturn_t float_compare(pPmObj_t px, pPmObj_t py, pPmObj_t *r_pobj,
                          PmCompare_t cmp);
 
-#ifdef HAVE_PRINT
 /**
  * Sends out a float object.
  * The number is preceded with a "-" when necessary.
@@ -94,8 +93,6 @@ PmReturn_t float_compare(pPmObj_t px, pPmObj_t py, pPmObj_t *r_pobj,
  * @return Return status
  */
 PmReturn_t float_print(pPmObj_t pf);
-
-#endif /* HAVE_PRINT */
 
 #endif /* HAVE_FLOAT */
 

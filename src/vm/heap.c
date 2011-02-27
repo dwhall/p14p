@@ -63,7 +63,6 @@
  * Sets the GC's mark bit for the object
  * This MUST NOT be called on objects that are free.
  */
-#ifdef HAVE_GC
 #define OBJ_SET_GCVAL(pobj, gcval) \
     do \
     { \
@@ -71,9 +70,6 @@
                                        : ((pPmObj_t)pobj)->od & ~OD_MARK_MASK;\
     } \
     while (0)
-#else
-#define OBJ_SET_GCVAL(pobj, gcval)
-#endif /* HAVE_GC */
 
 #define CHUNK_GET_SIZE(pchunk) (((pPmHeapDesc_t)pchunk)->hd & HD_SIZE_MASK)
 
@@ -140,7 +136,6 @@ typedef struct PmHeap_s
     /** The amount of heap space available in free list */
     uint32_t avail;
 
-#ifdef HAVE_GC
     /** Garbage collection mark value */
     uint8_t gcval;
 
@@ -152,7 +147,6 @@ typedef struct PmHeap_s
     pPmObj_t temp_roots[HEAP_NUM_TEMP_ROOTS];
 
     uint8_t temp_root_index;
-#endif                          /* HAVE_GC */
 
 } PmHeap_t,
  *pPmHeap_t;
@@ -214,9 +208,7 @@ heap_dump(void)
     s |= 1<<0;
 #endif
     s |= 1<<1;
-#ifdef HAVE_CLOSURES
     s |= 1<<2;
-#endif
     s |= 1<<3;
     fwrite(&s, sizeof(uint16_t), 1, fp);
 
@@ -363,11 +355,9 @@ heap_init(uint8_t *base, uint32_t size)
     /* Init heap globals */
     pmHeap.pfreelist = C_NULL;
     pmHeap.avail = 0;
-#ifdef HAVE_GC
     pmHeap.gcval = (uint8_t)0;
     pmHeap.temp_root_index = (uint8_t)0;
     heap_gcSetAuto(C_TRUE);
-#endif /* HAVE_GC */
 
     pchunk = (pPmHeapDesc_t)pmHeap.base;
     hs = pmHeap.size;
@@ -529,7 +519,6 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
     /* Attempt to get a chunk */
     retval = heap_getChunkImpl(adjustedsize, r_pchunk);
 
-#ifdef HAVE_GC
     /* Perform GC if out of memory, gc is enabled and not in native session */
     if ((retval == PM_RET_EX_MEM) && (pmHeap.auto_gc == C_TRUE)
         && (gVmGlobal.nativeframe.nf_active == C_FALSE))
@@ -540,7 +529,6 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
         /* Attempt to get a chunk */
         retval = heap_getChunkImpl(adjustedsize, r_pchunk);
     }
-#endif /* HAVE_GC */
 
     /* Ensure that the pointer is 4-byte aligned */
     if (retval == PM_RET_OK)
@@ -591,7 +579,6 @@ heap_getSize(void)
 }
 
 
-#ifdef HAVE_GC
 /*
  * Marks the given object and the objects it references.
  *
@@ -700,11 +687,9 @@ heap_gcMarkObj(pPmObj_t pobj)
             }
 */
 
-#ifdef HAVE_CLOSURES
             /* #256: Add support for closures */
             /* Mark the cellvars tuple */
             retval = heap_gcMarkObj((pPmObj_t)((pPmCo_t)pobj)->co_cellvars);
-#endif /* HAVE_CLOSURES */
             break;
 
         case OBJ_TYPE_MOD:
@@ -729,10 +714,8 @@ heap_gcMarkObj(pPmObj_t pobj)
             retval = heap_gcMarkObj((pPmObj_t)((pPmFunc_t)pobj)->f_defaultargs);
             PM_RETURN_IF_ERROR(retval);
 
-#ifdef HAVE_CLOSURES
             /* #256: Mark the closure tuple */
             retval = heap_gcMarkObj((pPmObj_t)((pPmFunc_t)pobj)->f_closure);
-#endif /* HAVE_CLOSURES */
             break;
 
         case OBJ_TYPE_CLI:
@@ -918,7 +901,6 @@ heap_gcMarkObj(pPmObj_t pobj)
             }
             break;
 
-#ifdef HAVE_BYTEARRAY
         case OBJ_TYPE_BYA:
             OBJ_SET_GCVAL(pobj, pmHeap.gcval);
 
@@ -928,7 +910,6 @@ heap_gcMarkObj(pPmObj_t pobj)
         case OBJ_TYPE_BYS:
             OBJ_SET_GCVAL(pobj, pmHeap.gcval);
             break;
-#endif /* HAVE_BYTEARRAY */
 
         default:
             /* There should be no invalid types */
@@ -1178,10 +1159,3 @@ void heap_gcPopTempRoot(uint8_t objid)
 {
     pmHeap.temp_root_index = objid;
 }
-
-#else
-
-void heap_gcPushTempRoot(pPmObj_t pobj, uint8_t *r_objid) {}
-void heap_gcPopTempRoot(uint8_t objid) {}
-
-#endif /* HAVE_GC */

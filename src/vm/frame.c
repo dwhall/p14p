@@ -50,11 +50,9 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
     /* #207: Initializing a Generator using CALL_FUNC needs extra stack slot */
     fsize = sizeof(PmFrame_t) + (pco->co_stacksize + pco->co_nlocals + 2) * sizeof(pPmObj_t);
 
-#ifdef HAVE_CLOSURES
     /* #256: Add support for closures */
     fsize = fsize + pco->co_nfreevars
             + ((pco->co_cellvars == C_NULL) ? 0 : pco->co_cellvars->length);
-#endif /* HAVE_CLOSURES */
 
     /* Allocate a frame */
     retval = heap_getChunk(fsize, &pchunk);
@@ -74,14 +72,9 @@ frame_new(pPmObj_t pfunc, pPmObj_t *r_pobj)
     pframe->fo_globals = ((pPmFunc_t)pfunc)->f_globals;
     pframe->fo_attrs = ((pPmFunc_t)pfunc)->f_attrs;
 
-#ifndef HAVE_CLOSURES
-    /* Empty stack points to one past locals */
-    pframe->fo_sp = &(pframe->fo_locals[pco->co_nlocals]);
-#else
     /* #256: Add support for closures */
     pframe->fo_sp = &(pframe->fo_locals[pco->co_nlocals + pco->co_nfreevars
         + ((pco->co_cellvars == C_NULL) ? 0 : pco->co_cellvars->length)]);
-#endif /* HAVE_CLOSURES */
 
     /* By default, this is a normal frame, not an import or __init__ one */
     pframe->fo_isImport = 0;

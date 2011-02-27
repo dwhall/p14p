@@ -145,7 +145,6 @@ PmReturn_t string_newFromChar(uint8_t const c, pPmObj_t *r_pstring);
  */
 int8_t string_compare(pPmString_t pstr1, pPmString_t pstr2);
 
-#ifdef HAVE_PRINT
 /**
  * Sends out a string object bytewise. Escaping and framing is configurable
  * via is_escaped.
@@ -156,7 +155,6 @@ int8_t string_compare(pPmString_t pstr1, pPmString_t pstr2);
  * @return Return status
  */
 PmReturn_t string_print(pPmObj_t pstr, uint8_t is_escaped);
-#endif /* HAVE_PRINT */
 
 /**
  * Clears the string cache if one exists.
@@ -182,7 +180,6 @@ PmReturn_t string_getCache(pPmString_t **r_ppstrcache);
 PmReturn_t
 string_concat(pPmString_t pstr1, pPmString_t pstr2, pPmObj_t *r_pstring);
 
-#ifdef HAVE_STRING_FORMAT
 /**
  * Returns a new string object that is created from the given format string
  * and the argument(s).
@@ -205,6 +202,5 @@ PmReturn_t string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring);
 PmReturn_t string_printFormattedBytes(uint8_t *pb,
                                       uint8_t is_escaped,
                                       uint16_t n);
-#endif /* HAVE_STRING_FORMAT */
 
 #endif /* __STRING_H__ */

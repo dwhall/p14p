@@ -57,15 +57,11 @@
 /** The global string "next" */
 #define PM_NEXT_STR (pPmObj_t)&pm_global_string_next
 
-#ifdef HAVE_ASSERT
 /** The global string "Exception" */
 #define PM_EXCEPTION_STR (pPmObj_t)&pm_global_string_exception
-#endif /* HAVE_ASSERT */
 
-#ifdef HAVE_BYTEARRAY
 /** The global string "bytearray" */
 #define PM_BYTEARRAY_STR (pPmObj_t)&pm_global_string_bytearray
-#endif /* HAVE_BYTEARRAY */
 
 /** The global string "__md" */
 #define PM_MD_STR (pPmObj_t)&pm_global_string_md
@@ -100,12 +96,11 @@ typedef struct PmVmGlobal_s
     /** Ptr to current thread */
     pPmThread_t pthread;
 
-#ifdef HAVE_PRINT
     /** Remembers when a space is needed before printing the next object */
     uint8_t needSoftSpace;
+
     /** Remembers when something has printed since the last newline */
     uint8_t somethingPrinted;
-#endif /* HAVE_PRINT */
 
     /** Flag to trigger rescheduling */
     uint8_t reschedule;

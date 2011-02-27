@@ -52,11 +52,7 @@ mod_new(pPmObj_t pco, pPmObj_t *pmod)
     ((pPmFunc_t)*pmod)->f_attrs = C_NULL;
     ((pPmFunc_t)*pmod)->f_globals = C_NULL;
     ((pPmFunc_t)*pmod)->f_defaultargs = C_NULL;
-
-#ifdef HAVE_CLOSURES
-    /* Clear field for closure tuple */
     ((pPmFunc_t)*pmod)->f_closure = C_NULL;
-#endif /* HAVE_CLOSURES */
 
     /* Alloc and init attrs dict */
     heap_gcPushTempRoot(*pmod, &objid);

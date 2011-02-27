@@ -54,7 +54,6 @@ seq_compare(pPmObj_t pobj1, pPmObj_t pobj2)
         l2 = ((pPmList_t)pobj2)->length;
     }
 
-#ifdef HAVE_BYTEARRAY
     else if (OBJ_GET_TYPE(pobj1) == OBJ_TYPE_BYA)
     {
         /* Return if the lengths differ */
@@ -70,8 +69,6 @@ seq_compare(pPmObj_t pobj1, pPmObj_t pobj2)
                            l1)
                ? C_DIFFER : C_SAME;
     }
-#endif /* HAVE_BYTEARRAY */
-
     else
     {
         return C_DIFFER;
@@ -127,11 +124,9 @@ seq_getLength(pPmObj_t pobj, uint16_t *r_index)
             *r_index = ((pPmList_t)pobj)->length;
             break;
 
-#ifdef HAVE_BYTEARRAY
         case OBJ_TYPE_BYA:
             *r_index = ((pPmBytearray_t)pobj)->length;
             break;
-#endif /* HAVE_BYTEARRAY */
 
         case OBJ_TYPE_DIC:
             *r_index = ((pPmDict_t)pobj)->length;
@@ -188,11 +183,9 @@ seq_getSubscript(pPmObj_t pobj, int16_t index, pPmObj_t *r_pobj)
             retval = list_getItem(pobj, index, r_pobj);
             break;
 
-#ifdef HAVE_BYTEARRAY
         case OBJ_TYPE_BYA:
             retval = bytearray_getItem(pobj, index, r_pobj);
             break;
-#endif /* HAVE_BYTEARRAY */
 
         /* Issue #176 Add support to iterate over keys in a dict */
         case OBJ_TYPE_DIC:

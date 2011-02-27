@@ -359,7 +359,6 @@ list_delItem(pPmObj_t plist, int16_t index)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 list_print(pPmObj_t plist)
 {
@@ -399,7 +398,6 @@ list_print(pPmObj_t plist)
 
     return plat_putByte(']');
 }
-#endif /* HAVE_PRINT */
 
 
 PmReturn_t

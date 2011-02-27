@@ -76,7 +76,6 @@ uint32_t heap_getAvail(void);
 /** @return  Return the size of the heap in bytes */
 uint32_t heap_getSize(void);
 
-#ifdef HAVE_GC
 /**
  * Runs the mark-sweep garbage collector
  *
@@ -91,8 +90,6 @@ PmReturn_t heap_gcRun(void);
  * @return  Return code
  */
 PmReturn_t heap_gcSetAuto(uint8_t auto_gc);
-
-#endif /* HAVE_GC */
 
 /**
  * Pushes an object onto the temporary roots stack if there is room

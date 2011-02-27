@@ -66,7 +66,6 @@ PmReturn_t dict_clear(pPmObj_t pdict);
  */
 PmReturn_t dict_getItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t *r_pobj);
 
-#ifdef HAVE_DEL
 /**
  * Removes a key and value from the dict.
  * Throws TypeError if pdict is not a dict.
@@ -77,7 +76,6 @@ PmReturn_t dict_getItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t *r_pobj);
  * @return  Return status
  */
 PmReturn_t dict_delItem(pPmObj_t pdict, pPmObj_t pkey);
-#endif /* HAVE_DEL */
 
 /**
  * Allocates space for a new Dict.
@@ -103,7 +101,6 @@ PmReturn_t dict_new(pPmObj_t *r_pdict);
  */
 PmReturn_t dict_setItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t pval);
 
-#ifdef HAVE_PRINT
 /**
  * Prints out a dict. Uses obj_print() to print elements.
  *
@@ -111,7 +108,6 @@ PmReturn_t dict_setItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t pval);
  * @return Return status
  */
 PmReturn_t dict_print(pPmObj_t pdict);
-#endif /* HAVE_PRINT */
 
 /**
  * Updates the destination dict with the key,value pairs from the source dict

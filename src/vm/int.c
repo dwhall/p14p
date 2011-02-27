@@ -128,7 +128,6 @@ int_bitInvert(pPmObj_t pobj, pPmObj_t *r_pint)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 int_print(pPmObj_t pint)
 {
@@ -210,7 +209,6 @@ int_printHex(pPmObj_t pint)
     /* Print the integer object */
     return _int_printHex(((pPmInt_t)pint)->val);
 }
-#endif /* HAVE_PRINT */
 
 
 PmReturn_t

@@ -130,7 +130,6 @@ tuple_getItem(pPmObj_t ptup, int16_t index, pPmObj_t *r_pobj)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 tuple_print(pPmObj_t ptup)
 {
@@ -161,4 +160,3 @@ tuple_print(pPmObj_t ptup)
 
     return plat_putByte(')');
 }
-#endif /* HAVE_PRINT */

@@ -159,7 +159,6 @@ string_compare(pPmString_t pstr1, pPmString_t pstr2)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 string_printFormattedBytes(uint8_t *pb, uint8_t is_escaped, uint16_t n)
 {
@@ -243,7 +242,6 @@ string_print(pPmObj_t pstr, uint8_t is_escaped)
 
     return retval;
 }
-#endif /* HAVE_PRINT */
 
 
 PmReturn_t
@@ -327,7 +325,6 @@ string_concat(pPmString_t pstr1, pPmString_t pstr2, pPmObj_t *r_pstring)
 }
 
 
-#ifdef HAVE_STRING_FORMAT
 
 #define SIZEOF_FMTDBUF 42
 #define SIZEOF_SMALLFMT 8
@@ -552,4 +549,3 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
     *r_pstring = (pPmObj_t)pnewstr;
     return PM_RET_OK;
 }
-#endif /* HAVE_STRING_FORMAT */

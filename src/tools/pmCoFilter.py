@@ -100,47 +100,12 @@ def co_filter_factory(pmfeatures_filename):
     # Modify some globals based on the platform features
     global UNIMPLEMENTED_BCODES
 
-    if not PM_FEATURES["HAVE_DEL"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "DELETE_SUBSCR",
-            "DELETE_NAME",
-            "DELETE_GLOBAL",
-            "DELETE_ATTR",
-            "DELETE_FAST",
-            ])
-
-    if not PM_FEATURES["HAVE_IMPORTS"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "IMPORT_STAR",
-            "IMPORT_FROM",
-            ])
-
-    if not PM_FEATURES["HAVE_ASSERT"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "RAISE_VARARGS",
-            ])
-
-    # Issue #44: Add support for the backtick operation (UNARY_CONVERT)
-    if not PM_FEATURES["HAVE_BACKTICK"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "UNARY_CONVERT",
-            ])
-
     # Issue #13: Add support for Python 2.6 bytecodes.
     # The *_TRUE_DIVIDE bytecodes require support for float type
     if not PM_FEATURES["HAVE_FLOAT"]:
         UNIMPLEMENTED_BCODES.extend([
             "BINARY_TRUE_DIVIDE",
             "INPLACE_TRUE_DIVIDE",
-            ])
-
-    # Issue #56: Add support for decorators
-    if not PM_FEATURES["HAVE_CLOSURES"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "MAKE_CLOSURE",
-            "LOAD_CLOSURE",
-            "LOAD_DEREF",
-            "STORE_DEREF",
             ])
 
     # Set invalid and unimplemented bcodes to None

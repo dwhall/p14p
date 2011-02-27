@@ -82,7 +82,6 @@ PmReturn_t tuple_replicate(pPmObj_t ptup, int16_t n, pPmObj_t *r_ptuple);
  */
 PmReturn_t tuple_getItem(pPmObj_t ptup, int16_t index, pPmObj_t *r_pobj);
 
-#ifdef HAVE_PRINT
 /**
  * Prints out a tuple. Uses obj_print() to print elements.
  *
@@ -90,6 +89,5 @@ PmReturn_t tuple_getItem(pPmObj_t ptup, int16_t index, pPmObj_t *r_pobj);
  * @return Return status
  */
 PmReturn_t tuple_print(pPmObj_t pobj);
-#endif /* HAVE_PRINT */
 
 #endif /* __TUPLE_H__ */

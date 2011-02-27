@@ -49,11 +49,8 @@ typedef struct PmFunc_s
     /** Ptr to tuple holding default args */
     pPmTuple_t f_defaultargs;
 
-#ifdef HAVE_CLOSURES
     /** Ptr to tuple of cell values */
     pPmTuple_t f_closure;
-#endif /* HAVE_CLOSURES */
-
 } PmFunc_t,
  *pPmFunc_t;
 

@@ -175,10 +175,8 @@ obj_isIn(pPmObj_t pobj, pPmObj_t pitem)
 int8_t
 obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
 {
-#ifdef HAVE_BYTEARRAY
     PmReturn_t retval;
     pPmObj_t pobj;
-#endif /* HAVE_BYTEARRAY */
 
     C_ASSERT(pobj1 != C_NULL);
     C_ASSERT(pobj2 != C_NULL);
@@ -195,7 +193,6 @@ obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
         return C_DIFFER;
     }
 
-#ifdef HAVE_BYTEARRAY
     /* If object is an instance, get the thing it contains */
     if (OBJ_GET_TYPE(pobj1) == OBJ_TYPE_CLI)
     {
@@ -219,7 +216,6 @@ obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
     {
         return C_DIFFER;
     }
-#endif /* HAVE_BYTEARRAY */
 
     /* Otherwise handle types individually */
     switch (OBJ_GET_TYPE(pobj1))
@@ -246,9 +242,7 @@ obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
 
         case OBJ_TYPE_TUP:
         case OBJ_TYPE_LST:
-#ifdef HAVE_BYTEARRAY
         case OBJ_TYPE_BYA:
-#endif /* HAVE_BYTEARRAY */
             return seq_compare(pobj1, pobj2);
 
         case OBJ_TYPE_DIC:
@@ -263,7 +257,6 @@ obj_compare(pPmObj_t pobj1, pPmObj_t pobj2)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
 {
@@ -326,7 +319,6 @@ obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
             break;
 
         case OBJ_TYPE_CLI:
-#ifdef HAVE_BYTEARRAY
             {
                 pPmObj_t pobj2;
 
@@ -340,7 +332,6 @@ obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
                     break;
                 }
             }
-#endif /* HAVE_BYTEARRAY */
 
         case OBJ_TYPE_COB:
         case OBJ_TYPE_MOD:
@@ -382,10 +373,8 @@ obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
     }
     return retval;
 }
-#endif /* HAVE_PRINT */
 
 
-#ifdef HAVE_BACKTICK
 PmReturn_t
 obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr)
 {
@@ -423,4 +412,3 @@ obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr)
 
     return retval;
 }
-#endif /* HAVE_BACKTICK */

@@ -94,7 +94,6 @@ PmReturn_t int_negative(pPmObj_t pobj, pPmObj_t *r_pint);
  */
 PmReturn_t int_bitInvert(pPmObj_t pobj, pPmObj_t *r_pint);
 
-#ifdef HAVE_PRINT
 /**
  * Sends out an integer object in decimal notation with MSB first.
  * The number is preceded with a "-" when necessary.
@@ -124,7 +123,6 @@ PmReturn_t _int_printHex(intptr_t n);
  * @param pint Pointer to Int object
  */
 PmReturn_t int_printHex(pPmObj_t pint);
-#endif /* HAVE_PRINT */
 
 /**
  * Returns by reference an integer that is x raised to the power of y.

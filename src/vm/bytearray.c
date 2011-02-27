@@ -25,7 +25,6 @@
  */
 
 #include "pm.h"
-#ifdef HAVE_BYTEARRAY
 
 
 #define ROUND_UP_TO_MUL_OF_FOUR(n) n = (((n) + 3) & ~3)
@@ -269,4 +268,3 @@ bytearray_print(pPmObj_t pobj)
     plat_putByte(')');
     return retval;
 }
-#endif /* HAVE_BYTEARRAY */

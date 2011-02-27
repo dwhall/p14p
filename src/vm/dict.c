@@ -210,7 +210,6 @@ dict_getItem(pPmObj_t pdict, pPmObj_t pkey, pPmObj_t *r_pobj)
 }
 
 
-#ifdef HAVE_DEL
 PmReturn_t
 dict_delItem(pPmObj_t pdict, pPmObj_t pkey)
 {
@@ -241,10 +240,8 @@ dict_delItem(pPmObj_t pdict, pPmObj_t pkey)
 
     return retval;
 }
-#endif /* HAVE_DEL */
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 dict_print(pPmObj_t pdict)
 {
@@ -290,7 +287,6 @@ dict_print(pPmObj_t pdict)
 
     return plat_putByte('}');
 }
-#endif /* HAVE_PRINT */
 
 
 PmReturn_t

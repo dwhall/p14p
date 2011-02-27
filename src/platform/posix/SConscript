@@ -21,7 +21,7 @@ cflags_dbg = "-ggdb -D__DEBUG__=1 "
 cflags_opt = "-Os "
 Import("vars")
 env_dbg = Environment(variables = vars,
-    CPPPATH = ["#src/vm", "#src/platform/desktop/build"],
+    CPPPATH = ["#src/vm", "#src/platform/posix/build"],
     CCFLAGS = cflags + cflags_dbg,
     LINKFLAGS = "-Wl,-map $main_map")
 env = env_dbg
@@ -29,23 +29,23 @@ if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
 
 # Generate pmfeatures.h
-pmfeatures_py = File("#src/platform/desktop/pmfeatures.py")
+pmfeatures_py = File("#src/platform/posix/pmfeatures.py")
 pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
     "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
 
 # Generate code objs and types
-generated_objs = [File("#src/platform/desktop/build/pm_generated_objs.c"),
-                  File("#src/platform/desktop/build/pm_generated_types.h")]
+generated_objs = [File("#src/platform/posix/build/pm_generated_objs.c"),
+                  File("#src/platform/posix/build/pm_generated_types.h")]
 pm_generated_codeobjs = env.Command(generated_objs,
     platform_py_sources + pmlib_py_sources,
-    "src/tools/pmCoCreator.py %s src/platform/desktop/build $SOURCES" % pmfeatures_py)
+    "src/tools/pmCoCreator.py %s src/platform/posix/build $SOURCES" % pmfeatures_py)
 Depends(pm_generated_codeobjs, pmfeatures_py)
 
 # Build pmvm library, a linker map and the executable
-main_map = env.Command("#src/platform/desktop/build/main.map", "", Touch("$TARGET"))
+main_map = env.Command("#src/platform/posix/build/main.map", "", Touch("$TARGET"))
 pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
 main = env.Program("main", [main_map, platform_c_sources + pmvm_lib,
-                           "#src/platform/desktop/build/pm_generated_objs.c"])
+                           "#src/platform/posix/build/pm_generated_objs.c"])
 Return("main")
 
 #:mode=python:

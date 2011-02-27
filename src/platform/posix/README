@@ -1,0 +1,37 @@
+==================
+The Posix Platform
+==================
+Formerly known as "desktop"
+===========================
+
+
+:Author:    Dean Hall
+
+
+Purpose
+-------
+
+This is a sample project that demonstrates running Python-on-a-Chip on the
+desktop.  Any POSIX-compliant OS should work (Mac OS X, Linux, Cygwin).
+
+
+Building the Project
+--------------------
+
+Start with a clean source tree.
+
+If you are running on a 64-bit processor, you will need to increase the
+heap size by editing ``src/platform/posix/main.c`` near line 18 to set
+``HEAP_SIZE`` to a value ``0x4000`` or larger that is a multiple of four::
+
+    #define HEAP_SIZE 0x4000
+
+The posix desktop is the default platform of the SCons build system,
+so typing ``scons`` in the root directory will build a binary to run on the
+posix platform::
+
+    $ scons
+
+The resulting binary is found in ``src/platform/posix/build/main``.
+At present, the main.py program prints some heap information, a hello world
+message and raises a ZeroDivisionError.

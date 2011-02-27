@@ -28,7 +28,13 @@
 #include "pm.h"
 
 
-void plat_sigalrm_handler(int signal);
+void
+_sigalrm_handler(int signal)
+{
+    PmReturn_t retval;
+    retval = pm_vmPeriodic(1000);
+    PM_REPORT_IF_ERROR(retval);
+}
 
 
 /* Desktop target shall use stdio for I/O routines. */
@@ -41,7 +47,7 @@ plat_init(void)
      * so signal() is used instead.
      */
 #ifndef __DEBUG__
-    signal(SIGALRM, plat_sigalrm_handler);
+    signal(SIGALRM, _sigalrm_handler);
     ualarm(1000, 1000);
 #endif
 
@@ -58,15 +64,6 @@ plat_deinit(void)
     signal(SIGALRM, SIG_DFL);
 
     return PM_RET_OK;
-}
-
-
-void
-plat_sigalrm_handler(int signal)
-{
-    PmReturn_t retval;
-    retval = pm_vmPeriodic(1000);
-    PM_REPORT_IF_ERROR(retval);
 }
 
 

@@ -10,12 +10,10 @@ EnsurePythonVersion(2, 6)
 
 import os, string
 
-DEFAULT_PLATFORM = "desktop"
+DEFAULT_PLATFORM = "posix"
 
-supported_platforms = Glob("src/platform/*")
-allowed_platforms = [os.path.split(x)[1] for x in map(str, supported_platforms)]
-allowed_platforms.remove("_unmaintained")
-allowed_platforms.remove("COPYING")
+valid_platforms = [os.path.split(x)[1] for x in map(str, Glob("src/platform/*"))
+                   if x not in ("_unmaintained", "COPYING")]
 
 vars = Variables()
 
@@ -33,25 +31,25 @@ if "tags" in COMMAND_LINE_TARGETS or "TAGS" in COMMAND_LINE_TARGETS:
     Alias('TAGS', tags)
 
 
-elif "docs" in COMMAND_LINE_TARGETS or "html" in COMMAND_LINE_TARGETS:
-    srcpath = os.path.join("docs", "src")
-    rstfiles = Glob(os.path.join(srcpath, "*.txt"))
-    htmlpath = os.path.join("docs", "html")
-    Mkdir(htmlpath)
-    htmlfiles = [string.replace(string.replace(str(s), ".txt", ".html", 1), srcpath, htmlpath, 1)
-                 for s in rstfiles]
-    html = [Command(htmlfiles[i], rstfiles[i], "rst2html.py $SOURCE $TARGET")
-            for i in range(len(rstfiles))]
-    htmlalias = Alias("html", html)
-    Alias("docs", htmlalias)
+#elif "docs" in COMMAND_LINE_TARGETS or "html" in COMMAND_LINE_TARGETS:
+#    srcpath = os.path.join("docs", "src")
+#    rstfiles = Glob(os.path.join(srcpath, "*.txt"))
+#    htmlpath = os.path.join("docs", "html")
+#    Mkdir(htmlpath)
+#    htmlfiles = [string.replace(string.replace(str(s), ".txt", ".html", 1), srcpath, htmlpath, 1)
+#                 for s in rstfiles]
+#    html = [Command(htmlfiles[i], rstfiles[i], "rst2html.py $SOURCE $TARGET")
+#            for i in range(len(rstfiles))]
+#    htmlalias = Alias("html", html)
+#    Alias("docs", htmlalias)
 
 
-elif "dist" in COMMAND_LINE_TARGETS:
-    assert "PM_RELEASE" in vars.args.keys(), "Must define PM_RELEASE=RR"
-    dist = Command("pymite-%s.tar.gz" % vars.args["PM_RELEASE"], None,
-                   "src/tools/pmDist.py %s" % vars.args["PM_RELEASE"])
-    AlwaysBuild(dist)
-    Alias("dist", dist)
+#elif "dist" in COMMAND_LINE_TARGETS:
+#    assert "PM_RELEASE" in vars.args.keys(), "Must define PM_RELEASE=RR"
+#    dist = Command("pymite-%s.tar.gz" % vars.args["PM_RELEASE"], None,
+#                   "src/tools/pmDist.py %s" % vars.args["PM_RELEASE"])
+#    AlwaysBuild(dist)
+#    Alias("dist", dist)
 
 
 elif "check" in COMMAND_LINE_TARGETS:
@@ -62,14 +60,14 @@ elif "check" in COMMAND_LINE_TARGETS:
     Clean("check", build_path)
 
 
-# Default: build a platform; desktop by default
+# Default: build a platform; posix is the default platform
 else:
     if len(vars.args) == 0:
         vars.args["PLATFORM"] = DEFAULT_PLATFORM
     else:
-        if vars.args["PLATFORM"] not in allowed_platforms:
+        if vars.args["PLATFORM"] not in valid_platforms:
             print "Error: must define PLATFORM=<plat> where <plat> is from %s" \
-                % str(allowed_platforms)
+                % str(valid_platforms)
             Exit(1)
     platform_path = os.path.join("src", "platform", vars.args["PLATFORM"])
     sconscript_path = os.path.join(platform_path, "SConscript")

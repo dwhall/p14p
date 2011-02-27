@@ -29,16 +29,16 @@ if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
 
 # Generate pmfeatures.h
-pmfeatures_py = File("#src/platform/desktop/pmfeatures.py")
+pmfeatures_py = File("#src/platform/posix/pmfeatures.py")
 pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
     "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
 
 # Copy desktop plat source files
 plat_h = env.Command("#src/tests/system/build/plat.h",
-                     "#src/platform/desktop/plat.h",
+                     "#src/platform/posix/plat.h",
                      Copy("$TARGET", "$SOURCE"))
 plat_c = env.Command("#src/tests/system/build/plat.c",
-                     "#src/platform/desktop/plat.c",
+                     "#src/platform/posix/plat.c",
                      Copy("$TARGET", "$SOURCE"))
 
 # Generate code objs and types
@@ -57,7 +57,7 @@ runtests = env.Program("runtests", [runtests_map, platform_c_sources + pmvm_lib,
 
 env.AlwaysBuild(env.Alias("check", [], runtests[0].abspath))
 env.Depends("check", runtests[0].abspath)
-Clean("check", "zem") # File "zem" created by t230.py
+Clean("check", "#zem") # File "zem" created by t230.py
 
 
 #:mode=python:

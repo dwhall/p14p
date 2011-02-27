@@ -57,7 +57,7 @@ UNIMPLEMENTED_BCODES = [
 ]
 
 
-def co_filter_factory(pmfeatures_filename):
+def co_filter_factory():
     """Returns a filter function that raises an exception
     if any of the following filters fail:
 
@@ -90,23 +90,6 @@ def co_filter_factory(pmfeatures_filename):
     If all is well, return the filtered consts list,
     names list, code string and native code.
     """
-    # Issue #88: Consolidate HAVE_* platform feature definitions
-    # Execute the pmfeatures file to get the features dict
-    locs = {}
-    execfile(pmfeatures_filename, {}, locs)
-    PM_FEATURES = locs['PM_FEATURES']
-    assert type(PM_FEATURES) == dict
-
-    # Modify some globals based on the platform features
-    global UNIMPLEMENTED_BCODES
-
-    # Issue #13: Add support for Python 2.6 bytecodes.
-    # The *_TRUE_DIVIDE bytecodes require support for float type
-    if not PM_FEATURES["HAVE_FLOAT"]:
-        UNIMPLEMENTED_BCODES.extend([
-            "BINARY_TRUE_DIVIDE",
-            "INPLACE_TRUE_DIVIDE",
-            ])
 
     # Set invalid and unimplemented bcodes to None
     clear_invalid = lambda x: None if x[0] == '<' or x in UNIMPLEMENTED_BCODES \

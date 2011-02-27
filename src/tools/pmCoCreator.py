@@ -175,19 +175,13 @@ def co_to_crepr(co, cvarnm):
     d['co_names'] = obj_to_cvar(fco['co_names'])
     d['co_consts'] = obj_to_cvar(fco['co_consts'])
     d['co_cellvars'] = obj_to_cvar(fco['co_cellvars'])
-
-    if PM_FEATURES['HAVE_DEBUG_INFO']:
-        d['lnotab_prefix'] = "(pPmString_t)&"
-        d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
-    else:
-        d['lnotab_prefix'] = ""
-        d['co_lnotab'] = "C_NULL"
+    d['co_lnotab'] = obj_to_cvar(co.co_lnotab)
 
     # Format the CO structure definition
     crepr = bytearray(
         "%(hdr)s, "
         "(pPmString_t)&%(co_code)s, "
-        "%(lnotab_prefix)s%(co_lnotab)s, "
+        "PM_REFERENCE_LNOTAB(%(co_lnotab)s), "
         "(pPmTuple_t)&%(co_names)s, "
         "(pPmTuple_t)&%(co_consts)s, "
         "(pPmTuple_t)&%(co_cellvars)s, "
@@ -301,18 +295,10 @@ def process_and_print(filenames, output_path):
 
 
 if __name__ == "__main__":
-    # DWH TODO: REMOVE pmfeatures arg if HAVE_* features go away
-    pmfeatures_fn = sys.argv[1]
-    locs = {}
-    execfile(pmfeatures_fn, {}, locs)
-    global PM_FEATURES
-    PM_FEATURES = locs['PM_FEATURES']
-    assert type(PM_FEATURES) == dict
-
-    filter_co = co_filter_factory(pmfeatures_fn)
-    output_path = sys.argv[2]
+    filter_co = co_filter_factory()
+    output_path = sys.argv[1]
     assert os.path.isdir(output_path), "Expect an output path directory"
-    filenames = sys.argv[3:]
+    filenames = sys.argv[2:]
     assert len(filenames) > 0, "Expect list of .py files as args"
     process_and_print(filenames, output_path)
 

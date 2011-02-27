@@ -492,7 +492,6 @@ interpret(const uint8_t returnOnNoThreads)
             /* #213: Add support for Python 2.6 bytecodes */
             case BINARY_TRUE_DIVIDE:
             case INPLACE_TRUE_DIVIDE:
-
                 /* Perform division; float_op() checks for types and zero-div */
                 retval = float_op(TOS1, TOS, &pobj3, '/');
                 PM_BREAK_IF_ERROR(retval);
@@ -2059,6 +2058,7 @@ CALL_FUNC_CLEANUP:
 
             default:
                 /* SystemError, unknown or unimplemented opcode */
+                t8 = bc;
                 PM_RAISE(retval, PM_RET_EX_SYS);
                 break;
         }

@@ -38,7 +38,7 @@ generated_objs = [File("#src/platform/posix/build/pm_generated_objs.c"),
                   File("#src/platform/posix/build/pm_generated_types.h")]
 pm_generated_codeobjs = env.Command(generated_objs,
     platform_py_sources + pmlib_py_sources,
-    "src/tools/pmCoCreator.py %s src/platform/posix/build $SOURCES" % pmfeatures_py)
+    "src/tools/pmCoCreator.py src/platform/posix/build $SOURCES")
 Depends(pm_generated_codeobjs, pmfeatures_py)
 
 # Build pmvm library, a linker map and the executable

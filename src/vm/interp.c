@@ -1911,6 +1911,9 @@ CALL_FUNC_FOR_ITER:
                         gVmGlobal.nativeframe.nf_locals[t16] = PM_POP();
                     }
 
+                    /* Set flag, so the GC knows a native session is active */
+                    gVmGlobal.nativeframe.nf_active = C_TRUE;
+
                     /* If the heap is low on memory, run the GC */
                     if (heap_getAvail() < HEAP_GC_NF_THRESHOLD)
                     {
@@ -1920,9 +1923,6 @@ CALL_FUNC_FOR_ITER:
 
                     /* Pop the function object */
                     PM_SP--;
-
-                    /* Set flag, so the GC knows a native session is active */
-                    gVmGlobal.nativeframe.nf_active = C_TRUE;
 
                     /*
                      * CALL NATIVE FXN: pass caller's frame and numargs

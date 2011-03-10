@@ -83,7 +83,7 @@ Now, the Arduino Mega is running ipm and waiting for input from the host
 computer.  So on your computer you need to run the host-side ipm
 (the name of your serial device may vary)::
 
-    $ ../../tools/ipm.py -f pmfeatures.py --serial /dev/tty.usbserial --baud=57600
+    $ ../../tools/ipm.py -f pmfeatures.py --serial=/dev/tty.usbserial --baud=57600
 
 
 Using ipm

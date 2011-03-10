@@ -76,6 +76,6 @@ Read ``docs/src/InteractivePyMite.txt`` to learn more about ipm.
 Here is the shortcut (the path to your serial device will vary)::
 
     $ cd src/tools
-    $ ./ipm.py -f ../platform/mbed/pmfeatures.py --serial /dev/tty.usbmodem3d12 --baud=19200
+    $ ./ipm.py -f ../platform/mbed/pmfeatures.py --serial=/dev/tty.usbmodem3d12 --baud=19200
 
 .. :mode=rest:

@@ -52,15 +52,17 @@ REQUIRES: pySerial package from http://pyserial.sourceforge.net/
 #
 
 
-import cmd, code, dis, optparse, os, subprocess, sys
+import cmd, code, dis, optparse, os, subprocess, sys, os.path
 import pmImgCreator
 
+TOOLS_DIR = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
+PLATFORM_DIR = os.path.join(TOOLS_DIR, '..', 'platform')
 
 NEED_PYSERIAL = "Install the pySerial module from http://pyserial.sourceforge.net/"
 if not sys.platform.lower().startswith("win"):
-    PMVM_EXE = "../platform/desktop/main.out"
+    PMVM_EXE = os.path.join(PLATFORM_DIR, "desktop/main.out")
 else:
-    PMVM_EXE = "../platform/windows/main.exe"
+    PMVM_EXE = os.path.join(PLATFORM_DIR, "windows/main.exe")
 IPM_PROMPT = "ipm> "
 IPM_PROMPT2 = ".... "
 COMPILE_FN = "<ipm>"
@@ -384,7 +386,7 @@ def ser_test():
         print NEED_PYSERIAL
         raise e
 
-    pic = pmImgCreator.PmImgCreator("../platform/desktop/pmfeatures.py")
+    pic = pmImgCreator.PmImgCreator(os.path.join(PLATFORM_DIR, "desktop/pmfeatures.py"))
     serconn = serial.Serial("/dev/cu.SLAB_USBtoUART", 19200)
     serconn.setTimeout(2)
 

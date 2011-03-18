@@ -358,10 +358,12 @@ heap_init(uint8_t *base, uint32_t size)
     pPmHeapDesc_t pchunk;
     uint32_t hs;
 
-    /* Heap base & size must be a multiple of four */
-    if (((intptr_t)base & (uint8_t)3) || (size & (uint8_t)3))
+    /* Heap base must align to word size and size must be a multiple of four */
+    if (((sizeof(intptr_t) >= 4) && (intptr_t)base & (uint8_t)3)
+        || ((sizeof(intptr_t) == 2) && (intptr_t)base & (uint8_t)1)
+        || (size & (uint8_t)3))
     {
-        return PM_RET_NO;
+        return PM_RET_ALIGNMENT;
     }
 
     pmHeap.base = base;

@@ -163,6 +163,7 @@ typedef enum PmReturn_e
     PM_RET_STUB = 0xFD,         /**< Return val for stub fxn */
     PM_RET_ASSERT_FAIL = 0xFC,  /**< Assertion failure */
     PM_RET_FRAME_SWITCH = 0xFB, /**< Frame pointer was modified */
+    PM_RET_ALIGNMENT = 0xFA,    /**< Heap is not aligned */
 
     /* return vals that indicate an exception occured */
     PM_RET_EX = 0xE0,           /**< General exception */

@@ -18,12 +18,21 @@ IPM=true
 
 # Platform Configuration
 MCU = atmega1280
+AVRDUDE_PROGRAMMER = stk500v1
+AVRDUDE_BAUD = 57600
 FORMAT = ihex
 TARGET = main
 F_CPU = 16000000UL
 SRC = $(TARGET).c plat.c $(TARGET)_nat.c $(TARGET)_img.c
 ASRC =
 OPT = s
+
+# Configuration changes for the ATmega2560
+ifneq ($(VARIANT),)
+MCU = atmega2560
+AVRDUDE_PROGRAMMER = stk500v2
+AVRDUDE_BAUD = 115200
+endif
 
 # Debugging format.
 # Native formats for AVR-GCC's -g are stabs [default], or dwarf-2.
@@ -98,9 +107,7 @@ LDFLAGS += -L../../vm -l$(PM_LIB_ROOT) -L.
 
 # Programming support using avrdude. Settings and variables.
 
-AVRDUDE_PROGRAMMER = stk500v1
 AVRDUDE_PORT = /dev/tty.usbserial-A6008hox
-AVRDUDE_BAUD = 57600
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
 

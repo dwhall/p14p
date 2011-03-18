@@ -31,7 +31,7 @@ Requirements
 The Arduino Mega has an FTDI USB-to-Serial device on-board.  You will need
 to install `FTDI device drivers`_ for your operating system.
 
-You also need to make sure you have PySerial_ installed so that Python 
+You also need to make sure you have PySerial_ installed so that Python
 can talk to your target device over the serial port::
 
     $ easy_install pyserial
@@ -63,10 +63,10 @@ to match your serial port or give the serial device path on the command line::
 
     $ make program AVRDUDE_PORT=/dev/tty.usbserial
 
-If the program did not load onto the Arduino Mega, first check if you have a 
+If the program did not load onto the Arduino Mega, first check if you have a
 bootloader: press and release the reset button and watch the LED labeled "L"
-on the opposite end of the FTDI chip from the USB plug.  If it does not flash, 
-a bootloader is not present and one must be installed.  See instructions on 
+on the opposite end of the FTDI chip from the USB plug.  If it does not flash,
+a bootloader is not present and one must be installed.  See instructions on
 `the Bootloader page`_ to install a bootloader.
 
 The Arduino Bootloader waits about 2 seconds after reset to execute the binary.
@@ -90,7 +90,7 @@ Using ipm
 ---------
 
 The following is an example session using ipm::
-    
+
     ipm> import avr, sys
     ipm> avr.ddrA(0xff)
     ipm> avr.portA(0)       # Pins 22-29 all at 0 V
@@ -113,5 +113,27 @@ PA5     27      4.8
 PA6     28      0
 PA7     29      4.8
 ======= ======= =======
+
+
+The Arduino Mega 2560
+---------------------
+
+The Arduino Mega 2560 uses a slightly different chip than the original Arduino
+Mega, but p14p is still able to run on it!  The commands to build and download
+need to be changed a little bit to compile and flash for the ATmega2560 chip.
+
+Here are the commands that differ::
+
+    $ make PLATFORM=arduino_mega VARIANT=2560
+
+    $ make program AVRDUDE_PORT=/dev/tty.usbserial VARIANT=2560
+
+Any non-empty given to ``VARIANT=`` will cause the Makefile to build for the
+Arduino Mega, so **DO NOT** try to use ``VARIANT=1280`` to compiler for the
+ATmega1280.
+
+The command for starting ipm-host remains the same::
+
+    $ ../../tools/ipm.py -f pmfeatures.py --serial=/dev/tty.usbserial --baud=57600
 
 .. :mode=rest:

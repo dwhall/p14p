@@ -29,7 +29,11 @@
 #define HEAP_MAX_CHUNK_SIZE 2044
 
 /* Min chunk size for 32-bit desktop target */
+#if __LP64__
+#define HEAP_CHUNK_MIN_SIZE 24
+#else
 #define HEAP_CHUNK_MIN_SIZE 12
+#endif
 
 /**
  * Tests heap_init():

@@ -9,7 +9,7 @@ vars = Variables()
 vars.args["PLATFORM"] = "desktop"
 vars.Add("IPM", "Add the interactive library to the standard lib", True)
 
-CFLAGS = "-g -ggdb -D__DEBUG__=1 -DHEAP_SIZE=$PM_HEAP_SIZE " \
+CFLAGS = "-g -ggdb -D__DEBUG__=1 -DHEAP_SIZE=$HEAP_SIZE " \
          "-Os -Wall -gstabs -Wstrict-prototypes -Werror"
 #PY_SOURCES = ["main.py"]
 PM_LIB_ROOT = ["pmvm_%s" % vars.args["PLATFORM"]]

@@ -35,7 +35,7 @@ There are two key differences between the Python version and the C version:
 * Python version uses nearly all the resources available on the Teensy++ (76% flash,
   nearly all RAM) whereas the C version uses ~3% flash and not very much RAM(!!)
 
-* Python version is less LOC and also simpler to read, and uses easy to read "naive" 
+* Python version is less LOC and also simpler to read, and uses easy to read "naive"
   methods like strings to represent morse code, as opposed to more embedded-savvy
   bitfields in blinky.c
 
@@ -45,11 +45,12 @@ Device Selection
 
 At the time of this writing, there are two versions of the Teensy++ hardware.
 Teensy++ version 1.0 uses an Atmel AT90US646 and version 2.0 uses an Atmel
-AT90USB1286.  Edit the Makefile near line 19 to choose which device you have.
+AT90USB1286.  Edit the Makefile near line 20 to set the MCU variable to choose
+which device you have.
 
 As is, this code defaults to version 1.0.  If you have version 2.0 hardware
-you should edit the Makefile and also edit PM_HEAP_SIZE in pmfeatures.h near 
-line 33 to give yourself more heap.
+you should edit the Makefile and also edit HEAP_SIZE in main.c near
+line 21 to give yourself more heap.
 
 
 Building the Project
@@ -66,7 +67,7 @@ Remember to also edit src/tools/pmImgCreator.py and change the PM_FEATURES dict 
 the #ifdefs in src/platform/teensy/pmfeatures.h (they don't match "out of the box" and nothing
 will work.)
 
-``platform/teensy/Makefile`` will build the PyMite VM archive as well as the 
+``platform/teensy/Makefile`` will build the PyMite VM archive as well as the
 sample application::
 
     $ cd src/platform/teensy

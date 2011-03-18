@@ -77,7 +77,7 @@ The MoSync IDE can not edit python files, so you will need to use your
 favorite editor instead. 
 
 If you need more memory for the pymite Python VM, increase the value of 
-PM_HEAP_SIZE in the plat.h file. Don't forget to rebuild the MoSync project 
+_HEAP_SIZE in the main.c file. Don't forget to rebuild the MoSync project 
 after that, only doing a build will not work. 
 
 When using resources and .lst files, you need to handle all the resource ids 

@@ -53,7 +53,7 @@ Here is a step-by-step guide to porting PyMite to a new platform.
   Find the meaning of all the ``HAVE_*`` variables in
   ``src/vm/pmFeatureDependencies.h``.
 
-- Edit ``plat.h`` to set the size of the platform's heap in ``PM_HEAP_SIZE``
+- Edit ``main.c`` to set the size of the platform's heap in ``HEAP_SIZE``
   and be sure to leave enough RAM for the C stack.
 
 - Edit the build environment so that it builds the PyMite library,

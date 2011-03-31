@@ -44,28 +44,28 @@
  *
  *  Both machines can be reset (resetCommandFindMachine(),
  *  resetReceiveMachine()) and advanced by one state
- *  (stepCommandFindMachine(), stepReceiveMachine()). 
+ *  (stepCommandFindMachine(), stepReceiveMachine()).
  *
- *  Two mechanisms provide read access to the receive 
+ *  Two mechanisms provide read access to the receive
  *  state machine. Low-level calls (getReceiveMachineOutChar(),
  *  getReceiveMachineIndex(), getReceiveMachineError(),
  *  getReceiveMachineIsSpec()) report machine
- *  state, while high-level calls (isReceiveMachineChar(), 
+ *  state, while high-level calls (isReceiveMachineChar(),
  *  isReceiveMachineData(), isReceiveMachineSpec()) aggreate that state into more
  *  meaningful information.
- * 
+ *
  *  Note: this is implemented in C (not C++), so that similar code can be re-used on
  *  a uC.
  *
  *  \section implementation Implementation
  *  The uC keeps state in \ref xferVar;
  *  a NULL address indicates nothing is present.
- * 
+ *
  *  On receive: implement as a state machine (see sketch below).
  *
  *  \section receiveSketch Receive state machine sketch
- *  For simplicity, "getch" really means one invocation of the receive 
- *  state machine, which is runs until the next getch. Timeouts are not 
+ *  For simplicity, "getch" really means one invocation of the receive
+ *  state machine, which is runs until the next getch. Timeouts are not
  *  shown: if too much time passes, the state machine is reset to the
  *  top. Likewise, receiving a command at any unexpected point causes
  *  a state machine reset.
@@ -109,13 +109,13 @@ else
 extern "C" {
 #endif
 
-/** \name Constants
- *  These values are \#defined as necessary so that the work under:
- *  - Pre-C99 (no bool, true, or false); this is MSVC++ in C mode
- *    and GCC for the PIC24.
- *  - C++ (bool, true, and false built in)
- *  - C++/CLI (NULL not defined)
- */
+  /** \name Constants
+   *  These values are \#defined as necessary so that the work under:
+   *  - Pre-C99 (no bool, true, or false); this is MSVC++ in C mode
+   *    and GCC for the PIC24.
+   *  - C++ (bool, true, and false built in)
+   *  - C++/CLI (NULL not defined)
+   */
 // @{
 #if defined(__cplusplus)
 #ifndef NULL
@@ -140,20 +140,20 @@ extern "C" {
 /// On MSVC under C++, use a throw for an assert. This
 /// is defined already for the PIC.
 #ifndef ASSERT
-	#ifdef _NOASSERT
-        #define ASSERT(placeholder) (void)0
-	#else
-		#define ASSERT(x) if (!(x)) throw #x
-	#endif
+#ifdef _NOASSERT
+#define ASSERT(placeholder) (void)0
+#else
+#define ASSERT(x) if (!(x)) throw #x
+#endif
 #endif
 
 /// An assert with message macro
 #ifndef ASSERTM
-	#ifdef _NOASSERT
-        #define ASSERT(msg, expr) (void)0
-	#else
-		#define ASSERTM(msg, expr) if (! (expr)) throw msg ": " #expr
-	#endif
+#ifdef _NOASSERT
+#define ASSERT(msg, expr) (void)0
+#else
+#define ASSERTM(msg, expr) if (! (expr)) throw msg ": " #expr
+#endif
 #endif
 
 
@@ -168,12 +168,12 @@ extern "C" {
 #endif
 
 #ifndef ASSERT
-	#ifdef _NOASSERT
-        #define ASSERT(placeholder) (void)0
-	#else
-		#include <assert.h>
-		#define ASSERT(x) assert(x)
-	#endif
+#ifdef _NOASSERT
+#define ASSERT(placeholder) (void)0
+#else
+#include <assert.h>
+#define ASSERT(x) assert(x)
+#endif
 #endif
 
 /// An assert with message macro; the msg isn't used in C
@@ -201,7 +201,7 @@ typedef unsigned char uint8;
 //@{
 
 /// The character used to begin a command. If this is not a command,
-/// then use the two-character sequence \ref CMD_TOKEN 
+/// then use the two-character sequence \ref CMD_TOKEN
 /// \ref ESCAPED_CMD; a \ref CMD_TOKEN followed
 /// by any other value is a command.
 #define CMD_TOKEN ((char) 0xAA)
@@ -235,33 +235,73 @@ typedef unsigned char uint8;
 
 /// State of the command-finding state machine. See \ref stepCommandFindMachine
 /// for more information.
-typedef enum { 
-	/// The machine is in its starting state.
-	STATE_CMD_START,
-	/// The machine is waiting for another character; c_outChar is not valid.
-	STATE_CMD_WAIT1,
-	/// The machine is waiting for an additional character; c_outChar is not valid.
-	STATE_CMD_WAIT2
+typedef enum {
+  /// The machine is in its starting state.
+  STATE_CMD_START,
+  /// The machine is waiting for another character; c_outChar is not valid.
+  STATE_CMD_WAIT1,
+  /// The machine is waiting for an additional character; c_outChar is not valid.
+  STATE_CMD_WAIT2
 } CMD_STATE;
 
 /// The output of the command-finding state machine. See \ref stepCommandFindMachine
 /// for more information.
 typedef enum {
-	/// The state machine produced no output, but is waiting for additional input.
-	OUTPUT_CMD_NONE,
-	/// A character was received; c_outChar contains the character.
-	OUTPUT_CMD_CHAR,
-	/// A command was received; c_outChar contains the command.
-	OUTPUT_CMD_CMD,
-	/// A repeated command was received; c_outChar contains the command.
-	OUTPUT_CMD_REPEATED_CMD,
-	/// The machine received a \ref CMD_TOKEN \ref CMD_TOKEN \ref CMD_TOKEN,
-	/// so report a repeated command and wait for the next character to
-	/// finish decoding.
-	OUTPUT_CMD_REPEATED_WAIT
+  /// The state machine produced no output, but is waiting for additional input.
+  OUTPUT_CMD_NONE,
+  /// A character was received; c_outChar contains the character.
+  OUTPUT_CMD_CHAR,
+  /// A command was received; c_outChar contains the command.
+  OUTPUT_CMD_CMD,
+  /// A repeated command was received; c_outChar contains the command.
+  OUTPUT_CMD_REPEATED_CMD,
+  /// The machine received a \ref CMD_TOKEN \ref CMD_TOKEN \ref CMD_TOKEN,
+  /// so report a repeated command and wait for the next character to
+  /// finish decoding.
+  OUTPUT_CMD_REPEATED_WAIT
 } CMD_OUTPUT;
 
+/// Resets the command-finding state machine; see \ref stepCommandFindMachine
+/// for more information.
 void resetCommandFindMachine();
+
+/** The command-finding state machine looks for commands in the data
+ *  passed to it. Sequences it recognizes:
+ *  - c, where c != \ref CMD_TOKEN, outputs the character c.
+ *  - \ref CMD_TOKEN \ref ESCAPED_CMD outputs the character \ref CMD_TOKEN
+ *    (known as an escaped command).
+ *  - \ref CMD_TOKEN c, where c != \ref CMD_TOKEN and c != \ref ESCAPED_CMD,
+ *    outputs the command c.
+ *  - \ref CMD_TOKEN \ref CMD_TOKEN \ref ESCAPED_CMD outputs the command
+ *    \ref CMD_TOKEN (note that the second \ref CMD_TOKEN is "escaped",
+ *    so it is treated as a character specifying the command, not as the
+ *    beginning of a command).
+ *  - \ref CMD_TOKEN \ref CMD_TOKEN \ref CMD_TOKEN outputs a repeated
+ *    command then waits for the next character. See the state machine
+ *    sketch below for more information.
+ *  - \ref CMD_TOKEN \ref CMD_TOKEN c, where c != \ref CMD_TOKEN and
+ *    c != \ref ESCAPED_CMD, outputs
+ *    a repeated command c. This is a protocol violation, but must be
+ *    reported at a higher level; this routine merely reports a repeated command.
+ *  A sketch of the state machine: <pre>
+ *  case START :
+ *    if (c == CMD_TOKEN) state = WAIT1
+ *    else output c as a character
+ *  case WAIT1 :
+ *    if (c == CMD_TOKEN) state = WAIT2
+ *    if (c == ESCAPED_CMD) state = START, output CMD_TOKEN as a character
+ *    else output c as a command
+ *  case WAIT2 :
+ *    if (c == ESCAPED_CMD) state = START, output command CMD_TOKEN
+ *    if (c == CMD_TOKEN) output repeated command, remain in this state
+ *    else output repeated command c
+ *  </pre>
+ *  \param c_inChar A character input to the machine.
+ *  \param c_outChar The character/command output by the machine when
+ *                   the returned state is not CMD_WAIT.
+ *  \return The output of the machine, which indicates if a
+ *          command or character is available.
+ */
 CMD_OUTPUT stepCommandFindMachine(char c_inChar, char* c_outChar);
 //@}
 
@@ -294,7 +334,7 @@ typedef struct {
 
 /// Number of transfer variables supported. Must be less than
 /// the \ref MAX_NUM_XFER_VARS.
-#define NUM_XFER_VARS 62
+#define NUM_XFER_VARS 8
 #if NUM_XFER_VARS > MAX_NUM_XFER_VARS
 #error Too many transfer variables; there must be MAX_NUM_XFER_VARS or fewer.
 #endif
@@ -322,18 +362,18 @@ extern uint8 au8_xferVarWriteable[NUM_XFER_VARS/8 + ((NUM_XFER_VARS % 8) > 0)];
 /// States of the receive state machine. See
 /// \ref stepReceiveMachine for more information.
 typedef enum {
-		/// At the start of the machine
-		STATE_RECV_START,
-		/// Waiting for a command or escaped \ref CMD_TOKEN
-		STATE_RECV_CMD_WAIT,
-		/// Reading data bytes in from a command
-		STATE_RECV_READ_BYTES,
-		/// Reading the variable index for a long var command
-		STATE_RECV_LONG_INDEX,
-		/// Reading the variable length for a long/specification command
-		STATE_RECV_LONG_LENGTH,
-		/// Reading the variable index for a specification command
-		STATE_RECV_SPEC_INDEX,
+  /// At the start of the machine
+  STATE_RECV_START,
+  /// Waiting for a command or escaped \ref CMD_TOKEN
+  STATE_RECV_CMD_WAIT,
+  /// Reading data bytes in from a command
+  STATE_RECV_READ_BYTES,
+  /// Reading the variable index for a long var command
+  STATE_RECV_LONG_INDEX,
+  /// Reading the variable length for a long/specification command
+  STATE_RECV_LONG_LENGTH,
+  /// Reading the variable index for a specification command
+  STATE_RECV_SPEC_INDEX,
 } RECEIVE_STATE;
 
 
@@ -341,58 +381,144 @@ typedef enum {
 /// Internal errors (invalid state transitions, etc.) are
 /// detected via ASSERTs.
 typedef enum {
-	/// No error; all state machine outputs are valid
-	/// when the state is \ref STATE_RECV_START after execution of
-	/// \ref stepReceiveMachine.
-	ERR_NONE = 0,
-	/// A repeated command (the sequence \ref CMD_TOKEN
-	/// \ref CMD_TOKEN c, where c != \ref ESCAPED_CMD),
-	/// was received.
-	ERR_REPEATED_CMD,
-	/// A timeout occurred in the middle of receiving a
-	/// command.
-	ERR_TIMEOUT,
-	/// A command occurred in the middle of receiving
-	/// data belonging to an earlier command.
-	ERR_INTERRUPTED_CMD,
-	/// Data was sent to a variable that has not been
-	/// specified: the pointer to its data is NULL.
-	ERR_UNSPECIFIED_INDEX,
-	/// Data was sent to a variable which exceeds the
-	/// \ref NUM_XFER_VARS.
-	ERR_INDEX_TOO_HIGH,
-	/// The size of data sent to a variable does not
-	/// match the size specified earlier.
-	ERR_VAR_SIZE_MISMATCH,
-	/// The destination variable is read-only.
-	ERR_READ_ONLY_VAR,
-	/// The PIC is sent a variable specification
-	ERR_PIC_VAR_SPEC
+  /// No error; all state machine outputs are valid
+  /// when the state is \ref STATE_RECV_START after execution of
+  /// \ref stepReceiveMachine.
+  ERR_NONE = 0,
+  /// A repeated command (the sequence \ref CMD_TOKEN
+  /// \ref CMD_TOKEN c, where c != \ref ESCAPED_CMD),
+  /// was received.
+  ERR_REPEATED_CMD,
+  /// A timeout occurred in the middle of receiving a
+  /// command.
+  ERR_TIMEOUT,
+  /// A command occurred in the middle of receiving
+  /// data belonging to an earlier command.
+  ERR_INTERRUPTED_CMD,
+  /// Data was sent to a variable that has not been
+  /// specified: the pointer to its data is NULL.
+  ERR_UNSPECIFIED_INDEX,
+  /// Data was sent to a variable which exceeds the
+  /// \ref NUM_XFER_VARS.
+  ERR_INDEX_TOO_HIGH,
+  /// The size of data sent to a variable does not
+  /// match the size specified earlier.
+  ERR_VAR_SIZE_MISMATCH,
+  /// The destination variable is read-only.
+  ERR_READ_ONLY_VAR,
+  /// The PIC is sent a variable specification
+  ERR_PIC_VAR_SPEC
 } RECEIVE_ERROR;
 
 /// Number of error codes in the \ref RECEIVE_ERROR enum.
 #define NUM_ERROR_CODES (ERR_PIC_VAR_SPEC + 1)
 
+/// Return the current receive machine state. See \ref stepReceiveMachine
+/// for more information.
 RECEIVE_STATE getReceiveMachineState();
+
+/// Return the character output by the receive state machine.
+/// See \ref stepReceiveMachine for more information.
 char getReceiveMachineOutChar();
+
+/// Return the index output by the receive state machine.
+/// See \ref stepReceiveMachine for more information.
 uint getReceiveMachineIndex();
+
+/// Return the error last encountered by the receive state machine.
+/// See \ref stepReceiveMachine for more information. This also
+/// clears the error status.
 RECEIVE_ERROR getReceiveMachineError();
+
 #if !defined(__PIC__) || defined(__DOXYGEN__)
+/// Determine if the last data found by the receive state machine
+/// was a specification; if not, it was data.
+/// See \ref stepReceiveMachine for more information. <b>PC only.</b>
 BOOL getReceiveMachineIsSpec();
 #endif
+
+/// Reset the receive state machine to its initial state and clear the
+/// error status. The outputs are not reset, because they will not be
+/// valid until after an invocation of the state machine.
 void resetReceiveMachine();
+
+/// Clear the current receive machine error status; the caller should
+/// therefore handle or report this error to a higher level of the program.
 void clearReceiveMachineError();
+
+/// Clear the received data structure, so that no variables are
+/// specified.
 void clearReceiveStruct();
-BOOL isReceiveMachineChar(char* c_receivedChar);
-BOOL isReceiveMachineData(uint* u_receivedIndex);
+
+/** Determines if the receive state machine just received a character.
+ *  \return True when the machine just received a character.
+ */
+BOOL isReceiveMachineChar();
+
+/** Determines if the receive state machine just received some data.
+ *  \return True when the machine just received some data.
+ */
+BOOL isReceiveMachineData();
+
 #if !defined(__PIC__) || defined(__DOXYGEN__)
-BOOL isReceiveMachineSpec(uint* u_receivedIndex);
+/** Determines if the receive state machine just received an updated specification. 
+ *  <b>PC only.</b>
+ *  \return True when the machine just received an updated spec.
+ */
+BOOL isReceiveMachineSpec();
 #endif
+
+/** Return the index of a variable in a command byte.
+ *  \param c_cmd Command byte.
+ *  \return Index of the variable.
+ */
 uint getVarIndex(char c_cmd);
+
+/** Return the number of bytes of a variable in a command byte.
+ * \param c_cmd Command byte.
+ * \return Number of bytes.
+ */
 uint getVarLength(char c_cmd);
+
+/** Assign a bit in the \ref au8_xferVarWriteable bit field.
+ *  \param u_index The index of the variable to set.
+ *  \param b_bitVal Bit value to set at this index.
+ */
 void assignBit(uint u_index, BOOL b_bitVal);
+
+/** Read a bit in the \ref au8_xferVarWriteable bit field.
+ *  \param u_index The index of the variable to set.
+ *  \return The bit value at this index. TRUE indicated the
+ *     variable is writeable; FALSE indicates a read-only
+ *     variable: only the PIC, but not the PC, may change
+ *     its value.
+ */
 BOOL isVarWriteable(uint u_index);
-RECEIVE_ERROR stepReceiveMachine(char c_inChar, BOOL b_isTimeout);
+
+/** Notify the state machine that a timeout occurred between receiving
+ *  the previous and next character. A timeout may not lead to an error;
+ *  for example, between two received data packets or two received characters,
+ *  timeout are allowed.
+ *  \return An error code; ERROR_NONE (which is false) means no error
+ *          occurred.
+ */
+RECEIVE_ERROR notifyOfTimeout();
+
+/** This state machine receives data from the PIC. It takes a character
+ *  received plus an indication if a timeout occurred since the last
+ *  invocation of this function and advances the machine. The machine
+ *  produces outputs when the returned state is \ref STATE_RECV_START. Outputs:
+ *  - c_outChar, set if a character (versus a data packet) was received
+ *  - u_index, set to the index of the data received
+ *  - receiveError, an error code
+ *  - b_isSpec, true if a specification packet was received.
+ *  \param c_inChar A character for the state machine to process.
+ *  \return An error code; ERROR_NONE (which is false) means no error
+ *          occurred.
+ */
+RECEIVE_ERROR stepReceiveMachine(char c_inChar);
+
+/// Returns an error string matching the last error code.
 const char* getReceiveErrorString();
 
 #ifdef __cplusplus

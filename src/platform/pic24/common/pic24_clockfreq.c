@@ -71,10 +71,10 @@ void configClockFRCPLL_FCY16MHz(void) {
 void checkClockTimeout(void) {
 }
 #else
-/* 
+/*
 The purpose of the clock timeout functions is
 output a meaningful error in case the clock switch
-does not occur.  
+does not occur.
 
 */
 #define CLOCKTIMEOUT_MAX 200000L
@@ -95,8 +95,8 @@ static void configFrcUART(void) {
 #if ( defined(__PIC24H__) || defined(__dsPIC33F__) )
   configClockFRCPLL_FCY40MHz();
 #elif ( defined(__PIC24F__) || defined(__PIC24FK__) )
-  //safe choice: FCY=16 MHz, FRC+PLL
-  configClockFRCPLL_FCY16MHz();
+//safe choice: FCY=16 MHz, FRC+PLL
+configClockFRCPLL_FCY16MHz();
 #else
 #error Unknown processor
 #endif
@@ -107,7 +107,7 @@ static void configFrcUART(void) {
 #if (FRC_BRGH == 0)
   f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/16.0) - 1.0;
 #else
-  f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/4.0) - 1.0;
+f_brg = (((float) FRC_FCY)/((float) DEFAULT_BAUDRATE)/4.0) - 1.0;
 #endif
   UxBRG = roundFloatToUint16(f_brg);
   switch (DEFAULT_UART) {
@@ -135,13 +135,14 @@ static void configFrcUART(void) {
       U4MODEbits.BRGH = FRC_BRGH;
       break;
 #endif
-    default : ASSERT(0);
- }
+    default :
+      ASSERT(0);
+  }
 }
 
 static void checkClockTimeout(void) {
   static uint32 u32_timeoutCount = 0;
-  
+
   // See if the clock has already failed. If so, return to allow
   // diagnostic code to perform (hopefully safe) clock switches
   // in order to report errors.

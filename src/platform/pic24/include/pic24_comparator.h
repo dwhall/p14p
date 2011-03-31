@@ -13,7 +13,7 @@
 
 /*
  *  Changes:
- *  12/1/08  Fixed CMP1_POS_IP_VIN_POS definition 
+ *  12/1/08  Fixed CMP1_POS_IP_VIN_POS definition
  */
 
 

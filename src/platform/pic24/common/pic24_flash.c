@@ -138,7 +138,7 @@ void doWritePageFlash(union32 u32_pmemAddress, uint8* pu8_data, uint16 u16_len) 
   u16_numInstructions = u16_len/3;
   if (u16_len % 3 != 0) u16_numInstructions++;
   u16_numInstructions += (u16_numInstructions%64);
-  for (u16_ICnt = 0, u16_byteCnt=0;u16_ICnt<u16_numInstructions; u16_ICnt += 1,u16_byteCnt += 3) {
+  for (u16_ICnt = 0, u16_byteCnt=0; u16_ICnt<u16_numInstructions; u16_ICnt += 1,u16_byteCnt += 3) {
     u32_a.u8[0] = pu8_data[u16_byteCnt];
     u32_a.u8[1] = pu8_data[u16_byteCnt+1];
     u32_a.u8[2] = pu8_data[u16_byteCnt+2];
@@ -164,7 +164,7 @@ void doReadPageFlash(union32 u32_pmemAddress, uint8* pu8_data, uint16 u16_len) {
   union32 u32_a;
 
   ASSERT(u16_len <= FLASH_PAGEBYTES);
-  for (u16_byteCnt=0;u16_byteCnt<u16_len;u16_byteCnt += 3) {
+  for (u16_byteCnt=0; u16_byteCnt<u16_len; u16_byteCnt += 3) {
     u32_a = (union32) doReadLatchFlash(u32_pmemAddress.u16.ms16, u32_pmemAddress.u16.ls16);
     pu8_data[u16_byteCnt] = u32_a.u8[0];
     pu8_data[u16_byteCnt+1] = u32_a.u8[1];

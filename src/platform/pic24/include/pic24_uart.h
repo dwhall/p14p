@@ -69,6 +69,18 @@
  *  \param baudRate Desired baud rate.
  */
 inline static void CONFIG_BAUDRATE_UART1(uint32 baudRate) {
+#ifdef _NOFLOAT
+  uint32 brg = FCY/baudRate;
+#if (DEFAULT_BRGH1 == 0)
+  if ((brg&0x0F) >= 8) brg = brg/16;
+  else brg = brg/16-1;
+#else
+  if ((brg&0x03) >= 2) brg = brg/4;
+  else brg = brg/4-1;
+#endif
+  U1MODEbits.BRGH = DEFAULT_BRGH1;
+  U1BRG = brg;
+#else
 #if (DEFAULT_BRGH1 == 0)
   float f_brg = (((float) FCY)/((float) baudRate)/16.0) - 1.0;
 #else
@@ -77,7 +89,9 @@ inline static void CONFIG_BAUDRATE_UART1(uint32 baudRate) {
   ASSERT(f_brg < 65535.5);
   U1MODEbits.BRGH = DEFAULT_BRGH1;
   U1BRG = roundFloatToUint16(f_brg);
+#endif
 }
+
 
 
 /** \name Constants for the UxMODE.PDSEL bitfield
@@ -227,6 +241,18 @@ void checkRxErrorUART1(void);  //check for UART RX error
  *  \param baudRate Desired baud rate.
  */
 inline static void CONFIG_BAUDRATE_UART2(uint32 baudRate) {
+#ifdef _NOFLOAT
+  uint32 brg = FCY/baudRate;
+#if (DEFAULT_BRGH2 == 0)
+  if ((brg&0x0F) >= 8) brg = brg/16;
+  else brg = brg/16-1;
+#else
+  if ((brg&0x03) >= 2) brg = brg/4;
+  else brg = brg/4-1;
+#endif
+  U2MODEbits.BRGH = DEFAULT_BRGH2;
+  U2BRG = brg;
+#else
 #if (DEFAULT_BRGH2 == 0)
   float f_brg = (((float) FCY)/((float) baudRate)/16.0) - 1.0;
 #else
@@ -235,7 +261,9 @@ inline static void CONFIG_BAUDRATE_UART2(uint32 baudRate) {
   ASSERT(f_brg < 65535.5);
   U2MODEbits.BRGH = DEFAULT_BRGH2;
   U2BRG = roundFloatToUint16(f_brg);
+#endif
 }
+
 
 
 /** \name Constants for the UxMODE.PDSEL bitfield
@@ -385,6 +413,18 @@ void checkRxErrorUART2(void);  //check for UART RX error
  *  \param baudRate Desired baud rate.
  */
 inline static void CONFIG_BAUDRATE_UART3(uint32 baudRate) {
+#ifdef _NOFLOAT
+  uint32 brg = FCY/baudRate;
+#if (DEFAULT_BRGH3 == 0)
+  if ((brg&0x0F) >= 8) brg = brg/16;
+  else brg = brg/16-1;
+#else
+  if ((brg&0x03) >= 2) brg = brg/4;
+  else brg = brg/4-1;
+#endif
+  U3MODEbits.BRGH = DEFAULT_BRGH3;
+  U3BRG = brg;
+#else
 #if (DEFAULT_BRGH3 == 0)
   float f_brg = (((float) FCY)/((float) baudRate)/16.0) - 1.0;
 #else
@@ -393,7 +433,9 @@ inline static void CONFIG_BAUDRATE_UART3(uint32 baudRate) {
   ASSERT(f_brg < 65535.5);
   U3MODEbits.BRGH = DEFAULT_BRGH3;
   U3BRG = roundFloatToUint16(f_brg);
+#endif
 }
+
 
 
 /** \name Constants for the UxMODE.PDSEL bitfield
@@ -543,6 +585,18 @@ void checkRxErrorUART3(void);  //check for UART RX error
  *  \param baudRate Desired baud rate.
  */
 inline static void CONFIG_BAUDRATE_UART4(uint32 baudRate) {
+#ifdef _NOFLOAT
+  uint32 brg = FCY/baudRate;
+#if (DEFAULT_BRGH4 == 0)
+  if ((brg&0x0F) >= 8) brg = brg/16;
+  else brg = brg/16-1;
+#else
+  if ((brg&0x03) >= 2) brg = brg/4;
+  else brg = brg/4-1;
+#endif
+  U4MODEbits.BRGH = DEFAULT_BRGH4;
+  U4BRG = brg;
+#else
 #if (DEFAULT_BRGH4 == 0)
   float f_brg = (((float) FCY)/((float) baudRate)/16.0) - 1.0;
 #else
@@ -551,7 +605,9 @@ inline static void CONFIG_BAUDRATE_UART4(uint32 baudRate) {
   ASSERT(f_brg < 65535.5);
   U4MODEbits.BRGH = DEFAULT_BRGH4;
   U4BRG = roundFloatToUint16(f_brg);
+#endif
 }
+
 
 
 /** \name Constants for the UxMODE.PDSEL bitfield

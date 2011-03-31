@@ -45,14 +45,14 @@
  *      _ODCxy bit.
  *    - Enable or disable the interrupt on change mechanism by
  *      changing the corresponding _CNmIE bit.
- *  - A convenient mechanism for mapping a remappable peripheral to 
+ *  - A convenient mechanism for mapping a remappable peripheral to
  *    input or output pins.
- * 
+ *
  *  \section portSummary Summary of port configuration macros
  *  The port configuration macros are available in two forms.
- *  <a href="#highLevelPortConfig">Higher-level</a> routines 
+ *  <a href="#highLevelPortConfig">Higher-level</a> routines
  *  completely configure a pin for a specific
- *  operation, while <a href="#lowLevelPortConfig">low-level</a> routines 
+ *  operation, while <a href="#lowLevelPortConfig">low-level</a> routines
  *  provide a more readable name
  *  for changing the value of a single bit (_PCFGn, _TRISxy, _CNmPU, or
  *  _ODCxy).
@@ -60,11 +60,11 @@
  *  To reduce the confusing variety of naming schemes for these bits,
  *  the macros refer to a pin either by its port letter \a x plus pin
  *  number \a y (for example, _TRISB3 for the TRIS bit of port B, pin 3)
- *  or by the analog input number \a n (for example, AN0 refers to 
+ *  or by the analog input number \a n (for example, AN0 refers to
  *  analog input 0).
  *
  *  The macros provided as "smart" - only functions applicable to that
- *  pin are contained in a given macro. For example, 
+ *  pin are contained in a given macro. For example,
  *  CONFIG_RA1_AS_DIG_OUTPUT on the PIC24HJ32GP202 disables the pin's
  *  pullup, disables the open-drain driver, disables analog functionality,
  *  then sets the pin as an output. CONFIG_RA7_AS_DIG_OUTPUT on the
@@ -83,10 +83,10 @@
 // Dummy macros for documentation only
 #ifdef __DOXYGEN__
 /** \name High-level port configuration
- *  <a name="highLevelPortConfig">These</a> macros choose 
+ *  <a name="highLevelPortConfig">These</a> macros choose
  *  digital or analog, input or
  *  output, open-drain or standard. Use the low-level
- *  \ref ENABLE_Rxy_PULLUP() "ENABLE"/\ref DISABLE_Rxy_PULLUP() to 
+ *  \ref ENABLE_Rxy_PULLUP() "ENABLE"/\ref DISABLE_Rxy_PULLUP() to
  *  configure the pullup.
  */
 //@{
@@ -118,9 +118,9 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 //@}
 
 /** \name Low-level port configuration macros
- *  <a name="lowLevelPortConfig">These</a> macros support low-level pin 
+ *  <a name="lowLevelPortConfig">These</a> macros support low-level pin
  *  configuration in the following areas:
- *  - Digital vs. analog configuration: 
+ *  - Digital vs. analog configuration:
  *    - ENABLE_Rxy_ANALOG() sets the corresponding _PCFGn bit,
  *      while DISABLE_Rxy_ANALOG() clears the corresponding _PCFGn bit.
  *    - CONFIG_RPy_AS_DIG_PIN() sets the corresponding _PCFGn bit.
@@ -154,22 +154,22 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
  */
 #define CONFIG_RPy_AS_DIG_PIN() _PCFG = 1
 
-/** Enables the open-drain driver on port x, pin y. For example, 
+/** Enables the open-drain driver on port x, pin y. For example,
  *  ENABLE_Rxy_OPENDRAIN()
  */
 #define ENABLE_Rxy_OPENDRAIN() _ODCxy = 1
 
-/** Disables the open-drain driver on port x, pin y. For example, 
+/** Disables the open-drain driver on port x, pin y. For example,
  *  DISABLE_Rxy_OPENDRAIN()
  */
 #define DISABLE_Rxy_OPENDRAIN() _ODCxy = 0
 
-/** Enable the pullup on port x, pin y. For example, 
+/** Enable the pullup on port x, pin y. For example,
  *  ENABLE_RA10_PULLUP() enables the pullup on port A, pin 10.
  */
 #define ENABLE_Rxy_PULLUP() _CNmPUE = 1
 
-/** Disable the pullup on port x, pin y. For example, 
+/** Disable the pullup on port x, pin y. For example,
  *  DISABLE_RA10_PULLUP() disables the pullup on port A, pin 10.
  */
 #define DISABLE_Rxy_PULLUP() _CNmPUE = 1
@@ -189,7 +189,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif // #ifdef __DOXYGEN__
 
 /** \name Remappable peripheral input support
- *  <a name="remappableInputs">These</a> funcions map an input internal 
+ *  <a name="remappableInputs">These</a> funcions map an input internal
  *  to the PIC to an input pin.
  *  For example, CONFIG_INT1_TO_RP(10) maps the INT1 edge-triggered
  *  interrupt to port P, pin 10.
@@ -201,7 +201,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 //@{
 
 #if defined(_INT1R) || defined(__DOXYGEN__)
-/// Maps INT1 to a remappable pin; 
+/// Maps INT1 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #define CONFIG_INT1_TO_RP(pin) _INT1R = pin
@@ -209,7 +209,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_INT1_TO_RP(pin)
 #endif
 
-/// Maps INT2 to a remappable pin; 
+/// Maps INT2 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_INT2R) || defined(__DOXYGEN__)
@@ -218,7 +218,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_INT2_TO_RP(pin)
 #endif
 
-/// Maps T2CK to a remappable pin; 
+/// Maps T2CK to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_T2CKR) || defined(__DOXYGEN__)
@@ -227,7 +227,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_T2CK_TO_RP(pin)
 #endif
 
-/// Maps T3CK to a remappable pin; 
+/// Maps T3CK to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_T3CKR) || defined(__DOXYGEN__)
@@ -236,7 +236,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_T3CK_TO_RP(pin)
 #endif
 
-/// Maps T4CK to a remappable pin; 
+/// Maps T4CK to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_T4CKR) || defined(__DOXYGEN__)
@@ -245,7 +245,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_T4CK_TO_RP(pin)
 #endif
 
-/// Maps T5CK to a remappable pin; 
+/// Maps T5CK to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_T5CKR) || defined(__DOXYGEN__)
@@ -254,7 +254,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_T5CK_TO_RP(pin)
 #endif
 
-/// Maps IC1 to a remappable pin; 
+/// Maps IC1 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC1R) || defined(__DOXYGEN__)
@@ -263,7 +263,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC1_TO_RP(pin)
 #endif
 
-/// Maps IC2 to a remappable pin; 
+/// Maps IC2 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC2R) || defined(__DOXYGEN__)
@@ -272,7 +272,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC2_TO_RP(pin)
 #endif
 
-/// Maps IC3 to a remappable pin; 
+/// Maps IC3 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC3R) || defined(__DOXYGEN__)
@@ -281,7 +281,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC3_TO_RP(pin)
 #endif
 
-/// Maps IC4 to a remappable pin; 
+/// Maps IC4 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC4R) || defined(__DOXYGEN__)
@@ -290,7 +290,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC4_TO_RP(pin)
 #endif
 
-/// Maps IC5 to a remappable pin; 
+/// Maps IC5 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC5R) || defined(__DOXYGEN__)
@@ -299,7 +299,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC5_TO_RP(pin)
 #endif
 
-/// Maps IC6 to a remappable pin; 
+/// Maps IC6 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC6R) || defined(__DOXYGEN__)
@@ -308,7 +308,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC6_TO_RP(pin)
 #endif
 
-/// Maps IC7 to a remappable pin; 
+/// Maps IC7 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC7R) || defined(__DOXYGEN__)
@@ -317,7 +317,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC7_TO_RP(pin)
 #endif
 
-/// Maps IC8 to a remappable pin; 
+/// Maps IC8 to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_IC8R) || defined(__DOXYGEN__)
@@ -326,7 +326,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_IC8_TO_RP(pin)
 #endif
 
-/// Maps OCFA to a remappable pin; 
+/// Maps OCFA to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_OCFAR) || defined(__DOXYGEN__)
@@ -335,7 +335,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_OCFA_TO_RP(pin)
 #endif
 
-/// Maps OCFB to a remappable pin; 
+/// Maps OCFB to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_OCFBR) || defined(__DOXYGEN__)
@@ -344,7 +344,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_OCFB_TO_RP(pin)
 #endif
 
-/// Maps U1RX to a remappable pin; 
+/// Maps U1RX to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_U1RXR) || defined(__DOXYGEN__)
@@ -353,7 +353,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_U1RX_TO_RP(pin)
 #endif
 
-/// Maps U1CTS to a remappable pin; 
+/// Maps U1CTS to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_U1CTSR) || defined(__DOXYGEN__)
@@ -362,7 +362,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_U1CTS_TO_RP(pin)
 #endif
 
-/// Maps U2RX to a remappable pin; 
+/// Maps U2RX to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_U2RXR) || defined(__DOXYGEN__)
@@ -371,7 +371,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #define CONFIG_U2RX_TO_RP(pin)
 #endif
 
-/// Maps U2CTS to a remappable pin; 
+/// Maps U2CTS to a remappable pin;
 /// see <a href="#remappableInputs">remappable peripheral input support</a>
 /// for more informatino.
 #if defined(_U2CTSR) || defined(__DOXYGEN__)
@@ -452,7 +452,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps C1OUT to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_C1OUT_TO_RP(pin) _RP##pin##R = 1
@@ -461,7 +461,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps C2OUT to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_C2OUT_TO_RP(pin) _RP##pin##R = 2
@@ -470,7 +470,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps U1TX to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_U1TX_TO_RP(pin) _RP##pin##R = 3
@@ -479,7 +479,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps U1RTS to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_U1RTS_TO_RP(pin) _RP##pin##R = 4
@@ -488,7 +488,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps U2TX to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_U2TX_TO_RP(pin) _RP##pin##R = 5
@@ -497,7 +497,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps U2RTS to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_U2RTS_TO_RP(pin) _RP##pin##R = 6
@@ -506,7 +506,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps SDO1 to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_SDO1_TO_RP(pin) _RP##pin##R = 7
@@ -515,7 +515,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps SCK1OUT to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_SCK1OUT_TO_RP(pin) _RP##pin##R = 8
@@ -524,7 +524,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps SS11OUT to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_SS1OUT_TO_RP(pin) _RP##pin##R = 9
@@ -533,7 +533,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps SDO2 to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_SDO2_TO_RP(pin) _RP##pin##R = 10
@@ -542,7 +542,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps SCK2OUT to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_SCK2OUT_TO_RP(pin) _RP##pin##R = 11
@@ -551,7 +551,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 #endif
 
 /// Maps SS2OUT to a remappable pin;
-/// see <a href="#remappableOutputs">remappable peripheral output support</a> 
+/// see <a href="#remappableOutputs">remappable peripheral output support</a>
 /// for more information.
 #if defined(_RP0R) || defined(__DOXYGEN__)
 #define CONFIG_SS2OUT_TO_RP(pin) _RP##pin##R = 12
@@ -702,7 +702,7 @@ static inline void CONFIG_ANx_AS_ANALOG() {}
 
 #include "devices/pic24hj64gp504_ports.h"
 
-#elif defined(__PIC24HJ64GP506__)
+#elif defined(__PIC24HJ64GP506__) || defined(__PIC24HJ128GP506A__)
 
 #include "devices/pic24hj64gp506_ports.h"
 

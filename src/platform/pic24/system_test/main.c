@@ -31,16 +31,18 @@ int main(void)
     PmReturn_t retval;
 
     retval = pm_init(heap, sizeof(heap), MEMSPACE_PROG, usrlib_img);
-    printf("Python initialized; result was 0x%02x.\n", retval);
-    PM_RETURN_IF_ERROR(retval);
+    if (retval != PM_RET_OK) {
+        printf("Python initialization failed; result was 0x%02x.\n", retval);
+        return (int) retval;
+    }
 
     printf("Running Python...\n");
-    retval = pm_run((uint8_t *)"main");
+    retval = pm_run((uint8_t *) "main");
 
     printf("\n\nPython finished, return of 0x%02x.\nResetting...\n\n", retval);
     // Wait a bit, so reset so flash by too fast.
     DELAY_MS(1000);
     asm("reset");
 
-    return (int)retval;
+    return (int) retval;
 }

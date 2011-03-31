@@ -43,7 +43,7 @@
  *\par
  *\em fopen() access specifiers work as docummented in libc.
  * Translation mode may be set seperately for reading
- * and writing as in example 1. If using read+write access, remember to seek during 
+ * and writing as in example 1. If using read+write access, remember to seek during
  * transitions from write to read and read to write. Use \em fseek() or \em rewind(). See example 2.
  *\par Example 1:
  *\code
@@ -64,7 +64,7 @@
 #include <stdio.h>
 
 // These definitions for translation mode
-// Also see SERIAL_EOL_DEFAULT setting in pic_24libconfig.h for output translation 
+// Also see SERIAL_EOL_DEFAULT setting in pic_24libconfig.h for output translation
 #define SERIAL_BREAK_CR // Break input stream on CR if specified
 #define SERIAL_BREAK_NL // Break input stream on NL if specified
 
@@ -97,32 +97,32 @@
 #define MAX_ALLOWED_HANDLES (NUM_UART_MODS+3) // number of handles allowed
 #define RANGECK_HANDLE(xxhandlexx) ((xxhandlexx >= 0) && (xxhandlexx < MAX_ALLOWED_HANDLES))
 enum ALLOWED_HANDLES {
-	HANDLE_STDIN=0,
-	HANDLE_STDOUT=1,
-	HANDLE_STDERR=2,
-	HANDLE_UART1,
-	HANDLE_UART2,
-	HANDLE_UART3,
-	HANDLE_UART4
+  HANDLE_STDIN=0,
+  HANDLE_STDOUT=1,
+  HANDLE_STDERR=2,
+  HANDLE_UART1,
+  HANDLE_UART2,
+  HANDLE_UART3,
+  HANDLE_UART4
 };
 
 struct {
-	void (*pfnv_outChar)(); // pointers to functions returning void need casts when set (why?)
-	uint8 (*pfn_inChar)();
-	uint16 u16_read_access;
-	uint16 u16_write_access;
+  void (*pfnv_outChar)(); // pointers to functions returning void need casts when set (why?)
+  uint8 (*pfn_inChar)();
+  uint16 u16_read_access;
+  uint16 u16_write_access;
 } FILES[MAX_ALLOWED_HANDLES] = {
-	{ 0, 0 }, //stdin
-	{ 0, 0 }, //stdout
-	{ 0, 0 }, //stderr
+  { 0, 0 }, //stdin
+  { 0, 0 }, //stdout
+  { 0, 0 }, //stderr
 #if (NUM_UART_MODS >= 1)
-	{ (void *)&outChar1, &inChar1 },
+  { (void *)&outChar1, &inChar1 },
 #if (NUM_UART_MODS >= 2)
-	{ (void *)&outChar2, &inChar2 },
+  { (void *)&outChar2, &inChar2 },
 #if (NUM_UART_MODS >= 3)
-	{ (void *)&outChar3, &inChar3 },
+  { (void *)&outChar3, &inChar3 },
 #if (NUM_UART_MODS >= 4)
-	{ (void *)&outChar4, &inChar4 }
+  { (void *)&outChar4, &inChar4 }
 #endif
 #endif
 #endif
@@ -134,59 +134,58 @@ struct {
  **********************************/
 
 /**
-* Check __C30_UART for the UART to use. If set to 1, for example, then 
+* Check __C30_UART for the UART to use. If set to 1, for example, then
 * set up \em stdin, \em stdout, and \em stderr for UART1 and
 * call \em configUART1() if not currently enabled.
 *\return \em SUCCESS or \em FAIL.
 *
 */
-static int16 stdioOpen(void)
-{
+static int16 stdioOpen(void) {
 #if (NUM_UART_MODS >= 1)
-	if (__C30_UART == 1) {
-		FILES[HANDLE_STDERR].pfnv_outChar = (void *)&outChar1;
-		FILES[HANDLE_STDOUT].pfnv_outChar = (void *)&outChar1;
-		FILES[HANDLE_STDIN].pfn_inChar = &inChar1;
-		if (!U1MODEbits.UARTEN) {
-			configUART1(DEFAULT_BAUDRATE1);
-		}
-		return SUCCESS;
-	}
+  if (__C30_UART == 1) {
+    FILES[HANDLE_STDERR].pfnv_outChar = (void *)&outChar1;
+    FILES[HANDLE_STDOUT].pfnv_outChar = (void *)&outChar1;
+    FILES[HANDLE_STDIN].pfn_inChar = &inChar1;
+    if (!U1MODEbits.UARTEN) {
+      configUART1(DEFAULT_BAUDRATE1);
+    }
+    return SUCCESS;
+  }
 #if (NUM_UART_MODS >= 2)
-	if (__C30_UART == 2) {
-		FILES[HANDLE_STDERR].pfnv_outChar = (void *)&outChar2;
-		FILES[HANDLE_STDOUT].pfnv_outChar = (void *)&outChar2;
-		FILES[HANDLE_STDIN].pfn_inChar = &inChar2;
-		if (!U2MODEbits.UARTEN) {
-			configUART2(DEFAULT_BAUDRATE2);
-		}
-		return SUCCESS;
-	}
+  if (__C30_UART == 2) {
+    FILES[HANDLE_STDERR].pfnv_outChar = (void *)&outChar2;
+    FILES[HANDLE_STDOUT].pfnv_outChar = (void *)&outChar2;
+    FILES[HANDLE_STDIN].pfn_inChar = &inChar2;
+    if (!U2MODEbits.UARTEN) {
+      configUART2(DEFAULT_BAUDRATE2);
+    }
+    return SUCCESS;
+  }
 #if (NUM_UART_MODS >= 3)
-	if (__C30_UART == 3) {
-		FILES[HANDLE_STDERR].pfv_outChar = (void *)&outChar3;
-		FILES[HANDLE_STDOUT].pfv_outChar = (void *)&outChar3;
-		FILES[HANDLE_STDIN].pfui8_inChar = &inChar3;
-		if (!U3MODEbits.UARTEN) {
-			configUART3(DEFAULT_BAUDRATE3);
-		}
-		return SUCCESS;
-	}
+  if (__C30_UART == 3) {
+    FILES[HANDLE_STDERR].pfv_outChar = (void *)&outChar3;
+    FILES[HANDLE_STDOUT].pfv_outChar = (void *)&outChar3;
+    FILES[HANDLE_STDIN].pfui8_inChar = &inChar3;
+    if (!U3MODEbits.UARTEN) {
+      configUART3(DEFAULT_BAUDRATE3);
+    }
+    return SUCCESS;
+  }
 #if (NUM_UART_MODS >= 4)
-	if (__C30_UART == 4) {
-		FILES[HANDLE_STDERR].pfv_outChar = (void *)&outChar4;
-		FILES[HANDLE_STDOUT].pfv_outChar = (void *)&outChar4;
-		FILES[HANDLE_STDIN].pfui8_inChar = &inChar4;
-		if (!U4MODEbits.UARTEN) {
-			configUART4(DEFAULT_BAUDRATE4);
-		}
-		return SUCCESS;
-	}
+  if (__C30_UART == 4) {
+    FILES[HANDLE_STDERR].pfv_outChar = (void *)&outChar4;
+    FILES[HANDLE_STDOUT].pfv_outChar = (void *)&outChar4;
+    FILES[HANDLE_STDIN].pfui8_inChar = &inChar4;
+    if (!U4MODEbits.UARTEN) {
+      configUART4(DEFAULT_BAUDRATE4);
+    }
+    return SUCCESS;
+  }
 #endif
 #endif
 #endif
 #endif
-	return FAIL;
+  return FAIL;
 }
 
 /*********************************************************
@@ -213,80 +212,79 @@ static int16 stdioOpen(void)
 *
 */
 int _LIBC_FUNCTION
-open(const char *name, int access, int mode)
-{
-	enum ALLOWED_HANDLES ie_handle;
-	uint16 u16_masked_access;
-	uint16 u16_set_access;
+open(const char *name, int access, int mode) {
+  enum ALLOWED_HANDLES ie_handle;
+  uint16 u16_masked_access;
+  uint16 u16_set_access;
 
-	switch (name[4]) { // Expedient - name[4] is unique for the allowed file names
-	case 'n': //stdin
-		if (stdioOpen()) return FAIL;
-		ie_handle = HANDLE_STDIN;
-		break;
-	case 'u': //stdout
-		if (stdioOpen()) return FAIL;
-		ie_handle = HANDLE_STDOUT;
-		break;
-	case 'r': //stderr
-		if (stdioOpen()) return FAIL;
-		ie_handle = HANDLE_STDERR;
-		break;
-    #if (NUM_UART_MODS >= 1)
-	case '1': //uart1
-        if (__C30_UART == 1) return FAIL;
-		if (!U1MODEbits.UARTEN) {
-			configUART1(DEFAULT_BAUDRATE1);
-		}
-		ie_handle = HANDLE_UART1;
-		break;
-    #endif
-	#if (NUM_UART_MODS >= 2)
-	case '2': //uart2
-        if (__C30_UART == 2) return FAIL;
-		if (!U2MODEbits.UARTEN) {
-			configUART2(DEFAULT_BAUDRATE2);
-		}
-		ie_handle = HANDLE_UART2;
-		break;
-	#endif
-	#if (NUM_UART_MODS >= 3)
-	case '3': //uart3
-        if (__C30_UART == 3) return FAIL;
-		if (!U3MODEbits.UARTEN) {
-			configUART3(DEFAULT_BAUDRATE3);
-		}
-		ie_handle = HANDLE_UART3;
-		break;
-    #endif
-    #if (NUM_UART_MODS >= 4)
-	case '4': //uart4
-        if (__C30_UART == 4) return FAIL;
-		if (!U4MODEbits.UARTEN) {
-			configUART4(DEFAULT_BAUDRATE4);
-		}
-		ie_handle = HANDLE_UART4;
-		break;
-	 #endif
-	default:
-		return FAIL; // name not recognized
-	}
+  switch (name[4]) { // Expedient - name[4] is unique for the allowed file names
+    case 'n': //stdin
+      if (stdioOpen()) return FAIL;
+      ie_handle = HANDLE_STDIN;
+      break;
+    case 'u': //stdout
+      if (stdioOpen()) return FAIL;
+      ie_handle = HANDLE_STDOUT;
+      break;
+    case 'r': //stderr
+      if (stdioOpen()) return FAIL;
+      ie_handle = HANDLE_STDERR;
+      break;
+#if (NUM_UART_MODS >= 1)
+    case '1': //uart1
+      if (__C30_UART == 1) return FAIL;
+      if (!U1MODEbits.UARTEN) {
+        configUART1(DEFAULT_BAUDRATE1);
+      }
+      ie_handle = HANDLE_UART1;
+      break;
+#endif
+#if (NUM_UART_MODS >= 2)
+    case '2': //uart2
+      if (__C30_UART == 2) return FAIL;
+      if (!U2MODEbits.UARTEN) {
+        configUART2(DEFAULT_BAUDRATE2);
+      }
+      ie_handle = HANDLE_UART2;
+      break;
+#endif
+#if (NUM_UART_MODS >= 3)
+    case '3': //uart3
+      if (__C30_UART == 3) return FAIL;
+      if (!U3MODEbits.UARTEN) {
+        configUART3(DEFAULT_BAUDRATE3);
+      }
+      ie_handle = HANDLE_UART3;
+      break;
+#endif
+#if (NUM_UART_MODS >= 4)
+    case '4': //uart4
+      if (__C30_UART == 4) return FAIL;
+      if (!U4MODEbits.UARTEN) {
+        configUART4(DEFAULT_BAUDRATE4);
+      }
+      ie_handle = HANDLE_UART4;
+      break;
+#endif
+    default:
+      return FAIL; // name not recognized
+  }
 
-	u16_masked_access = access & ACCESS_RW_MASK;
-	u16_set_access = ACCESS_SET_OPEN | access;
-	if ((u16_masked_access == READ_ACCESS) || (u16_masked_access == READ_WRITE_ACCESS)) {
-		FILES[ie_handle].u16_read_access = u16_set_access;
-	}
-	if ((u16_masked_access == WRITE_ACCESS) || (u16_masked_access == READ_WRITE_ACCESS)) {
-		FILES[ie_handle].u16_write_access = u16_set_access;
-	}
-	return ie_handle;
+  u16_masked_access = access & ACCESS_RW_MASK;
+  u16_set_access = ACCESS_SET_OPEN | access;
+  if ((u16_masked_access == READ_ACCESS) || (u16_masked_access == READ_WRITE_ACCESS)) {
+    FILES[ie_handle].u16_read_access = u16_set_access;
+  }
+  if ((u16_masked_access == WRITE_ACCESS) || (u16_masked_access == READ_WRITE_ACCESS)) {
+    FILES[ie_handle].u16_write_access = u16_set_access;
+  }
+  return ie_handle;
 }
 
 /**
 *Input \em len characters from UART specified for \em handle to \em buffer.
 *Uses \em mode specified via \em open().
-*If \em handle is for \em stdin, calls \em open() with character translation read \em access as needed. 
+*If \em handle is for \em stdin, calls \em open() with character translation read \em access as needed.
 *\param handle specifies UART to read from.
 *\param buffer storage for read characters.
 *\param len maximum number of characters to read.
@@ -294,32 +292,31 @@ open(const char *name, int access, int mode)
 *
 */
 int _LIBC_FUNCTION
-read(int handle, void *buffer, unsigned int len)
-{
-	uint16 u16_char_count;
+read(int handle, void *buffer, unsigned int len) {
+  uint16 u16_char_count;
 
-	if(!RANGECK_HANDLE(handle)) return FAIL; // invalid handle
-	if ((handle == HANDLE_STDIN) && !(FILES[HANDLE_STDIN].u16_read_access & ACCESS_SET_OPEN)) {
-		open("stdin", (CHAR_ACCESS | READ_ACCESS), 0);
-	}
-	if (!FILES[handle].u16_read_access) return FAIL; // not open
-	for (u16_char_count = 0; u16_char_count < len; u16_char_count++) {
-		((unsigned char *)buffer)[u16_char_count] = (*FILES[handle].pfn_inChar)();
-		#ifdef SERIAL_BREAK_NL
-		if ((FILES[handle].u16_read_access & CHAR_ACCESS) && (((unsigned char *)buffer)[u16_char_count] == '\n')) {
-			++u16_char_count;
-			break;
-		}
-		#endif
-		#ifdef SERIAL_BREAK_CR
-		if ((FILES[handle].u16_read_access & CHAR_ACCESS) && (((unsigned char *)buffer)[u16_char_count] == '\r')) {
-			++u16_char_count;
-			break;
-		}
-		#endif
-	}
+  if(!RANGECK_HANDLE(handle)) return FAIL; // invalid handle
+  if ((handle == HANDLE_STDIN) && !(FILES[HANDLE_STDIN].u16_read_access & ACCESS_SET_OPEN)) {
+    open("stdin", (CHAR_ACCESS | READ_ACCESS), 0);
+  }
+  if (!FILES[handle].u16_read_access) return FAIL; // not open
+  for (u16_char_count = 0; u16_char_count < len; u16_char_count++) {
+    ((unsigned char *)buffer)[u16_char_count] = (*FILES[handle].pfn_inChar)();
+#ifdef SERIAL_BREAK_NL
+    if ((FILES[handle].u16_read_access & CHAR_ACCESS) && (((unsigned char *)buffer)[u16_char_count] == '\n')) {
+      ++u16_char_count;
+      break;
+    }
+#endif
+#ifdef SERIAL_BREAK_CR
+    if ((FILES[handle].u16_read_access & CHAR_ACCESS) && (((unsigned char *)buffer)[u16_char_count] == '\r')) {
+      ++u16_char_count;
+      break;
+    }
+#endif
+  }
 
-	return u16_char_count;
+  return u16_char_count;
 }
 
 /**
@@ -333,34 +330,33 @@ read(int handle, void *buffer, unsigned int len)
 *
 */
 int _LIBC_FUNCTION
-write(int handle, void *buffer, unsigned int len)
-{
-	uint16 u16_char_count;
+write(int handle, void *buffer, unsigned int len) {
+  uint16 u16_char_count;
 
-	if(!RANGECK_HANDLE(handle)) return FAIL; // invalid handle
-	if ((handle == HANDLE_STDOUT) && !(FILES[HANDLE_STDOUT].u16_write_access & ACCESS_SET_OPEN)) {
-		open("stdout", (CHAR_ACCESS | WRITE_ACCESS), 0);
-	}
-	if ((handle == HANDLE_STDERR) && !(FILES[HANDLE_STDERR].u16_write_access & ACCESS_SET_OPEN)) {
-		open("stderr", (CHAR_ACCESS | WRITE_ACCESS), 0);
-	}
-	if (!FILES[handle].u16_write_access) return FAIL; // not open
-	for (u16_char_count = 0; u16_char_count < len; u16_char_count++) {
-		if ((FILES[handle].u16_write_access & CHAR_ACCESS) && (((unsigned char *)buffer)[u16_char_count] == '\n')) {
-           #if (SERIAL_EOL_DEFAULT==SERIAL_EOL_CR)
-		    (*FILES[handle].pfv_outChar)('\r');
-			continue;
-           #endif
-           #if (SERIAL_EOL_DEFAULT==SERIAL_EOL_CR_LF)
-		     (*FILES[handle].pfv_outChar)('\r');
-           #endif
-		    (*FILES[handle].pfnv_outChar)('\n');
-			continue;
-		}
-		(*FILES[handle].pfnv_outChar)(((unsigned char *)buffer)[u16_char_count]);
-	}
+  if(!RANGECK_HANDLE(handle)) return FAIL; // invalid handle
+  if ((handle == HANDLE_STDOUT) && !(FILES[HANDLE_STDOUT].u16_write_access & ACCESS_SET_OPEN)) {
+    open("stdout", (CHAR_ACCESS | WRITE_ACCESS), 0);
+  }
+  if ((handle == HANDLE_STDERR) && !(FILES[HANDLE_STDERR].u16_write_access & ACCESS_SET_OPEN)) {
+    open("stderr", (CHAR_ACCESS | WRITE_ACCESS), 0);
+  }
+  if (!FILES[handle].u16_write_access) return FAIL; // not open
+  for (u16_char_count = 0; u16_char_count < len; u16_char_count++) {
+    if ((FILES[handle].u16_write_access & CHAR_ACCESS) && (((unsigned char *)buffer)[u16_char_count] == '\n')) {
+#if (SERIAL_EOL_DEFAULT==SERIAL_EOL_CR)
+      (*FILES[handle].pfv_outChar)('\r');
+      continue;
+#endif
+#if (SERIAL_EOL_DEFAULT==SERIAL_EOL_CR_LF)
+      (*FILES[handle].pfv_outChar)('\r');
+#endif
+      (*FILES[handle].pfnv_outChar)('\n');
+      continue;
+    }
+    (*FILES[handle].pfnv_outChar)(((unsigned char *)buffer)[u16_char_count]);
+  }
 
-	return u16_char_count;
+  return u16_char_count;
 }
 
 /**
@@ -371,7 +367,7 @@ write(int handle, void *buffer, unsigned int len)
 */
 int _LIBC_FUNCTION
 close(int handle) {
-	return SUCCESS;
+  return SUCCESS;
 }
 
 /**
@@ -384,5 +380,5 @@ close(int handle) {
 */
 long _LIBC_FUNCTION
 lseek(int handle, long offset, int origin) {
-	return SUCCESS;
+  return SUCCESS;
 }

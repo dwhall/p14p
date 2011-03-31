@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <pic24_all.h>
+#include "dataXferImpl.h"
 #include "pm.h"
 
 /** Number of milliseconds since the system
@@ -37,36 +38,37 @@ volatile uint32_t u32_ms = 0;
 /** Interrupt Service Routine for Timer2.
  *  Receives one interrupts per \ref ISR_PERIOD milliseconds.
  */
-void _ISR _T2Interrupt (void) {
+void _ISR
+_T1Interrupt (void) {
     PmReturn_t retval;
 
     u32_ms++;
-    _T2IF = 0;                 //clear the timer interrupt bit
+    _T1IF = 0;                 //clear the timer interrupt bit
     retval = pm_vmPeriodic(ISR_PERIOD * 1000);
     PM_REPORT_IF_ERROR(retval);
 }
 
 /** Configure timer 2 to produce interrupts every \ref ISR_PERIOD ms. */
-void  configTimer2(void) {
+static void
+configTimer1(void) {
   // Configure the timer
-  T2CON = T2_OFF | T2_IDLE_CON | T2_GATE_OFF
-          | T2_32BIT_MODE_OFF
-          | T2_SOURCE_INT
-          | T2_PS_1_1;
+  T1CON = T1_OFF | T1_IDLE_CON | T1_GATE_OFF
+          | T1_SOURCE_INT
+          | T1_PS_1_1;
   // Subtract 1 from ticks value assigned to PR2 because period is PRx + 1
-  PR2 = msToU16Ticks(ISR_PERIOD, getTimerPrescale(T2CONbits)) - 1;
-  TMR2  = 0;                       //clear timer2 value
-  _T2IF = 0;                       //clear interrupt flag
-  _T2IP = 1;                       //choose a priority
-  _T2IE = 1;                       //enable the interrupt
-  T2CONbits.TON = 1;               //turn on the timer
+  PR1 = msToU16Ticks(ISR_PERIOD, getTimerPrescale(T1CONbits)) - 1;
+  TMR1  = 0;                       //clear timer2 value
+  _T1IF = 0;                       //clear interrupt flag
+  _T1IP = 1;                       //choose a priority
+  _T1IE = 1;                       //enable the interrupt
+  T1CONbits.TON = 1;               //turn on the timer
 }
 
 
 PmReturn_t plat_init(void)
 {
   configBasic(HELLO_MSG);
-  configTimer2();
+  configTimer1();
   
   return PM_RET_OK;
 }
@@ -76,7 +78,7 @@ PmReturn_t
 plat_deinit(void)
 {
     // Disable timer interrupts
-    _T2IE = 0;
+    _T1IE = 0;
 
     return PM_RET_OK;
 }
@@ -127,17 +129,58 @@ plat_getByte(uint8_t *b)
 {
   PmReturn_t retval = PM_RET_OK;
 
-  /* Wait for character */
-  while (!isCharReady1()) doHeartbeat();
+  // Check for interrupt-driven receive and if so, read from the
+  // appropriate buffer.
+  switch (__C30_UART) {
+#if (NUM_UART_MODS >= 1) && (UART1_RX_INTERRUPT)
+    case 1 :
+        *b = inChar1();
+        return retval;
+#endif
+#if (NUM_UART_MODS >= 2) && (UART2_RX_INTERRUPT)
+    case 2 :
+        *b = inChar2();
+        return retval;
+#endif
+#if (NUM_UART_MODS >= 3) && (UART3_RX_INTERRUPT)
+    case 3 :
+        *b = inChar3();
+        return retval;
+#endif
+#if (NUM_UART_MODS >= 4) && (UART4_RX_INTERRUPT)
+    case 4 :
+        *b = inChar4();
+        return retval;
+#endif
+    }
 
-  /* Return errors for Framing error or Overrun */
-  if (U1STAbits.PERR || U1STAbits.FERR || U1STAbits.OERR) {
-    PM_RAISE(retval, PM_RET_EX_IO);
+/*  This values gives the number of words between UART SFR registers.
+ *  For example, &U1MODE = 0x0220 and &U2MODE = 0x230, a difference of
+ *  eight words. Per comments on \ref IO_PORT_CONTROL_OFFSET, this
+ *  can't be defined as a static value, requiring a hand look-up.
+ */
+#define UART_SFR_SPACING 8
+
+    // If we got here, then there's no interrupt-driven receive
+    // for the selected port, or the port is invalid.
+    C_ASSERT( (__C30_UART <= NUM_UART_MODS) && (__C30_UART > 0) );
+
+    // Get a pointer to the desired UART status and receive registers
+    volatile UxSTABITS* pUxSTABits = (UxSTABITS*) (&U1STA + (__C30_UART - 1)*UART_SFR_SPACING);
+    volatile uint16_t* pUxRXREG = &U1RXREG + (__C30_UART - 1)*UART_SFR_SPACING;
+
+    /* Wait for a character to be ready (URXDA, UART receive data available). */
+    while (!pUxSTABits->URXDA)
+        doHeartbeat();
+
+    /* Return errors for parity error, framing error or overrun */
+    if (pUxSTABits->PERR || pUxSTABits->FERR || pUxSTABits->OERR) {
+        PM_RAISE(retval, PM_RET_EX_IO);
+        return retval;
+    }
+    *b = *pUxRXREG;
+
     return retval;
-  }
-  *b = U1RXREG;
-
-  return retval;
 }
 
 
@@ -147,9 +190,13 @@ plat_getByte(uint8_t *b)
  * This is because the interactive interface uses binary transfers.
  */
 PmReturn_t
-plat_putByte(uint8_t b)
+plat_putByte(uint8_t u8_b)
 {
-  outChar1(b);
+  outChar(u8_b);
+  // For the data transfer protocol, automatically escape outgoing
+  // chars.
+  if (u8_b == ((uint8_t) CMD_TOKEN))
+    outChar(ESCAPED_CMD);
   return PM_RET_OK;
 }
 
@@ -370,3 +417,32 @@ plat_reportError(PmReturn_t result)
     }
 #endif /* HAVE_DEBUG_INFO */
 }
+
+
+/** Very scary: v3.25 has some erroneous implementations in sprintf. To get the project to
+ *  compile, I put the functions below in. A bit more info is at:
+ *  http://www.microchip.com/forums/m535514.aspx
+ *  Error messages which occur without this:
+ *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x1c):fake: undefined reference to `assert' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x20):fake: undefined reference to `alloc' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x1c):fake: undefined reference to `assert' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x20):fake: undefined reference to `alloc'
+ *  As I understand it, this means these functions expect to call assert()
+ *  (which is now a macro in the new library of 3.25) and alloc() (whatever that is) (!!!).
+ *  Very scary. In the debugger, I can see that alloc is called; however, ASSERT(0) isn't called.
+ *  Junk strings get printed.
+ *
+ *  Conclusion: snprintf is broken in 3.25 beyond my ability to fix it.
+ */
+#if __C30_VERSION__ == 325
+void
+assert(int i_expr)
+{
+   ASSERT(i_expr);
+}
+
+#include <stdlib.h>
+void*
+alloc(size_t s)
+{
+   return malloc(s);
+}
+#error The v3.25 C30 compiler does not work with this program. Please use v3.24 instead.
+#endif

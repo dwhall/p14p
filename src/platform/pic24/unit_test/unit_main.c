@@ -34,7 +34,7 @@
 
 
 /* Need to declare this array since no PyMite application is linked */
-pPmNativeFxn_t const usr_nat_fxn_table[];
+pPmNativeFxn_t const usr_nat_fxn_table[1];
 
 /** A series of tests on the existance of digital IO pins.
   * @param tc Test object.
@@ -479,9 +479,9 @@ test_configPwm(CuTest* tc)
 void
 test_setPwm(CuTest* tc)
 {
-    //                            OCnRS OC
-    CuAssertTrue(tc, setPwmCounts(600,  2) == PM_RET_OK);
-    CuAssertTrue(tc, OC2RS == 600);
+    //                          us    oc  pr
+    CuAssertTrue(tc, setPwmTime(500,  2,  PR2) == PM_RET_OK);
+    CuAssertTrue(tc, OC2RS == 500);
 }
 
 /** Run a series of tests on general-purpose I/O functions.

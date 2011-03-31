@@ -60,7 +60,7 @@ void toggleHeartbeat(void) {
  *  in this group.
  */
 /** The current heartbeat count. When this value reaches
- *  \ref u32_heartbeatMax, the heatbeat LED is toggled by 
+ *  \ref u32_heartbeatMax, the heatbeat LED is toggled by
  *   doHeartbeat().
  * \see doHeartbeat
  */
@@ -100,7 +100,7 @@ void doHeartbeat(void) {
 }
 
 
-/** A function which toggles the hearbeat LED. 
+/** A function which toggles the hearbeat LED.
     \see doHeartbeat
   */
 void toggleHeartbeat(void) {
@@ -261,8 +261,8 @@ void checkDeviceAndRevision(void) {
 #endif
 }
 
-/** Reports the oscillator currently in use to the default 
- *  serial port. 
+/** Reports the oscillator currently in use to the default
+ *  serial port.
  */
 void checkOscOption(void) {
   uint8 u8_x;
@@ -423,7 +423,8 @@ void printResetCause(void) {
 */
 //this function is processor specific
 #if (defined(__PIC24HJ32GP202__) || \
-   defined(__PIC24FJ64GA002__))
+   defined(__PIC24FJ64GA002__) || \
+   defined(__PIC24FJ64GA102__))
 void configPinsForLowPower(void) {
   // Configure all digital I/O pins for input
   TRISB = 0xFFFF;

@@ -18,11 +18,8 @@ python-on-a-chip (p14p) on a microcontroller.  The file
 \ref src/platform/pic24/main.c "main.c" is used to initialize p14p
 and indicate the name of the module it should run.  In this case, it
 will run the module \ref src/platform/pic24/main.py "main.py".
-
-In the module \ref src/platform/pic24/main.py "main.py", we see that 
-the program prints a "Hello world" message, defines and runs an 
-initialization function and then executes ipm.
-
+Examining the module \ref src/platform/pic24/main.py "main.py",
+the program prints a "Hello world" message then executes \ref ipm.py.
 Additional sample code in sample_lib.py illustrates use of the
 \ref src/platform/pic24/pic24_dspic33.py "PIC24/dsPIC33" library.
 The program \ref src/platform/pic24/robot.py "robot.py" 
@@ -31,15 +28,30 @@ gives code to operate a simple robot.
 
 \section building Building the Project
 
-First, install <a href="http://www.cygwin.com">Cygwin</a>, manually
-selecting installation of make. To build documentation,
+To build documentation,
 install <a href="http://docutils.sourceforge.net">docutils</a> and
-<a href="http://www.doxygen.org">Doxygen</a>. 
+<a href="http://www.doxygen.org">Doxygen</a>, then use the system-wide
+<code>make html</code> target. You'll need make from Cygwin installed;
+see item 1 below for more information.
 
-Open the p14p.mcp project file with the 
+\subsection mplab_building Building with MPLAB
+
+The preferreed method for building the project relies on using the
 <a href="http://www.microchip.com/stellent/idcplg?IdcService=SS_GET_PAGE&nodeId=1406&dDocName=en019469&part=SW007002">Microchip
-MPLAB IDE</a> then build the project. However, you must have the path to 
-Cygwin's make.exe in your Windows path for this to work.
+MPLAB IDE</a>. After installing it, either:
+
+-# Best: Install <a href="http://www.cygwin.com">Cygwin</a>, manually
+   selecting installation of make. Place the path to Cygwin's
+   make.exe in your Windows path. Then, simply open the p14p.mcp
+   project file with the Microchip MPLAB IDE and build the project.
+-# If you don't want to install Cygwin, double-click on the py2c.bat
+   file before building, then open the project in the MPLAB IDE and
+   compile. Ignore the error about the pre-build step (which tries to use
+   make.exe from Cygwin). <b>Important</b>: Any changes to a .py file
+   used in the build will not be included until <code>py2c.bat</code> is
+   re-run. For example, after changing <code>pmfeatures.py</code>, re-run!
+
+\subsection make_building Building with make
 
 Alternatively, you can compile from the command line.
 Start with a clean PyMite tree.  Edit 
@@ -59,10 +71,4 @@ sample application.
 The steps above result in the binary file that need to go on the PIC.
 Use a PICKit2/3 to program your PIC.
 
-*/
-
-/* Old info
-The Makefile is configured for use with the 
-<a href="http://www.reesemicro.com/Home/pic24-software-library-collection/pic24-bully-bootloader">Bully
-Bootloader</a>. 
 */

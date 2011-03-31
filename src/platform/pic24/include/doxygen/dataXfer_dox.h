@@ -86,27 +86,27 @@ int main(void) {
  * - ledpwm.c
  *
  * \section designGoals Design goals
- *  - Easy to use: no setup required to send variables; integrates with 
- *    ISRs seamlessly by using getch/putch rather than direct assignment 
- *    to UxRXREG/UxTXREG. Receive requires setup and returns a non-protocol 
+ *  - Easy to use: no setup required to send variables; integrates with
+ *    ISRs seamlessly by using getch/putch rather than direct assignment
+ *    to UxRXREG/UxTXREG. Receive requires setup and returns a non-protocol
  *    character read or a variable read.
- *  - Excellent error reporting: PIC defines the protocol, pushing most 
- *    errors onto the PC. Timeouts on the PIC and PC help spot errors. The 
+ *  - Excellent error reporting: PIC defines the protocol, pushing most
+ *    errors onto the PC. Timeouts on the PIC and PC help spot errors. The
  *    PIC reports errors via text messages, which flow through to the PC.
  *  - Reasonably efficient (> 100 Hz). Two bytes of overhead per variable (start, type).
  *  - Minimal PIC memory requirements: one pointer, one uint8, one bit per variable.
- *  - Can send/receive data in any order (not a fixed sequence): sendVar 
- *    in any order, receiveVar receives any var (or even a non-protocol 
+ *  - Can send/receive data in any order (not a fixed sequence): sendVar
+ *    in any order, receiveVar receives any var (or even a non-protocol
  *    character, to make interaction via a menu work)
  *
  * \section errorCases Error cases
- *  - Timeout during received of a variable. In this case, the variable 
+ *  - Timeout during received of a variable. In this case, the variable
  *    is only partially assigned; the PIC is reset, while the PC reports an error.
  *  - Sending in an ISR, which could cause timing problems. Fixing this
  *    really needs a trace buffer implementation.
- *  - Index of variable not the same between PIC and PC. The PIC names 
- *    variables; the PC likewise only allows access to variables of the same 
- *    name. However, the PC code will enforce variable name to number mapping, 
+ *  - Index of variable not the same between PIC and PC. The PIC names
+ *    variables; the PC likewise only allows access to variables of the same
+ *    name. However, the PC code will enforce variable name to number mapping,
  *    making this fairly uncommon (if the same name occurs twice, there's a problem).
  *
  *  \section protocol Protocol
@@ -117,17 +117,17 @@ int main(void) {
  *        - code = 0: escaped \ref CMD_TOKEN : this is the value \ref CMD_TOKEN,
  *          not the start of a command.
  *        - code = 1: long var
- *        - code = 2-3: Variable specification: data is size (1 byte), 
+ *        - code = 2-3: Variable specification: data is size (1 byte),
  *          format string, name, description (all
  *          zero-terminated). Code 2: send only var (PC may not modify);
  *          code 3: send/receive var.
  *          - Only the PIC can send codes 2-3.
- *        - For all but code 0, data = varNum (1 byte), length (1 byte), 
+ *        - For all but code 0, data = varNum (1 byte), length (1 byte),
  *          data (of length bytes). varNum must be between 1 and
  *          \ref NUM_XFER_VARS.
  *    - For non-special, data is len bytes. For special:  see above. All
  *      lengths are len + 1, e.g. len = 0 is 1 byte, etc.
- *  - Sending a \ref CMD_TOKEN, whether inside a protocol packet or as a 
+ *  - Sending a \ref CMD_TOKEN, whether inside a protocol packet or as a
  *    character not in a packet, must always be escaped with a
  *    \ref CMD_TOKEN \ref ESCAPED_CMD.
  */

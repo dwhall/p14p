@@ -68,6 +68,7 @@ co_loadFromImg(PmMemSpace_t memspace, uint8_t const **paddr, pPmObj_t *r_pco)
     /* Set these to null in case a GC occurs before their objects are alloc'd */
     pco->co_names = C_NULL;
     pco->co_consts = C_NULL;
+    pco->co_codeaddr = C_NULL;
 
 #ifdef HAVE_CLOSURES
     pco->co_nfreevars = mem_getByte(memspace, paddr);

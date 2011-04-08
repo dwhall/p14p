@@ -258,7 +258,7 @@ def PmObjectClass(dumpversion, features):
                        "locals:P:<sp"),
             PmTypeInfo("BLK", "sp:P,handler:P,type:B,next:P"),
             PmTypeInfo("SEG", "items:P:8,next:P"),
-            PmTypeInfo("SGL", "rootseg:P,lastseg:P,length:H"),
+            PmTypeInfo("SGL", "length:H,rootseg:P,lastseg:P"),
             PmTypeInfo("SQI", "sequence:P,index:H"),
             PmTypeInfo("NFM", "back:P,func:P,stack:P,active:B,numlocals:B,"
                               "locals:P:8"),

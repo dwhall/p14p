@@ -535,10 +535,19 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
     }
 
     /*
-     * Round up the size to a multiple of 4 bytes.
-     * This maintains alignment on 32-bit platforms (required).
+     * Round up the size to a multiple of N bytes,
+     * where N is 8 for 64-bit platforms and 4 for all else.
+     * This maintains pointer alignment in the heap (required).
      */
+#ifdef PM_PLAT_POINTER_SIZE
+#if PM_PLAT_POINTER_SIZE == 8
+    adjustedsize = ((requestedsize + 7) & ~7);
+#else
     adjustedsize = ((requestedsize + 3) & ~3);
+#endif /* PM_PLAT_POINTER_SIZE */
+#else
+    adjustedsize = ((requestedsize + 3) & ~3);
+#endif /* PM_PLAT_POINTER_SIZE */
 
     /* Attempt to get a chunk */
     retval = heap_getChunkImpl(adjustedsize, r_pchunk);
@@ -556,10 +565,18 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
     }
 #endif /* HAVE_GC */
 
-    /* Ensure that the pointer is 4-byte aligned */
+    /* Ensure that the pointer is N-byte aligned */
     if (retval == PM_RET_OK)
     {
+#ifdef PM_PLAT_POINTER_SIZE
+#if PM_PLAT_POINTER_SIZE == 8
+        C_ASSERT(((intptr_t)*r_pchunk & 7) == 0);
+#else
         C_ASSERT(((intptr_t)*r_pchunk & 3) == 0);
+#endif /* PM_PLAT_POINTER_SIZE */
+#else
+        C_ASSERT(((intptr_t)*r_pchunk & 3) == 0);
+#endif /* PM_PLAT_POINTER_SIZE */
     }
 
     return retval;

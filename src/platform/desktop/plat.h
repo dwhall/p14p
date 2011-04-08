@@ -16,6 +16,13 @@
 #define _PLAT_H_
 
 #define PM_FLOAT_LITTLE_ENDIAN
+#define PM_PLAT_POINTER_SIZE 4
+
+
+#if PM_PLAT_POINTER_SIZE == 8
+#define PM_PLAT_HEAP_ATTR __attribute__((aligned (8)))
+#else
 #define PM_PLAT_HEAP_ATTR __attribute__((aligned (4)))
+#endif /* PM_PLAT_POINTER_SIZE */
 
 #endif /* _PLAT_H_ */

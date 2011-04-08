@@ -683,7 +683,7 @@ def type(o):
 
 
 #
-# Creates a code object from the given image string
+# Creates a code object from the given image object
 #
 def Co(i):
     """__NATIVE__
@@ -698,7 +698,7 @@ def Co(i):
         return retval;
     }
 
-    /* Raise ValueError if arg is not a string */
+    /* Raise ValueError if arg is not an Image Obj */
     pimg = NATIVE_GET_LOCAL(0);
     if (OBJ_GET_TYPE(pimg) != OBJ_TYPE_CIO)
     {

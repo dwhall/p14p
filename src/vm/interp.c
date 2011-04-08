@@ -1464,7 +1464,9 @@ interpret(const uint8_t returnOnNoThreads)
                  * Store the module's attrs/globals under the module's name
                  * in the global module dict (cache)
                  */
+                heap_gcPushTempRoot(pobj2, &objid);
                 retval = dict_setItem(pobj3, pobj1, pobj2);
+                heap_gcPopTempRoot(objid);
                 PM_BREAK_IF_ERROR(retval);
 
                 /* Put Module on top of stack */

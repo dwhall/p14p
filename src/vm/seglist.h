@@ -59,12 +59,12 @@ typedef struct Seglist_s
 {
     /** object descriptor */
     PmObjDesc_t od;
+    /** index of (one past) last obj in last segment */
+    int16_t sl_length;
     /** ptr to first segment in list */
     pSegment_t sl_rootseg;
     /** ptr to last segment */
     pSegment_t sl_lastseg;
-    /** index of (one past) last obj in last segment */
-    int16_t sl_length;
 } Seglist_t,
  *pSeglist_t;
 

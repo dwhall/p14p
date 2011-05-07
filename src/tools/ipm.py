@@ -358,11 +358,11 @@ def parse_cmdline():
 
     (options, args) = parser.parse_args()
     if not options.features_fn:
-        raise Exception("Must give the path to the pmfeatures.py file using -f.")
+        parser.error("Must specify -f with the path to pmfeatures.py.")
     if options.desktop and options.serdev:
-        raise Exception("Must not specify desktop and serial connections simultaneously.")
+        parser.error("Must not specify desktop and serial connections simultaneously.")
     if not options.desktop and not options.serdev:
-        raise Exception("Must specify a desktop or serial connection.")
+        parser.error("Must specify a desktop or serial connection.")
 
     if options.desktop:
         c = PipeConnection()

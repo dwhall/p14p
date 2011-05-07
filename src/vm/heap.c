@@ -416,7 +416,7 @@ heap_init(uint8_t *base, uint32_t size)
         heap_linkToFreelist(pchunk);
     }
 
-    C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%d\n",
+    C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%u\n",
                   pmHeap.base, pmHeap.avail);
 
     string_cacheInit();

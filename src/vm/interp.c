@@ -1342,11 +1342,9 @@ interpret(const uint8_t returnOnNoThreads)
 
                 /* Handle all integer-to-integer (or bool) comparisons */
                 if (((OBJ_GET_TYPE(TOS) == OBJ_TYPE_INT)
-                     || (OBJ_GET_TYPE(TOS) == OBJ_TYPE_BOOL)
-                     || (OBJ_GET_TYPE(TOS) == OBJ_TYPE_NON))
+                     || (OBJ_GET_TYPE(TOS) == OBJ_TYPE_BOOL))
                     && ((OBJ_GET_TYPE(TOS1) == OBJ_TYPE_INT)
-                        || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_BOOL)
-                        || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_NON)))
+                        || (OBJ_GET_TYPE(TOS1) == OBJ_TYPE_BOOL)))
                 {
                     int32_t a = ((pPmInt_t)TOS1)->val;
                     int32_t b = ((pPmInt_t)TOS)->val;

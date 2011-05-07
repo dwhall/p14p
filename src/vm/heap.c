@@ -162,7 +162,7 @@ heap_gcPrintFreelist(void)
 {
     pPmHeapDesc_t pchunk = pmHeap.pfreelist;
 
-    printf("DEBUG: pmHeap.avail = %d\n", pmHeap.avail);
+    printf("DEBUG: pmHeap.avail = %u\n", pmHeap.avail);
     printf("DEBUG: freelist:\n");
     while (pchunk != C_NULL)
     {
@@ -392,7 +392,7 @@ heap_init(uint8_t *base, uint32_t size)
         heap_linkToFreelist(pchunk);
     }
 
-    C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%d\n",
+    C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%u\n",
                   pmHeap.base, pmHeap.avail);
 
     string_cacheInit();

@@ -1346,7 +1346,9 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Raise an AttributeError if key is not found */
                 if (retval == PM_RET_EX_KEY)
                 {
-                    PM_RAISE(retval, PM_RET_EX_ATTR);
+                    PM_RAISE(retval, PM_RET_EX_ATTR,
+                             "object has no attribute '%s'\n",
+                             ((pPmString_t)pobj2)->val);
                 }
                 PM_BREAK_IF_ERROR(retval);
 

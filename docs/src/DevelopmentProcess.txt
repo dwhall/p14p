@@ -10,7 +10,6 @@ PyMite Development Process
 ==========================
 
 :Author:    Dean Hall
-:Id:        $Id$
 
 
 Purpose
@@ -20,7 +19,10 @@ This document describes the process used to make changes to files in the
 Python-on-a-Chip project.  In doing so, it serves as a how-to manual for the
 developer and can be ignored by the user.
 
-This document is incomplete and subject to change.  Please suggest improvements.
+This document is incomplete and subject to change.  Please suggest improvements
+and ask questions on the maillist_ to clarify any points.
+
+.. _maillist: http://groups.google.com/group/python-on-a-chip
 
 
 Overview
@@ -28,25 +30,23 @@ Overview
 
 Software quality is enhanced when the project developers consistently
 employ a defined software process.  The process should enhance the development
-of the software and not burden it.  This process is a typical branch-based
-development process that uses Subversion_ and `Google Code`_.
-If this document does not explain your question, please ask on the maillist_.
-Since long process documents often go unread, this document is as concise as 
+of the software and not burden it.  This process is a typical distributed
+development process that uses Mercurial_ and `Google Code`_.
+Since long process documents often go unread, this document is as concise as
 possible.
 
-.. _Subversion: http://subversion.apache.org/
+.. _Mercurial: http://mercurial.selenic.com/
 .. _`Google Code`: http://code.google.com/
-.. _maillist: http://groups.google.com/group/python-on-a-chip
 
 Here is a brief description of the process:
 
     #. `Create an Issue`_
     #. `Do the Work`_
+    #. `Keep in Sync`_
     #. `Link Commits and Messages`_
-    #. `Keep in Sync with Trunk`_
     #. `Run tests`_
     #. `Post for Review`_
-    #. `Merge to trunk`_
+    #. `Push, Comment and Announce`_
 
 
 Create an Issue
@@ -88,80 +88,71 @@ Do the Work
 -----------
 
 The developer must first obtain a local copy of the code.
-If the work only involves a small change, or a similar small change across
-many files, then the work can be done on a working copy of ``trunk/``::
+Mercurial is a distributed version control system that induces the developer
+to create a clone of the repository on his local system.
+The developer then has absolute permissions over that local clone
+including the ability to commit locally.
 
-    svn co https://python-on-a-chip.googlecode.com/svn/trunk/ --userid YourUserId
+Whereas in Subversion a developer may have made a branch to be allowed
+to commit code without affecting the development trunk, in Mercurial
+the developer can simply work on his local clone.
 
-If there are more than a few changes, make a branch to work in and check
-out a local copy::
+So, for this project, regardless of the size of changes a developer is making,
+he should work on his local clone and *not* create a branch (using the mercurial
+branch command).  Branches are reserved for very big difference such as between
+major releases like the 0X series and the 1X series.
 
-    svn cp https://python-on-a-chip.googlecode.com/svn/trunk/ \
-           https://python-on-a-chip.googlecode.com/svn/branches/issue_0NNN_userid_brief_description \
-           -m "Issue #NNN: creating branch for work"
-    svn co https://python-on-a-chip.googlecode.com/svn/branches/issue_0NNN_userid_brief_description --userid YourUserId
+The developer creates a local clone like this:
+
+    hg clone https://youruserid@python-on-a-chip.googlecode.com/hg/
 
 If the work involved is a defect, the developer should create the smallest
 test possible that exposes the defect.  This regression test should be added
 to the project's automated test system::
 
-    svn add src/test/system/tNNN.c src/test/system/tNNN.py
+    hg add src/test/system/tNNN.c src/test/system/tNNN.py
 
 If the work required a significant architectural change,
 a document should be created which explains the design of the work.
 This document should be composed in `reStructuredText`_ and
 added to the project's automated documentation build system ``docs/src/``::
 
-    svn add docs/src/NewDocumentTitle.txt
+    hg add docs/src/NewDocumentTitle.txt
 
 
 .. _`reStructuredText`: http://docutils.sourceforge.net/rst.html
 
 
-Link Commits and Messages
--------------------------
+Keep in Sync
+------------
 
-Every time the developer commits code to either trunk or his branch,
-he should add a commit message such as the following which lets Google Code
-hyperlink the commit to the issue::
+While doing the work, if the main repository is updated, you should pull those
+changes into your branch so that your working copy is up-to-date.
+Staying synced is easy; just use the commands::
 
-    svn ci -m "Issue #NNN: checking in on branch"
-
-or::
-
-    svn ci -m "Issue #NNN: mainlining directly"
-
-Then, the developer should describe the changes in a new comment in the issue.
-The developer should prefix this comment with the revision number
-that resulted from the commit action, like so::
-
-    rYYY: Fixed a null pointer in src/vm/interp.c
-
-Where ``YYY`` is the number of the revision that resulted from the check-in.
-These two little text snippets create a precise two-way linkage between the
-physical changes to the code and the aggregated notes of an issue,
-resulting in a documented process that is easy for others to follow.
-
-
-Keep in Sync with Trunk
------------------------
-
-While doing the work, if the trunk is updated, you should merge those changes
-into your branch so that your working copy is always up-to-date.  Doing this
-merge-forward step avoids the problem of when you mainline your branch and your
-changes don't work with the modified trunk.  If you are working on a local
-copy of trunk/, then staying synced is easy: just use the command::
-
-    svn update
+    hg pull
+    hg up
 
 Pay attention to the output of this command to see if there are conflicts that
 must be resolved.
 
-If you are working on a branch, there are two ways to stay in sync with trunk/.
-Merging trunk to your local copy and then commiting your branch is recommended::
 
-    svn merge http://python-on-a-chip.googlecode.com/svn/trunk/ .
-    svn ci -m "Issue #NN merging trunk to branch"
+Link Commits and Messages
+-------------------------
+
+Every time the developer commits code to his clone, he should add a
+commit message that references the issue he's working on and
+some details about the changes made.  Here's a typical example::
+
+    hg ci -m "Fixes issue NNN.  Fixes logic in the COMPARE_OP bytecode"
+
+Using the term "Fixes issue NNN" lets Google Code automatically create a
+link in the issue comments that refers to the changeset of the commit.
+
+Doing this creates a precise two-way linkage between the
+physical changes to the code (the mercurial changeset) and the notes
+in the Google Code issue, resulting in a documented activity
+that is easy for others to follow.
 
 
 Run Tests
@@ -172,10 +163,10 @@ from the root of the project::
 
     make check
 
-These tests must pass before an issue may be mainlined, but passing
-these tests is not the only qualification for mainlining.
-If the work done impacted any of the project source code, then testing should
-also be performed on the relevant desktop and target platforms.  If the issue
+These tests must pass before the developer may pushed his changes back to the
+Google Code repository.  Passing these tests is not the only qualification for
+pushing.  If the work done impacts any of the project source code, then testing
+should also be performed on the relevant target platforms.  If the issue
 describes a defect, then you should already have a test in the automated test
 system, so that test will be run by ``make check``.
 
@@ -186,21 +177,13 @@ Post for Review
 .. NOTE:: The Google Code review process should NOT be used.
 
 After the developer does the work, syncs to the trunk and runs the tests,
-he posts the changes for review.  If the changes were few and the developer
-made the changes on a local copy of trunk, then he should create a patch file
-like so::
+he posts the changes for review.  To share code for a review, the developer
+should create a patch file like this::
 
-    svn diff > issueNNN.patch
+    hg diff > issueNNN.patch
 
 He should send an email to the `p14p developer mailling list`_ and attach
-the patch file.
-
-If the changes were many and the developer worked on a branch, then
-the developer must ensure that every commit he made is mentioned, via the
-rYYY syntax, in the issue.  This way, the developer can simply send the URL
-of his issue to the maillist for review::
-
-    http://code.google.com/p/python-on-a-chip/issues/detail?id=NNN
+the compressed patch file.
 
 Reviewers give polite and professional feedback to the developer within
 48 hours or provide an estimate of how much longer it will take to review
@@ -211,30 +194,18 @@ The developer applies all the feedback and re-tests the branch.
 .. _`p14p developer mailling list`: http://groups.google.com/group/python-on-a-chip
 
 
-Merge to Trunk
---------------
+Push, Comment and Announce
+--------------------------
 
-Merging to ``trunk/`` happens after the change-set is reviewed, feedback is
-integrated and the tests pass.  Ensure the branch is in sync with trunk,
-per the section above.  Then revert to a clean copy of trunk::
+Mercurial prevents a developer from pushing code to a repository
+if he hasn't already pulled the latest changes.  Since at this point,
+the developer has already pulled the latest global changes, merged them with
+his local changes and run the tests, it is time to push::
 
-    svn switch https://python-on-a-chip.googlecode.com/svn/trunk/
+    hg push
 
-Merge your branch into the working copy of trunk::
-
-    svn merge https://python-on-a-chip.googlecode.com/svn/branches/issue_0NNN_userid_brief_description .
-
-Build, test and verify the modified working copy, then commit it to the trunk::
-
-    svn ci -m "Issue #NNN: mainlining branch issue_0NNN_userid_brief_description"
-
-Add a comment to the issue::
-
-    rYYY: merged branch to trunk
-
-and set the ``Status`` field to Fixed.
-
-Finally, announce that the issue is fixed on the mailling list.
+Add a comment to the issue and resolve it if it wasn't already resolved
+automatically.  Finally, announce that the issue is fixed on the mailling list.
 
 
 .. :mode=rest:

@@ -18,7 +18,7 @@ ifeq ($(DEBUG),true)
 	CDEFS += -g -ggdb -D__DEBUG__=1
 endif
 CINCS = -I../../vm -I../../platform/desktop
-CFLAGS = -Os -fno-strict-aliasing -Wall -Wstrict-prototypes -Werror $(CDEFS) $(CINCS) 
+CFLAGS = -Os -fno-strict-aliasing -Wall -Wstrict-prototypes -Wno-format-zero-length -Werror $(CDEFS) $(CINCS) 
 
 
 # Build an executable from the C sources

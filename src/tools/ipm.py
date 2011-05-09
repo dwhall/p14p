@@ -232,7 +232,11 @@ class Interactive(cmd.Cmd):
             return
 
         src = open(fn).read()
-        code = compile(src, fn, "exec")
+        try:
+            code = compile(src, fn, "exec")
+        except Exception, e:
+            self.stdout.write("%s:%s\n" % (e.__class__.__name__, e))
+            return
 
         img = self.pic.co_to_str(code)
 

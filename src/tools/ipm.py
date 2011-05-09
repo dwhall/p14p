@@ -237,7 +237,7 @@ class Interactive(cmd.Cmd):
         img = self.pic.co_to_str(code)
 
         self.conn.write(img)
-        self.stdout.write(self.conn.read())
+        self.echo_received_chars_to_stdout()
 
 
     def onecmd(self, line):
@@ -308,13 +308,7 @@ class Interactive(cmd.Cmd):
             except Exception, e:
                 self.stdout.write(
                     "Connection write error, type Ctrl+%s to quit.\n" % EOF_KEY)
-
-            try:
-                for c in self.conn.read():
-                    self.stdout.write(c)
-            except Exception, e:
-                self.stdout.write(
-                    "Connection read error, type Ctrl+%s to quit.\n" % EOF_KEY)
+            self.echo_received_chars_to_stdout()
 
 
     def run(self,):
@@ -334,6 +328,18 @@ class Interactive(cmd.Cmd):
                 # TODO: check connection?
 
 
+    def echo_received_chars_to_stdout(self,):
+        """Reads chars from the connection (a generator) and prints them to stdout.
+        This function is used by the REPL and the do_load() func.
+        """
+        try:
+            for c in self.conn.read():
+                self.stdout.write(c)
+        except Exception, e:
+            self.stdout.write(
+                "Connection read error, type Ctrl+%s to quit.\n" % EOF_KEY)
+    
+    
 def parse_cmdline():
     """Parses the command line for options.
     """

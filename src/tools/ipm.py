@@ -244,15 +244,15 @@ class Interactive(cmd.Cmd):
         self.echo_received_chars_to_stdout()
 
 
-    def onecmd(self, line):
-        """Gathers one interactive line of input (gets more lines as needed).
+    def _runsource(self, source):
+        """Tries to run the source code (asks for more lines as needed).
         """
         # Ignore empty line, continue interactive prompt
-        if not line:
-            return
+        if not source:
+            return False
 
         # Handle ctrl+D (End Of File) input, stop interactive prompt
-        if line == "EOF":
+        if source == "EOF":
             self.conn.close()
 
             # Do this so OS prompt is on a new line
@@ -260,33 +260,26 @@ class Interactive(cmd.Cmd):
 
             # Quit the run loop
             self.stop = True
-            return True
+            return False
 
         # Handle ipm-specific commands
-        if line.split()[0] in Interactive.ipmcommands:
-            cmd.Cmd.onecmd(self, line)
-            return
+        if source.split()[0] in Interactive.ipmcommands:
+            cmd.Cmd.onecmd(self, source)
+            return False
 
-        # Gather input from the interactive line
+        # Attempt to compile the code
         try:
-            codeobj = code.compile_command(line, COMPILE_FN, COMPILE_MODE)
-
-            # If the line was incomplete, get more input and try to compile it
-            if not codeobj:
-
-                # Restore the newline chopped by cmd.py:140
-                line += "\n"
-
-                while not line.endswith("\n\n") or not codeobj:
-                    self.stdout.write(IPM_PROMPT2)
-                    line += self.stdin.readline()
-                    codeobj = code.compile_command(line,
-                                                   COMPILE_FN,
-                                                   COMPILE_MODE)
+            codeobj = code.compile_command(source, COMPILE_FN, COMPILE_MODE)
 
         except Exception, e:
             self.stdout.write("%s:%s\n" % (e.__class__.__name__, e))
             return
+
+        # If the line was incomplete, return with True to indicate more lines needed
+        if not codeobj:
+            return True
+
+        # We have a a complete line of code -- execute it
 
         # DEBUG: Uncomment the next line to print the statement's bytecodes
         #dis.disco(codeobj)
@@ -313,6 +306,23 @@ class Interactive(cmd.Cmd):
                 self.stdout.write(
                     "Connection write error, type Ctrl+%s to quit.\n" % EOF_KEY)
             self.echo_received_chars_to_stdout()
+
+        return False
+
+    def onecmd(self, line):
+        """Gathers one interactive line of input (gets more lines as needed).
+        """
+
+        isIncomplete = self._runsource(line)
+
+        # If the line was incomplete, get more input and try again
+        if isIncomplete:
+            while isIncomplete:
+                self.stdout.write(IPM_PROMPT2)
+                line += self.stdin.readline()
+                isIncomplete = self._runsource(line)
+
+        return self.stop
 
 
     def run(self,):
@@ -342,8 +352,8 @@ class Interactive(cmd.Cmd):
         except Exception, e:
             self.stdout.write(
                 "Connection read error, type Ctrl+%s to quit.\n" % EOF_KEY)
-    
-    
+
+
 def parse_cmdline():
     """Parses the command line for options.
     """

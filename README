@@ -100,6 +100,7 @@ My personal thanks go out to these people for their recent contribution to p14p:
 r0A
 ~~~
 
+- Sitti: suggested an improvement for the mbed Makefile.
 - JT: Created issues and patches for ipm, mbed and __bi.py.
 - Sergiu Mihai: Reported that arduino_mega port wasn't working
 - Andrej Antonov: Reported and sent patch to desktop/ipm.py

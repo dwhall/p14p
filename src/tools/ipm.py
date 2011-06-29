@@ -319,7 +319,7 @@ class Interactive(cmd.Cmd):
         if isIncomplete:
             while isIncomplete:
                 self.stdout.write(IPM_PROMPT2)
-                line += self.stdin.readline()
+                line += '\n' + self.stdin.readline().rstrip()
                 isIncomplete = self._runsource(line)
 
         return self.stop

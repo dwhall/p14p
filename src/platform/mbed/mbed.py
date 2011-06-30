@@ -39,6 +39,7 @@ class AnalogIn(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         AnalogIn *adc;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -63,7 +64,9 @@ class AnalogIn(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)adc, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -147,6 +150,7 @@ class AnalogOut(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         AnalogOut *dac;
+        uint8_t objid;
 
 
         /* Raise TypeError if wrong number of args */
@@ -172,7 +176,9 @@ class AnalogOut(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)dac, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -313,6 +319,7 @@ class DigitalIn(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         DigitalIn *din;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -337,7 +344,9 @@ class DigitalIn(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)din, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -388,6 +397,7 @@ class DigitalOut(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         DigitalOut *dout;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -412,7 +422,9 @@ class DigitalOut(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)dout, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -503,6 +515,7 @@ class PwmOut(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         PwmOut *pwm;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -527,7 +540,9 @@ class PwmOut(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)pwm, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -820,6 +835,7 @@ class Serial(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         Serial *ser;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 3)
@@ -847,7 +863,9 @@ class Serial(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)ser, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -981,6 +999,7 @@ class SPI(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         SPI *spi;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 4)
@@ -1011,7 +1030,9 @@ class SPI(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)spi, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -1160,6 +1181,7 @@ class I2C(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         I2C *i2c;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 3)
@@ -1187,7 +1209,9 @@ class I2C(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)i2c, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -1340,6 +1364,7 @@ class TextLCD(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         TextLCD *lcd;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 1)
@@ -1362,7 +1387,9 @@ class TextLCD(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)lcd, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);

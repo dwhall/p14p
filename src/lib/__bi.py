@@ -571,7 +571,7 @@ def sum(s):
         {
             n += (uint8_t)((pPmBytes_t)po)->val[i];
         }
-        retval = int_new(n, &pn)
+        retval = int_new(n, &pn);
         NATIVE_SET_TOS(pn);
         return retval;
     }

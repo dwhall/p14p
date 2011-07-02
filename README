@@ -151,6 +151,11 @@ Platforms in **bold** are new since the previous release:
 Release Notes
 -------------
 
+This is release 10
+
+    - JT: Created issues and patches for ipm, mbed and __bi.py.
+
+
 This is release 09
 
 * Release 09, 2010/09/21

@@ -559,6 +559,7 @@ def sum(s):
         PM_RAISE(retval, PM_RET_EX_TYPE);
         return retval;
     }
+    ps = NATIVE_GET_LOCAL(0);
 
 #ifdef HAVE_BYTEARRAY
     /* Bytearray is a special case to save RAM converting each byte to an Int */
@@ -578,7 +579,6 @@ def sum(s):
 #endif /* HAVE_BYTEARRAY */
 
     /* Raise TypeError if arg is not a sequence */
-    ps = NATIVE_GET_LOCAL(0);
     if ((OBJ_GET_TYPE(ps) != OBJ_TYPE_TUP)
         && (OBJ_GET_TYPE(ps) != OBJ_TYPE_LST)
         && (OBJ_GET_TYPE(ps) != OBJ_TYPE_DIC))

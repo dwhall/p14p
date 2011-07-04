@@ -62,6 +62,24 @@ extern "C" {
 #define INLINE __inline__
 
 
+/* Convenience macros for global objects */
+#define PM_PBUILTINS (pPmObj_t)(gVmGlobal.pbuiltins)
+#define PM_NONE (pPmObj_t)&pm_global_none
+#define PM_FALSE (pPmObj_t)&pm_global_false
+#define PM_TRUE (pPmObj_t)&pm_global_true
+#define PM_ZERO (pPmObj_t)&pm_global_zero
+#define PM_ONE (pPmObj_t)&pm_global_one
+#define PM_NEGONE (pPmObj_t)&pm_global_negone
+#define PM_CODE_STR (pPmObj_t)&pm_global_string_code
+#define PM_INIT_STR (pPmObj_t)&pm_global_string_init
+#define PM_GENERATOR_STR (pPmObj_t)&pm_global_string_generator
+#define PM_NEXT_STR (pPmObj_t)&pm_global_string_next
+#define PM_EXCEPTION_STR (pPmObj_t)&pm_global_string_exception
+#define PM_BYTEARRAY_STR (pPmObj_t)&pm_global_string_bytearray
+#define PM_MD_STR (pPmObj_t)&pm_global_string_md
+#define PM_BI_STR (pPmObj_t)&pm_global_string_bi
+
+
 /**
  * Returns an exception error code and stores debug data
  *
@@ -180,8 +198,6 @@ typedef enum PmReturn_e
 } PmReturn_t;
 
 
-extern volatile uint32_t pm_timerMsTicks;
-
 /* WARNING: The order of the following includes is critical */
 #include "plat.h"
 #include "pmfeatures.h"
@@ -201,7 +217,6 @@ extern volatile uint32_t pm_timerMsTicks;
 #include "module.h"
 #include "frame.h"
 #include "interp.h"
-#include "global.h"
 #include "class.h"
 #include "thread.h"
 #include "float.h"
@@ -237,6 +252,44 @@ typedef struct PmModuleEntry_s
     pPmString_t pnm;
     pPmCo_t pco;
 } PmModuleEntry_t, *pPmModuleEntry;
+
+
+/**
+ * This struct contains ALL of PyMite's globals
+ */
+typedef struct PmVmGlobal_s
+{
+    /** Dict for builtins */
+    pPmDict_t pbuiltins;
+
+    /** The single native frame.  Static alloc so it won't be GC'd */
+    PmNativeFrame_t nativeframe;
+
+    /** PyMite release value for when an error occurs */
+    uint8_t errVmRelease;
+
+    /** PyMite source file ID number for when an error occurs */
+    uint8_t errFileId;
+
+    /** Line number for when an error occurs */
+    uint16_t errLineNum;
+
+    /** Thread list */
+    pPmList_t threadList;
+
+    /** Ptr to current thread */
+    pPmThread_t pthread;
+
+    /** Remembers when a space is needed before printing the next object */
+    uint8_t needSoftSpace;
+
+    /** Remembers when something has printed since the last newline */
+    uint8_t somethingPrinted;
+
+    /** Flag to trigger rescheduling */
+    uint8_t reschedule;
+} PmVmGlobal_t,
+ *pPmVmGlobal_t;
 
 
 /** Object descriptor declaration macro (used in output of pmCoCreator.py) */
@@ -308,8 +361,14 @@ extern PmString0_t PM_PLAT_PROGMEM pm_global_empty_string;
 extern PmString9_t PM_PLAT_PROGMEM pm_global_string_generator;
 extern PmString9_t PM_PLAT_PROGMEM pm_global_string_exception;
 extern PmString9_t PM_PLAT_PROGMEM pm_global_string_bytearray;
+extern PmString4_t PM_PLAT_PROGMEM pm_global_string_none;
+extern PmString5_t PM_PLAT_PROGMEM pm_global_string_false;
+extern PmString4_t PM_PLAT_PROGMEM pm_global_string_true;
 extern PmInt_t PM_PLAT_PROGMEM * const pm_global_module_table_len_ptr;
 extern PmModuleEntry_t PM_PLAT_PROGMEM pm_global_module_table[];
+
+extern volatile PmVmGlobal_t gVmGlobal;
+extern volatile uint32_t pm_timerMsTicks;
 
 
 /**
@@ -324,8 +383,7 @@ extern PmModuleEntry_t PM_PLAT_PROGMEM pm_global_module_table[];
  * @param pusrimg       Address of the user image in the memory space
  * @return Return status
  */
-PmReturn_t pm_init(uint8_t *heap_base, uint32_t heap_size
-                   /*DWHPmMemSpace_t memspace, uint8_t const * const pusrimg*/);
+PmReturn_t pm_init(uint8_t *heap_base, uint32_t heap_size);
 
 /**
  * Executes the named module

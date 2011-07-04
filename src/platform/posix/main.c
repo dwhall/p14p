@@ -23,6 +23,9 @@ int main(void)
     uint8_t heap[HEAP_SIZE];
     PmReturn_t retval;
 
+    retval = plat_init();
+    PM_RETURN_IF_ERROR(retval);
+
     retval = pm_init(heap, HEAP_SIZE);
     PM_RETURN_IF_ERROR(retval);
 

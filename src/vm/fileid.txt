@@ -5,7 +5,7 @@ ID    FILE
 0x02  dict.c
 0x03  frame.c
 0x04  func.c
-0x05  global.c
+0x05  UNUSED (used to be global.c)
 0x06  heap.c
 0x07  img.c
 0x08  int.c

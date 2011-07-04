@@ -38,31 +38,81 @@ volatile uint32_t pm_timerMsTicks = 0;
 /** Stores tick timestamp of last scheduler run */
 volatile uint32_t pm_lastRescheduleTimestamp = 0;
 
+/** Most PyMite globals all in one convenient place */
+volatile PmVmGlobal_t gVmGlobal;
+
+
+/**
+ * Loads the "__bt" module and sets the builtins dict (PM_PBUILTINS)
+ * to point to __bt's attributes dict.
+ * Creates "None" = None entry in builtins.
+ *
+ * When run, there should not be any other threads in the interpreter
+ * thread list yet.
+ *
+ * @return  Return status
+ */
+static PmReturn_t
+pm_loadBuiltins(void)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t pbimod;
+
+    /* Import the builtins */
+    retval = mod_import(PM_BI_STR, &pbimod);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Must interpret builtins' root code to set the attrs */
+    C_ASSERT(gVmGlobal.threadList->length == 0);
+    interp_addThread((pPmFunc_t)pbimod);
+    retval = interpret(INTERP_RETURN_ON_NO_THREADS);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Builtins points to the builtins module's attrs dict */
+    gVmGlobal.pbuiltins = ((pPmFunc_t)pbimod)->f_attrs;
+
+    /* Set None, False and True */
+    retval = dict_setItem(PM_PBUILTINS, (pPmObj_t)&pm_global_string_none, PM_NONE);
+    PM_RETURN_IF_ERROR(retval);
+    retval = dict_setItem(PM_PBUILTINS, (pPmObj_t)&pm_global_string_false, PM_FALSE);
+    PM_RETURN_IF_ERROR(retval);
+    retval = dict_setItem(PM_PBUILTINS, (pPmObj_t)&pm_global_string_true, PM_TRUE);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Deallocate builtins module */
+    retval = heap_freeChunk((pPmObj_t)pbimod);
+
+    return retval;
+}
+
 
 PmReturn_t
-pm_init(uint8_t *heap_base, uint32_t heap_size
-        /*DWH PmMemSpace_t memspace, uint8_t const * const pusrimg*/)
+pm_init(uint8_t *heap_base, uint32_t heap_size)
 {
     PmReturn_t retval;
-
-    /* Initialize the hardware platform */
-    retval = plat_init();
-    PM_RETURN_IF_ERROR(retval);
+    pPmObj_t pobj;
 
     /* Initialize the heap and the globals */
     retval = heap_init(heap_base, heap_size);
     PM_RETURN_IF_ERROR(retval);
 
-    retval = global_init();
-    PM_RETURN_IF_ERROR(retval);
+    /* Clear the global struct */
+    sli_memset((uint8_t *)&gVmGlobal, '\0', sizeof(PmVmGlobal_t));
 
-    /* Load usr image info if given */
-/*DWH
-    if (pusrimg != C_NULL)
-    {
-        retval = img_appendToPath(memspace, pusrimg);
-    }
-*/
+    /* Set the PyMite release num (for debug and post mortem) */
+    gVmGlobal.errVmRelease = PM_RELEASE;
+
+    /* Init native frame */
+    OBJ_SET_SIZE(&gVmGlobal.nativeframe, sizeof(PmNativeFrame_t));
+    OBJ_SET_TYPE(&gVmGlobal.nativeframe, OBJ_TYPE_NFM);
+    gVmGlobal.nativeframe.nf_func = C_NULL;
+    gVmGlobal.nativeframe.nf_stack = C_NULL;
+    gVmGlobal.nativeframe.nf_active = C_FALSE;
+    gVmGlobal.nativeframe.nf_numlocals = 0;
+
+    /* Create empty threadList */
+    retval = list_new(&pobj);
+    gVmGlobal.threadList = (pPmList_t)pobj;
 
     return retval;
 }
@@ -82,8 +132,14 @@ pm_run(uint8_t const *modstr)
     retval = mod_import(pstring, &pmod);
     PM_RETURN_IF_ERROR(retval);
 
-    /* Load builtins into thread */
-    retval = global_setBuiltins((pPmFunc_t)pmod);
+    /* Load builtins module */
+    retval = pm_loadBuiltins();
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Put builtins module in the module's attrs dict */
+    retval = dict_setItem((pPmObj_t)((pPmFunc_t)pmod)->f_attrs,
+                          (pPmObj_t)&pm_global_string_bi,
+                          PM_PBUILTINS);
     PM_RETURN_IF_ERROR(retval);
 
     /* Interpret the module's bcode */

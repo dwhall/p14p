@@ -99,11 +99,6 @@ int t075(void)
     retval = mod_import(pstring, &pmodB);
     PM_RETURN_IF_ERROR(retval);
 
-    /* Load builtins into thread */
-    retval = global_setBuiltins((pPmFunc_t)pmodA);
-    retval = global_setBuiltins((pPmFunc_t)pmodB);
-    PM_RETURN_IF_ERROR(retval);
-
     /* Interpret the module's bcode */
     retval = interp_addThread((pPmFunc_t)pmodA);
     retval = interp_addThread((pPmFunc_t)pmodB);
@@ -121,6 +116,8 @@ int main(void)
     PmReturn_t retval;
     uint16_t i;
 
+    retval = plat_init();
+    PM_RETURN_IF_ERROR(retval);
 
     /* Run the typical tests */
     for (i = 0; i < num_typical_tests; i++)
@@ -158,6 +155,7 @@ int main(void)
     retval = t075();
     PM_RETURN_IF_ERROR(retval);
 
+    plat_deinit();
     puts("Done.");
     return PM_RET_OK;
  }

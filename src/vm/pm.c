@@ -114,6 +114,10 @@ pm_init(uint8_t *heap_base, uint32_t heap_size)
     retval = list_new(&pobj);
     gVmGlobal.threadList = (pPmList_t)pobj;
 
+    /* Load builtins module */
+    retval = pm_loadBuiltins();
+    PM_RETURN_IF_ERROR(retval);
+
     return retval;
 }
 
@@ -132,10 +136,6 @@ pm_run(uint8_t const *modstr)
     retval = mod_import(pstring, &pmod);
     PM_RETURN_IF_ERROR(retval);
 
-    /* Load builtins module */
-    retval = pm_loadBuiltins();
-    PM_RETURN_IF_ERROR(retval);
-
     /* Put builtins module in the module's attrs dict */
     retval = dict_setItem((pPmObj_t)((pPmFunc_t)pmod)->f_attrs,
                           (pPmObj_t)&pm_global_string_bi,
@@ -146,12 +146,6 @@ pm_run(uint8_t const *modstr)
     retval = interp_addThread((pPmFunc_t)pmod);
     PM_RETURN_IF_ERROR(retval);
     retval = interpret(INTERP_RETURN_ON_NO_THREADS);
-
-    /*
-     * De-initialize the hardware platform.
-     * Ignore plat_deinit's retval so interpret's retval returns to caller.
-     */
-    plat_deinit();
 
     return retval;
 }

@@ -2113,7 +2113,7 @@ CALL_FUNC_CLEANUP:
          */
         PM_REPORT_IF_ERROR(retval);
 
-        /* If this is the last thread, return the error code */
+        /* If last thread, break so error code in retval is undisturbed */
         if ((gVmGlobal.threadList->length <= 1) && (retval != PM_RET_OK))
         {
             break;

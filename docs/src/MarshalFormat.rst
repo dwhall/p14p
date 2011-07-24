@@ -8,10 +8,10 @@ P14p Marshal Format
 History
 -------
 
-The PyMite virtual machine used a proprietary code image format that was
-suitable for embedding a Python program as byte-wise data in the source code
-of the VM as well as to use as the serial data format during interactive
-sessions between host PC and the embedded target.
+In versions pior to 10, the PyMite virtual machine used a proprietary code image
+format that was suitable for embedding a Python program as byte-wise data in the
+source code of the VM as well as to use as the serial data format during
+interactive sessions between host PC and the embedded target.
 
 One limitation of the code image format is that the embedded target did not
 have the capability to write the image format back out its communication
@@ -80,18 +80,19 @@ All remaining types use a multi-byte representation:
 ======= ==================  ====================================================
 Type    Representation(s)   Byte Values
 ======= ==================  ====================================================
-Int     I####               0x4C, LSB0, LSB1, LSB2, MSB
-Int     H##                 0x57, LSB, MSB
 Int     B#                  0x42, LSB
-Float   R####               0x52, <32b float in struct.pack("<f", f) format>
-String  S##<N chars>        0x53, N.LSB, N.MSB, <N bytes>
+Int     H##                 0x57, LSB, MSB
+Int     I####               0x4C, LSB0, LSB1, LSB2, MSB
+Float   r####               0x72, <32b float in struct.pack("<f", f) format>
+Float   R########           0x52, Reserved for 64-bit double datatype
 String  s#<N chars>         0x73, N, <N bytes>
-Tuple   )##<N objects>      0x29, N.LSB, N.MSB, <N marshaled objs>
+String  S##<N chars>        0x53, N.LSB, N.MSB, <N bytes>
 Tuple   (#<N objects>       0x28, N, <N marshaled objs>
-List    ]##<N objects>      0x5D, LSB, MSB, <N marshaled objs>
+Tuple   )##<N objects>      0x29, N.LSB, N.MSB, <N marshaled objs>
 List    [#<N objects>       0x5B, LSB, MSB, <N marshaled objs>
-Dict    }##<N k,v pairs>    0x7D, N.LSB, N.MSB, <N marshaled k,v pairs>
+List    ]##<N objects>      0x5D, LSB, MSB, <N marshaled objs>
 Dict    {#<N k,v pairs>     0x7B, N, <N marshaled k,v pairs>
+Dict    }##<N k,v pairs>    0x7D, N.LSB, N.MSB, <N marshaled k,v pairs>
 Code    C...                0x43, ... Explained below
 ======= ==================  ====================================================
 

@@ -65,6 +65,9 @@ func_new(pPmObj_t pco, pPmObj_t pglobals, pPmObj_t *r_pfunc)
 
         /* Store the given globals dict */
         pfunc->f_globals = (pPmDict_t)pglobals;
+
+        /* Set the func's code attribute */
+        retval = dict_setItem(pobj, (pPmObj_t)&pm_global_string_code_attr, pco);
     }
 
     *r_pfunc = (pPmObj_t)pfunc;

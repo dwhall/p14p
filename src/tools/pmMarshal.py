@@ -109,7 +109,7 @@ def loads(s):
     elif t == 'B':
         return struct.unpack("<b", s[1])[0]
 
-    elif t == 'R':
+    elif t == 'r':
         return struct.unpack("<f", s[1:5])[0]
 
     elif t in 's':
@@ -171,7 +171,9 @@ def dumps(o):
     type_o = type(o)
 
     if type_o == int:
-        if o >= -128 and o < 128:
+        if o >= 0 and o <= 9:
+            return str(o)
+        elif o >= -128 and o < 128:
             return "B%s" % struct.pack("<b", o)
         elif o >= -32768 and o < 32768:
             return "H%s" % struct.pack("<h", o)
@@ -179,7 +181,7 @@ def dumps(o):
             return "I%s" % struct.pack("<i", o)
 
     elif type_o == float:
-        return "R%s" % struct.pack("<f", f)
+        return "r%s" % struct.pack("<f", o)
 
     elif type_o == str:
         if len(o) < 256:
@@ -244,6 +246,7 @@ def _test_dumps():
         print repr(dumps(i))
     print repr(dumps(30583))
     print repr(dumps(43690))
+    print repr(dumps(3.14))
     d = {}
     d[0] = "zero"
     t = (256, "tfs", 9, co)
@@ -268,13 +271,14 @@ def _test_loads():
     print loads("I\x20\x00\x00\x00")
     print loads("I\x20\x00\x00\x80")
     print loads(dumps((1,2,3)))
+    print loads(dumps(3.14))
     print loads(dumps(range(5,20,3)))
     print loads(dumps(_test_loads.__code__))
 
 
 def _test():
     def foo():
-        print 42
+        print "eval(loads(dumps(foo))) ... worked!"
 
     assert dumps((False,)) == "(\x01F"
     assert dumps((True,)) == "(\x01T"
@@ -287,9 +291,14 @@ def _test():
         assert loads(dumps(i)) == i
     for i in ((True,), (False,), (0,1),):
         assert loads(dumps(i)) == i
+    eval(loads(dumps(foo.__code__)))
 
 
 if __name__ == "__main__":
     _test()
     _test_dumps()
     _test_loads()
+    def fim():
+        print "in fim"
+    s = dumps(fim.__code__)
+    print repr(s)

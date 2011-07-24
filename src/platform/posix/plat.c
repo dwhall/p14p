@@ -46,10 +46,11 @@ plat_init(void)
      * #67 Using sigaction complicates the use of getchar (below),
      * so signal() is used instead.
      */
-#ifndef __DEBUG__
+/*#ifndef __DEBUG__*/
+/* This block was ifndef'd because of a verbal warning that signals cause trouble when debugging */
     signal(SIGALRM, _sigalrm_handler);
     ualarm(1000, 1000);
-#endif
+/*#endif*/
 
     return PM_RET_OK;
 }

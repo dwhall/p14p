@@ -60,6 +60,25 @@ typedef struct PmCo_s
  *pPmCo_t;
 
 
+/* Same as PmCo_t, but not const (used by marshal for creating dynamic COs */
+typedef struct PmCob_s
+{
+    PmObjDesc_t od;
+    PmString_t *co_code;
+    PmString_t *co_lnotab;
+    PmTuple_t *co_names;
+    PmTuple_t *co_consts;
+    PmTuple_t *co_cellvars;
+    uint16_t co_firstlineno;
+    uint8_t co_argcount;
+    uint8_t co_flags;
+    uint8_t co_stacksize;
+    uint8_t co_nlocals;
+    uint8_t co_nfreevars;
+} PmCob_t,
+ *pPmCob_t;
+
+
 PmReturn_t co_getFromNames(pPmObj_t pco, uint16_t n, pPmObj_t *r_pname);
 PmReturn_t co_getConst(pPmObj_t pco, uint16_t n, pPmObj_t *r_pconst);
 PmReturn_t co_getName(pPmObj_t pco, pPmObj_t *r_pname);
@@ -71,5 +90,6 @@ PmReturn_t co_getLnotabLen(pPmObj_t pco, uint16_t *r_len);
 PmReturn_t co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_pbyte);
 PmReturn_t co_getNlocals(pPmObj_t pco, uint8_t *r_pn);
 PmReturn_t co_getFirstlineno(pPmObj_t pco, uint16_t *r_plineno);
+PmReturn_t co_new(pPmObj_t *r_pco);
 
 #endif /* __CODEOBJ_H__ */

@@ -100,6 +100,17 @@ extern "C" {
 /** Returns an error code if it is not PM_RET_OK */
 #define PM_RETURN_IF_ERROR(retval) if ((retval) != PM_RET_OK) return (retval)
 
+/** Pops a temp root and returns an error code if it is not PM_RET_OK */
+#define PM_POP_ROOT_AND_RETURN_IF_ERROR(retval, id) \
+    do \
+    { \
+        if ((retval) != PM_RET_OK) \
+        { \
+            heap_gcPopTempRoot(id); \
+            return (retval); \
+        } \
+    } while (0)
+
 /** Prints an error message if argument is not PM_RET_OK */
 #define PM_REPORT_IF_ERROR(retval) if ((retval) != PM_RET_OK) \
                                        plat_reportError(retval)
@@ -222,6 +233,7 @@ typedef enum PmReturn_e
 #include "float.h"
 #include "plat_interface.h"
 #include "bytearray.h"
+#include "marshal.h"
 
 
 /** Pointer to a native function used for lookup tables in interp.c */
@@ -364,6 +376,8 @@ extern PmString9_t PM_PLAT_PROGMEM pm_global_string_bytearray;
 extern PmString4_t PM_PLAT_PROGMEM pm_global_string_none;
 extern PmString5_t PM_PLAT_PROGMEM pm_global_string_false;
 extern PmString4_t PM_PLAT_PROGMEM pm_global_string_true;
+extern PmString8_t PM_PLAT_PROGMEM pm_global_string_code_attr;
+
 extern PmInt_t PM_PLAT_PROGMEM * const pm_global_module_table_len_ptr;
 extern PmModuleEntry_t PM_PLAT_PROGMEM pm_global_module_table[];
 

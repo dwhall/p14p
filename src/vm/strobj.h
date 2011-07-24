@@ -47,8 +47,7 @@
  * @param r_pstring Return arg; addr of ptr to string
  */
 #define string_newWithLen(paddr, len, r_pstring) \
-    string_create((uint8_t const **)(paddr), (len), (int16_t)1, \
-                  (r_pstring))
+    string_create((uint8_t const **)(paddr), (len), (int16_t)1, (r_pstring))
 
 /**
  * Creates String object by replicating an existing C string, n times

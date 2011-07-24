@@ -26,10 +26,10 @@ def foo():
     pass
 d = dir()
 assert "__bi" in d and "foo" in d
-assert dir(foo) == []
+assert dir(foo) == ["__code__"]
 
 foo.bar = "bar"
-assert dir(foo) == ["bar"]
+assert dir(foo) == ["bar", "__code__"]
 
 
 # Check dir on a module

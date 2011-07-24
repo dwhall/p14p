@@ -593,7 +593,6 @@ heap_gcMarkObj(pPmObj_t pobj)
     int16_t n;
     PmType_t type;
 
-    /* Return if ptr is null  */
     if (pobj == C_NULL)
     {
         return retval;
@@ -666,30 +665,19 @@ heap_gcMarkObj(pPmObj_t pobj)
             break;
 
         case OBJ_TYPE_COB:
-            /* Mark the code obj head */
             OBJ_SET_GCVAL(pobj, pmHeap.gcval);
 
-            /* Mark the names tuple */
-            retval = heap_gcMarkObj((pPmObj_t)((pPmCo_t)pobj)->co_names);
+            /* Mark the fields which point to objects */
+            retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_code);
             PM_RETURN_IF_ERROR(retval);
-
-            /* Mark the consts tuple */
-            retval = heap_gcMarkObj((pPmObj_t)((pPmCo_t)pobj)->co_consts);
+            retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_lnotab);
             PM_RETURN_IF_ERROR(retval);
-
-            /* #122: Mark the code image if it is in RAM */
-/*DWH
-            if (((pPmCo_t)pobj)->co_memspace == MEMSPACE_RAM)
-            {
-                retval = heap_gcMarkObj((pPmObj_t)
-                                        (((pPmCo_t)pobj)->co_codeimgaddr));
-                PM_RETURN_IF_ERROR(retval);
-            }
-*/
-
-            /* #256: Add support for closures */
-            /* Mark the cellvars tuple */
-            retval = heap_gcMarkObj((pPmObj_t)((pPmCo_t)pobj)->co_cellvars);
+            retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_names);
+            PM_RETURN_IF_ERROR(retval);
+            retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_consts);
+            PM_RETURN_IF_ERROR(retval);
+            retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_cellvars);
+            PM_RETURN_IF_ERROR(retval);
             break;
 
         case OBJ_TYPE_MOD:

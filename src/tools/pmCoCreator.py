@@ -240,14 +240,14 @@ def process_globals():
     cobjs = (None, -1,0,1,2,3,4,5,6,7,8,9,True,False,
              "__bi","__md","code","__init__","next",(),"",
              "Generator", "Exception", "bytearray",
-             "None", "False", "True")
+             "None", "False", "True", "__code__")
     cnames = map(lambda x: GLOBAL_PREFIX + x,
                  ("none", "negone", "zero", "one", "two", "three", "four",
                   "five", "six", "seven", "eight", "nine", "true", "false",
                   "string_bi", "string_md", "string_code", "string_init",
                   "string_next", "empty_tuple", "empty_string",
                   "string_generator", "string_exception", "string_bytearray",
-                  "string_none", "string_false", "string_true",))
+                  "string_none", "string_false", "string_true", "string_code_attr",))
     map(obj_to_cvar, cobjs, cnames)
 
 

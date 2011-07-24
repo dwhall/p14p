@@ -100,7 +100,7 @@ co_getLnotabAtOffset(pPmObj_t pco, uint16_t n, uint8_t *r_pbyte)
 }
 
 
-PmReturn_t 
+PmReturn_t
 co_getNlocals(pPmObj_t pco, uint8_t *r_pn)
 {
     *r_pn = ((pPmCo_t)pco)->co_nlocals;
@@ -108,9 +108,35 @@ co_getNlocals(pPmObj_t pco, uint8_t *r_pn)
 }
 
 
-PmReturn_t 
+PmReturn_t
 co_getFirstlineno(pPmObj_t pco, uint16_t *r_plineno)
 {
     *r_plineno = ((pPmCo_t)pco)->co_firstlineno;
     return PM_RET_OK;
+}
+
+
+PmReturn_t
+co_new(pPmObj_t *r_pco)
+{
+    PmReturn_t retval;
+    uint8_t *pchunk;
+
+    retval = heap_getChunk(sizeof(PmCob_t), &pchunk);
+    PM_RETURN_IF_ERROR(retval);
+    *r_pco = (pPmObj_t)pchunk;
+    OBJ_SET_TYPE(*r_pco, OBJ_TYPE_COB);
+
+    ((pPmCob_t)*r_pco)->co_code = C_NULL;
+    ((pPmCob_t)*r_pco)->co_lnotab = C_NULL;
+    ((pPmCob_t)*r_pco)->co_names = C_NULL;
+    ((pPmCob_t)*r_pco)->co_consts = C_NULL;
+    ((pPmCob_t)*r_pco)->co_cellvars = C_NULL;
+    ((pPmCob_t)*r_pco)->co_firstlineno = 0;
+    ((pPmCob_t)*r_pco)->co_argcount = 0;
+    ((pPmCob_t)*r_pco)->co_flags = 0;
+    ((pPmCob_t)*r_pco)->co_stacksize = 0;
+    ((pPmCob_t)*r_pco)->co_nlocals = 0;
+    ((pPmCob_t)*r_pco)->co_nfreevars = 0;
+    return retval;
 }

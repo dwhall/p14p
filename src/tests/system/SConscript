@@ -8,6 +8,7 @@ pmlib_py_sources = [
     "#src/lib/string.py",
     "#src/lib/list.py",
     "#src/lib/dict.py",
+    "#src/lib/pmMarshal.py",
     ]
 HAVE_FLOAT = "little endien"
 HAVE_DEBUG_INFO = True
@@ -22,8 +23,8 @@ cflags_opt = "-Os "
 Import("vars")
 env_dbg = Environment(variables = vars,
     CPPPATH = ["#src/vm", "#src/tests/system/build"],
-    CCFLAGS = cflags + cflags_opt,
-    LINKFLAGS = "-Wl,-map $runtests_map")
+    CCFLAGS = cflags + cflags_dbg,
+    LINKFLAGS = "-Wl,-map $mapfile")
 env = env_dbg
 if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
@@ -50,9 +51,9 @@ pm_generated_codeobjs = env.Command(generated_objs,
 Depends(pm_generated_codeobjs, pmfeatures_py)#[pmfeatures_py, plat_h, plat_c])
 
 # Build pmvm library, a linker map and the executable
-runtests_map = env.Command("#src/tests/system/build/runtests.map", "", Touch("$TARGET"))
+mapfile = env.Command("#src/tests/system/build/runtests.map", "", Touch("$TARGET"))
 pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
-runtests = env.Program("runtests", [runtests_map, platform_c_sources + pmvm_lib,
+runtests = env.Program("runtests", [mapfile, platform_c_sources + pmvm_lib,
                        "#src/tests/system/build/pm_generated_objs.c"])
 
 env.AlwaysBuild(env.Alias("check", [], runtests[0].abspath))

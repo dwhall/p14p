@@ -63,11 +63,10 @@ float_print(pPmObj_t pf)
     }
 
     /* #196: Changed to use snprintf */
-    bytesWritten = snprintf((char *)&tBuffer, 32, "%f", ((pPmFloat_t) pf)->val);
+    bytesWritten = snprintf((char *)&tBuffer, 32-1, "%f", ((pPmFloat_t) pf)->val);
 
     /* Sanity check */
-    C_ASSERT(bytesWritten != 0);
-    C_ASSERT(bytesWritten < sizeof(tBuffer));
+    C_ASSERT(bytesWritten > 0);
 
     for (i = (uint8_t)0; i < bytesWritten; i++)
     {

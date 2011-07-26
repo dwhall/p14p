@@ -18,61 +18,59 @@
 
 
 ##
-# Receives an image over the platform's standard connection.
-# Returns the image in a string object
+# Receives a bytestream over the platform's standard connection.
+# Converts the byte stream into an object using marshal's load function.
+# Returns the resulting object on the stack.
+# Note: Read and load are performed in this function so that the pmMarshal
+# module does not have to be loaded into RAM.
 #
-def _getImg():
+def _read_and_load():
     """__NATIVE__
     PmReturn_t retval;
-    uint8_t imgType;
-    uint16_t imgSize;
+    uint16_t size;
     uint8_t *pchunk;
-    pPmCodeImgObj_t pimg;
+    pPmString_t pstr;
+    pPmObj_t pobj;
     uint16_t i;
     uint8_t b;
+    uint8_t objid;
 
-    /* Get the image type */
-    retval = plat_getByte(&imgType);
-    PM_RETURN_IF_ERROR(retval);
-
-    /* Quit if a code image type was not received */
-    if (imgType != OBJ_TYPE_CIM)
-    {
-        PM_RAISE(retval, PM_RET_EX_STOP);
-        return retval;
-    }
-
-    /* Get the image size (little endien) */
+    /* Get the size (little endien) */
     retval = plat_getByte(&b);
     PM_RETURN_IF_ERROR(retval);
-    imgSize = b;
+    size = b;
     retval = plat_getByte(&b);
     PM_RETURN_IF_ERROR(retval);
-    imgSize |= (b << 8);
+    size |= (b << 8);
 
-    /* Get space for CodeImgObj */
-    retval = heap_getChunk(sizeof(PmCodeImgObj_t) + imgSize, &pchunk);
+    /* Allocate space to receive bytes */
+    retval = heap_getChunk(sizeof(PmString_t) + size, &pchunk);
     PM_RETURN_IF_ERROR(retval);
-    pimg = (pPmCodeImgObj_t)pchunk;
-    OBJ_SET_TYPE(pimg, OBJ_TYPE_CIO);
+    pstr = (pPmString_t)pchunk;
+    OBJ_SET_TYPE(pstr, OBJ_TYPE_STR);
+    pstr->length = size;
+    /* NOTE: Assumes USE_STRING_CACHE is non-zero in strobj.h */
+    pstr->next = C_NULL;
 
-    /* Start the image with the bytes that have already been received */
-    i = 0;
-    pimg->val[i++] = imgType;
-    pimg->val[i++] = imgSize & 0xFF;
-    pimg->val[i++] = (imgSize >> 8) & 0xFF;
-
-    /* Get the remaining bytes in the image */
-    for(; i < imgSize; i++)
+    /* Get the payload bytes */
+    for(i = 0; i < size; i++)
     {
         retval = plat_getByte(&b);
         PM_RETURN_IF_ERROR(retval);
-
-        pimg->val[i] = b;
+        pstr->val[i] = b;
     }
+    pstr->val[i] = '\\0';
 
-    /* Return the image as a code image object on the stack */
-    NATIVE_SET_TOS((pPmObj_t)pimg);
+    /* Load the marshaled string to an object. */
+    heap_gcPushTempRoot((pPmObj_t)pstr, &objid);
+    retval = marshal_load(pstr->val, pstr->length, &pobj);
+    heap_gcPopTempRoot(objid);
+    PM_RETURN_IF_ERROR(retval);
+    NATIVE_SET_TOS(pobj);
+
+    /* Free the string */
+    retval = heap_freeChunk((pPmObj_t)pstr);
+
     return retval;
     """
     pass
@@ -91,11 +89,7 @@ def x04():
 #
 def ipm(g={}):
     while 1:
-        # Wait for a code image, make a code object from it
-        # and evaluate the code object.
-        # #180: One-liner turned into 3 so that objects get bound to roots
-        s = _getImg()
-        co = Co(s)
+        co = _read_and_load()
         rv = eval(co, g)
         x04()
 

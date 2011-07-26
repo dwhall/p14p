@@ -52,10 +52,15 @@ if "tags" in COMMAND_LINE_TARGETS or "TAGS" in COMMAND_LINE_TARGETS:
 #    Alias("dist", dist)
 
 
+elif "ipm" in COMMAND_LINE_TARGETS:
+    print "Build for your target platform, then run src/tools/ipm.py"
+    print "with arguments to connect to the target."
+    exit(0)
+
+
 elif "check" in COMMAND_LINE_TARGETS:
-    platform_path = os.path.join("src", "tests", "system")
-    sconscript_path = os.path.join(platform_path, "SConscript")
-    build_path = os.path.join(platform_path, "build")
+    sconscript_path = os.path.join("src", "tests", "system", "SConscript")
+    build_path = os.path.join("src", "tests", "system", "build")
     run_tests = SConscript(sconscript_path, "vars", variant_dir=build_path)
     Clean("check", build_path)
 

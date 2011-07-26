@@ -53,14 +53,14 @@ REQUIRES: pySerial package from http://pyserial.sourceforge.net/
 
 
 import cmd, code, dis, optparse, os, subprocess, sys, os.path
-import pmImgCreator
+from pmMarshal import dumps
 
 TOOLS_DIR = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 PLATFORM_DIR = os.path.join(TOOLS_DIR, '..', 'platform')
 
 NEED_PYSERIAL = "Install the pySerial module from http://pyserial.sourceforge.net/"
 if not sys.platform.lower().startswith("win"):
-    PMVM_EXE = os.path.join(PLATFORM_DIR, "desktop/main.out")
+    PMVM_EXE = os.path.join(PLATFORM_DIR, "posix/build/main")
 else:
     PMVM_EXE = os.path.join(PLATFORM_DIR, "windows/main.exe")
 IPM_PROMPT = "ipm> "
@@ -120,7 +120,7 @@ class PipeConnection(Connection):
         # It will usually be an exception message from the target
         # TODO
 
-        # Send characters as they are received, end on REPLY_TERMINATOR
+        # Yield characters as they are received, end on REPLY_TERMINATOR
         while True:
             c = self.child.stdout.read(1)
 
@@ -203,11 +203,10 @@ class Interactive(cmd.Cmd):
     ipmcommands = ("?", "help", "load",)
 
 
-    def __init__(self, conn, pmfn):
+    def __init__(self, conn):
         cmd.Cmd.__init__(self,)
         self.prompt = IPM_PROMPT
         self.conn = conn
-        self.pic = pmImgCreator.PmImgCreator(pmfn)
 
 
     def do_help(self, *args):
@@ -234,9 +233,11 @@ class Interactive(cmd.Cmd):
         src = open(fn).read()
         code = compile(src, fn, "exec")
 
-        img = self.pic.co_to_str(code)
-
-        self.conn.write(img)
+        marshaled_co = dumps(code)
+        l = len(marshaled_co)
+        self.conn.write(l & 0xff)
+        self.conn.write((l >> 8) & 0xff)
+        self.conn.write(marshaled_co)
         self.stdout.write(self.conn.read())
 
 
@@ -289,7 +290,7 @@ class Interactive(cmd.Cmd):
 
         # Convert to a code image
         try:
-            codeimg = self.pic.co_to_str(codeobj)
+            marshaled_co = dumps(codeobj)
 
         # Print any conversion errors
         except Exception, e:
@@ -304,7 +305,10 @@ class Interactive(cmd.Cmd):
             # print "DEBUG: codeimg = ", repr(codeimg)
 
             try:
-                self.conn.write(codeimg)
+                l = len(marshaled_co)
+                self.conn.write(chr(l & 0xff))
+                self.conn.write(chr((l >> 8) & 0xff))
+                self.conn.write(marshaled_co)
             except Exception, e:
                 self.stdout.write(
                     "Connection write error, type Ctrl+%s to quit.\n" % EOF_KEY)
@@ -337,7 +341,7 @@ class Interactive(cmd.Cmd):
 def parse_cmdline():
     """Parses the command line for options.
     """
-    parser = optparse.OptionParser(usage="%prog -f PMFEATURES [options]")
+    parser = optparse.OptionParser(usage="%prog [options]")
     parser.add_option("-d", "--desktop",
                       action="store_true",
                       dest="desktop",
@@ -351,29 +355,23 @@ def parse_cmdline():
                       default=19200,
                       help="baudrate (bps) (default = 19200)",
                       metavar="BAUD")
-    parser.add_option("-f",
-                      dest="features_fn",
-                      help="path to the platform's pmfeatures.py file (REQUIRED)",
-                      metavar="PMFEATURES")
 
     (options, args) = parser.parse_args()
-    if not options.features_fn:
-        raise Exception("Must give the path to the pmfeatures.py file using -f.")
     if options.desktop and options.serdev:
         raise Exception("Must not specify desktop and serial connections simultaneously.")
     if not options.desktop and not options.serdev:
         raise Exception("Must specify a desktop or serial connection.")
 
     if options.desktop:
-        c = PipeConnection()
+        conn = PipeConnection()
     elif options.serdev:
-        c = SerialConnection(options.serdev, options.baud)
-    return (c, options.features_fn)
+        conn = SerialConnection(options.serdev, options.baud)
+    return conn
 
 
 def main():
-    conn, pmfeatures_filename = parse_cmdline()
-    i = Interactive(conn, pmfeatures_filename)
+    conn = parse_cmdline()
+    i = Interactive(conn)
     i.run()
 
 

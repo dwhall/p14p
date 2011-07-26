@@ -618,7 +618,7 @@ heap_gcMarkObj(pPmObj_t pobj)
     type = (PmType_t)OBJ_GET_TYPE(pobj);
     switch (type)
     {
-            /* Objects with no references to other objects */
+        /* Objects with no references to other objects */
         case OBJ_TYPE_NON:
         case OBJ_TYPE_INT:
         case OBJ_TYPE_FLT:
@@ -746,10 +746,10 @@ heap_gcMarkObj(pPmObj_t pobj)
             retval = heap_gcMarkObj((pPmObj_t)((pPmClass_t)pobj)->cl_bases);
             break;
 
-            /*
-             * An obj in ram should not be of these types.
-             * Images arrive in RAM as string objects (image is array of bytes)
-             */
+        /*
+         * An obj in ram should not be of these types.
+         * Images arrive in RAM as string objects (image is array of bytes)
+         */
         case OBJ_TYPE_CIM:
         case OBJ_TYPE_NIM:
             PM_RAISE(retval, PM_RET_EX_SYS);

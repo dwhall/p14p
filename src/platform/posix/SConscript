@@ -4,7 +4,7 @@ platform_py_sources = ["main.py"]
 pmlib_py_sources = [
     "#src/lib/__bi.py",
     "#src/lib/sys.py",
-#    "#src/lib/ipm.py",
+    "#src/lib/ipm.py",
     "#src/lib/string.py",
     "#src/lib/list.py",
     "#src/lib/dict.py",

@@ -42,9 +42,8 @@ Build
 -----
 
 P14p is built, for most platforms, using a POSIX-like terminal, a Makefile
-(or using SCons) and a GCC [cross] compiler.  The desktop platform is the 
+(or using SCons) and a GCC [cross] compiler.  The desktop64 platform is the 
 default target platform and it builds for Mac OS X, Linux or Cygwin.
-See src/platform/desktop/README for one extra step if you have 64-bit hardware.
 
 GNU Make should be installed since other forms of Make aren't 100% compatible.
 The development system should have installed the
@@ -138,6 +137,7 @@ Platforms in **bold** are new since the previous release:
     - at91sam7s-ek: The Atmel `evaluation kit for the ARM7 AT91SAM7S64`_ **[Not Recommended]**
     - avr: Generic `Atmel AVR`_
     - desktop: Mac OS X, Linux, Cygwin or any other Posix-like desktop OS
+    - **desktop64**: Mac OS X, Linux, Cygwin or any other 64-bit Posix-like desktop OS
     - **econotag**: The Freescale MC13224 based `Redbee EconoTAG`_ 802.15.4 wireless module
     - mbed: The NXP LPC1368 based mbed_ microcontroller platform
     - mmb103: The Atmel ATmega103 based Mega Mini Board **[Not Recommended]**

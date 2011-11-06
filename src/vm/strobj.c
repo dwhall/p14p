@@ -253,9 +253,8 @@ string_print(pPmObj_t pstr, uint8_t is_escaped)
 PmReturn_t
 string_cacheInit(void)
 {
-#if USE_STRING_CACHE
     pstrcache = C_NULL;
-#endif
+
     return PM_RET_OK;
 }
 

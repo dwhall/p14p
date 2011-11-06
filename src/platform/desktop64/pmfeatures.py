@@ -1,4 +1,3 @@
-/*
 # This file is Copyright 2010 Dean Hall.
 #
 # This file is part of the Python-on-a-Chip program.
@@ -10,13 +9,21 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 # A copy of the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
 # is seen in the file COPYING up one directory from this.
-*/
 
-#ifndef _PLAT_H_
-#define _PLAT_H_
-
-#define PM_FLOAT_LITTLE_ENDIAN
-#define PM_PLAT_POINTER_SIZE 4
-#define PM_PLAT_HEAP_ATTR __attribute__((aligned (4)))
-\
-#endif /* _PLAT_H_ */
+PM_FEATURES = {
+    "HAVE_PRINT": True,
+    "HAVE_GC": True,
+    "HAVE_FLOAT": True,
+    "HAVE_DEL": True,
+    "HAVE_IMPORTS": True,
+    "HAVE_DEFAULTARGS": True,
+    "HAVE_REPLICATION": True,
+    "HAVE_CLASSES": True,
+    "HAVE_ASSERT": True,
+    "HAVE_GENERATORS": True,
+    "HAVE_BACKTICK": True,
+    "HAVE_STRING_FORMAT": True,
+    "HAVE_CLOSURES": True,
+    "HAVE_BYTEARRAY": False,
+    "HAVE_DEBUG_INFO": True,
+}

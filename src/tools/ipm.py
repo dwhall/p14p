@@ -59,10 +59,12 @@ TOOLS_DIR = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 PLATFORM_DIR = os.path.join(TOOLS_DIR, '..', 'platform')
 
 NEED_PYSERIAL = "Install the pySerial module from http://pyserial.sourceforge.net/"
-if not sys.platform.lower().startswith("win"):
-    PMVM_EXE = os.path.join(PLATFORM_DIR, "desktop/main.out")
-else:
+if sys.platform.lower().startswith("win"):
     PMVM_EXE = os.path.join(PLATFORM_DIR, "windows/main.exe")
+else:
+    PMVM_EXE = os.path.join(PLATFORM_DIR, "desktop64/main.out")
+    if not os.path.exists(PMVM_EXE):
+        PMVM_EXE = os.path.join(PLATFORM_DIR, "desktop/main.out")
 IPM_PROMPT = "ipm> "
 IPM_PROMPT2 = ".... "
 COMPILE_FN = "<ipm>"

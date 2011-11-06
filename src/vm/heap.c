@@ -39,18 +39,39 @@
  * descriptor.  That field is nine bits with two assumed lsbs (zeros):
  * (0x1FF << 2) == 2044
  */
+#ifdef PM_PLAT_POINTER_SIZE
+#if PM_PLAT_POINTER_SIZE == 8
+#define HEAP_MAX_LIVE_CHUNK_SIZE 2040
+#else
 #define HEAP_MAX_LIVE_CHUNK_SIZE 2044
+#endif
+#endif
 
 /**
  * The maximum size a free chunk can be (a free chunk is one that is not in use).
  * The free chunk size is limited by the size field in the *heap* descriptor.
  * That field is fourteen bits with two assumed least significant bits (zeros):
  * (0x3FFF << 2) == 65532
+ * For 64-bit platforms, the value is 4 bytes less
  */
+#ifdef PM_PLAT_POINTER_SIZE
+#if PM_PLAT_POINTER_SIZE == 8
 #define HEAP_MAX_FREE_CHUNK_SIZE 65532
+#else
+#define HEAP_MAX_FREE_CHUNK_SIZE 65528
+#endif
+#endif
 
-/** The minimum size a chunk can be (rounded up to a multiple of 4) */
+/** The minimum size a chunk can be 
+ * (rounded up to a multiple of platform-pointer-size) */
+#ifdef PM_PLAT_POINTER_SIZE
+#if PM_PLAT_POINTER_SIZE == 8
+#define HEAP_MIN_CHUNK_SIZE ((sizeof(PmHeapDesc_t) + 7) & ~7)
+#else
 #define HEAP_MIN_CHUNK_SIZE ((sizeof(PmHeapDesc_t) + 3) & ~3)
+#endif
+#endif
+
 
 
 /**
@@ -419,7 +440,9 @@ heap_init(uint8_t *base, uint32_t size)
     C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%u\n",
                   pmHeap.base, pmHeap.avail);
 
+#if USE_STRING_CACHE
     string_cacheInit();
+#endif
 
     return PM_RET_OK;
 }
@@ -513,7 +536,7 @@ heap_getChunkImpl(uint16_t size, uint8_t **r_pchunk)
 /*
  * Allocates chunk of memory.
  * Filters out invalid sizes.
- * Rounds the size up to the next multiple of 4.
+ * Rounds the size up to the next multiple of the platform pointer size.
  * Obtains a chunk of at least the desired size.
  */
 PmReturn_t

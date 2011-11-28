@@ -42,9 +42,8 @@ Build
 -----
 
 P14p is built, for most platforms, using a POSIX-like terminal, a Makefile
-(or using SCons) and a GCC [cross] compiler.  The desktop platform is the 
+(or using SCons) and a GCC [cross] compiler.  The posix64 platform is the 
 default target platform and it builds for Mac OS X, Linux or Cygwin.
-See src/platform/desktop/README for one extra step if you have 64-bit hardware.
 
 GNU Make should be installed since other forms of Make aren't 100% compatible.
 The development system should have installed the
@@ -52,10 +51,11 @@ The development system should have installed the
 The SCons build system is experimental.
 Please read ``docs/src/BuildSystem.txt`` for more details.
 
-To build p14p for the desktop platform and run the interactive prompt::
+To build p14p for the posix64 platform and run the interactive prompt::
 
-    $ make ipm
+    $ scons
     ...
+    $ src/tools/ipm.py --desktop
     ipm> print "Hello world."
     Hello world.
     ipm> ^D
@@ -63,13 +63,13 @@ To build p14p for the desktop platform and run the interactive prompt::
 Press Control+D when done with the interactive prompt.
 To run the system tests on the desktop::
 
-    $ make check
+    $ scons check
 
-To cross-compile for a different platform, type ``make PLATFORM=<plat>``
+To cross-compile for a different platform, type ``scons PLATFORM=<plat>``
 where ``<plat>`` is the name of a subdirectory in ``src/platform/``.
 For example::
 
-    $ make PLATFORM=avr
+    $ scons PLATFORM=avr
 
 The author uses avr-gcc to compile for Atmel AVR microcontrollers.
 Other platforms use other compilers.  The windows platform uses a MicroSoft IDE.
@@ -124,28 +124,8 @@ Target Platforms
 
 Platforms in **bold** are new since the previous release:
 
-    - **arduino_mega**: The Atmel ATmega1280 based `Arduino Mega board`_
-    - at91sam7s-ek: The Atmel `evaluation kit for the ARM7 AT91SAM7S64`_ **[Not Recommended]**
-    - avr: Generic `Atmel AVR`_
-    - desktop: Mac OS X, Linux, Cygwin or any other Posix-like desktop OS
-    - **econotag**: The Freescale MC13224 based `Redbee EconoTAG`_ 802.15.4 wireless module
-    - mbed: The NXP LPC1368 based mbed_ microcontroller platform
-    - mmb103: The Atmel ATmega103 based Mega Mini Board **[Not Recommended]**
-    - **mosync**: The MoSync_ cross-platform framework for mobile platforms.
-    - **pic24**: The `Microchip PIC24/dsPIC family`_
-    - **stm32**: The ST Microelectronics STM32F103 `ET-STM32 Stamp Module`_
-    - **teensy**: The Atmel ATmega 1280 based `Teensy++ 2.0`_
-    - **windows**: The MicroSoft Windows desktop OS
-
-.. _`Arduino Mega board`: http://arduino.cc/en/Main/ArduinoBoardMega
-.. _`evaluation kit for the ARM7 AT91SAM7S64`:  http://www.atmel.com/dyn/products/tools_card.asp?tool_id=3784
-.. _`Atmel AVR`: http://www.atmel.com/products/AVR/megaavr.asp?family_id=607&source=avrhomereadmore
-.. _`Redbee EconoTAG`: http://redwirellc.com/store/index.php?route=product/product&product_id=56
-.. _mbed: http://mbed.org/
-.. _MoSync: http://www.mosync.com/
-.. _`Microchip PIC24/dsPIC family`: http://www.microchip.com/stellent/idcplg?IdcService=SS_GET_PAGE&nodeId=2629&param=en533465
-.. _`ET-STM32 Stamp Module`: http://www.futurlec.com/ET-STM32_Stamp.shtml
-.. _`Teensy++ 2.0`: http://www.pjrc.com/teensy/
+    - posix: Mac OS X, Linux, Cygwin or any other Posix-like desktop OS
+    - **posix64**: Mac OS X, Linux, Cygwin or any other 64-bit Posix-like desktop OS
 
 
 Release Notes
@@ -156,7 +136,7 @@ This is release 10
     - JT: Created issues and patches for ipm, mbed and __bi.py.
 
 
-This is release 09
+Older releases:
 
 * Release 09, 2010/09/21
 

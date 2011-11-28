@@ -38,20 +38,36 @@
  * The live chunk size is determined by the size field in the *object*
  * descriptor.  That field is nine bits with two assumed lsbs (zeros):
  * (0x1FF << 2) == 2044
+ * For 64-bit platforms, the value is 4 bytes less
  */
+#if defined(PM_PLAT_POINTER_SIZE) && (PM_PLAT_POINTER_SIZE == 8)
+#define HEAP_MAX_LIVE_CHUNK_SIZE 2040
+#else
 #define HEAP_MAX_LIVE_CHUNK_SIZE 2044
+#endif
 
 /**
  * The maximum size a free chunk can be (a free chunk is one that is not in use).
  * The free chunk size is limited by the size field in the *heap* descriptor.
  * That field is fourteen bits with two assumed least significant bits (zeros):
  * (0x3FFF << 2) == 65532
+ * For 64-bit platforms, the value is 4 bytes less
  */
+#if defined(PM_PLAT_POINTER_SIZE) && (PM_PLAT_POINTER_SIZE == 8)
+#define HEAP_MAX_FREE_CHUNK_SIZE 65528
+#else
 #define HEAP_MAX_FREE_CHUNK_SIZE 65532
+#endif
 
-/** The minimum size a chunk can be (rounded up to a multiple of 4) */
+/**
+ * The minimum size a chunk can be
+ * (rounded up to a multiple of platform-pointer-size)
+ */
+#if defined(PM_PLAT_POINTER_SIZE) && (PM_PLAT_POINTER_SIZE == 8)
+#define HEAP_MIN_CHUNK_SIZE ((sizeof(PmHeapDesc_t) + 7) & ~7)
+#else
 #define HEAP_MIN_CHUNK_SIZE ((sizeof(PmHeapDesc_t) + 3) & ~3)
-
+#endif
 
 /**
  * Gets the GC's mark bit for the object.
@@ -510,11 +526,12 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
         requestedsize = HEAP_MIN_CHUNK_SIZE;
     }
 
-    /*
-     * Round up the size to a multiple of 4 bytes.
-     * This maintains alignment on 32-bit platforms (required).
-     */
+    /* Round up the size to a multiple of platform pointer size. */
+#if defined(PM_PLAT_POINTER_SIZE) && (PM_PLAT_POINTER_SIZE == 8)
+    adjustedsize = ((requestedsize + 7) & ~7);
+#else
     adjustedsize = ((requestedsize + 3) & ~3);
+#endif
 
     /* Attempt to get a chunk */
     retval = heap_getChunkImpl(adjustedsize, r_pchunk);
@@ -533,7 +550,11 @@ heap_getChunk(uint16_t requestedsize, uint8_t **r_pchunk)
     /* Ensure that the pointer is 4-byte aligned */
     if (retval == PM_RET_OK)
     {
+#if defined(PM_PLAT_POINTER_SIZE) && (PM_PLAT_POINTER_SIZE == 8)
+        C_ASSERT(((intptr_t)*r_pchunk & 7) == 0);
+#else
         C_ASSERT(((intptr_t)*r_pchunk & 3) == 0);
+#endif
     }
 
     return retval;

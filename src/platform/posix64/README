@@ -1,0 +1,35 @@
+====================
+The Posix64 Platform
+====================
+Formerly known as "desktop" or "desktop64"
+==========================================
+
+
+:Author:    Dean Hall
+
+
+Purpose
+-------
+
+This is a sample project that demonstrates running Python-on-a-Chip on a
+64-bit POSIX-compliant terminal.  Any POSIX-compliant OS should work
+(Mac OS X, Linux, Cygwin).
+
+
+Building the Project
+--------------------
+
+Start with a clean source tree.
+
+The posix64 platform is the default platform of the SCons build system,
+so typing ``scons`` in the root directory will build a binary to run on the
+posix64 platform::
+
+    $ scons
+
+The resulting binary is found in ``src/platform/posix64/build/main``.
+Presently, the main.py program runs the interactive prompt (ipm).
+To launch the vm on your posix64 target and connect to it, type this::
+
+    $ src/tools/ipm.py --desktop
+

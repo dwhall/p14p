@@ -59,10 +59,12 @@ TOOLS_DIR = os.path.dirname(__file__.decode(sys.getfilesystemencoding()))
 PLATFORM_DIR = os.path.join(TOOLS_DIR, '..', 'platform')
 
 NEED_PYSERIAL = "Install the pySerial module from http://pyserial.sourceforge.net/"
-if not sys.platform.lower().startswith("win"):
-    PMVM_EXE = os.path.join(PLATFORM_DIR, "posix/build/main")
-else:
+if sys.platform.lower().startswith("win"):
     PMVM_EXE = os.path.join(PLATFORM_DIR, "windows/main.exe")
+else:
+    PMVM_EXE = os.path.join(PLATFORM_DIR, "posix64/build/main")
+    if not os.path.exists(PMVM_EXE):
+        PMVM_EXE = os.path.join(PLATFORM_DIR, "posix/build/main")
 IPM_PROMPT = "ipm> "
 IPM_PROMPT2 = ".... "
 COMPILE_FN = "<ipm>"
@@ -384,7 +386,7 @@ def ser_test():
         print NEED_PYSERIAL
         raise e
 
-    pic = pmImgCreator.PmImgCreator(os.path.join(PLATFORM_DIR, "desktop/pmfeatures.py"))
+    pic = pmImgCreator.PmImgCreator(os.path.join(PLATFORM_DIR, "posix64/pmfeatures.py"))
     serconn = serial.Serial("/dev/cu.SLAB_USBtoUART", 19200)
     serconn.setTimeout(2)
 

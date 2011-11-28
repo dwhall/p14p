@@ -29,6 +29,7 @@ ID    FILE
 0x1A  marshal.c
 ----- ---------------------------------------
 0x70  RESERVED FOR PLATFORM-SPECIFIC FILES
+0x70  plat.c
 0x7F
 ----- ---------------------------------------
 0x90  utest.c

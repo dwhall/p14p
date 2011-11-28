@@ -10,7 +10,7 @@ EnsurePythonVersion(2, 6)
 
 import os, string
 
-DEFAULT_PLATFORM = "posix"
+DEFAULT_PLATFORM = "posix64"
 
 valid_platforms = [os.path.split(x)[1] for x in map(str, Glob("src/platform/*"))
                    if x not in ("_unmaintained", "COPYING")]
@@ -65,7 +65,7 @@ elif "check" in COMMAND_LINE_TARGETS:
     Clean("check", build_path)
 
 
-# Default: build a platform; posix is the default platform
+# Build the default platform
 else:
     if len(vars.args) == 0:
         vars.args["PLATFORM"] = DEFAULT_PLATFORM

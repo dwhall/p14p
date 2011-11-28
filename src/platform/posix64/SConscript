@@ -1,0 +1,52 @@
+# BEGIN PLATFORM BUILD CONFIGURATION
+platform_c_sources = ["main.c", "plat.c"]
+platform_py_sources = ["main.py"]
+pmlib_py_sources = [
+    "#src/lib/__bi.py",
+    "#src/lib/sys.py",
+    "#src/lib/ipm.py",
+    "#src/lib/string.py",
+    "#src/lib/list.py",
+    "#src/lib/dict.py",
+    "#src/lib/pmMarshal.py",
+    ]
+HAVE_FLOAT = "little endien"
+HAVE_DEBUG_INFO = True
+# END PLATFORM BUILD CONFIGURATION
+
+
+# Initialize Scons' construction environment
+import sys
+cflags = "-Wall -Wstrict-prototypes -Werror "
+cflags_dbg = "-ggdb -D__DEBUG__=1 "
+cflags_opt = "-Os "
+Import("vars")
+env_dbg = Environment(variables = vars,
+    CPPPATH = ["#src/vm", "#src/platform/posix64/build"],
+    CCFLAGS = cflags + cflags_dbg,
+    LINKFLAGS = "-Wl,-map $mapfile")
+env = env_dbg
+if not sys.platform.startswith("win"):
+    env['ARFLAGS'] = "rcs"
+
+# Generate pmfeatures.h
+pmfeatures_py = File("#src/platform/posix64/pmfeatures.py")
+pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
+    "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
+
+# Generate code objs and types
+generated_objs = [File("#src/platform/posix64/build/pm_generated_objs.c"),
+                  File("#src/platform/posix64/build/pm_generated_types.h")]
+pm_generated_codeobjs = env.Command(generated_objs,
+    platform_py_sources + pmlib_py_sources,
+    "src/tools/pmCoCreator.py src/platform/posix64/build $SOURCES")
+Depends(pm_generated_codeobjs, pmfeatures_py)
+
+# Build pmvm library, a linker map and the executable
+mapfile = env.Command("#src/platform/posix64/build/main.map", "", Touch("$TARGET"))
+pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
+main = env.Program("main", [mapfile, platform_c_sources + pmvm_lib,
+                           "#src/platform/posix64/build/pm_generated_objs.c"])
+Return("main")
+
+#:mode=python:

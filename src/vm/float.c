@@ -25,11 +25,11 @@
  */
 
 
-#include <math.h>
 #include "pm.h"
 
 
 #ifdef HAVE_FLOAT
+#include <math.h>
 
 
 PmReturn_t

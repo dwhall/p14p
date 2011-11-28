@@ -30,8 +30,6 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include <stdio.h>
-
 
 /**
  * Value indicating the release of PyMite
@@ -124,6 +122,7 @@ extern "C" {
 #define VERBOSITY_HIGH 3
 
 #if __DEBUG__
+#include <stdio.h>
 
 /** To be used to set DEBUG_PRINT_VERBOSITY to a value so no prints occur */
 #define VERBOSITY_OFF 0

@@ -46,6 +46,7 @@ float_new(float f, pPmObj_t *r_pf)
 
 
 #ifdef HAVE_PRINT
+#include <stdio.h>
 PmReturn_t
 float_print(pPmObj_t pf)
 {

@@ -32,14 +32,16 @@ def __gc_test(val):
     pval = NATIVE_GET_LOCAL(0);
     if (OBJ_GET_TYPE(pval) != OBJ_TYPE_INT)
     {
-        printf("-- type check -- [actual type: %d]\\n", OBJ_GET_TYPE(pval));
+        /* Removed so stdio isn't required */
+        /* printf("-- type check -- [actual type: %d]\\n", OBJ_GET_TYPE(pval)); */
         PM_RAISE(retval, PM_RET_EX_TYPE);
         return retval;
     }
 
     nval = ((pPmInt_t)pval)->val;
 
-    printf("%d [%d]\\n", nval-2, nval);
+    /* Removed so stdio isn't required */
+    /* printf("%d [%d]\\n", nval-2, nval); */
 
     NATIVE_SET_TOS(PM_NONE);
     return retval;

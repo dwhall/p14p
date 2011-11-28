@@ -30,7 +30,7 @@ class File():
         pPmObj_t pn;
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
-        FILE *pf;
+        FILE *pf = C_NULL;
 
         /* If wrong number of args, throw type exception */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -49,11 +49,12 @@ class File():
         }
 
         /* Open the file in write/bin mode */
-        pf = fopen((const char *)((pPmString_t)pfn)->val, "wb");
+        /* Removed so file isn't created (doesn't interfere with test) */
+        /*pf = fopen((const char *)((pPmString_t)pfn)->val, "wb");*/
 
         /* Save the pointer to file as an inaccessible attribute */
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
-        retval = int_new((uint32_t)pf, &pn);
+        retval = int_new((int32_t)(intptr_t)pf, &pn);
         PM_RETURN_IF_ERROR(retval);
         retval = dict_setItem(pattrs, PM_NONE, pn);
         PM_RETURN_IF_ERROR(retval);
@@ -70,7 +71,7 @@ class File():
         pPmObj_t pn;
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
-        FILE *pf;
+        /*FILE *pf;*/
 
         /* If wrong number of args, throw type exception */
         if (NATIVE_GET_NUM_ARGS() != 1)
@@ -84,8 +85,11 @@ class File():
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = dict_getItem(pattrs, PM_NONE, &pn);
         PM_RETURN_IF_ERROR(retval);
+        /* Removed so file isn't created (doesn't interfere with test) */
+        /*
         pf = (FILE *)((pPmInt_t)pn)->val;
         fclose(pf);
+        */
 
         NATIVE_SET_TOS(PM_NONE);
         return retval;

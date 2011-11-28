@@ -16,8 +16,8 @@
 #include "stdlib.h"
 
 
-#define HEAP_SIZE 0x2000
-
+/* Size set to accommodate 64-bit platforms */
+#define HEAP_SIZE 0x4000
 
 typedef struct atypical_settings_s
 {

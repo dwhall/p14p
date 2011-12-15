@@ -198,10 +198,10 @@ heap_dump(void)
     static int n = 0;
     uint16_t s;
     uint32_t i;
-    char filename[32];
+    char filename = "pmheapdump0N.bin";
     FILE *fp;
 
-    snprintf(filename, 32, "pmheapdump%02d.bin", n++);
+    filename[11] = '0' + n++;
     fp = fopen(filename, "wb");
 
     /* magic : PMDUMP for little endian or PMUDMP for big endian */

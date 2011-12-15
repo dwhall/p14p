@@ -118,4 +118,20 @@ int sli_strncmp(char const *s1, char const *s2, unsigned int n);
  */
 void sli_memset(unsigned char *dest, const char val, unsigned int n);
 
+/**
+ * Prints a string to stdout (using plat_putByte)
+ *
+ * @param s Pointer to the C string to print
+ */
+void sli_puts(uint8_t * s);
+
+/**
+ * Formats a 32-bit signed int as a decimal value.
+ *
+ * @param value the 32-bit signed value
+ * @param buf a pointer to where the formted string goes
+ * @return a pointer to the string. 
+ */
+uint8_t * sli_ltoa10(int32_t value, uint8_t *buf);
+
 #endif /* __SLI_H__ */

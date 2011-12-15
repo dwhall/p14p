@@ -118,3 +118,67 @@ sli_memset(unsigned char *dest, char const val, unsigned int n)
         dest++;
     }
 }
+
+
+void sli_puts(uint8_t * s)
+{
+    uint8_t *ps = s;
+    uint8_t c;
+
+    c = *ps;
+    ps++;
+    while (c != '\0')
+    {
+        plat_putByte(c);
+        c = *ps;
+        ps++;
+    }
+}
+
+
+uint8_t * sli_ltoa10(int32_t value, uint8_t *buf)
+{
+    int32_t const decimal_places[] = { 1000000000, 100000000, 10000000, 1000000,
+                                       100000, 10000, 1000, 100, 10, 1 };
+    int32_t decimal_place;
+    int32_t number;
+    uint8_t c;
+    uint8_t printed_one = 0;
+    uint8_t i;
+    uint8_t j;
+
+    number = value;
+    if (number == 0)
+    {
+        buf[0] = '0';
+        buf[1] = '\0';
+        return buf;
+    }
+
+    j = 0;
+    if (number < 0)
+    {
+        buf[0] = '-';
+        j++;
+        number = -number;
+    }
+
+    for (i = 0; i < 10; i++)
+    {
+        decimal_place = decimal_places[i];
+        c = '0';
+        while (number >= decimal_place)
+        {
+            number -= decimal_place;
+            c++;
+        }
+        if ((c != '0') || printed_one)
+        {
+            buf[j++] = c;
+            printed_one = 1;
+        }
+    }
+    buf[j] = '\0';
+
+    return buf;
+}

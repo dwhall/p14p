@@ -388,8 +388,7 @@ obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr)
     switch (OBJ_GET_TYPE(pobj))
     {
         case OBJ_TYPE_INT:
-            bytesWritten = snprintf((char *)&tBuffer, sizeof(tBuffer), "%li",
-                                    (long)((pPmInt_t)pobj)->val);
+            sli_ltoa10(((pPmInt_t)pobj)->val, tBuffer);
             retval = string_new(&pcstr, r_pstr);
             break;
 

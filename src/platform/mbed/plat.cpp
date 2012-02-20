@@ -137,7 +137,7 @@ plat_reportError(PmReturn_t result)
     pPmFrame_t pframe;
     pPmObj_t pstr;
     PmReturn_t retval;
-    uint8_t bcindex;
+    uint16_t bcindex;
     uint16_t bcsum;
     uint16_t linesum;
     uint16_t len_lnotab;

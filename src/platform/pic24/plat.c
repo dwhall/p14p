@@ -223,7 +223,7 @@ plat_reportError(PmReturn_t result)
     pPmFrame_t pframe;
     pPmObj_t pstr;
     PmReturn_t retval;
-    uint8_t bcindex;
+    uint16_t bcindex;
     uint16_t bcsum;
     uint16_t linesum;
     uint16_t len_lnotab;
@@ -423,7 +423,10 @@ plat_reportError(PmReturn_t result)
  *  compile, I put the functions below in. A bit more info is at:
  *  http://www.microchip.com/forums/m535514.aspx
  *  Error messages which occur without this:
- *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x1c):fake: undefined reference to `assert' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x20):fake: undefined reference to `alloc' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x1c):fake: undefined reference to `assert' *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x20):fake: undefined reference to `alloc'
+ *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x1c):fake: undefined reference to `assert'
+ *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf_cdfFnopuxX.o)(.libc._snprintf_cdfFnopuxX+0x20):fake: undefined reference to `alloc'
+ *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x1c):fake: undefined reference to `assert'
+ *  c:/program files/microchip/mplabc30/v3.25/bin/bin/../../lib\libc-coff.a(snprintf.o)(.libc.snprintf+0x20):fake: undefined reference to `alloc'
  *  As I understand it, this means these functions expect to call assert()
  *  (which is now a macro in the new library of 3.25) and alloc() (whatever that is) (!!!).
  *  Very scary. In the debugger, I can see that alloc is called; however, ASSERT(0) isn't called.

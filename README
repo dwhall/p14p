@@ -99,6 +99,8 @@ My personal thanks go out to these people for their recent contribution to p14p:
 r0A
 ~~~
 
+- David Earlam: finding and fixing a defect with backtraces.
+- JT: reporting and fixing a defect with the mbed build.
 - Sitti: suggested an improvement for the mbed Makefile.
 - James Thomas: Created issues and patches for ipm, mbed and __bi.py.
 - Sergiu Mihai: Reported that arduino_mega port wasn't working

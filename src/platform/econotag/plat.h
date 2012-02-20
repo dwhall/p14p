@@ -15,4 +15,6 @@
 #ifndef _PLAT_H_
 #define _PLAT_H_
 
+#define PM_PLAT_POINTER_SIZE 4
+
 #endif /* _PLAT_H_ */

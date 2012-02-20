@@ -237,10 +237,10 @@ class Interactive(cmd.Cmd):
 
         marshaled_co = dumps(code)
         l = len(marshaled_co)
-        self.conn.write(l & 0xff)
-        self.conn.write((l >> 8) & 0xff)
+        self.conn.write(chr(l & 0xff))
+        self.conn.write(chr((l >> 8) & 0xff))
         self.conn.write(marshaled_co)
-        self.stdout.write(self.conn.read())
+        self.stdout.write(''.join(self.conn.read()))
 
 
     def onecmd(self, line):

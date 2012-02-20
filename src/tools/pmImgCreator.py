@@ -64,6 +64,11 @@ __usage__ = """USAGE:
 import exceptions, string, sys, types, dis, os, time, getopt, struct, types
 
 
+# Raise an error at build-time if the CPython compiler version is not supported
+assert sys.version_info[0] == 2 and sys.version_info[1] == 6, \
+    "P14p REQUIRES CPython 2.6.x in order to support the correct bytecodes"
+
+
 ################################################################
 # CONSTANTS
 ################################################################

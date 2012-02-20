@@ -25,14 +25,17 @@ import pmConstantPool
 from pmCoFilter import co_filter_factory
 
 
+# Issue 227: Raise an error at build-time if CPython version is not supported
+assert sys.version_info[0] == 2 and sys.version_info[1] == 6, \
+    "P14p REQUIRES CPython 2.6.x in order to support the correct bytecodes"
+
+
 PM_GENERATED_OBJS_FN = "pm_generated_objs.c"
 PM_GENERATED_TYPES_FN = "pm_generated_types.h"
 
 NATIVE_INDICATOR = "__NATIVE__"
 NATIVE_INDICATOR_LENGTH = len(NATIVE_INDICATOR)
 
-# Issue #51: In Python 2.5, the module identifier changed from '?' to '<module>'
-assert float(sys.version[:3]) == 2.6
 MODULE_IDENTIFIER = "<module>"
 
 # The prefix of global C variables in the VM

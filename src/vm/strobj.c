@@ -24,6 +24,8 @@
  * String object type opeartions.
  */
 
+#include <stdio.h>
+
 #include "pm.h"
 
 

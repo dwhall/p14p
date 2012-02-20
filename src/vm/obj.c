@@ -25,6 +25,8 @@
  */
 
 
+#include <stdio.h>
+
 #include "pm.h"
 
 

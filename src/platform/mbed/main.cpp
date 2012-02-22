@@ -22,8 +22,6 @@ extern
 
 #define HEAP_SIZE 0x7000
 
-unsigned char const usrlib_img[];
-
 
 int
 main(void)
@@ -31,10 +29,12 @@ main(void)
     uint8_t heap[HEAP_SIZE];
     PmReturn_t retval;
 
-    retval = pm_init(heap, HEAP_SIZE, MEMSPACE_PROG, usrlib_img);
+    retval = plat_init();
     PM_RETURN_IF_ERROR(retval);
 
-    /* Run the sample program */
+    retval = pm_init(heap, HEAP_SIZE);
+    PM_RETURN_IF_ERROR(retval);
+
     retval = pm_run((uint8_t *)"main");
 
     return (int)retval;

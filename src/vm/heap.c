@@ -64,9 +64,9 @@
  * (rounded up to a multiple of platform-pointer-size)
  */
 #if defined(PM_PLAT_POINTER_SIZE) && (PM_PLAT_POINTER_SIZE == 8)
-#define HEAP_MIN_CHUNK_SIZE ((sizeof(PmHeapDesc_t) + 7) & ~7)
+#define HEAP_MIN_CHUNK_SIZE (uint16_t)((sizeof(PmHeapDesc_t) + 7) & ~7)
 #else
-#define HEAP_MIN_CHUNK_SIZE ((sizeof(PmHeapDesc_t) + 3) & ~3)
+#define HEAP_MIN_CHUNK_SIZE (uint16_t)((sizeof(PmHeapDesc_t) + 3) & ~3)
 #endif
 
 /**
@@ -409,7 +409,7 @@ heap_init(uint8_t *base, uint32_t size)
     }
 
     C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%u\n",
-                  pmHeap.base, pmHeap.avail);
+                  pmHeap.base, (unsigned int)pmHeap.avail);
 
     string_cacheInit();
 

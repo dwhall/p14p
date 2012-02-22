@@ -1,0 +1,73 @@
+=========================
+The Mbed Platform Project
+=========================
+
+
+:Author:    Dean Hall
+
+
+Purpose
+-------
+
+This is a port of Python-on-a-Chip to the mbed_ rapid-prototyping board.
+with the NXP LPC2368_ microcontroller.
+In addition to running the PyMite VM in interactive mode (ipm),
+a subset of the mbed API is made available to the Python programmer.
+
+The mbed board comes in three flavors.  This project has only been tested
+on the mbed with the LPC2368 microcontroller.
+
+.. _`mbed`: http://mbed.org
+.. _`LPC1768`: http://www.nxp.com/pip/LPC1769_68_67_66_65_64_63.html
+
+
+Building the Project
+--------------------
+
+There are two distinct ways to build p14p for the mbed: using the cloud
+compiler at http://mbed.org/compiler or using the arm-none-eabi-gcc toolchain on
+your local machine.  The Makefile in this directory will attempt to build both.
+To use the cloud compiler, the Makefile creates a zip of the necessary files.
+You then loaded that zip onto the cloud compiler using the instructions
+below.
+
+The directions below assume the following:
+
+- Python 2.6 installed.
+- PySerial module installed (``$ easy_install pyserial``).
+- Mercurial installed (``$easy_install mercurial``).
+- Python-on-a-Chip tree checked-out or unzipped on your HDD
+  (``$ hg clone https://python-on-a-chip.googlecode.com/hg/ p14p``).
+- Mbed device on hand and website account established at http://mbed.org
+
+Building for the cloud compiler:
+
+#. ``$ cd p14p``
+#. ``$ scons PLATFORM=mbed``
+#. Go to http://mbed.org/compiler
+#. In the mbed on-line compiler IDE, click "Import"
+#. In the file dialog that pops up, click the "Local Machine" tab,
+   then the button to open the dialog box to choose a file
+   and then select this file on your HDD:
+   ``p14p/src/platform/mbed/p14p_mbed.zip``
+#. Click on the "Compile" button; this should compile and download the .bin file
+   to your computer.
+#. Plug the mbed device into your computer's USB port; it should mount as USB
+   mass storage device.
+#. Copy the ``p14p_mbed.bin`` file to the mbed USB mass storage space.
+#. Press the mbed's reset button (it will re-flash itself with the new binary).
+#. Visit my p14p-on-mbed `Notebook page`_ to see the things that you can do.
+
+.. _`Notebook page`: http://mbed.org/users/dwhall/notebook/python-on-a-chip/
+
+
+Running ipm
+-----------
+
+The default sample project runs the interactive prompt, ipm.
+Read ``docs/src/InteractivePyMite.txt`` to learn more about ipm.
+Here is the shortcut (the path to your serial device will vary)::
+
+    $ ../../tools/ipm.py --serial=/dev/tty.usbmodem3d12 --baud=19200
+
+.. :mode=rest:

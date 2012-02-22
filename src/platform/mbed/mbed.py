@@ -13,16 +13,11 @@
 
 """__NATIVE__
 #include "mbed.h"
-#include "TextLCD.h"
 
-static DigitalOut led1(LED1);
-static DigitalOut led2(LED2);
-static DigitalOut led3(LED3);
-static DigitalOut led4(LED4);
 
 /* PinName lookup table.  Converts pin number to PinName. */
 static PinName const pinNumToName[] = {
-    NC, NC, NC, NC, NC, p5, p6, p7, p8, p9,
+    NC, LED1, LED2, LED3, LED4, p5, p6, p7, p8, p9,
     p10, p11, p12, p13, p14, p15, p16, p17, p18, p19,
     p20, p21, p22, p23, p24, p25, p26, p27, p28, p29,
     p30
@@ -39,6 +34,7 @@ class AnalogIn(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         AnalogIn *adc;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -63,7 +59,9 @@ class AnalogIn(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)adc, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -147,6 +145,7 @@ class AnalogOut(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         AnalogOut *dac;
+        uint8_t objid;
 
 
         /* Raise TypeError if wrong number of args */
@@ -172,7 +171,9 @@ class AnalogOut(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)dac, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -313,6 +314,7 @@ class DigitalIn(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         DigitalIn *din;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -337,7 +339,9 @@ class DigitalIn(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)din, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -388,6 +392,7 @@ class DigitalOut(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         DigitalOut *dout;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -412,7 +417,9 @@ class DigitalOut(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)dout, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -503,6 +510,7 @@ class PwmOut(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         PwmOut *pwm;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 2)
@@ -527,7 +535,9 @@ class PwmOut(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)pwm, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -820,6 +830,7 @@ class Serial(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         Serial *ser;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 3)
@@ -847,7 +858,9 @@ class Serial(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)ser, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -981,6 +994,7 @@ class SPI(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         SPI *spi;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 4)
@@ -1011,7 +1025,9 @@ class SPI(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)spi, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -1160,6 +1176,7 @@ class I2C(object):
         pPmObj_t pattrs;
         PmReturn_t retval = PM_RET_OK;
         I2C *i2c;
+        uint8_t objid;
 
         /* Raise TypeError if wrong number of args */
         if (NATIVE_GET_NUM_ARGS() != 3)
@@ -1187,7 +1204,9 @@ class I2C(object):
         pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
         retval = int_new((uint32_t)i2c, &pn);
         PM_RETURN_IF_ERROR(retval);
+        heap_gcPushTempRoot(pn, &objid);
         retval = dict_setItem(pattrs, PM_NONE, pn);
+        heap_gcPopTempRoot(objid);
         PM_RETURN_IF_ERROR(retval);
 
         NATIVE_SET_TOS(PM_NONE);
@@ -1330,204 +1349,5 @@ class I2C(object):
         """
         pass
 
-
-class TextLCD(object):
-
-    def __init__(self,):
-        """__NATIVE__
-        pPmObj_t pself;
-        pPmObj_t pn;
-        pPmObj_t pattrs;
-        PmReturn_t retval = PM_RET_OK;
-        TextLCD *lcd;
-
-        /* Raise TypeError if wrong number of args */
-        if (NATIVE_GET_NUM_ARGS() != 1)
-        {
-            PM_RAISE(retval, PM_RET_EX_TYPE);
-            return retval;
-        }
-        pself = NATIVE_GET_LOCAL(0);
-
-        /* Instantiate the C++ object */
-        lcd = new TextLCD(pinNumToName[24],
-                          pinNumToName[25],
-                          pinNumToName[26],
-                          pinNumToName[27],
-                          pinNumToName[28],
-                          pinNumToName[29],
-                          pinNumToName[30]);
-
-        /* Save the pointer to pwm as an inaccessible attribute */
-        pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
-        retval = int_new((uint32_t)lcd, &pn);
-        PM_RETURN_IF_ERROR(retval);
-        retval = dict_setItem(pattrs, PM_NONE, pn);
-        PM_RETURN_IF_ERROR(retval);
-
-        NATIVE_SET_TOS(PM_NONE);
-        return retval;
-        """
-        pass
-
-
-    def printf(self, n):
-        """__NATIVE__
-        pPmObj_t pself;
-        pPmObj_t pn;
-        pPmObj_t pattrs;
-        PmReturn_t retval = PM_RET_OK;
-        TextLCD *lcd;
-
-        /* Raise TypeError if wrong number of args */
-        if (NATIVE_GET_NUM_ARGS() != 2)
-        {
-            PM_RAISE(retval, PM_RET_EX_TYPE);
-            return retval;
-        }
-        pself = NATIVE_GET_LOCAL(0);
-
-        /* Raise TypeError if arg is not the right type */
-        pn = NATIVE_GET_LOCAL(1);
-        if (OBJ_GET_TYPE(pn) != OBJ_TYPE_STR)
-        {
-            PM_RAISE(retval, PM_RET_EX_TYPE);
-            return retval;
-        }
-
-        /* Get the the C++ instance */
-        pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
-        retval = dict_getItem(pattrs, PM_NONE, &pn);
-        PM_RETURN_IF_ERROR(retval);
-        lcd = (TextLCD *)((pPmInt_t)pn)->val;
-
-        /* Write value to DAC */
-        pn = NATIVE_GET_LOCAL(1);
-        lcd->printf((char const *)((pPmString_t)pn)->val);
-
-        NATIVE_SET_TOS(PM_NONE);
-        return retval;
-        """
-        pass
-
-
-    def cls(self,):
-        """__NATIVE__
-        pPmObj_t pself;
-        pPmObj_t pn;
-        pPmObj_t pattrs;
-        PmReturn_t retval = PM_RET_OK;
-        TextLCD *lcd;
-
-        /* Raise TypeError if wrong number of args */
-        if (NATIVE_GET_NUM_ARGS() != 1)
-        {
-            PM_RAISE(retval, PM_RET_EX_TYPE);
-            return retval;
-        }
-        pself = NATIVE_GET_LOCAL(0);
-
-        /* Get the the C++ instance */
-        pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
-        retval = dict_getItem(pattrs, PM_NONE, &pn);
-        PM_RETURN_IF_ERROR(retval);
-        lcd = (TextLCD *)((pPmInt_t)pn)->val;
-
-        /* Clear LCD */
-        lcd->cls();
-
-        NATIVE_SET_TOS(PM_NONE);
-        return retval;
-        """
-        pass
-
-
-    def locate(self, column, row):
-        """__NATIVE__
-        pPmObj_t pself;
-        pPmObj_t pn;
-        pPmObj_t pc;
-        pPmObj_t pr;
-        pPmObj_t pattrs;
-        PmReturn_t retval = PM_RET_OK;
-        TextLCD *lcd;
-
-        /* Raise TypeError if wrong number of args */
-        if (NATIVE_GET_NUM_ARGS() != 3)
-        {
-            PM_RAISE(retval, PM_RET_EX_TYPE);
-            return retval;
-        }
-        pself = NATIVE_GET_LOCAL(0);
-
-        /* Raise TypeError if arg is not the right type */
-        pc = NATIVE_GET_LOCAL(1);
-        pr = NATIVE_GET_LOCAL(2);
-        if ((OBJ_GET_TYPE(pc) != OBJ_TYPE_INT)
-            || (OBJ_GET_TYPE(pr) != OBJ_TYPE_INT))
-        {
-            PM_RAISE(retval, PM_RET_EX_TYPE);
-            return retval;
-        }
-
-        /* Get the the C++ instance */
-        pattrs = (pPmObj_t)((pPmInstance_t)pself)->cli_attrs;
-        retval = dict_getItem(pattrs, PM_NONE, &pn);
-        PM_RETURN_IF_ERROR(retval);
-        lcd = (TextLCD *)((pPmInt_t)pn)->val;
-
-        /* Set the location of the LCD's cursor */
-        lcd->locate(((pPmInt_t)pc)->val, ((pPmInt_t)pr)->val);
-
-        NATIVE_SET_TOS(PM_NONE);
-        return retval;
-        """
-        pass
-
-
-
-
-def set_led(led, val):
-    """__NATIVE__
-    pPmObj_t pled;
-    pPmObj_t pval;
-    int32_t nled;
-    int32_t nval;
-    PmReturn_t retval = PM_RET_OK;
-
-    /* If wrong number of args, raise TypeError */
-    if (NATIVE_GET_NUM_ARGS() > 2)
-    {
-        PM_RAISE(retval, PM_RET_EX_TYPE);
-        return retval;
-    }
-
-    /* If arg is not an int, raise TypeError */
-    pled = NATIVE_GET_LOCAL(0);
-    pval = NATIVE_GET_LOCAL(1);
-    if ((OBJ_GET_TYPE(pled) != OBJ_TYPE_INT)
-        || (OBJ_GET_TYPE(pval) != OBJ_TYPE_INT))
-    {
-        PM_RAISE(retval, PM_RET_EX_TYPE);
-        return retval;
-    }
-
-    /* Get int value from the arg */
-    nled = ((pPmInt_t)pled)->val;
-    nval = ((pPmInt_t)pval)->val;
-
-    /* Set the LED to the given value */
-    switch (nled)
-    {
-        case 1: led1 = nval; break;
-        case 2: led2 = nval; break;
-        case 3: led3 = nval; break;
-        case 4: led4 = nval; break;
-    }
-
-    NATIVE_SET_TOS(PM_NONE);
-    return retval;
-    """
-    pass
 
 # :mode=c:

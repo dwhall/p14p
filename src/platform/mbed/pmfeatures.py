@@ -11,19 +11,6 @@
 # is seen in the file COPYING up one directory from this.
 
 PM_FEATURES = {
-    "HAVE_PRINT": True,
-    "HAVE_GC": True,
     "HAVE_FLOAT": True,
-    "HAVE_DEL": True,
-    "HAVE_IMPORTS": True,
-    "HAVE_DEFAULTARGS": True,
-    "HAVE_REPLICATION": True,
-    "HAVE_CLASSES": True,
-    "HAVE_ASSERT": True,
-    "HAVE_GENERATORS": True,
-    "HAVE_BACKTICK": True,
-    "HAVE_STRING_FORMAT": True,
-    "HAVE_CLOSURES": True,
-    "HAVE_BYTEARRAY": False,
     "HAVE_DEBUG_INFO": True,
 }

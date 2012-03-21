@@ -1,9 +1,7 @@
 import os
 import glob
 
-TCHAIN = "arm-eabi"
-#TCHAIN = "arm-elf"
-#TCHAIN = "arm-none-eabi"
+TCHAIN = "arm-none-eabi"
 
 Import("vars")
 

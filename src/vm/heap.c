@@ -217,10 +217,10 @@ heap_dump(void)
     static int n = 0;
     uint16_t s;
     uint32_t i;
-    char filename[32];
+    char filename = "pmheapdump0N.bin";
     FILE *fp;
 
-    snprintf(filename, 32, "pmheapdump%02d.bin", n++);
+    filename[11] = '0' + n++;
     fp = fopen(filename, "wb");
 
     /* magic : PMDUMP for little endian or PMUDMP for big endian */
@@ -438,7 +438,7 @@ heap_init(uint8_t *base, uint32_t size)
     }
 
     C_DEBUG_PRINT(VERBOSITY_LOW, "heap_init(), id=%p, s=%u\n",
-                  pmHeap.base, pmHeap.avail);
+                  pmHeap.base, (unsigned int)pmHeap.avail);
 
 #if USE_STRING_CACHE
     string_cacheInit();
@@ -681,7 +681,7 @@ heap_gcMarkObj(pPmObj_t pobj)
     type = (PmType_t)OBJ_GET_TYPE(pobj);
     switch (type)
     {
-            /* Objects with no references to other objects */
+        /* Objects with no references to other objects */
         case OBJ_TYPE_NON:
         case OBJ_TYPE_INT:
         case OBJ_TYPE_FLT:
@@ -826,10 +826,10 @@ heap_gcMarkObj(pPmObj_t pobj)
             break;
 #endif /* HAVE_CLASSES */
 
-            /*
-             * An obj in ram should not be of these types.
-             * Images arrive in RAM as string objects (image is array of bytes)
-             */
+        /*
+         * An obj in ram should not be of these types.
+         * Images arrive in RAM as string objects (image is array of bytes)
+         */
         case OBJ_TYPE_CIM:
         case OBJ_TYPE_NIM:
             PM_RAISE(retval, PM_RET_EX_SYS);

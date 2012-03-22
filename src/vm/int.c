@@ -129,15 +129,11 @@ int_bitInvert(pPmObj_t pobj, pPmObj_t *r_pint)
 }
 
 
-#ifdef HAVE_PRINT
 PmReturn_t
 int_print(pPmObj_t pint)
 {
-    /* 2^31-1 has 10 decimal digits, plus sign and zero byte */
-    uint8_t tBuffer[10 + 1 + 1];
-    uint8_t bytesWritten;
-    uint8_t k;
     PmReturn_t retval = PM_RET_OK;
+    uint8_t buf[12];
 
     C_ASSERT(pint != C_NULL);
 
@@ -148,20 +144,9 @@ int_print(pPmObj_t pint)
         return retval;
     }
 
-    /* #196: Changed to use snprintf */
-    bytesWritten =
-        snprintf((char *)&tBuffer, 12, "%li", (long int)((pPmInt_t)pint)->val);
+    sli_ltoa10(((pPmInt_t)pint)->val, buf);
+    sli_puts(buf);
 
-
-    /* Sanity check */
-    C_ASSERT(bytesWritten != 0);
-    C_ASSERT(bytesWritten < sizeof(tBuffer));
-
-    for (k = (uint8_t)0; k < bytesWritten; k++)
-    {
-        retval = plat_putByte(tBuffer[k]);
-        PM_RETURN_IF_ERROR(retval);
-    }
     return PM_RET_OK;
 }
 
@@ -211,7 +196,6 @@ int_printHex(pPmObj_t pint)
     /* Print the integer object */
     return _int_printHex(((pPmInt_t)pint)->val);
 }
-#endif /* HAVE_PRINT */
 
 
 PmReturn_t

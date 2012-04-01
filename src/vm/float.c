@@ -46,13 +46,13 @@ float_new(float f, pPmObj_t *r_pf)
 
 
 #ifdef HAVE_PRINT
-#include <stdio.h>
+
 PmReturn_t
 float_print(pPmObj_t pf)
 {
     uint8_t tBuffer[32];
     uint8_t bytesWritten;
-    uint8_t i;
+    uint8_t *p;
     PmReturn_t retval = PM_RET_OK;
 
     C_ASSERT(pf != C_NULL);
@@ -64,18 +64,22 @@ float_print(pPmObj_t pf)
         return retval;
     }
 
-    /* #196: Changed to use snprintf */
-    bytesWritten = snprintf((char *)&tBuffer, 32, "%f", ((pPmFloat_t) pf)->val);
+    /* #212: Use homebrew float formatter */
+    retval = sli_ftoa(((pPmFloat_t)pf)->val, tBuffer, sizeof(tBuffer));
+    bytesWritten = sli_strlen((char *)tBuffer);
+
+    /* Remove trailing zeroes (per Python convention) */
+    for (p = &tBuffer[bytesWritten] - 1; 
+         p[0] == '0' && p[-1] != '.'; 
+         --p, bytesWritten--);
+    ++p;
+    *p = '\0';
 
     /* Sanity check */
     C_ASSERT(bytesWritten != 0);
     C_ASSERT(bytesWritten < sizeof(tBuffer));
 
-    for (i = (uint8_t)0; i < bytesWritten; i++)
-    {
-        retval = plat_putByte(tBuffer[i]);
-        PM_RETURN_IF_ERROR(retval);
-    }
+    sli_puts(tBuffer);
     return PM_RET_OK;
 }
 

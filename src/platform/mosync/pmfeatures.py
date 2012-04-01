@@ -26,4 +26,5 @@ PM_FEATURES = {
     "HAVE_CLOSURES": True,
     "HAVE_BYTEARRAY": False,
     "HAVE_DEBUG_INFO": True,
+    "HAVE_SNPRINTF_FORMAT": False,
 }

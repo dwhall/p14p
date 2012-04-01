@@ -46,8 +46,7 @@
  *
  * @param base The address where the contiguous heap begins
  * @param size The size in bytes (octets) of the given heap.
- *             Must be a multiple of four.
- * @return  Return code.  Returns PM_RET_NO if size is not a multiple of four.
+ * @return  Return code.
  */
 PmReturn_t heap_init(uint8_t *base, uint32_t size);
 

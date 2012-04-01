@@ -52,17 +52,19 @@
  * The free chunk size is limited by the size field in the *heap* descriptor.
  * That field is fourteen bits with two assumed least significant bits (zeros):
  * (0x3FFF << 2) == 65532
- * For 64-bit platforms, the value is 4 bytes less
+ * For 64-bit platforms, the value is 4 bytes less so that a max-sized chunk is
+ * a multiple of 8, so that max-sized chunks created during heap_init() have a
+ * good boundary value.
  */
 #ifdef PM_PLAT_POINTER_SIZE
 #if PM_PLAT_POINTER_SIZE == 8
-#define HEAP_MAX_FREE_CHUNK_SIZE 65532
-#else
 #define HEAP_MAX_FREE_CHUNK_SIZE 65528
+#else
+#define HEAP_MAX_FREE_CHUNK_SIZE 65532
 #endif
 #endif
 
-/** The minimum size a chunk can be 
+/** The minimum size a chunk can be
  * (rounded up to a multiple of platform-pointer-size) */
 #ifdef PM_PLAT_POINTER_SIZE
 #if PM_PLAT_POINTER_SIZE == 8
@@ -217,7 +219,7 @@ heap_dump(void)
     static int n = 0;
     uint16_t s;
     uint32_t i;
-    char filename = "pmheapdump0N.bin";
+    char filename[17] = "pmheapdump0N.bin\0";
     FILE *fp;
 
     filename[11] = '0' + n++;
@@ -378,17 +380,12 @@ heap_init(uint8_t *base, uint32_t size)
 {
     pPmHeapDesc_t pchunk;
     uint32_t hs;
+    uint8_t *adjbase;
 
-    /* Heap base must align to word size and size must be a multiple of four */
-    if (((sizeof(intptr_t) >= 4) && (intptr_t)base & (uint8_t)3)
-        || ((sizeof(intptr_t) == 2) && (intptr_t)base & (uint8_t)1)
-        || (size & (uint8_t)3))
-    {
-        return PM_RET_ALIGNMENT;
-    }
-
-    pmHeap.base = base;
-    pmHeap.size = size;
+    /* Round-up Heap base by the size of the platform pointer */
+    adjbase = base + ((sizeof(intptr_t) - 1) & ~(sizeof(intptr_t) - 1));
+    pmHeap.base = adjbase;
+    pmHeap.size = size - (adjbase - base);
 
 #if __DEBUG__
     /* Fill the heap with a non-NULL value to bring out any heap bugs. */
@@ -616,8 +613,8 @@ heap_freeChunk(pPmObj_t ptr)
                   ptr, PM_OBJ_GET_SIZE(ptr));
 
     /* Ensure the chunk falls within the heap */
-    C_ASSERT(((uint8_t *)ptr >= pmHeap.base)
-             && ((uint8_t *)ptr < pmHeap.base + pmHeap.size));
+    C_ASSERT(((uint8_t *)ptr >= &pmHeap.base[0])
+              && ((uint8_t *)ptr <= &pmHeap.base[pmHeap.size]));
 
     /* Insert the chunk into the freelist */
     OBJ_SET_FREE(ptr, 1);
@@ -1210,11 +1207,11 @@ heap_gcRun(void)
     C_ASSERT(pmHeap.temp_root_index < HEAP_NUM_TEMP_ROOTS);
 
     C_DEBUG_PRINT(VERBOSITY_LOW, "heap_gcRun()\n");
-    /*heap_dump();*/
 
     retval = heap_gcMarkRoots();
     PM_RETURN_IF_ERROR(retval);
 
+    /*heap_dump();*/
     retval = heap_gcSweep();
     /*heap_dump();*/
     return retval;

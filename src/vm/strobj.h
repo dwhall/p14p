@@ -194,7 +194,6 @@ PmReturn_t string_getCache(pPmString_t **r_ppstrcache);
 PmReturn_t
 string_concat(pPmString_t pstr1, pPmString_t pstr2, pPmObj_t *r_pstring);
 
-#ifdef HAVE_STRING_FORMAT
 /**
  * Returns a new string object that is created from the given format string
  * and the argument(s).
@@ -206,6 +205,7 @@ string_concat(pPmString_t pstr1, pPmString_t pstr2, pPmObj_t *r_pstring);
  */
 PmReturn_t string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring);
 
+#ifdef HAVE_PRINT
 /**
  * Prints n bytes, formatting them if is_escaped is true
  *
@@ -217,6 +217,6 @@ PmReturn_t string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring);
 PmReturn_t string_printFormattedBytes(uint8_t *pb,
                                       uint8_t is_escaped,
                                       uint16_t n);
-#endif /* HAVE_STRING_FORMAT */
+#endif /* HAVE_PRINT */
 
 #endif /* __STRING_H__ */

@@ -25,8 +25,6 @@
  */
 
 
-#include <stdio.h>
-
 #include "pm.h"
 
 
@@ -100,7 +98,7 @@ obj_loadFromImgObj(pPmObj_t pimg, pPmObj_t *r_pobj)
     retval = obj_loadFromImg(MEMSPACE_RAM, &imgaddr, r_pobj);
     C_ASSERT(OBJ_GET_TYPE(*r_pobj) == OBJ_TYPE_COB);
 
-    /* All COs must reference the top of the code img obj 
+    /* All COs must reference the top of the code img obj
      * so the image is marked and prevented from being reclaimed */
     co_rSetCodeImgAddr((pPmCo_t)*r_pobj, (uint8_t const *)pimg);
 
@@ -362,10 +360,7 @@ obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
         case OBJ_TYPE_NON:
             if (!is_expr_repr || is_nested)
             {
-                plat_putByte('N');
-                plat_putByte('o');
-                plat_putByte('n');
-                retval = plat_putByte('e');
+                sli_puts((uint8_t *)"None");
             }
             break;
         case OBJ_TYPE_INT:
@@ -389,20 +384,10 @@ obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
             retval = dict_print(pobj);
             break;
         case OBJ_TYPE_BOOL:
-            if (((pPmBoolean_t) pobj)->val == C_TRUE)
-            {
-                plat_putByte('T');
-                plat_putByte('r');
-                plat_putByte('u');
-            }
-            else
-            {
-                plat_putByte('F');
-                plat_putByte('a');
-                plat_putByte('l');
-                plat_putByte('s');
-            }
-            retval = plat_putByte('e');
+            sli_puts(
+                (((pPmBoolean_t) pobj)->val == C_TRUE)
+                ? (uint8_t *)"True"
+                : (uint8_t *)"False");
             break;
 
         case OBJ_TYPE_CLI:
@@ -433,27 +418,17 @@ obj_print(pPmObj_t pobj, uint8_t is_expr_repr, uint8_t is_nested)
         case OBJ_TYPE_CIO:
         case OBJ_TYPE_MTH:
         case OBJ_TYPE_SQI:
-            plat_putByte('<');
-            plat_putByte('o');
-            plat_putByte('b');
-            plat_putByte('j');
-            plat_putByte(' ');
-            plat_putByte('t');
-            plat_putByte('y');
-            plat_putByte('p');
-            plat_putByte('e');
-            plat_putByte(' ');
-            plat_putByte('0');
-            plat_putByte('x');
-            int_printHexByte(OBJ_GET_TYPE(pobj));
-            plat_putByte(' ');
-            plat_putByte('@');
-            plat_putByte(' ');
-            plat_putByte('0');
-            plat_putByte('x');
-            _int_printHex((intptr_t)pobj);
+        {
+            uint8_t buf[17];
+            sli_puts((uint8_t *)"<obj type 0x");
+            sli_btoa16(OBJ_GET_TYPE(pobj), buf, sizeof(buf), C_TRUE);
+            sli_puts(buf);
+            sli_puts((uint8_t *)" @ 0x");
+            sli_ptoa16((intptr_t)pobj, buf, sizeof(buf), C_TRUE);
+            sli_puts(buf);
             retval = plat_putByte('>');
             break;
+        }
 
         default:
             /* Otherwise raise a TypeError */
@@ -470,7 +445,6 @@ PmReturn_t
 obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr)
 {
     uint8_t tBuffer[32];
-    uint8_t bytesWritten = 0;
     PmReturn_t retval = PM_RET_OK;
     uint8_t const *pcstr = (uint8_t *)tBuffer;;
 
@@ -479,14 +453,16 @@ obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr)
     switch (OBJ_GET_TYPE(pobj))
     {
         case OBJ_TYPE_INT:
-            sli_ltoa10(((pPmInt_t)pobj)->val, tBuffer);
+            retval = sli_ltoa10(((pPmInt_t)pobj)->val, tBuffer, sizeof(tBuffer));
+            PM_RETURN_IF_ERROR(retval);
             retval = string_new(&pcstr, r_pstr);
             break;
 
 #ifdef HAVE_FLOAT
         case OBJ_TYPE_FLT:
-            bytesWritten = snprintf((char *)&tBuffer, sizeof(tBuffer), "%f",
-                                    ((pPmFloat_t)pobj)->val);
+            /* #212: Use homebrew float formatter */
+            retval = sli_ftoa(((pPmFloat_t)pobj)->val, tBuffer, sizeof(tBuffer));
+            sli_strlen((char *)tBuffer);
             retval = string_new(&pcstr, r_pstr);
             break;
 #endif /* HAVE_FLOAT */
@@ -496,9 +472,6 @@ obj_repr(pPmObj_t pobj, pPmObj_t *r_pstr)
             PM_RAISE(retval, PM_RET_EX_TYPE);
             break;
     }
-
-    /* Sanity check */
-    C_ASSERT(bytesWritten < sizeof(tBuffer));
 
     return retval;
 }

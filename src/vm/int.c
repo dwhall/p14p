@@ -24,8 +24,6 @@
  * Integer object type operations.
  */
 
-#include <stdio.h>
-#include <stdint.h>
 #include <limits.h>
 
 #include "pm.h"
@@ -144,45 +142,9 @@ int_print(pPmObj_t pint)
         return retval;
     }
 
-    sli_ltoa10(((pPmInt_t)pint)->val, buf);
-    sli_puts(buf);
-
-    return PM_RET_OK;
-}
-
-
-PmReturn_t
-int_printHexByte(uint8_t b)
-{
-    uint8_t nibble;
-    PmReturn_t retval;
-
-    nibble = (b >> 4) + '0';
-    if (nibble > '9')
-        nibble += ('a' - '0' - 10);
-    retval = plat_putByte(nibble);
+    retval = sli_ltoa10(((pPmInt_t)pint)->val, buf, sizeof(buf));
     PM_RETURN_IF_ERROR(retval);
-
-    nibble = (b & (uint8_t)0x0F) + '0';
-    if (nibble > '9')
-        nibble += ('a' - '0' - (uint8_t)10);
-    retval = plat_putByte(nibble);
-    return retval;
-}
-
-
-PmReturn_t
-_int_printHex(intptr_t n)
-{
-    PmReturn_t retval;
-    int8_t i;
-
-    /* Print the hex value, most significant byte first */
-    for (i = CHAR_BIT * sizeof(intptr_t) - 8; i >= 0; i -= 8)
-    {
-        retval = int_printHexByte((n >> i) & 0xFF);
-        PM_BREAK_IF_ERROR(retval);
-    }
+    sli_puts(buf);
 
     return retval;
 }
@@ -191,10 +153,15 @@ _int_printHex(intptr_t n)
 PmReturn_t
 int_printHex(pPmObj_t pint)
 {
+    uint8_t buf[9];
+    PmReturn_t retval = PM_RET_OK;
+
     C_ASSERT(OBJ_GET_TYPE(pint) == OBJ_TYPE_INT);
 
     /* Print the integer object */
-    return _int_printHex(((pPmInt_t)pint)->val);
+    retval = sli_ltoa16(((pPmInt_t)pint)->val, buf, sizeof(buf), 1);
+    sli_puts(buf);
+    return retval;
 }
 
 

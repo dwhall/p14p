@@ -73,20 +73,25 @@ pm_run(uint8_t const *modstr)
     pPmObj_t pmod;
     pPmObj_t pstring;
     uint8_t const *pmodstr = modstr;
+    uint8_t objid1;
+    uint8_t objid2;
 
     /* Import module from global struct */
     retval = string_new(&pmodstr, &pstring);
     PM_RETURN_IF_ERROR(retval);
+    heap_gcPushTempRoot(pstring, &objid1);
     retval = mod_import(pstring, &pmod);
     PM_RETURN_IF_ERROR(retval);
 
     /* Load builtins into thread */
+    heap_gcPushTempRoot(pmod, &objid2);
     retval = global_setBuiltins((pPmFunc_t)pmod);
     PM_RETURN_IF_ERROR(retval);
 
     /* Interpret the module's bcode */
     retval = interp_addThread((pPmFunc_t)pmod);
     PM_RETURN_IF_ERROR(retval);
+    heap_gcPopTempRoot(objid1);
     retval = interpret(INTERP_RETURN_ON_NO_THREADS);
 
     /*

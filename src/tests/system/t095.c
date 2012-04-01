@@ -21,7 +21,7 @@
 #include "stdio.h"
 
 
-#define HEAP_SIZE 0x2000
+#define HEAP_SIZE 0x3000
 
 extern unsigned char usrlib_img[];
 

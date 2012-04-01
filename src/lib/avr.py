@@ -321,7 +321,7 @@ def digitalRead(port, pin):
       return retval;
     }
 
-    retval = _get_port_register(&port, NULL, &direction, &pin);
+    retval = _get_port_register(&port, C_NULL, &direction, &pin);
     if(retval != PM_RET_OK)
       return retval;
 
@@ -355,7 +355,7 @@ def digitalWrite(port, pin, value):
       return retval;
     }
 
-    retval = _get_port_register(NULL, &port, &direction, &pin);
+    retval = _get_port_register(C_NULL, &port, &direction, &pin);
     if(retval != PM_RET_OK)
       return retval;
 

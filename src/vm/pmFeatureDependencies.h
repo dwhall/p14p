@@ -150,6 +150,20 @@
  * When defined, the code to support debug information in exception reports
  * is included in the build.
  * Issue #103 Add debug info to exception reports
+ *
+ *
+ * HAVE_SNPRINTF_FORMAT
+ * --------------------
+ *
+ * When defined, the string format operation is performed using C's snprintf().
+ * The snprintf() function and all its helper functions can take up program
+ * memory, so some people may choose to do without this.  
+ * You should define this when you need precise control over numeric formatting
+ * such as when you supply numbers between the '%' and the type specifier,
+ * like so::
+ *
+ *      printf "Number = %4d" % someNumber
+ *      pirntf "PI approx = %1.2" % 3.1415
  */
 
 /* Check for dependencies */
@@ -173,4 +187,6 @@
 #error HAVE_BYTEARRAY requires HAVE_CLASSES
 #endif
 
+#if defined(HAVE_SNPRINTF_FORMAT) && !defined(HAVE_STRING_FORMAT)
+#error HAVE_SNPRINTF_FORMAT requires HAVE_STRING_FORMAT
 #endif /* __PM_EMPTY_PM_FEATURES_H__ */

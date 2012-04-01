@@ -253,6 +253,7 @@ bytearray_setItem(pPmObj_t pba, int16_t index, pPmObj_t pobj)
 }
 
 
+#ifdef HAVE_PRINT
 PmReturn_t
 bytearray_print(pPmObj_t pobj)
 {
@@ -269,4 +270,5 @@ bytearray_print(pPmObj_t pobj)
     plat_putByte(')');
     return retval;
 }
+#endif /* HAVE_PRINT */
 #endif /* HAVE_BYTEARRAY */

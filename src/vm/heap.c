@@ -198,7 +198,7 @@ heap_dump(void)
     static int n = 0;
     uint16_t s;
     uint32_t i;
-    char filename = "pmheapdump0N.bin";
+    char filename[17] = "pmheapdump0N.bin\0";
     FILE *fp;
 
     filename[11] = '0' + n++;
@@ -353,15 +353,12 @@ heap_init(uint8_t *base, uint32_t size)
 {
     pPmHeapDesc_t pchunk;
     uint32_t hs;
+    uint8_t *adjbase;
 
-    /* Heap base & size must be a multiple of four */
-    if (((intptr_t)base & (uint8_t)3) || (size & (uint8_t)3))
-    {
-        return PM_RET_NO;
-    }
-
-    pmHeap.base = base;
-    pmHeap.size = size;
+    /* Round-up Heap base by the size of the platform pointer */
+    adjbase = base + ((sizeof(intptr_t) - 1) & ~(sizeof(intptr_t) - 1));
+    pmHeap.base = adjbase;
+    pmHeap.size = size - (adjbase - base);
 
 #if __DEBUG__
     /* Fill the heap with a non-NULL value to bring out any heap bugs. */
@@ -571,8 +568,8 @@ heap_freeChunk(pPmObj_t ptr)
                   ptr, PM_OBJ_GET_SIZE(ptr));
 
     /* Ensure the chunk falls within the heap */
-    C_ASSERT(((uint8_t *)ptr >= pmHeap.base)
-             && ((uint8_t *)ptr < pmHeap.base + pmHeap.size));
+    C_ASSERT(((uint8_t *)ptr >= &pmHeap.base[0])
+              && ((uint8_t *)ptr <= &pmHeap.base[pmHeap.size]));
 
     /* Insert the chunk into the freelist */
     OBJ_SET_FREE(ptr, 1);
@@ -1133,11 +1130,11 @@ heap_gcRun(void)
     C_ASSERT(pmHeap.temp_root_index < HEAP_NUM_TEMP_ROOTS);
 
     C_DEBUG_PRINT(VERBOSITY_LOW, "heap_gcRun()\n");
-    /*heap_dump();*/
 
     retval = heap_gcMarkRoots();
     PM_RETURN_IF_ERROR(retval);
 
+    /*heap_dump();*/
     retval = heap_gcSweep();
     /*heap_dump();*/
     return retval;

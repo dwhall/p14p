@@ -13,4 +13,5 @@
 PM_FEATURES = {
     "HAVE_FLOAT": True,
     "HAVE_DEBUG_INFO": True,
+    "HAVE_SNPRINTF_FORMAT": False,
 }

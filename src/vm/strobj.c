@@ -342,7 +342,7 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
     uint8_t j;
     uint8_t argtupleindex = 0;
     pPmObj_t pobj;
-    int snprintretval;
+    int fmtretval;
     uint8_t expectedargcount = 0;
     pPmString_t pnewstr;
     uint8_t *pchunk;
@@ -369,7 +369,7 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
             pobj = ((pPmTuple_t)parg)->val[argtupleindex++];
         }
 
-        snprintretval = -1;
+        fmtretval = -1;
 
         /* Format one arg to get its length */
         smallfmtcstr[0] = '%';
@@ -388,22 +388,44 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
                     return retval;
                 }
                 smallfmtcstr[j] = '\0';
-                snprintretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
+#ifdef HAVE_SNPRINTF_FORMAT
+                fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmInt_t)pobj)->val);
+#else
+                if (fmtcstr[i] == 'd')
+                {
+                    sli_ltoa10(((pPmInt_t)pobj)->val,
+                               fmtdbuf,
+                               sizeof(fmtdbuf));
+                }
+                else
+                {
+                    sli_ltoa16(((pPmInt_t)pobj)->val,
+                               fmtdbuf,
+                               sizeof(fmtdbuf),
+                               fmtcstr[i] == 'X');
+                }
+                fmtretval = sli_strlen((char *)fmtdbuf);
+#endif /* HAVE_SNPRINTF_FORMAT */
                 break;
             }
 
 #ifdef HAVE_FLOAT
-            else if (fmtcstr[i] == 'f')
+            else if ((fmtcstr[i] == 'f') || (fmtcstr[i] == 'F'))
             {
                 if (OBJ_GET_TYPE(pobj) != OBJ_TYPE_FLT)
                 {
                     PM_RAISE(retval, PM_RET_EX_TYPE);
                     return retval;
                 }
+#ifdef HAVE_SNPRINTF_FORMAT
                 smallfmtcstr[j] = '\0';
-                snprintretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
+                fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmFloat_t)pobj)->val);
+#else
+                sli_ftoa(((pPmFloat_t)pobj)->val, fmtdbuf, SIZEOF_FMTDBUF);
+                fmtretval = sli_strlen((char *)fmtdbuf);
+#endif /* HAVE_SNPRINTF_FORMAT */
                 break;
             }
 #endif /* HAVE_FLOAT */
@@ -417,20 +439,20 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
                 }
 
                 /* Skip using snprintf(), just use length of string arg */
-                snprintretval = ((pPmString_t)pobj)->length;
+                fmtretval = ((pPmString_t)pobj)->length;
                 break;
             }
         }
 
         /* Raise ValueError if the format string was bad */
-        if (snprintretval < 0)
+        if (fmtretval < 0)
         {
             PM_RAISE(retval, PM_RET_EX_VAL);
             return retval;
         }
 
         expectedargcount++;
-        strsize += snprintretval;
+        strsize += fmtretval;
     }
 
     /* TypeError wrong number args */
@@ -448,7 +470,6 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
     pnewstr = (pPmString_t)pchunk;
     OBJ_SET_TYPE(pnewstr, OBJ_TYPE_STR);
     pnewstr->length = strsize;
-
 
     /* Fill contents of String obj */
     strindex = 0;
@@ -477,7 +498,7 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
             pobj = ((pPmTuple_t)parg)->val[argtupleindex++];
         }
 
-        snprintretval = -1;
+        fmtretval = -1;
 
         /* Format one arg to get its length */
         smallfmtcstr[0] = '%';
@@ -491,32 +512,61 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
                 || (fmtcstr[i] == 'X'))
             {
                 smallfmtcstr[j] = '\0';
-                snprintretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
+#ifdef HAVE_SNPRINTF_FORMAT
+                fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmInt_t)pobj)->val);
+#else
+                if (fmtcstr[i] == 'd')
+                {
+                    retval = sli_ltoa10(((pPmInt_t)pobj)->val,
+                                        fmtdbuf,
+                                        sizeof(fmtdbuf));
+                    PM_RETURN_IF_ERROR(retval);
+                }
+                else
+                {
+                    sli_ltoa16(((pPmInt_t)pobj)->val,
+                               fmtdbuf,
+                               sizeof(fmtdbuf),
+                               fmtcstr[i] == 'X');
+                }
+                fmtretval = sli_strlen((char *)fmtdbuf);
+#endif /* HAVE_SNPRINTF_FORMAT */
                 break;
             }
 
 #ifdef HAVE_FLOAT
-            else if (fmtcstr[i] == 'f')
+            else if ((fmtcstr[i] == 'f') || (fmtcstr[i] == 'F'))
             {
+#ifdef HAVE_SNPRINTF_FORMAT
                 smallfmtcstr[j] = '\0';
-                snprintretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
+                fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmFloat_t)pobj)->val);
+#else
+                sli_ftoa(((pPmFloat_t)pobj)->val, fmtdbuf, SIZEOF_FMTDBUF);
+                fmtretval = sli_strlen((char *)fmtdbuf);
+#endif /* HAVE_SNPRINTF_FORMAT */
                 break;
             }
 #endif /* HAVE_FLOAT */
 
             else if (fmtcstr[i] == 's')
             {
+#ifdef HAVE_SNPRINTF_FORMAT
                 smallfmtcstr[j] = '\0';
-                snprintretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
+                fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmString_t)pobj)->val);
+#else
+                sli_memcpy(fmtdbuf, ((pPmString_t)pobj)->val,
+                           ((pPmString_t)pobj)->length);
+                fmtretval = ((pPmString_t)pobj)->length;
+#endif /* HAVE_SNPRINTF_FORMAT */
                 break;
             }
         }
 
         /* Copy formatted C string into new string object */
-        for (j = 0; j < snprintretval; j++)
+        for (j = 0; j < fmtretval; j++)
         {
             pnewstr->val[strindex++] = fmtdbuf[j];
         }

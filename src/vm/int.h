@@ -104,20 +104,6 @@ PmReturn_t int_bitInvert(pPmObj_t pobj, pPmObj_t *r_pint);
 PmReturn_t int_print(pPmObj_t pint);
 
 /**
- * Prints the byte in ascii-coded hexadecimal out the platform output
- *
- * @param b Byte to print
- */
-PmReturn_t int_printHexByte(uint8_t b);
-
-/**
- * Prints the integer in ascii-coded hexadecimal out the platform output
- *
- * @param n Integer to print
- */
-PmReturn_t _int_printHex(intptr_t n);
-
-/**
  * Prints the Int object in ascii-coded hexadecimal out the platform output
  *
  * @param pint Pointer to Int object

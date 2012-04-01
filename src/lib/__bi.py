@@ -276,6 +276,11 @@ def globals():
     pass
 
 
+# WARNING: does NOT match Python convention for printing negative values
+#def hex(n):
+#    return "0x%x" % n
+
+
 def id(o):
     """__NATIVE__
     PmReturn_t retval;

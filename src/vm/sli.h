@@ -129,9 +129,53 @@ void sli_puts(uint8_t * s);
  * Formats a 32-bit signed int as a decimal value.
  *
  * @param value the 32-bit signed value
- * @param buf a pointer to where the formted string goes
+ * @param buf a pointer to where the formatted string goes
+ * @param buflen the length of the given buffer in bytes
  * @return a pointer to the string. 
  */
-uint8_t * sli_ltoa10(int32_t value, uint8_t *buf);
+PmReturn_t sli_ltoa10(int32_t value, uint8_t *buf, uint8_t buflen);
+
+/**
+ * Formats an 8-bit int as a hexadecimal value.
+ *
+ * @param value the 8-bit value
+ * @param buf a pointer to where the formatted string goes
+ * @param buflen the length of the given buffer in bytes
+ * @param upperCase when zero, hex chars rendered lowercase, else uppercase
+ * @return Always PM_RET_OK
+ */
+PmReturn_t sli_btoa16(uint8_t value, uint8_t *buf, uint8_t buflen, uint8_t upperCase);
+
+/**
+ * Formats a 32-bit signed int as a hexadecimal value.
+ *
+ * @param value the 32-bit signed value
+ * @param buf a pointer to where the formatted string goes
+ * @param buflen the length of the given buffer in bytes
+ * @param upperCase when zero, hex chars rendered lowercase, else uppercase
+ * @return Always PM_RET_OK
+ */
+PmReturn_t sli_ltoa16(int32_t value, uint8_t *buf, uint8_t buflen, uint8_t upperCase);
+
+/**
+ * Formats a pointer as a hexadecimal value.
+ *
+ * @param value the pointer
+ * @param buf a pointer to where the formatted string goes
+ * @param buflen the length of the given buffer in bytes
+ * @param upperCase when zero, hex chars rendered lowercase, else uppercase
+ * @return Always PM_RET_OK
+ */
+PmReturn_t sli_ptoa16(intptr_t value, uint8_t *buf, uint8_t buflen, uint8_t upperCase);
+
+/**
+ * Formats a 32-bit (single-precision) float as an ascii string.
+ *
+ * @param f the float value
+ * @param buf a pointer to where the formatted string goes
+ * @param buflen the size of the buffer
+ * @return Status
+ */
+PmReturn_t sli_ftoa(float f, uint8_t *buf, uint8_t buflen);
 
 #endif /* __SLI_H__ */

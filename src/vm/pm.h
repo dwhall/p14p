@@ -29,8 +29,10 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
+#if defined(HAVE_SNPRINTF_FORMAT) || __DEBUG__
 #include <stdio.h>
+#endif
+#include <stdint.h>
 
 
 /**
@@ -47,10 +49,10 @@ extern "C" {
 #define C_NULL 0
 
 /** false for C code */
-#define C_FALSE 0
+#define C_FALSE (uint8_t)0
 
 /** true for C code */
-#define C_TRUE 1
+#define C_TRUE (uint8_t)1
 
 /** Comparison result is that items are the same */
 #define C_SAME (int8_t)0

@@ -129,14 +129,18 @@ pm_run(uint8_t const *modstr)
     pPmObj_t pmod;
     pPmObj_t pstring;
     uint8_t const *pmodstr = modstr;
+    uint8_t objid1;
+    uint8_t objid2;
 
     /* Import module from global struct */
     retval = string_new(&pmodstr, &pstring);
     PM_RETURN_IF_ERROR(retval);
+    heap_gcPushTempRoot(pstring, &objid1);
     retval = mod_import(pstring, &pmod);
     PM_RETURN_IF_ERROR(retval);
 
     /* Put builtins module in the module's attrs dict */
+    heap_gcPushTempRoot(pmod, &objid2);
     retval = dict_setItem((pPmObj_t)((pPmFunc_t)pmod)->f_attrs,
                           (pPmObj_t)&pm_global_string_bi,
                           PM_PBUILTINS);
@@ -144,6 +148,7 @@ pm_run(uint8_t const *modstr)
 
     /* Interpret the module's bcode */
     retval = interp_addThread((pPmFunc_t)pmod);
+    heap_gcPopTempRoot(objid1);
     PM_RETURN_IF_ERROR(retval);
     retval = interpret(INTERP_RETURN_ON_NO_THREADS);
 

@@ -25,6 +25,10 @@
  */
 
 
+/** #234: Function pointer for platform-specific loading callback */
+typedef PmReturn_t(*Mod_platLoadCodeObject_t)(pPmObj_t, pPmObj_t*);
+
+
 /**
  * Creates a Module Obj for the given Code Obj.
  *
@@ -50,5 +54,14 @@ PmReturn_t mod_new(pPmObj_t pco, pPmObj_t *pmod);
  * @return  Return status
  */
 PmReturn_t mod_import(pPmObj_t pstr, pPmObj_t *pmod);
+
+/**
+ * Stores the given function pointer to be used within mod_import()
+ * so that code objects can be searched and loaded in a platform-specific manner.
+ *
+ * @param   pfunc Pointer to callback function that will load a code object
+ * @return  Return status (always PM_RET_OK)
+ */
+PmReturn_t mod_setPlatLoadCodeObjectFunctionPointer(Mod_platLoadCodeObject_t pfunc);
 
 #endif /* __MODULE_H__ */

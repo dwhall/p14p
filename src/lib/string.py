@@ -81,7 +81,7 @@ def atoi(a, b):
     i = strtol(pc, &pend, base);
 
     /* Raise ValueError if there was a conversion error */
-    if (*pend != C_NULL)
+    if (*pend != '\\0')
     {
         PM_RAISE(retval, PM_RET_EX_VAL);
         return retval;

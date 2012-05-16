@@ -695,7 +695,6 @@ heap_gcMarkObj(pPmObj_t pobj)
             retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_consts);
             PM_RETURN_IF_ERROR(retval);
             retval = heap_gcMarkObj((pPmObj_t)((pPmCob_t)pobj)->co_cellvars);
-            PM_RETURN_IF_ERROR(retval);
             break;
 
         case OBJ_TYPE_MOD:

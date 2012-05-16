@@ -167,9 +167,7 @@ def co_to_crepr(co, cvarnm):
     # HACK: append co_filename and co_name to the co_consts tuple to reduce
     # the size of the code object structure by two pointers.
     # co_filename and co_name are extracted via the co API in codeobj.c
-    k = list(fco['co_consts'])
-    k.extend([fco['co_filename'], fco['co_name']])
-    fco['co_consts'] = tuple(k)
+    fco['co_consts'] += (fco['co_filename'], fco['co_name'],)
 
     # Prep data to fill into the CO structure definition
     d = {}

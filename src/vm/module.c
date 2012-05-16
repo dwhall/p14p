@@ -28,6 +28,9 @@
 #include "pm.h"
 
 
+static Mod_platLoadCodeObject_t mod_platLoadCodeObjectFunctionPointer = C_NULL;
+
+
 PmReturn_t
 mod_new(pPmObj_t pco, pPmObj_t *pmod)
 {
@@ -81,17 +84,33 @@ mod_import(pPmObj_t pstr, pPmObj_t *pmod)
         return retval;
     }
 
-    /* Try to find the module in the table */
-    for (i = 0; i < pm_global_module_table_len_ptr->val; i++)
+    /* #234: Support platform-specific module loading */
+    if (mod_platLoadCodeObjectFunctionPointer != C_NULL)
     {
-        if (string_compare(pm_global_module_table[i].pnm, (pPmString_t)pstr) == C_SAME)
+        retval = mod_platLoadCodeObjectFunctionPointer(pstr, (pPmObj_t *)&pco);
+
+        /* Return now if an exception occured */
+        if ((retval != PM_RET_NO) && (retval != PM_RET_OK))
         {
-            pco = pm_global_module_table[i].pco;
-            break;
+            return retval;
         }
     }
 
-    /* If img was not found, raise ImportError */
+    /* If the platform-callback didn't run or didn't find the code object */
+    if (retval != PM_RET_OK)
+    {
+        /* Try to find the module in the table */
+        for (i = 0; i < pm_global_module_table_len_ptr->val; i++)
+        {
+            if (string_compare(pm_global_module_table[i].pnm, (pPmString_t)pstr) == C_SAME)
+            {
+                pco = pm_global_module_table[i].pco;
+                break;
+            }
+        }
+    }
+
+    /* If code obj was not found, raise ImportError */
     if (pco == C_NULL)
     {
         PM_RAISE(retval, PM_RET_EX_IMPRT);
@@ -101,4 +120,12 @@ mod_import(pPmObj_t pstr, pPmObj_t *pmod)
     retval = mod_new((pPmObj_t)pco, pmod);
 
     return retval;
+}
+
+
+PmReturn_t
+mod_setPlatLoadCodeObjectFunctionPointer(Mod_platLoadCodeObject_t pfunc)
+{
+    mod_platLoadCodeObjectFunctionPointer = pfunc;
+    return PM_RET_OK;
 }

@@ -17,9 +17,9 @@
 #define __PLAT_H__
 
 
-/** 
+/**
  * \file
- * \brief PyMite's Porting Interface 
+ * \brief PyMite's Porting Interface
  */
 
 
@@ -57,4 +57,18 @@ PmReturn_t plat_getMsTicks(uint32_t *r_ticks);
  */
 void plat_reportError(PmReturn_t result);
 
+/**
+ * OPTIONAL: It is NOT necessary to implement this function on a platform.
+ *           Implementing this function will allow the ability to load code
+ *           from data storage areas including Flash, SEEPROM or a filesystem.
+ * USAGE:    In plat_init(), register this function by calling::
+ *           mod_setPlatLoadCodeObjectCallback(plat_loadCodeObject);
+ * Finds a code object matching the given name.
+ * The code object must be in addressable memory (RAM or Flash);
+ * if it is not, the code object must be copied to RAM.
+ * Used by mod_import() to import modules using a platform-specific method.
+ * For more information on this function, see
+ * docs/src/PlatformMarshalledModules.rst
+ */
+PmReturn_t plat_loadCodeObject(pPmObj_t pname, pPmObj_t *r_cob);
 #endif /* __PLAT_H__ */

@@ -13,5 +13,7 @@
 */
 
 
+#define PM_MARSHAL_FILE_EXTENSION ".pmm"
+
 PmReturn_t marshal_load(uint8_t *ps, uint16_t len, pPmObj_t *r_po);
 PmReturn_t marshal_dump(pPmObj_t po, pPmObj_t *r_ps);

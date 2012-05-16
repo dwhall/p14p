@@ -52,6 +52,8 @@ plat_init(void)
     ualarm(1000, 1000);
 /*#endif*/
 
+    mod_setPlatLoadCodeObjectFunctionPointer(plat_loadCodeObject);
+
     return PM_RET_OK;
 }
 
@@ -324,3 +326,93 @@ plat_reportError(PmReturn_t result)
 #endif /* HAVE_DEBUG_INFO */
 }
 
+
+/*
+ * The Posix64 platform looks in the current directory of the filesystem
+ * to find a module of the matching name (with .pmm extension).
+ * If one is found, it is assumed to contain a marshalled code object.
+ */
+PmReturn_t plat_loadCodeObject(pPmObj_t pname, pPmObj_t *r_cob)
+{
+    char cwd[FILENAME_MAX];
+    char *ext = PM_MARSHAL_FILE_EXTENSION;
+    char *pchar;
+    uint16_t len;
+    FILE *fp;
+    long fsize;
+    uint8_t *pchunk;
+    PmReturn_t retval;
+    uint8_t objid;
+
+    *r_cob = C_NULL;
+
+    /* Get the current directory or return failure */
+    if (getcwd(cwd, FILENAME_MAX) == C_NULL)
+    {
+        return PM_RET_NO;
+    }
+
+    /* Scan to end of path */
+    for (pchar = cwd; *pchar != '\0'; pchar++);
+
+    /* Return failure if there is not enough room to hold the filename */
+    len = ((pchar - cwd) + ((pPmString_t)pname)->length + sizeof(ext));
+    if (len >= FILENAME_MAX)
+    {
+        return PM_RET_NO;
+    }
+
+    /* Append directory seperator and given name to the path */
+    *pchar = '/'; pchar++;
+    sli_memcpy(pchar, ((pPmString_t)pname)->val, ((pPmString_t)pname)->length);
+    pchar += ((pPmString_t)pname)->length;
+
+    /* Append p14p's marshal file extension and terminate */
+    sli_memcpy(pchar, ext, sizeof(ext));
+    pchar += sizeof(ext);
+    *pchar = '\0';
+
+    /* Return failure if the file won't open */
+    fp = fopen(cwd, "rb");
+    if (fp == C_NULL)
+    {
+        return PM_RET_NO;
+    }
+
+    /* Get the size of the file */
+    fseek(fp, 0, SEEK_END);
+    fsize = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+
+    /* Return failure if file is too big or an exception if not enough memory */
+    if ((fsize + sizeof(PmObjDesc_t)) > 65535) return PM_RET_NO;
+    retval = heap_getChunk((uint16_t)(fsize + sizeof(PmObjDesc_t)), &pchunk);
+    PM_RETURN_IF_ERROR(retval);
+
+    heap_gcPushTempRoot((pPmObj_t)pchunk, &objid);
+    {
+        /*
+         * Read the file into the buffer
+         * (offset by sizeof(OD) so GC doesn't clobber the data)
+         */
+        if (fsize != fread(pchunk + sizeof(PmObjDesc_t), 1, fsize, fp))
+        {
+            fclose(fp);
+            return PM_RET_NO;
+        }
+
+        /* Un-marshal the file contents */
+        retval = marshal_load(pchunk + sizeof(PmObjDesc_t), fsize, r_cob);
+        PM_RETURN_IF_ERROR(retval);
+    }
+    heap_gcPopTempRoot(objid);
+    heap_freeChunk((pPmObj_t)pchunk);
+
+    /* Raise exception if it is not a Code Object */
+    if (OBJ_GET_TYPE(*r_cob) != OBJ_TYPE_COB)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+    return PM_RET_OK;
+}

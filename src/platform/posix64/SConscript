@@ -10,8 +10,6 @@ pmlib_py_sources = [
     "#src/lib/dict.py",
     "#src/lib/pmMarshal.py",
     ]
-HAVE_FLOAT = "little endien"
-HAVE_DEBUG_INFO = True
 # END PLATFORM BUILD CONFIGURATION
 
 
@@ -24,7 +22,7 @@ Import("vars")
 env_dbg = Environment(variables = vars,
     CPPPATH = ["#src/vm", "#src/platform/posix64/build"],
     CCFLAGS = cflags + cflags_dbg,
-    LINKFLAGS = "-Wl,-map $mapfile")
+    LINKFLAGS = "-lm -Wl,-map $mapfile")
 env = env_dbg
 if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"

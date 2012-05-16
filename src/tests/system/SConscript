@@ -30,16 +30,16 @@ if not sys.platform.startswith("win"):
     env['ARFLAGS'] = "rcs"
 
 # Generate pmfeatures.h
-pmfeatures_py = File("#src/platform/posix/pmfeatures.py")
+pmfeatures_py = File("#src/platform/posix64/pmfeatures.py")
 pmfeatures_h = env.Command("pmfeatures.h", pmfeatures_py,
     "src/tools/pmGenPmFeatures.py $SOURCE > $TARGET")
 
 # Copy desktop plat source files
 plat_h = env.Command("#src/tests/system/build/plat.h",
-                     "#src/platform/posix/plat.h",
+                     "#src/platform/posix64/plat.h",
                      Copy("$TARGET", "$SOURCE"))
 plat_c = env.Command("#src/tests/system/build/plat.c",
-                     "#src/platform/posix/plat.c",
+                     "#src/platform/posix64/plat.c",
                      Copy("$TARGET", "$SOURCE"))
 
 # Generate code objs and types

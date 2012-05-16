@@ -46,7 +46,7 @@ extern "C" {
 
 
 /** null for C code */
-#define C_NULL 0
+#define C_NULL ((void *)0)
 
 /** false for C code */
 #define C_FALSE (uint8_t)0

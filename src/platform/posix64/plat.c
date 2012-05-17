@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "pm.h"
 
@@ -340,6 +342,8 @@ PmReturn_t plat_loadCodeObject(pPmObj_t pname, pPmObj_t *r_cob)
     uint16_t len;
     FILE *fp;
     long fsize;
+    struct stat stbuf;
+    int fd;
     uint8_t *pchunk;
     PmReturn_t retval;
     uint8_t objid;
@@ -373,16 +377,26 @@ PmReturn_t plat_loadCodeObject(pPmObj_t pname, pPmObj_t *r_cob)
     *pchar = '\0';
 
     /* Return failure if the file won't open */
-    fp = fopen(cwd, "rb");
+    fd = open(cwd, O_RDONLY);
+    if (fd == -1)
+    {
+        return PM_RET_NO;
+    }
+    fp = fdopen(fd, "rb");
     if (fp == C_NULL)
     {
+        close(fd);
         return PM_RET_NO;
     }
 
     /* Get the size of the file */
-    fseek(fp, 0, SEEK_END);
-    fsize = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+    if (fstat(fd, &stbuf) == -1) 
+    {
+        fclose(fp);
+        close(fd);
+        return PM_RET_NO;
+    }
+    fsize = stbuf.st_size;
 
     /* Return failure if file is too big or an exception if not enough memory */
     if ((fsize + sizeof(PmObjDesc_t)) > 65535) return PM_RET_NO;
@@ -398,8 +412,11 @@ PmReturn_t plat_loadCodeObject(pPmObj_t pname, pPmObj_t *r_cob)
         if (fsize != fread(pchunk + sizeof(PmObjDesc_t), 1, fsize, fp))
         {
             fclose(fp);
+            close(fd);
             return PM_RET_NO;
         }
+        fclose(fp);
+        close(fd);
 
         /* Un-marshal the file contents */
         retval = marshal_load(pchunk + sizeof(PmObjDesc_t), fsize, r_cob);

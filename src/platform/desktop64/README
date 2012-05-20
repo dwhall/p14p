@@ -10,6 +10,8 @@ Purpose
 
 This is a sample project that demonstrates running Python-on-a-Chip on the
 the 64-bit desktop.  Any POSIX-compliant OS should work (Mac OS X, Linux, Cygwin).
+An MS Windows command shell is NOT POSIX-compliant, if you want to run in
+a windows command shell, use the ``windows`` platform instead.
 
 
 Building the Project
@@ -22,7 +24,7 @@ so typing ``make`` in the root directory will build for the desktop::
 
     $ make
 
-The default application is to run the interactive prompt, ipm.  
+The default application is to run the interactive prompt, ipm.
 To run the host-side of ipm and launch the target-side type::
 
     $ make ipm

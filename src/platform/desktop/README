@@ -10,6 +10,8 @@ Purpose
 
 This is a sample project that demonstrates running Python-on-a-Chip on the
 desktop.  Any POSIX-compliant OS should work (Mac OS X, Linux, Cygwin).
+An MS Windows command shell is NOT POSIX-compliant, if you want to run in
+a windows command shell, use the ``windows`` platform instead.
 
 
 Building the Project

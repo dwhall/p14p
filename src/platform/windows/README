@@ -8,9 +8,9 @@ The Windows Sample Project
 Purpose
 -------
 
-This is a sample project that demonstrates running interactive Python-on-a-chp on the
-Windows desktop. This differs from the POSIX version in platform 'desktop' (which is also
-used for cygwin builds).
+This is a sample project that demonstrates running Python-on-a-Chip
+on the Windows desktop. Note that the ``desktop`` and ``desktop64`` platforms
+are meant for POSIX-style shells such as Mac OS X, Linux or Cygwin.
 
 
 Building the Project

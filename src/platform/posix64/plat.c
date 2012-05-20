@@ -413,6 +413,8 @@ PmReturn_t plat_loadCodeObject(pPmObj_t pname, pPmObj_t *r_cob)
         {
             fclose(fp);
             close(fd);
+            heap_freeChunk((pPmObj_t)pchunk);
+            heap_gcPopTempRoot(objid);
             return PM_RET_NO;
         }
         fclose(fp);

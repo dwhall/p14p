@@ -135,6 +135,8 @@ def tuple_to_crepr(o, nm):
     len_o = len(o)
     tuple_sizes.add(len_o)
     objs = "(pPmObj_t)&%s," * len_o % tuple(map(obj_to_cvar, o))
+    # Issue 238: Add support for compilers that don't allow zero-sized arrays
+    if len_o == 0: return "%s, %d};\n" % (header(tuple, nm, len_o), len_o)
     return "%s, %d, {%s}};\n" % (header(tuple, nm, len_o), len_o, objs)
 
 
@@ -293,6 +295,10 @@ def process_and_print(filenames, output_path):
     f = open(os.path.join(output_path, PM_GENERATED_TYPES_FN), 'w')
     for size in string_sizes:
         f.write("PM_DECLARE_STRING_TYPE(%d);\n" % size)
+    # Issue 238: Add support for compilers that don't allow zero-sized arrays
+    tuple_sizes.remove(0)
+    f.write("typedef struct PmTuple0_s { PmObjDesc_t od; int16_t length; } PmTuple0_t;\n")
+    
     for size in tuple_sizes:
         f.write("PM_DECLARE_TUPLE_TYPE(%d);\n" % size)
     f.close()

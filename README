@@ -6,11 +6,9 @@ featuring PyMite
 
 
 :Author:    Dean Hall
-:Copyright: Copyright 2003, 2006, 2007, 2009, 2010 Dean Hall.
-            See `License`_ for details.
+:Copyright: Copyright 2002 Dean Hall.  See License_ for details.
 :Release:   09
 :Site:      http://www.pythononachip.org
-:Id:        $Id$
 
 
 Purpose
@@ -30,10 +28,6 @@ License
 
 See the LICENSE_ file to understand the terms of licensing
 for each component of the Python-on-a-Chip program.
-
-The Python-on-a-Chip program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 .. _LICENSE: LICENSE
 

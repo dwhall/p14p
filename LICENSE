@@ -5,7 +5,6 @@ Python-on-a-Chip and PyMite Licensing
 
 :Author: Dean Hall
 :Email: dwhall256@yahoo.com
-:Id: $Id$
 
 
 Overview
@@ -26,52 +25,41 @@ in the Python-on-a-Chip program:
 =====================   ========================================================
 The files in . . .      are licensed under the . . .
 =====================   ========================================================
-src/vm/                 GNU GENERAL PUBLIC LICENSE Version 2
-                        or a commercial license
-src/lib/                GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
-src/platform/           GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
-src/tests/              GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
-src/tools/              GNU LESSER GENERAL PUBLIC LICENSE Version 2.1
-docs/                   GNU Free Documentation License Version 1.2
+src/vm/                 `The MIT License`_
+src/lib/                `The MIT License`_
+src/platform/           `GNU LESSER GENERAL PUBLIC LICENSE Version 2.1`_
+src/tests/              `The MIT License`_
+src/tools/              `The MIT License`_
+docs/                   `The MIT License`_
 =====================   ========================================================
+
+.. _`GNU LESSER GENERAL PUBLIC LICENSE Version 2.1`: http://opensource.org/licenses/LGPL-2.1
+.. _`The MIT License`: http://opensource.org/licenses/mit-license.php
 
 
 Details
 -------
 
-The files in the directory src/vm/ constitute the PyMite VM.
-The PyMite VM is Copyright 2003, 2006, 2007, 2009, 2010 Dean Hall.  All rights reserved.
-The author offers the PyMite VM under two separate licenses: open source
-and commercial.  The PyMite VM is offered under the
-GNU GENERAL PUBLIC LICENSE Version 2.  See src/vm/COPYING for details.
-For commercial licensing terms, please contact the author directly.
+Dean Hall is the copyright holder for all files in src/vm.
+Dean Hall is the majority copyright holder for all other files
+in Python-on-a-Chip with these exceptions:
 
-The files in the directory docs/ constitute "the documentation."
-The documentation is copyrighted by the individual author(s) of the file.
-All documentation is licensed under the GNU Free Documentation License.
-See docs/COPYING for details.
+Bryan Jones contributed all files in src/platform/pic24.
+James Snyder contributed all files in src/platform/stm32.
 
-The remaining components of the Python-on-a-Chip program are copyrighted
-by the individual author(s) of the file and offered under the
-GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
-See src/lib/COPYING for details.
+Python-on-a-Chip was formerly offered under a dual-license:
+a commercial license and the GPL.  On 2012/08/29, Dean Hall
+changed the license to the MIT License for all files except those
+in src/platform/.  This license change applies only to the r09 release
+and specifically does not apply to the software in the repository under
+the v10 branch.
 
 
-Effective Licensing
--------------------
+Net Effect
+----------
 
-The cumulitive effect of the licensing above results in two intended scenarios:
-
-1. The licensee may use Python-on-a-Chip (including the PyMite VM) free of
-   charge according to the terms of the GNU GENERAL PUBLIC LICENSE Version 2.
-   This means that the licensee must offer his or her software that links with
-   Python-on-a-Chip under the GNU GENERAL PUBLIC LICENSE Version 2 as well
-   and make said software available for public download.
-
-2. The licensee may purchase a commercial license for the PyMite VM by
-   negotiating the license with Dean Hall (dwhall256@yahoo.com).  The terms
-   of the negotiated commercial license allow the licensee's software that is
-   linked to the PyMite VM to remain private if so desired.
-
+The cumulitive effect of the licensing above results in the r09 code having
+a very liberal license and obtaining a commercial license from Dean Hall is
+no longer necessary for the r09 code.
 
 .. :mode=rest:

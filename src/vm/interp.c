@@ -159,13 +159,6 @@ interpret(const uint8_t returnOnNoThreads)
                 continue;
 
             case UNARY_INVERT:
-                /* Raise TypeError if it's not an int */
-                if (OBJ_GET_TYPE(TOS) != OBJ_TYPE_INT)
-                {
-                    PM_RAISE(retval, PM_RET_EX_TYPE);
-                    break;
-                }
-
                 /* Otherwise perform bit-wise complement */
                 retval = int_bitInvert(TOS, &pobj2);
                 PM_BREAK_IF_ERROR(retval);

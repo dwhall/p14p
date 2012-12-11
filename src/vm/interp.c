@@ -1280,6 +1280,12 @@ interpret(const uint8_t returnOnNoThreads)
                 /* Implements TOS.attr */
                 t16 = GET_ARG();
 
+#ifdef HAVE_AUTOBOX
+                /* Autobox the object, if necessary */
+                retval = class_autobox(&TOS);
+                PM_BREAK_IF_ERROR(retval);
+#endif
+
                 /* Get attrs dict from obj */
                 if ((OBJ_GET_TYPE(TOS) == OBJ_TYPE_FXN) ||
                     (OBJ_GET_TYPE(TOS) == OBJ_TYPE_MOD))

@@ -88,6 +88,16 @@ PmReturn_t class_new(pPmObj_t pmeths, pPmObj_t pbases, pPmObj_t pname,
  */
 PmReturn_t class_instantiate(pPmObj_t pclass, pPmObj_t *r_pobj);
 
+#ifdef HAVE_AUTOBOX
+/**
+ * Autoboxes an object in place
+ *
+ * @param pclass Pointer to object
+ * @return  Return status
+ */
+PmReturn_t class_autobox(pPmObj_t *pobj);
+#endif
+
 /**
  * Returns a method based on the given inputs
  *

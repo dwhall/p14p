@@ -21,6 +21,15 @@
 #include "pm.h"
 
 
+#ifdef HAVE_AUTOBOX
+static uint8_t const *liststr = (uint8_t const *)"list";
+static uint8_t const *dictstr = (uint8_t const *)"dict";
+static uint8_t const *stringstr = (uint8_t const *)"string";
+static uint8_t const *autoboxstr = (uint8_t const *)"_Autobox";
+static uint8_t const *objstr = (uint8_t const *)"obj";
+#endif
+
+
 PmReturn_t
 class_new(pPmObj_t pattrs, pPmObj_t pbases, pPmObj_t pname, pPmObj_t *r_pclass)
 {
@@ -84,6 +93,74 @@ class_instantiate(pPmObj_t pclass, pPmObj_t *r_pobj)
     *r_pobj = pobj;
     return retval;
 }
+
+
+#ifdef HAVE_AUTOBOX
+PmReturn_t
+class_autobox(pPmObj_t *pobj)
+{
+    PmReturn_t retval = PM_RET_OK;
+    pPmObj_t pmodule, pstr, pclass, pwrapped, pmodcache;
+
+    uint8_t const *pliststr = liststr;
+    uint8_t const *pdictstr = dictstr;
+    uint8_t const *pstringstr = stringstr;
+
+    uint8_t const *pAutoboxstr = autoboxstr;
+    uint8_t const *pobjstr = objstr;
+
+    /* Load the appropriate module name,
+     * or do nothing if we have a non-boxable type
+     */
+    if (OBJ_GET_TYPE(*pobj) == OBJ_TYPE_LST) {
+        retval = string_new(&pliststr, &pstr);
+        PM_RETURN_IF_ERROR(retval);
+    } else if (OBJ_GET_TYPE(*pobj) == OBJ_TYPE_DIC) {
+        retval = string_new(&pdictstr, &pstr);
+        PM_RETURN_IF_ERROR(retval);
+    } else if (OBJ_GET_TYPE(*pobj) == OBJ_TYPE_STR) {
+        retval = string_new(&pstringstr, &pstr);
+        PM_RETURN_IF_ERROR(retval);
+    } else {
+        return retval;
+    }
+
+    /** first, try to get the module from the cache */
+    retval = dict_getItem(PM_PBUILTINS, PM_MD_STR, &pmodcache);
+    PM_RETURN_IF_ERROR(retval);
+
+    retval = dict_getItem(pmodcache, pstr, &pmodule);
+    PM_RETURN_IF_ERROR(retval);
+
+    if (!((retval == PM_RET_OK) && (OBJ_GET_TYPE(pmodule) == OBJ_TYPE_MOD)))
+    {
+        PM_RAISE(retval, PM_RET_EX_SYS);
+        return retval;
+    }
+
+    /* grab the class from within the loaded module */
+    retval = string_new(&pAutoboxstr, &pstr);
+    PM_RETURN_IF_ERROR(retval);
+    retval = dict_getItem((pPmObj_t) ((pPmFunc_t)pmodule)->f_attrs, pstr, &pclass);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* instantiate instance of (type)._Autobox */
+    retval = class_instantiate(pclass, &pwrapped);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* store object as _Autobox().obj */
+    retval = string_new(&pobjstr, &pstr);
+    PM_RETURN_IF_ERROR(retval);
+    retval = dict_setItem((pPmObj_t)((pPmInstance_t)pwrapped)->cli_attrs,
+                          pstr, *pobj);
+    PM_RETURN_IF_ERROR(retval);
+
+    /** replace old object with new instance in place */
+    *pobj = pwrapped;
+
+    return retval;
+}
+#endif
 
 
 PmReturn_t

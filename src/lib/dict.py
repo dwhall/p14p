@@ -9,6 +9,23 @@
 ## @package dict
 #  @brief Provides PyMite's dict module.
 
+__name__ = "dict"
+
+
+class _Autobox:
+    def clear(self):
+        return clear(self.obj)
+
+    def keys(self):
+        return keys(self.obj)
+
+    def has_key(self, k):
+        return has_key(self.obj, k)
+
+    def values(self):
+        return values(self.obj)
+
+
 def clear(d):
     """__NATIVE__
     pPmObj_t pd;

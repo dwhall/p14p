@@ -16,6 +16,20 @@
 """
 
 
+__name__ = "string"
+
+
+class _Autobox:
+    def join(self, l):
+        return join(self.obj, l)
+
+    def count(self, s):
+        return count(self.obj, s)
+
+    def find(self, s):
+        return find(self.obj, s)
+
+
 digits = "0123456789"
 hexdigits = "0123456789abcdefABCDEF"
 letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"

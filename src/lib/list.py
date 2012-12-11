@@ -13,6 +13,34 @@
 # - index(l, o) does not offer start and stop arguments.
 
 
+__name__ = "list"
+
+class _Autobox:
+    def append(self, o):
+        return append(self.obj, o)
+
+    def count(self, v):
+        return count(self.obj, v)
+
+    def extend(self, s):
+        return extend(self.obj, s)
+
+    def index(self, o):
+        return index(self.obj, o)
+
+    def insert(self, i, o):
+        return insert(self.obj, i, o)
+
+    def pop(self, i=None):
+        if i==None:
+            return pop(self.obj)
+        else:
+            return pop(self.obj, i)
+
+    def remove(self, v):
+        return remove(self.obj, v)
+
+
 def append(l, o):
     """__NATIVE__
     pPmObj_t pl;

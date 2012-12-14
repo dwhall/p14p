@@ -267,8 +267,8 @@ def process_modules(filenames):
         modulename = splitext(basename(fn))[0]
         co = compile(open(fn).read(), fn, 'exec')
         nm = obj_to_cvar(co)
-        table_lines.append("    {(pPmString_t)&%s, (pPmCo_t)&%s},\n" %
-                                  (obj_to_cvar(modulename), nm))
+        table_lines.append("    {(pPmString_t)&%s, (pPmCo_t)&%s}, /* %s */\n" %
+                                  (obj_to_cvar(modulename), nm, fn))
     table_lines.append("};\n")
     return table_lines
 

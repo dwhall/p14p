@@ -1,0 +1,472 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7B464E1416B102EE00425F8C /* bytearray.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DE716B102EE00425F8C /* bytearray.c */; };
+		7B464E1516B102EE00425F8C /* class.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DE916B102EE00425F8C /* class.c */; };
+		7B464E1616B102EE00425F8C /* codeobj.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DEB16B102EE00425F8C /* codeobj.c */; };
+		7B464E1716B102EE00425F8C /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DED16B102EE00425F8C /* dict.c */; };
+		7B464E1816B102EE00425F8C /* float.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DEF16B102EE00425F8C /* float.c */; };
+		7B464E1916B102EE00425F8C /* frame.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DF116B102EE00425F8C /* frame.c */; };
+		7B464E1A16B102EE00425F8C /* func.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DF316B102EE00425F8C /* func.c */; };
+		7B464E1B16B102EE00425F8C /* heap.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DF516B102EE00425F8C /* heap.c */; };
+		7B464E1C16B102EE00425F8C /* int.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DF716B102EE00425F8C /* int.c */; };
+		7B464E1D16B102EE00425F8C /* interp.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DF916B102EE00425F8C /* interp.c */; };
+		7B464E1E16B102EE00425F8C /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DFB16B102EE00425F8C /* list.c */; };
+		7B464E1F16B102EE00425F8C /* marshal.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DFD16B102EE00425F8C /* marshal.c */; };
+		7B464E2016B102EE00425F8C /* module.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464DFF16B102EE00425F8C /* module.c */; };
+		7B464E2116B102EE00425F8C /* obj.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E0116B102EE00425F8C /* obj.c */; };
+		7B464E2216B102EE00425F8C /* pm.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E0416B102EE00425F8C /* pm.c */; };
+		7B464E2316B102EE00425F8C /* seglist.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E0816B102EE00425F8C /* seglist.c */; };
+		7B464E2416B102EE00425F8C /* seq.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E0A16B102EE00425F8C /* seq.c */; };
+		7B464E2516B102EE00425F8C /* sli.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E0C16B102EE00425F8C /* sli.c */; };
+		7B464E2616B102EE00425F8C /* strobj.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E0E16B102EE00425F8C /* strobj.c */; };
+		7B464E2716B102EE00425F8C /* thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E1016B102EE00425F8C /* thread.c */; };
+		7B464E2816B102EE00425F8C /* tuple.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E1216B102EE00425F8C /* tuple.c */; };
+		7B464E4616B103F300425F8C /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E4116B103F300425F8C /* main.c */; };
+		7B464E4716B103F300425F8C /* plat.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B464E4316B103F300425F8C /* plat.c */; };
+		7BB2DD5616B240550039F899 /* pm_generated_objs.c in Sources */ = {isa = PBXBuildFile; fileRef = 7BB2DD5316B240550039F899 /* pm_generated_objs.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7B464DE716B102EE00425F8C /* bytearray.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = bytearray.c; path = ../../../vm/bytearray.c; sourceTree = SOURCE_ROOT; };
+		7B464DE816B102EE00425F8C /* bytearray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bytearray.h; path = ../../../vm/bytearray.h; sourceTree = SOURCE_ROOT; };
+		7B464DE916B102EE00425F8C /* class.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = class.c; path = ../../../vm/class.c; sourceTree = SOURCE_ROOT; };
+		7B464DEA16B102EE00425F8C /* class.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = class.h; path = ../../../vm/class.h; sourceTree = SOURCE_ROOT; };
+		7B464DEB16B102EE00425F8C /* codeobj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = codeobj.c; path = ../../../vm/codeobj.c; sourceTree = SOURCE_ROOT; };
+		7B464DEC16B102EE00425F8C /* codeobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = codeobj.h; path = ../../../vm/codeobj.h; sourceTree = SOURCE_ROOT; };
+		7B464DED16B102EE00425F8C /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dict.c; path = ../../../vm/dict.c; sourceTree = SOURCE_ROOT; };
+		7B464DEE16B102EE00425F8C /* dict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dict.h; path = ../../../vm/dict.h; sourceTree = SOURCE_ROOT; };
+		7B464DEF16B102EE00425F8C /* float.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = float.c; path = ../../../vm/float.c; sourceTree = SOURCE_ROOT; };
+		7B464DF016B102EE00425F8C /* float.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = float.h; path = ../../../vm/float.h; sourceTree = SOURCE_ROOT; };
+		7B464DF116B102EE00425F8C /* frame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = frame.c; path = ../../../vm/frame.c; sourceTree = SOURCE_ROOT; };
+		7B464DF216B102EE00425F8C /* frame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = frame.h; path = ../../../vm/frame.h; sourceTree = SOURCE_ROOT; };
+		7B464DF316B102EE00425F8C /* func.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = func.c; path = ../../../vm/func.c; sourceTree = SOURCE_ROOT; };
+		7B464DF416B102EE00425F8C /* func.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = func.h; path = ../../../vm/func.h; sourceTree = SOURCE_ROOT; };
+		7B464DF516B102EE00425F8C /* heap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = heap.c; path = ../../../vm/heap.c; sourceTree = SOURCE_ROOT; usesTabs = 0; };
+		7B464DF616B102EE00425F8C /* heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heap.h; path = ../../../vm/heap.h; sourceTree = SOURCE_ROOT; };
+		7B464DF716B102EE00425F8C /* int.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = int.c; path = ../../../vm/int.c; sourceTree = SOURCE_ROOT; };
+		7B464DF816B102EE00425F8C /* int.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = int.h; path = ../../../vm/int.h; sourceTree = SOURCE_ROOT; };
+		7B464DF916B102EE00425F8C /* interp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = interp.c; path = ../../../vm/interp.c; sourceTree = SOURCE_ROOT; };
+		7B464DFA16B102EE00425F8C /* interp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = interp.h; path = ../../../vm/interp.h; sourceTree = SOURCE_ROOT; };
+		7B464DFB16B102EE00425F8C /* list.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = list.c; path = ../../../vm/list.c; sourceTree = SOURCE_ROOT; };
+		7B464DFC16B102EE00425F8C /* list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = list.h; path = ../../../vm/list.h; sourceTree = SOURCE_ROOT; };
+		7B464DFD16B102EE00425F8C /* marshal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = marshal.c; path = ../../../vm/marshal.c; sourceTree = SOURCE_ROOT; };
+		7B464DFE16B102EE00425F8C /* marshal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = marshal.h; path = ../../../vm/marshal.h; sourceTree = SOURCE_ROOT; };
+		7B464DFF16B102EE00425F8C /* module.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = module.c; path = ../../../vm/module.c; sourceTree = SOURCE_ROOT; };
+		7B464E0016B102EE00425F8C /* module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = module.h; path = ../../../vm/module.h; sourceTree = SOURCE_ROOT; };
+		7B464E0116B102EE00425F8C /* obj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = obj.c; path = ../../../vm/obj.c; sourceTree = SOURCE_ROOT; };
+		7B464E0216B102EE00425F8C /* obj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = obj.h; path = ../../../vm/obj.h; sourceTree = SOURCE_ROOT; };
+		7B464E0316B102EE00425F8C /* plat_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plat_interface.h; path = ../../../vm/plat_interface.h; sourceTree = SOURCE_ROOT; };
+		7B464E0416B102EE00425F8C /* pm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pm.c; path = ../../../vm/pm.c; sourceTree = SOURCE_ROOT; };
+		7B464E0516B102EE00425F8C /* pm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pm.h; path = ../../../vm/pm.h; sourceTree = SOURCE_ROOT; };
+		7B464E0616B102EE00425F8C /* pmEmptyPlatformDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pmEmptyPlatformDefs.h; path = ../../../vm/pmEmptyPlatformDefs.h; sourceTree = SOURCE_ROOT; };
+		7B464E0816B102EE00425F8C /* seglist.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seglist.c; path = ../../../vm/seglist.c; sourceTree = SOURCE_ROOT; };
+		7B464E0916B102EE00425F8C /* seglist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seglist.h; path = ../../../vm/seglist.h; sourceTree = SOURCE_ROOT; };
+		7B464E0A16B102EE00425F8C /* seq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = seq.c; path = ../../../vm/seq.c; sourceTree = SOURCE_ROOT; };
+		7B464E0B16B102EE00425F8C /* seq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = seq.h; path = ../../../vm/seq.h; sourceTree = SOURCE_ROOT; };
+		7B464E0C16B102EE00425F8C /* sli.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sli.c; path = ../../../vm/sli.c; sourceTree = SOURCE_ROOT; };
+		7B464E0D16B102EE00425F8C /* sli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sli.h; path = ../../../vm/sli.h; sourceTree = SOURCE_ROOT; };
+		7B464E0E16B102EE00425F8C /* strobj.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = strobj.c; path = ../../../vm/strobj.c; sourceTree = SOURCE_ROOT; };
+		7B464E0F16B102EE00425F8C /* strobj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = strobj.h; path = ../../../vm/strobj.h; sourceTree = SOURCE_ROOT; };
+		7B464E1016B102EE00425F8C /* thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread.c; path = ../../../vm/thread.c; sourceTree = SOURCE_ROOT; };
+		7B464E1116B102EE00425F8C /* thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = thread.h; path = ../../../vm/thread.h; sourceTree = SOURCE_ROOT; };
+		7B464E1216B102EE00425F8C /* tuple.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tuple.c; path = ../../../vm/tuple.c; sourceTree = SOURCE_ROOT; };
+		7B464E1316B102EE00425F8C /* tuple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tuple.h; path = ../../../vm/tuple.h; sourceTree = SOURCE_ROOT; };
+		7B464E4116B103F300425F8C /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = ../main.c; sourceTree = SOURCE_ROOT; };
+		7B464E4216B103F300425F8C /* main.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = main.py; path = ../main.py; sourceTree = SOURCE_ROOT; };
+		7B464E4316B103F300425F8C /* plat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = plat.c; path = ../plat.c; sourceTree = SOURCE_ROOT; };
+		7B464E4416B103F300425F8C /* plat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plat.h; path = ../plat.h; sourceTree = SOURCE_ROOT; };
+		7B464E4516B103F300425F8C /* pmfeatures.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmfeatures.py; path = ../pmfeatures.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCC716B11B0C0039F899 /* __bi.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = __bi.py; path = ../../../lib/__bi.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCC816B11B0C0039F899 /* dict.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = dict.py; path = ../../../lib/dict.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCC916B11B0C0039F899 /* func.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = func.py; path = ../../../lib/func.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCCA16B11B0C0039F899 /* ipm.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = ipm.py; path = ../../../lib/ipm.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCCB16B11B0C0039F899 /* list.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = list.py; path = ../../../lib/list.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCCC16B11B0C0039F899 /* pmMarshal.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmMarshal.py; path = ../../../lib/pmMarshal.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCCD16B11B0C0039F899 /* sizeof.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sizeof.py; path = ../../../lib/sizeof.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCCE16B11B0C0039F899 /* string.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = string.py; path = ../../../lib/string.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCCF16B11B0C0039F899 /* sys.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = sys.py; path = ../../../lib/sys.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD016B11B0C0039F899 /* tuple.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = tuple.py; path = ../../../lib/tuple.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD216B11BFB0039F899 /* bcode.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = bcode.py; path = ../../../tools/bcode.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD316B11BFB0039F899 /* dismantle.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = dismantle.py; path = ../../../tools/dismantle.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD416B11BFB0039F899 /* ipm.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = ipm.py; path = ../../../tools/ipm.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD516B11BFB0039F899 /* pmCoCreator.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmCoCreator.py; path = ../../../tools/pmCoCreator.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD616B11BFB0039F899 /* pmCoFilter.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmCoFilter.py; path = ../../../tools/pmCoFilter.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD716B11BFB0039F899 /* pmConstantPool.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmConstantPool.py; path = ../../../tools/pmConstantPool.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD816B11BFB0039F899 /* pmGenPmFeatures.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmGenPmFeatures.py; path = ../../../tools/pmGenPmFeatures.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCD916B11BFB0039F899 /* pmHeapDump.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmHeapDump.py; path = ../../../tools/pmHeapDump.py; sourceTree = SOURCE_ROOT; };
+		7BB2DCDA16B11BFB0039F899 /* pmMarshal.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = pmMarshal.py; path = ../../../tools/pmMarshal.py; sourceTree = SOURCE_ROOT; };
+		7BB2DD5316B240550039F899 /* pm_generated_objs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pm_generated_objs.c; path = build/p14p.build/Debug/p14p.build/DerivedSources/pm_generated_objs.c; sourceTree = "<group>"; };
+		7BB2DD5416B240550039F899 /* pm_generated_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pm_generated_types.h; path = build/p14p.build/Debug/p14p.build/DerivedSources/pm_generated_types.h; sourceTree = "<group>"; };
+		7BB2DD5516B240550039F899 /* pmfeatures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pmfeatures.h; path = build/p14p.build/Debug/p14p.build/DerivedSources/pmfeatures.h; sourceTree = "<group>"; };
+		8DD76FB20486AB0100D96B5E /* p14p */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = p14p; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8DD76FAD0486AB0100D96B5E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* p14p */ = {
+			isa = PBXGroup;
+			children = (
+				7BB2DCD116B11BC50039F899 /* Tools */,
+				08FB7795FE84155DC02AAC07 /* Source */,
+				C6A0FF2B0290797F04C91782 /* Documentation */,
+				1AB674ADFE9D54B511CA2CBB /* Products */,
+			);
+			name = p14p;
+			sourceTree = "<group>";
+		};
+		08FB7795FE84155DC02AAC07 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				7BB2DCC616B11AB80039F899 /* plat_py */,
+				7BB2DCC516B11AA80039F899 /* lib_py */,
+				7B464E3616B1036300425F8C /* plat */,
+				7B464E3516B1034F00425F8C /* vm */,
+				7BB2DD5016B240360039F899 /* generated */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		1AB674ADFE9D54B511CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8DD76FB20486AB0100D96B5E /* p14p */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7B464E3516B1034F00425F8C /* vm */ = {
+			isa = PBXGroup;
+			children = (
+				7B464DE716B102EE00425F8C /* bytearray.c */,
+				7B464DE816B102EE00425F8C /* bytearray.h */,
+				7B464DE916B102EE00425F8C /* class.c */,
+				7B464DEA16B102EE00425F8C /* class.h */,
+				7B464DEB16B102EE00425F8C /* codeobj.c */,
+				7B464DEC16B102EE00425F8C /* codeobj.h */,
+				7B464DED16B102EE00425F8C /* dict.c */,
+				7B464DEE16B102EE00425F8C /* dict.h */,
+				7B464DEF16B102EE00425F8C /* float.c */,
+				7B464DF016B102EE00425F8C /* float.h */,
+				7B464DF116B102EE00425F8C /* frame.c */,
+				7B464DF216B102EE00425F8C /* frame.h */,
+				7B464DF316B102EE00425F8C /* func.c */,
+				7B464DF416B102EE00425F8C /* func.h */,
+				7B464DF516B102EE00425F8C /* heap.c */,
+				7B464DF616B102EE00425F8C /* heap.h */,
+				7B464DF716B102EE00425F8C /* int.c */,
+				7B464DF816B102EE00425F8C /* int.h */,
+				7B464DF916B102EE00425F8C /* interp.c */,
+				7B464DFA16B102EE00425F8C /* interp.h */,
+				7B464DFB16B102EE00425F8C /* list.c */,
+				7B464DFC16B102EE00425F8C /* list.h */,
+				7B464DFD16B102EE00425F8C /* marshal.c */,
+				7B464DFE16B102EE00425F8C /* marshal.h */,
+				7B464DFF16B102EE00425F8C /* module.c */,
+				7B464E0016B102EE00425F8C /* module.h */,
+				7B464E0116B102EE00425F8C /* obj.c */,
+				7B464E0216B102EE00425F8C /* obj.h */,
+				7B464E0316B102EE00425F8C /* plat_interface.h */,
+				7B464E0416B102EE00425F8C /* pm.c */,
+				7B464E0516B102EE00425F8C /* pm.h */,
+				7B464E0616B102EE00425F8C /* pmEmptyPlatformDefs.h */,
+				7B464E0816B102EE00425F8C /* seglist.c */,
+				7B464E0916B102EE00425F8C /* seglist.h */,
+				7B464E0A16B102EE00425F8C /* seq.c */,
+				7B464E0B16B102EE00425F8C /* seq.h */,
+				7B464E0C16B102EE00425F8C /* sli.c */,
+				7B464E0D16B102EE00425F8C /* sli.h */,
+				7B464E0E16B102EE00425F8C /* strobj.c */,
+				7B464E0F16B102EE00425F8C /* strobj.h */,
+				7B464E1016B102EE00425F8C /* thread.c */,
+				7B464E1116B102EE00425F8C /* thread.h */,
+				7B464E1216B102EE00425F8C /* tuple.c */,
+				7B464E1316B102EE00425F8C /* tuple.h */,
+			);
+			name = vm;
+			sourceTree = "<group>";
+		};
+		7B464E3616B1036300425F8C /* plat */ = {
+			isa = PBXGroup;
+			children = (
+				7B464E4116B103F300425F8C /* main.c */,
+				7B464E4316B103F300425F8C /* plat.c */,
+				7B464E4416B103F300425F8C /* plat.h */,
+			);
+			name = plat;
+			sourceTree = "<group>";
+		};
+		7BB2DCC516B11AA80039F899 /* lib_py */ = {
+			isa = PBXGroup;
+			children = (
+				7BB2DCC716B11B0C0039F899 /* __bi.py */,
+				7BB2DCC816B11B0C0039F899 /* dict.py */,
+				7BB2DCC916B11B0C0039F899 /* func.py */,
+				7BB2DCCA16B11B0C0039F899 /* ipm.py */,
+				7BB2DCCB16B11B0C0039F899 /* list.py */,
+				7BB2DCCC16B11B0C0039F899 /* pmMarshal.py */,
+				7BB2DCCD16B11B0C0039F899 /* sizeof.py */,
+				7BB2DCCE16B11B0C0039F899 /* string.py */,
+				7BB2DCCF16B11B0C0039F899 /* sys.py */,
+				7BB2DCD016B11B0C0039F899 /* tuple.py */,
+			);
+			name = lib_py;
+			sourceTree = "<group>";
+		};
+		7BB2DCC616B11AB80039F899 /* plat_py */ = {
+			isa = PBXGroup;
+			children = (
+				7B464E4516B103F300425F8C /* pmfeatures.py */,
+				7B464E4216B103F300425F8C /* main.py */,
+			);
+			name = plat_py;
+			sourceTree = "<group>";
+		};
+		7BB2DCD116B11BC50039F899 /* Tools */ = {
+			isa = PBXGroup;
+			children = (
+				7BB2DCD216B11BFB0039F899 /* bcode.py */,
+				7BB2DCD316B11BFB0039F899 /* dismantle.py */,
+				7BB2DCD416B11BFB0039F899 /* ipm.py */,
+				7BB2DCD516B11BFB0039F899 /* pmCoCreator.py */,
+				7BB2DCD616B11BFB0039F899 /* pmCoFilter.py */,
+				7BB2DCD716B11BFB0039F899 /* pmConstantPool.py */,
+				7BB2DCD816B11BFB0039F899 /* pmGenPmFeatures.py */,
+				7BB2DCD916B11BFB0039F899 /* pmHeapDump.py */,
+				7BB2DCDA16B11BFB0039F899 /* pmMarshal.py */,
+			);
+			name = Tools;
+			sourceTree = "<group>";
+		};
+		7BB2DD5016B240360039F899 /* generated */ = {
+			isa = PBXGroup;
+			children = (
+				7BB2DD5316B240550039F899 /* pm_generated_objs.c */,
+				7BB2DD5416B240550039F899 /* pm_generated_types.h */,
+				7BB2DD5516B240550039F899 /* pmfeatures.h */,
+			);
+			name = generated;
+			sourceTree = "<group>";
+		};
+		C6A0FF2B0290797F04C91782 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8DD76FA90486AB0100D96B5E /* p14p */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB928508733DD80010E9CD /* Build configuration list for PBXNativeTarget "p14p" */;
+			buildPhases = (
+				7B464E5616B1066B00425F8C /* pmGenPmFeatures */,
+				7BB2DCDC16B11C1D0039F899 /* pmCoCreator */,
+				8DD76FAB0486AB0100D96B5E /* Sources */,
+				8DD76FAD0486AB0100D96B5E /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = p14p;
+			productInstallPath = "$(HOME)/bin";
+			productName = p14p;
+			productReference = 8DD76FB20486AB0100D96B5E /* p14p */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "p14p" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 08FB7794FE84155DC02AAC07 /* p14p */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DD76FA90486AB0100D96B5E /* p14p */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		7B464E5616B1066B00425F8C /* pmGenPmFeatures */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "Generates pmfeatures.h from pmfeatures.py.\npmfeautres.h is needed by the files in vm/";
+			files = (
+			);
+			inputPaths = (
+				../pmfeatures.py,
+			);
+			name = pmGenPmFeatures;
+			outputPaths = (
+				"${DERIVED_FILES_DIR}/pmfeatures.h",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python ${PROJECT_DIR}/../../../tools/pmGenPmFeatures.py ${SCRIPT_INPUT_FILE_0} > ${SCRIPT_OUTPUT_FILE_0}";
+		};
+		7BB2DCDC16B11C1D0039F899 /* pmCoCreator */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				../main.py,
+				../../../lib/__bi.py,
+				../../../lib/sys.py,
+				../../../lib/ipm.py,
+				../../../lib/string.py,
+				../../../lib/list.py,
+				../../../lib/dict.py,
+				../../../lib/pmMarshal.py,
+			);
+			name = pmCoCreator;
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/pm_generated_types.h",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/usr/bin/env python";
+			shellScript = "import os, sys\n\nnumFiles = int(os.environ[\"SCRIPT_INPUT_FILE_COUNT\"])\nfiles = \" \".join([os.environ[\"SCRIPT_INPUT_FILE_\" + str(i)] for i in xrange(numFiles)])\n\nprojDir = os.environ[\"PROJECT_DIR\"]\nderivedFilesDir = os.environ[\"DERIVED_FILES_DIR\"]\nos.system(\"python %s/../../../tools/pmCoCreator.py %s %s\" % (projDir, derivedFilesDir, files))\n\n# Debug print\n#sys.stderr.write(\"python %s/../../../tools/pmCoCreator.py %s %s\" % (projDir, derivedFilesDir, files))\n#sys.exit(-1)";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8DD76FAB0486AB0100D96B5E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B464E1416B102EE00425F8C /* bytearray.c in Sources */,
+				7B464E1516B102EE00425F8C /* class.c in Sources */,
+				7B464E1616B102EE00425F8C /* codeobj.c in Sources */,
+				7B464E1716B102EE00425F8C /* dict.c in Sources */,
+				7B464E1816B102EE00425F8C /* float.c in Sources */,
+				7B464E1916B102EE00425F8C /* frame.c in Sources */,
+				7B464E1A16B102EE00425F8C /* func.c in Sources */,
+				7B464E1B16B102EE00425F8C /* heap.c in Sources */,
+				7B464E1C16B102EE00425F8C /* int.c in Sources */,
+				7B464E1D16B102EE00425F8C /* interp.c in Sources */,
+				7B464E1E16B102EE00425F8C /* list.c in Sources */,
+				7B464E1F16B102EE00425F8C /* marshal.c in Sources */,
+				7B464E2016B102EE00425F8C /* module.c in Sources */,
+				7B464E2116B102EE00425F8C /* obj.c in Sources */,
+				7B464E2216B102EE00425F8C /* pm.c in Sources */,
+				7B464E2316B102EE00425F8C /* seglist.c in Sources */,
+				7B464E2416B102EE00425F8C /* seq.c in Sources */,
+				7B464E2516B102EE00425F8C /* sli.c in Sources */,
+				7B464E2616B102EE00425F8C /* strobj.c in Sources */,
+				7B464E2716B102EE00425F8C /* thread.c in Sources */,
+				7B464E2816B102EE00425F8C /* tuple.c in Sources */,
+				7B464E4616B103F300425F8C /* main.c in Sources */,
+				7B464E4716B103F300425F8C /* plat.c in Sources */,
+				7BB2DD5616B240550039F899 /* pm_generated_objs.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB928608733DD80010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = p14p;
+			};
+			name = Debug;
+		};
+		1DEB928708733DD80010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PRODUCT_NAME = p14p;
+			};
+			name = Release;
+		};
+		1DEB928A08733DD80010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		1DEB928B08733DD80010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB928508733DD80010E9CD /* Build configuration list for PBXNativeTarget "p14p" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB928608733DD80010E9CD /* Debug */,
+				1DEB928708733DD80010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "p14p" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB928A08733DD80010E9CD /* Debug */,
+				1DEB928B08733DD80010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

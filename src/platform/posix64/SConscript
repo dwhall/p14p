@@ -43,8 +43,9 @@ Depends(pm_generated_codeobjs, pmfeatures_py)
 # Build pmvm library, a linker map and the executable
 mapfile = env.Command("#src/platform/posix64/build/main.map", "", Touch("$TARGET"))
 pmvm_lib = env.SConscript("#src/vm/SConscript", "env", variant_dir = "vm")
-main = env.Program("main", [mapfile, platform_c_sources + pmvm_lib,
-                           "#src/platform/posix64/build/pm_generated_objs.c"])
+main = env.Program("main", [mapfile, platform_c_sources,
+                            "#src/platform/posix64/build/pm_generated_objs.c",
+                            pmvm_lib])
 Return("main")
 
 #:mode=python:

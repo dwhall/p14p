@@ -41,16 +41,17 @@ load_int(uint8_t *ps, uint16_t *offset, uint16_t const maxlen, pPmObj_t *r_po)
         case 'H':
             if (((*offset) + 3) > maxlen) return PM_RET_ERR;
             /* Casting is important for sign-extension */
-            val = (int32_t)(int8_t)ps[*offset + 1];
-            val = ps[*offset + 1] | (int32_t)(int16_t)(ps[*offset + 2] << 8);
+            val = (int32_t)(int8_t)ps[*offset + 2];
+            val = (val << 8) | ps[*offset + 1];
             (*offset) += 3;
             break;
 
         case 'I':
             if (((*offset) + 5) > maxlen) return PM_RET_ERR;
-            /* Casting is important for sign-extension */
-            val = ps[*offset + 1] | (ps[*offset + 2] << 8)
-                  | (ps[*offset + 3] << 16) | (int32_t)(ps[*offset + 4] << 24);
+            val = ps[*offset + 4];
+            val = (val << 8) | ps[*offset + 3];
+            val = (val << 8) | ps[*offset + 2];
+            val = (val << 8) | ps[*offset + 1];
             (*offset) += 5;
             break;
     }

@@ -140,6 +140,37 @@ string_newFromChar(uint8_t const c, pPmObj_t *r_pstring)
 }
 
 
+#ifdef HAVE_SLICE
+/* 
+ * This function does not fill in the string contents 
+ * and should only be called by other string functions
+ */
+static PmReturn_t
+string_newFromLength(uint16_t len, pPmObj_t *r_pstring)
+{
+    PmReturn_t retval;
+    pPmString_t pstr;
+    uint8_t *pchunk;
+
+    /* Get space for String obj */
+    retval = heap_getChunk(sizeof(PmString_t) + len, &pchunk);
+    PM_RETURN_IF_ERROR(retval);
+    pstr = (pPmString_t)pchunk;
+
+    /* Fill the string obj */
+    OBJ_SET_TYPE(pstr, OBJ_TYPE_STR);
+    pstr->length = len;
+
+#if USE_STRING_CACHE
+    pstr->next = C_NULL;
+#endif
+
+    *r_pstring = (pPmObj_t)pstr;
+    return retval;
+}
+#endif /* HAVE_SLICE */
+
+
 int8_t
 string_compare(pPmString_t pstr1, pPmString_t pstr2)
 {
@@ -597,3 +628,105 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
     return PM_RET_OK;
 }
 #endif /* HAVE_STRING_FORMAT */
+
+
+#ifdef HAVE_SLICE
+PmReturn_t 
+string_slice(pPmObj_t pstring, pPmObj_t pstart, pPmObj_t pend, pPmObj_t pstride, pPmObj_t *r_pslice)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    int32_t start;
+    int32_t end;
+    int32_t stride;
+    uint16_t len;
+    pPmObj_t pslice;
+    int16_t i;
+    int16_t j;
+
+    len = ((pPmString_t)pstring)->length;
+
+    /* Handle the start index */
+    if (OBJ_GET_TYPE(pstart) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    start = ((pPmInt_t)pstart)->val;
+
+    if (start < 0)
+    {
+        start += len;
+
+        if (start < 0)
+        {
+            start = 0;
+        }
+    }
+    else if (start > len)
+    {
+        start = len;
+    }
+
+    /* Handle the end index */
+    if (pend == PM_NONE)
+    {
+        end = len;
+    }
+    else
+    {
+        if (OBJ_GET_TYPE(pend) != OBJ_TYPE_INT)
+        {
+            PM_RAISE(retval, PM_RET_EX_TYPE);
+            return retval;
+        }
+
+        end = ((pPmInt_t)pend)->val;
+    }
+
+    if (end < 0)
+    {
+        end += len;
+
+        if (end < 0)
+        {
+            end = 0;
+        }
+    }
+    else if (end > len)
+    {
+        end = len;
+    }
+
+    /* Handle the stride index */
+    if (OBJ_GET_TYPE(pstride) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+    stride = ((pPmInt_t)pstride)-> val;
+
+    /* New meaning for variable len */
+    if (end > start)
+    {
+        len = (end - start) / stride;
+    }
+    else
+    {
+        len = 0;
+    }
+    retval = string_newFromLength(len, &pslice);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Copy characters to slice and append null terminator */
+    for (j = 0, i = start; i < end; i += stride)
+    {
+        ((pPmString_t)pslice)->val[j++] = ((pPmString_t)pstring)->val[i];
+    }
+    ((pPmString_t)pslice)->val[j++] = '\0';
+
+    *r_pslice = pslice;
+    return retval;
+}
+#endif /* HAVE_SLICE */

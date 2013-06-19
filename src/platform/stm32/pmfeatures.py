@@ -28,4 +28,5 @@ PM_FEATURES = {
     "HAVE_DEBUG_INFO": False,
     "HAVE_SNPRINTF_FORMAT": False,
     "HAVE_AUTOBOX": False,
+    "HAVE_SLICE": True,
 }

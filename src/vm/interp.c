@@ -525,6 +525,68 @@ interpret(const uint8_t returnOnNoThreads)
                 }
                 continue;
 
+#ifdef HAVE_SLICE
+            case SLICE_1:
+            case SLICE_2:
+            case SLICE_3:
+                {
+                    pPmObj_t pstart = PM_ZERO;
+                    pPmObj_t pend = PM_NONE;
+                    pPmObj_t pstride = PM_ONE;
+
+                    switch (bc)
+                    {
+                        case SLICE_1:
+                            /* Implements TOS = TOS1[TOS:] */
+                            pstart = TOS;
+                            pobj1 = TOS1;
+                            --PM_SP;
+                            break;
+
+                        case SLICE_2:
+                            /* Implements TOS = TOS1[:TOS] */
+                            pend = TOS;
+                            pobj1 = TOS1;
+                            --PM_SP;
+                            break;
+
+                        case SLICE_3:
+                            /* Implements TOS = TOS2[TOS1:TOS] */
+                            pend = TOS;
+                            pstart = TOS1;
+                            pobj1 = TOS2;
+                            PM_SP -= 2;
+                            break;
+                    }
+
+                    switch (OBJ_GET_TYPE(pobj1))
+                    {
+                        case OBJ_TYPE_LST:
+                            retval = list_slice(pobj1, pstart, pend, pstride, &pobj2);
+                            PM_BREAK_IF_ERROR(retval);
+                            TOS = pobj2;
+                            continue;
+
+                        case OBJ_TYPE_STR:
+                            retval = string_slice(pobj1, pstart, pend, pstride, &pobj2);
+                            PM_BREAK_IF_ERROR(retval);
+                            TOS = pobj2;
+                            continue;
+
+                        case OBJ_TYPE_TUP:
+                            retval = tuple_slice(pobj1, pstart, pend, pstride, &pobj2);
+                            PM_BREAK_IF_ERROR(retval);
+                            TOS = pobj2;
+                            continue;
+
+                        default:
+                            PM_RAISE(retval, PM_RET_EX_TYPE);
+                            break;
+                    }
+                    break;
+                }
+#endif /* HAVE_SLICE */
+
             case STORE_SUBSCR:
                 /* Implements TOS1[TOS] = TOS2 */
 

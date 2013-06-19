@@ -415,3 +415,104 @@ list_clear(pPmObj_t plist)
 
     return retval;
 }
+
+
+#ifdef HAVE_SLICE
+PmReturn_t 
+list_slice(pPmObj_t plist, pPmObj_t pstart, pPmObj_t pend, pPmObj_t pstride, pPmObj_t *r_pslice)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    int32_t start;
+    int32_t end;
+    int32_t stride;
+    uint16_t len;
+    pPmObj_t pslice;
+    int16_t i;
+    pPmObj_t pitem;
+    uint8_t objid;
+
+    len = ((pPmList_t)plist)->length;
+
+    /* Handle the start index */
+    if (OBJ_GET_TYPE(pstart) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    start = ((pPmInt_t)pstart)->val;
+
+    if (start < 0)
+    {
+        start += len;
+
+        if (start < 0)
+        {
+            start = 0;
+        }
+    }
+    else if (start > len)
+    {
+        start = len;
+    }
+
+    /* Handle the end index */
+    if (pend == PM_NONE)
+    {
+        end = len;
+    }
+    else
+    {
+        if (OBJ_GET_TYPE(pend) != OBJ_TYPE_INT)
+        {
+            PM_RAISE(retval, PM_RET_EX_TYPE);
+            return retval;
+        }
+
+        end = ((pPmInt_t)pend)->val;
+
+        if (end < 0)
+        {
+            end += len;
+
+            if (end < 0)
+            {
+                end = 0;
+            }
+        }
+        else if (end > len)
+        {
+            end = len;
+        }
+    }
+
+    /* Handle the stride */
+    if (OBJ_GET_TYPE(pstride) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    stride = ((pPmInt_t)pstride)-> val;
+
+    /* Create the sequence to hold the slice */
+    retval = list_new(&pslice);
+    PM_RETURN_IF_ERROR(retval);
+
+    /* Fill the slice */
+    for (i = start; i < end; i += stride)
+    {
+        retval = list_getItem(plist, i, &pitem);
+        PM_RETURN_IF_ERROR(retval);
+
+        heap_gcPushTempRoot(pslice, &objid);
+        retval = list_append(pslice, pitem);
+        heap_gcPopTempRoot(objid);
+        PM_RETURN_IF_ERROR(retval);
+    }
+
+    *r_pslice = pslice;
+    return retval;
+}
+#endif /* HAVE_SLICE */

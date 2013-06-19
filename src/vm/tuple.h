@@ -106,4 +106,19 @@ PmReturn_t tuple_getItem(pPmObj_t ptup, int16_t index, pPmObj_t *r_pobj);
 PmReturn_t tuple_print(pPmObj_t pobj);
 #endif /* HAVE_PRINT */
 
+#ifdef HAVE_SLICE
+/**
+ * Creates a new tuple containing the described slice of the given tuple
+ *
+ * @param   plist Ptr to tuple obj
+ * @param   pstart Ptr to int object of slice start index
+ * @param   pend Ptr to int object of slice end index
+ * @param   pstride Ptr to int object of slice stride value
+ * @param   r_pslice Reference of ptr to object containing resulting slice object
+ * @return  Return status
+ */
+PmReturn_t tuple_slice(pPmObj_t ptuple, pPmObj_t pstart, pPmObj_t pend,
+                       pPmObj_t pstride, pPmObj_t *r_pslice);
+#endif /* HAVE_SLICE */
+
 #endif /* __TUPLE_H__ */

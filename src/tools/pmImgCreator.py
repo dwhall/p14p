@@ -145,7 +145,6 @@ CO_IMG_FIXEDPART_SIZE = 7
 
 # PyMite's unimplemented bytecodes (from Python 2.0 through 2.5)
 UNIMPLEMENTED_BCODES = [
-    "SLICE+1", "SLICE+2", "SLICE+3",
     "STORE_SLICE+0", "STORE_SLICE+1", "STORE_SLICE+2", "STORE_SLICE+3",
     "DELETE_SLICE+0", "DELETE_SLICE+1", "DELETE_SLICE+2", "DELETE_SLICE+3",
     "PRINT_ITEM_TO", "PRINT_NEWLINE_TO",
@@ -238,6 +237,13 @@ class PmImgCreator:
                 "STORE_DEREF",
                 ])
 
+        # Issue #223: Add suppor for slice
+        if not PM_FEATURES["HAVE_SLICE"]:
+            UNIMPLEMENTED_BCODES.extend([
+                "SLICE_1",
+                "SLICE_2",
+                "SLICE_3",
+                ])
 
         self.formatFromExt = {".c": self.format_img_as_c,
                               ".bin": self.format_img_as_bin,

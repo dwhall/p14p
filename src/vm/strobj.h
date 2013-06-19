@@ -212,4 +212,19 @@ PmReturn_t string_printFormattedBytes(uint8_t *pb,
                                       uint16_t n);
 #endif /* HAVE_PRINT */
 
+#ifdef HAVE_SLICE
+/**
+ * Creates a new string containing the described slice of the given string
+ *
+ * @param   pstring Ptr to string obj
+ * @param   pstart Ptr to int object of slice start index
+ * @param   pend Ptr to int object of slice end index
+ * @param   pstride Ptr to int object of slice stride value
+ * @param   r_pslice Reference of ptr to object containing resulting slice object
+ * @return  Return status
+ */
+PmReturn_t string_slice(pPmObj_t pstring, pPmObj_t pstart, pPmObj_t pend, 
+                        pPmObj_t pstride, pPmObj_t *r_pslice);
+#endif /* HAVE_SLICE */
+
 #endif /* __STRING_H__ */

@@ -14,6 +14,7 @@
 
 #include "pm.h"
 #include "stdlib.h"
+#include "stdio.h"
 
 
 /* Size set to accommodate 64-bit platforms */
@@ -43,7 +44,7 @@ char * typical_tests[] = {
     "t245", "t256", "t259", "t281", "t284",
     "t290", "t291", "t329", "t347a","t349",
     "t370", "t374", "t376", "t377", "t378d",
-    "t384", "t408",
+    "t384", "t408", "t423",
     };
 uint16_t num_typical_tests = sizeof(typical_tests) / sizeof(int8_t *);
 

@@ -170,4 +170,17 @@ PmReturn_t list_print(pPmObj_t pobj);
  */
 PmReturn_t list_clear(pPmObj_t plist);
 
+/**
+ * Creates a new list containing the described slice of the given list
+ *
+ * @param 	plist Ptr to list obj
+ * @param	pstart Ptr to int object of slice start index
+ * @param 	pend Ptr to int object of slice end index
+ * @param 	pstride Ptr to int object of slice stride value
+ * @param   r_pslice Reference of ptr to object containing resulting slice object
+ * @return 	Return status
+ */
+PmReturn_t list_slice(pPmObj_t plist, pPmObj_t pstart, pPmObj_t pend,
+                      pPmObj_t pstride, pPmObj_t *r_pslice);
+
 #endif /* __LIST_H__ */

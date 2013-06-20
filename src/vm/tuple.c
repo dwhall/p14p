@@ -160,3 +160,105 @@ tuple_print(pPmObj_t ptup)
 
     return plat_putByte(')');
 }
+
+
+PmReturn_t
+tuple_slice(pPmObj_t ptuple, pPmObj_t pstart, pPmObj_t pend, pPmObj_t pstride, pPmObj_t *r_pslice)
+{
+    PmReturn_t retval = PM_RET_OK;
+
+    int32_t start;
+    int32_t end;
+    int32_t stride;
+    uint16_t len;
+    pPmObj_t pslice;
+    int16_t i;
+    int16_t j;
+    pPmObj_t pitem;
+
+    len = ((pPmTuple_t)ptuple)->length;
+
+    /* Handle the start index */
+    if (OBJ_GET_TYPE(pstart) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+
+    start = ((pPmInt_t)pstart)->val;
+
+    if (start < 0)
+    {
+        start += len;
+
+        if (start < 0)
+        {
+            start = 0;
+        }
+    }
+    else if (start > len)
+    {
+        start = len;
+    }
+
+    /* Handle the end index */
+    if (pend == PM_NONE)
+    {
+        end = len;
+    }
+    else
+    {
+        if (OBJ_GET_TYPE(pend) != OBJ_TYPE_INT)
+        {
+            PM_RAISE(retval, PM_RET_EX_TYPE);
+            return retval;
+        }
+
+        end = ((pPmInt_t)pend)->val;
+    }
+
+    if (end < 0)
+    {
+        end += len;
+
+        if (end < 0)
+        {
+            end = 0;
+        }
+    }
+    else if (end > len)
+    {
+        end = len;
+    }
+
+    /* Handle the stride index */
+    if (OBJ_GET_TYPE(pstride) != OBJ_TYPE_INT)
+    {
+        PM_RAISE(retval, PM_RET_EX_TYPE);
+        return retval;
+    }
+    stride = ((pPmInt_t)pstride)-> val;
+
+    /* Redefine meaning of variable len */
+    if (end > start)
+    {
+        len = (end - start) / stride;
+    }
+    else
+    {
+        len = 0;
+    }
+    retval = tuple_new(len, &pslice);
+    PM_RETURN_IF_ERROR(retval);
+
+    for (j = 0, i = start; i < end; i += stride)
+    {
+        retval = tuple_getItem(ptuple, i, &pitem);
+        PM_RETURN_IF_ERROR(retval);
+
+        ((pPmTuple_t)pslice)->val[j++] = pitem;
+    }
+
+    *r_pslice = pslice;
+    return retval;
+}

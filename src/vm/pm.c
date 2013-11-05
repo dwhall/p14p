@@ -174,6 +174,13 @@ pm_vmPeriodic(uint16_t usecsSinceLastCall)
     {
         usecResidual -= 1000;
         pm_timerMsTicks++;
+
+        /* Adjust if there is an overflow */
+        if (pm_timerMsTicks > 0x7fffffff)
+        {
+            pm_timerMsTicks -= 0x7fffffff;
+            pm_lastRescheduleTimestamp -= 0x7fffffff;
+        }
     }
 
     /* Check if enough time has passed for a scheduler run */

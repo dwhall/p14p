@@ -263,9 +263,19 @@ def time():
 # Waits in a busy loop for the given number of milliseconds
 #
 def wait(ms):
-    t = time() + ms
-    while time() < t:
-        pass
+    now = time()
+    t = now + ms
+
+    # Handle any overflow
+    if t < 0 :
+        t -= maxint
+        curr = time()
+        while ((curr >= now) and (curr <= maxint)) :
+            curr = time()
+            
+    else:
+        while time() < t:
+            pass
 
 
 # :mode=c:

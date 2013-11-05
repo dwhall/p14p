@@ -363,7 +363,9 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
     uint16_t strsize = 0;
     uint16_t strindex;
     uint8_t *fmtcstr;
+#ifdef HAVE_SNPRINTF_FORMAT
     uint8_t smallfmtcstr[SIZEOF_SMALLFMT];
+#endif
     uint8_t fmtdbuf[SIZEOF_FMTDBUF];
     uint8_t i;
     uint8_t j;
@@ -399,10 +401,14 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
         fmtretval = -1;
 
         /* Format one arg to get its length */
+#ifdef HAVE_SNPRINTF_FORMAT
         smallfmtcstr[0] = '%';
+#endif
         for(j = 1; (i < pstr->length) && (j < SIZEOF_SMALLFMT); i++)
         {
+#ifdef HAVE_SNPRINTF_FORMAT
             smallfmtcstr[j] = fmtcstr[i];
+#endif
             j++;
 
             if ((fmtcstr[i] == 'd')
@@ -414,8 +420,8 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
                     PM_RAISE(retval, PM_RET_EX_TYPE);
                     return retval;
                 }
-                smallfmtcstr[j] = '\0';
 #ifdef HAVE_SNPRINTF_FORMAT
+                smallfmtcstr[j] = '\0';
                 fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmInt_t)pobj)->val);
 #else
@@ -529,18 +535,22 @@ string_format(pPmString_t pstr, pPmObj_t parg, pPmObj_t *r_pstring)
         fmtretval = -1;
 
         /* Format one arg to get its length */
+#ifdef HAVE_SNPRINTF_FORMAT
         smallfmtcstr[0] = '%';
+#endif
         for(j = 1; (i < pstr->length) && (j < SIZEOF_SMALLFMT); i++)
         {
+#ifdef HAVE_SNPRINTF_FORMAT
             smallfmtcstr[j] = fmtcstr[i];
+#endif
             j++;
 
             if ((fmtcstr[i] == 'd')
                 || (fmtcstr[i] == 'x')
                 || (fmtcstr[i] == 'X'))
             {
-                smallfmtcstr[j] = '\0';
 #ifdef HAVE_SNPRINTF_FORMAT
+                smallfmtcstr[j] = '\0';
                 fmtretval = snprintf((char *)fmtdbuf, SIZEOF_FMTDBUF,
                     (char *)smallfmtcstr, ((pPmInt_t)pobj)->val);
 #else

@@ -272,10 +272,9 @@ def wait(ms):
         curr = time()
         while ((curr >= now) and (curr <= maxint)) :
             curr = time()
-            
-    else:
-        while time() < t:
-            pass
+
+    while time() < t:
+        pass
 
 
 # :mode=c:

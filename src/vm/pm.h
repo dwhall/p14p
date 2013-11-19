@@ -37,8 +37,12 @@ extern "C" {
 #define PM_RELEASE 8
 
 
-/** null for C code */
-#define C_NULL 0
+/** null for C++ and C code */
+#ifdef __cplusplus
+#define C_NULL (0)
+#else
+#define C_NULL ((void *)0)
+#endif
 
 /** false for C code */
 #define C_FALSE (uint8_t)0
